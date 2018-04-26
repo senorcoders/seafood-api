@@ -74,10 +74,7 @@ module.exports = {
       example: `
         role : {
           name: "seller",
-          company: {
-            name: "company name",
-            location: "company location"
-          }
+          company: "idCompany"
         }
       `
     }
