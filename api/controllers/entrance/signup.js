@@ -19,7 +19,7 @@ the account verification message.)`,
 
   inputs: {
 
-    emailAddress: {
+    email: {
       required: true,
       type: 'string',
       isEmail: true,
@@ -35,11 +35,24 @@ the account verification message.)`,
       description: 'The unencrypted password to use for the new account.'
     },
 
-    fullName:  {
+    firstName:  {
       required: true,
-      type: 'string',
-      example: 'Frida Kahlo de Rivera',
-      description: 'The user\'s full name.',
+      type: 'string'
+    },
+
+    lastName:  {
+      required: true,
+      type: 'string'
+    },
+
+    location:  {
+      required: true,
+      type: 'string'
+    },
+    
+    role: {
+      required: true,
+      type: 'json'
     }
 
   },
@@ -55,61 +68,44 @@ the account verification message.)`,
     },
 
     emailAlreadyInUse: {
-      statusCode: 409,
+      statusemail: 409,
       description: 'The provided email address is already in use.',
     },
+
+    notPermiss: {
+      responseType: 'badRequest',
+      description: '',
+      extendedDescription: 'You do not have permission to create this user'
+    }
 
   },
 
 
   fn: async function (inputs, exits) {
 
-    var newEmailAddress = inputs.emailAddress.toLowerCase();
+    if( inputs.role.name.toLowerCase() === "admin" ){
+      return exits.notPermiss();
+    }
+
+    var newEmailAddress = inputs.email.toLowerCase();
+
+    //Para generar el email aleatorio
+    var randomize = require('randomatic');
+    let email = randomize('aA0', 6);
 
     // Build up data for the new user record and save it to the database.
     // (Also use `fetch` to retrieve the new ID so that we can use it below.)
-    var newUserRecord = await User.create(Object.assign({
-      emailAddress: newEmailAddress,
+    var newUserRecord = await User.create({
+      email: newEmailAddress,
       password: await sails.helpers.passwords.hashPassword(inputs.password),
-      fullName: inputs.fullName,
-      tosAcceptedByIp: this.req.ip
-    }, sails.config.custom.verifyEmailAddresses? {
-      emailProofToken: await sails.helpers.strings.random('url-friendly'),
-      emailProofTokenExpiresAt: Date.now() + sails.config.custom.emailProofTokenTTL,
-      emailStatus: 'unconfirmed'
-    }:{}))
-    .intercept('E_UNIQUE', 'emailAlreadyInUse')
-    .intercept({name: 'UsageError'}, 'invalid')
-    .fetch();
+      firstName: inputs.firstName,
+      lastName: inputs.lastName,
+      role: inputs.role,
+      location: inputs.location,
+      verified: false,
+      email
+    })
 
-    // If billing feaures are enabled, save a new customer entry in the Stripe API.
-    // Then persist the Stripe customer id in the database.
-    if (sails.config.custom.enableBillingFeatures) {
-      let stripeCustomerId = await sails.helpers.stripe.saveBillingInfo.with({
-        emailAddress: newEmailAddress
-      });
-      await User.update(newUserRecord.id).set({
-        stripeCustomerId
-      });
-    }
-
-    // Store the user's new id in their session.
-    this.req.session.userId = newUserRecord.id;
-
-    if (sails.config.custom.verifyEmailAddresses) {
-      // Send "confirm account" email
-      await sails.helpers.sendTemplateEmail.with({
-        to: newEmailAddress,
-        subject: 'Please confirm your account',
-        template: 'email-verify-account',
-        templateData: {
-          fullName: inputs.fullName,
-          token: newUserRecord.emailProofToken
-        }
-      });
-    } else {
-      sails.log.info('Skipping new account email verification... (since `verifyEmailAddresses` is disabled)');
-    }
 
     // Since everything went ok, send our 200 response.
     return exits.success();

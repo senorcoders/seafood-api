@@ -40,7 +40,7 @@ module.exports = Object.assign({}, PRODUCTION_CONFIG, {
   sockets: Object.assign({}, PRODUCTION_CONFIG.sockets, {
 
     onlyAllowOrigins: [
-      'http://localhost:8187',
+      'http://localhost:7000',
       // 'https://example-staging.herokuapp.com',
       // 'http://example-staging.herokuapp.com',
       // 'https://staging.example.com',

@@ -16,7 +16,7 @@ password attempt.`,
 
   inputs: {
 
-    emailAddress: {
+    email: {
       description: 'The email to try in this attempt, e.g. "irl@example.com".',
       type: 'string',
       required: true
@@ -75,7 +75,7 @@ and exposed as \`req.me\`.)`
     // (note that we lowercase it to ensure the lookup is always case-insensitive,
     // regardless of which database we're using)
     var userRecord = await User.findOne({
-      emailAddress: inputs.emailAddress.toLowerCase(),
+      email: inputs.email.toLowerCase(),
     });
 
     // If there was no matching user, respond thru the "badCombo" exit.
