@@ -83,15 +83,11 @@ the account verification message.)`,
 
   fn: async function (inputs, exits) {
 
-    if( inputs.role.name.toLowerCase() === "admin" ){
-      return exits.notPermiss();
-    }
-
     var newEmailAddress = inputs.email.toLowerCase();
 
     //Para generar el email aleatorio
     var randomize = require('randomatic');
-    let email = randomize('aA0', 6);
+    let code = randomize('aA0', 6);
 
     // Build up data for the new user record and save it to the database.
     // (Also use `fetch` to retrieve the new ID so that we can use it below.)
@@ -103,7 +99,8 @@ the account verification message.)`,
       role: inputs.role,
       location: inputs.location,
       verified: false,
-      email
+      code
+
     })
 
 
