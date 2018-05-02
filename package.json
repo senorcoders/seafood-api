@@ -9,13 +9,15 @@
     "@sailshq/lodash": "^3.10.3",
     "@sailshq/socket.io-redis": "^5.2.0",
     "async": "2.0.1",
+    "express": "^3.0.6",
     "randomatic": "^3.0.0",
     "sails": "^1.0.1",
     "sails-hook-apianalytics": "^2.0.0",
     "sails-hook-organics": "^0.13.0",
     "sails-hook-orm": "^2.0.0-16",
     "sails-hook-sockets": "^1.4.0",
-    "sails-mongo": "^1.0.0"
+    "sails-mongo": "^1.0.0",
+    "sharp": "^0.20.2"
   },
   "devDependencies": {
     "@sailshq/eslint": "^4.19.3",
