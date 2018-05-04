@@ -42,6 +42,7 @@ requests over WebSockets instead of HTTP).`,
   exits: {
 
     success: {
+      responseType: 'json',
       description: 'The requesting user agent has been successfully logged in.',
       extendedDescription:
 `Under the covers, this stores the id of the logged-in user in the session
@@ -108,7 +109,7 @@ and exposed as \`req.me\`.)`
     this.req.session.userId = userRecord.id;
 
     // Send success response (this is where the session actually gets persisted)
-    return exits.success();
+    return exits.success(userRecord);
 
   }
 

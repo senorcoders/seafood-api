@@ -54,6 +54,9 @@ module.exports.routes = {
   //LAS IMAGENES
   'POST /api/images': 'FishController.imagesUpload',
 
+  //para buscar mariscos por tipos
+  'GET /api/fish-type/:name': 'FishTypeController.getXName',
+
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
