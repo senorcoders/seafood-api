@@ -1,12 +1,17 @@
-/**
- * FishTypeController
- *
- * @description :: Server-side actions for handling incoming requests.
- * @help        :: See https://sailsjs.com/docs/concepts/actions
- */
 
 module.exports = {
   
+    getXName: async function (req, res) {
+        try{
 
+            let fisher = await FishType.findOne({ name: req.params.name })
+            let fishers = await Fish.find({ type : fisher.id }).populate('type')
+
+            res.json(fishers);
+        }
+        catch(e){
+            res.serverError(e);
+        }
+    }
 };
 
