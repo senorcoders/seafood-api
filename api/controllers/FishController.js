@@ -80,6 +80,16 @@ module.exports = {
 
     res.json([m250x200, m450x350, m700x600, original]);
 
+    },
+
+    getAllPagination: async function(req, res){
+        try{
+            let productos = await Fish.find().populate("type").paginate({page: req.params.page, limit: req.params.limit});
+            res.json(productos);
+        }
+        catch(e){
+            res.serverError(e);
+        }
     }
 
 };

@@ -40,7 +40,8 @@ module.exports = {
       example: `
         price: {
           type: "$",
-          value: 3
+          value: 3,
+          description: $2 for pack
         }
       `
     }

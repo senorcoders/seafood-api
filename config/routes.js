@@ -57,6 +57,9 @@ module.exports.routes = {
   //para buscar mariscos por tipos
   'GET /api/fish-type/:name': 'FishTypeController.getXName',
 
+  //Para obtener los productos
+  'GET /api/fish/:page/:limit': 'FishController.getAllPagination',
+
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
