@@ -48,8 +48,8 @@ module.exports.datastores = {
     *    (See https://sailsjs.com/config/datastores for help.)                 *
     *                                                                          *
     ***************************************************************************/
-    adapter: 'sails-mongo',
-    url: 'mongodb://kharrron:holahola!@ds243085.mlab.com:43085/seafood',
+    adapter: require('sails-mongo'),
+      url: 'mongodb://kharron:dxW35Tre23R@localhost:27017/seafood',
 
   },
 
