@@ -63,6 +63,9 @@ module.exports.routes = {
   //Para obtener los productos por medio de where
   'GET /api/fish/:where': "FishController.customWhere",
 
+  //Para obtener por multiple id
+  'GET /api/fish-ids/:ids': 'FishController.getXMultipleID',
+
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
