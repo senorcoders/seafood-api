@@ -100,7 +100,6 @@ the account verification message.)`,
       location: inputs.location,
       verified: false,
       code
-
     })
 
 
