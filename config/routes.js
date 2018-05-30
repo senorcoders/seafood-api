@@ -60,6 +60,9 @@ module.exports.routes = {
   //Para obtener los productos
   'GET /api/fish/:page/:limit': 'FishController.getAllPagination',
 
+  //Para obtener los productos por medio de where
+  'GET /api/fish/:where': "FishController.customWhere",
+
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗

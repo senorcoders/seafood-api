@@ -90,6 +90,29 @@ module.exports = {
         catch(e){
             res.serverError(e);
         }
+    },
+
+    customWhere : async function(req, res){
+        console.log(req.params.where);
+        try{
+            let where=false;
+            try{
+                if( req.params.hasOwnProperty("where") )
+                    where = JSON.parse(req.params.where); 
+            }
+            catch(e){
+                console.error(e);
+            }
+
+            if(where === false)
+                return res.json({message: "where not correct"});
+
+            let productos = await Fish.find(where).populate("type");
+            res.json(productos);
+        }
+        catch(e){
+            res.serverError(e);
+        }
     }
 
 };
