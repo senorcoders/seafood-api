@@ -55,7 +55,7 @@ module.exports.routes = {
   'POST /api/images': 'FishController.imagesUpload',
 
   //para buscar mariscos por tipos
-  'GET /api/fish-type/:name': 'FishTypeController.getXName',
+  'GET /api/fish-type/:name/:page/:limit': 'FishTypeController.getXNamePagination',
 
   //Para obtener los productos
   'GET /api/fish/:page/:limit': 'FishController.getAllPagination',
