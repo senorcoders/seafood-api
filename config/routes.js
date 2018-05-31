@@ -56,9 +56,12 @@ module.exports.routes = {
   
   //Para guardar multiples images de un producto
   'POST /api/fish/images/:id': 'ImageController.multipleImagesUpload',
-
+  
   //Para obtener images custom
-  'DELETE /images/:id/:namefile': 'ImageController.deleteImage',
+  'GET /api/images/:namefile/:id': 'ImageController.getImage',
+
+  //Para eliminar imagenes
+  'DELETE /api/images/:namefile/:id': 'ImageController.deleteImage',
 
   //para buscar mariscos por tipos
   'GET /api/fish-type/:name/:page/:limit': 'FishTypeController.getXNamePagination',
