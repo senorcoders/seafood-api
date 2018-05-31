@@ -12,6 +12,27 @@ module.exports = {
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
+    name: {
+      type: "string",
+      required: true
+    },
+
+    description: {
+      type: "string",
+      required: true
+    },
+
+    country: {
+      type: "string",
+      required: true
+    },
+
+    images: {
+      type: 'json', 
+      columnType: 'array',
+      required: false
+    },
+
     type: {
       model: 'fishtype',
       required: true

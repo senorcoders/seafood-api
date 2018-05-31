@@ -49,11 +49,11 @@ module.exports.http = {
     *                                                                          *
     ***************************************************************************/
 
-    bodyParser: require('express').bodyParser() //(function _configureBodyParser(){
-    //   var skipper = require('skipper');
-    //   var middlewareFn = skipper({ strict: true });
-    //   return middlewareFn;
-    // })(),
+    bodyParser: /*require('express').bodyParser()*/ (function _configureBodyParser(){
+       var skipper = require('skipper');
+       var middlewareFn = skipper({ strict: true,  });
+       return middlewareFn;
+     })(),
 
   },
 
