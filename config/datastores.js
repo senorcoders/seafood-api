@@ -49,7 +49,7 @@ module.exports.datastores = {
     *                                                                          *
     ***************************************************************************/
     adapter: require('sails-mongo'),
-      url: 'mongodb://kharron:dxW35Tre23R@localhost:27017/seafood',
+    url: 'mongodb://'+ require("./local").db.getLinkConection(),
 
   },
 
