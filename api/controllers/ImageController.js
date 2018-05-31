@@ -89,9 +89,9 @@ module.exports = {
         if (fish === undefined) {
             return res.serverError("id not found");
         }
-
+console.log(IMAGES);
         let dirname = IMAGES + "/"+ req.params.id;
-
+console.log(dirname);
         //create directory if not exists
         if (!fs.existsSync(dirname)) {
             fs.mkdirSync(dirname);
@@ -113,7 +113,7 @@ module.exports = {
                 if (file.type.includes("image/") && file["status"] === "finished") {
                     dirs.push({
                         filename: file.filename,
-                        src: "images"+ "/"+ req.params.id + "/" + file.fd.split("\\").pop()
+                        src: "images"+ "/"+ req.params.id + "/" + file.fd.split("/").pop()
                     });
                 }
             }
@@ -129,7 +129,7 @@ module.exports = {
             }
 
             let upda = await Fish.update({ id: fish.id }, { images: fish.images });
-            console.log(upda);
+            //console.log(upda);
 
             return res.json(fish.images);
         })
