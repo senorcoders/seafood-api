@@ -89,9 +89,15 @@ module.exports = {
         if (fish === undefined) {
             return res.serverError("id not found");
         }
+<<<<<<< HEAD
 console.log(IMAGES);
         let dirname = IMAGES + "/"+ req.params.id;
 console.log(dirname);
+=======
+
+        let dirname = IMAGES + "/" + req.params.id;
+
+>>>>>>> 01578006d9579775a18a3c953dc73962236152b4
         //create directory if not exists
         if (!fs.existsSync(dirname)) {
             fs.mkdirSync(dirname);
@@ -101,7 +107,7 @@ console.log(dirname);
         req.file("images").upload({
             dirname,
             maxBytes: 20000000,
-            saveAs: function(stream, cb){
+            saveAs: function (stream, cb) {
                 //console.log(stream);
                 cb(null, stream.filename);
             }
@@ -113,14 +119,18 @@ console.log(dirname);
                 if (file.type.includes("image/") && file["status"] === "finished") {
                     dirs.push({
                         filename: file.filename,
+<<<<<<< HEAD
                         src: "images"+ "/"+ req.params.id + "/" + file.fd.split("/").pop()
+=======
+                        src: "/api/images" + "/" + file.fd.split("\\").pop() + "/" + req.params.id
+>>>>>>> 01578006d9579775a18a3c953dc73962236152b4
                     });
                 }
             }
 
             if (fish.hasOwnProperty("images") && Object.prototype.toString.call(fish.images) === "[object Array]") {
-                for(let dir of dirs){
-                    if( fish.images.findIndex(function(i){ return i.src === dir.src }) === -1 ){
+                for (let dir of dirs) {
+                    if (fish.images.findIndex(function (i) { return i.src === dir.src }) === -1) {
                         fish.images.push(dir);
                     }
                 }
@@ -135,12 +145,59 @@ console.log(dirname);
         })
     },
 
+    getImage: async function (req, res) {
+
+        try {
+            let id = req.param("id"), namefile = req.param("namefile");
+
+            let directory = IMAGES + `${"\\" + id + "\\" + namefile}`;
+            console.log(directory);
+            if (!fs.existsSync(directory)) {
+                throw new Error("file not exist");
+            }
+
+            // read binary data
+            var data = fs.readFileSync(directory);
+
+            // convert binary data to base64 encoded string
+            let content = 'image/' + namefile.split(".").pop();
+            res.contentType(content);
+            res.send(data);
+
+        }
+        catch (e) {
+            console.log(e);
+            res.serverError(e);
+        }
+
+    },
+
     deleteImage: async function (req, res) {
         try {
             let id = req.param("id"), namefile = req.param("namefile");
 
             let directory = IMAGES + `${"/" + id + "/" + namefile}`;
             console.log(directory);
+
+            let fish = await Fish.findOne({ id });
+            if (fish === undefined) {
+                return res.serverError("id not found");
+            }
+            
+            if (fish.hasOwnProperty("images") && Object.prototype.toString.call(fish.images) === "[object Array]") {
+                let index = fish.images.findIndex(function (i) { return i.filename === namefile })
+                if (index !== -1) {
+                    if( fish.images.length === 1 ){
+                        fish.images = [];
+                    }else if( fish.images.length > 1 ){
+                        fish.images.splice(index, 1);
+                    }
+                }
+            }
+
+            let upda = await Fish.update({ id: fish.id }, { images: fish.images });
+            console.log(upda);
+
             if (!fs.existsSync(directory)) {
                 throw new Error("file not exist");
             }
