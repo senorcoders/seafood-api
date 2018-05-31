@@ -89,15 +89,9 @@ module.exports = {
         if (fish === undefined) {
             return res.serverError("id not found");
         }
-<<<<<<< HEAD
-console.log(IMAGES);
-        let dirname = IMAGES + "/"+ req.params.id;
-console.log(dirname);
-=======
 
         let dirname = IMAGES + "/" + req.params.id;
 
->>>>>>> 01578006d9579775a18a3c953dc73962236152b4
         //create directory if not exists
         if (!fs.existsSync(dirname)) {
             fs.mkdirSync(dirname);
@@ -119,11 +113,7 @@ console.log(dirname);
                 if (file.type.includes("image/") && file["status"] === "finished") {
                     dirs.push({
                         filename: file.filename,
-<<<<<<< HEAD
-                        src: "images"+ "/"+ req.params.id + "/" + file.fd.split("/").pop()
-=======
                         src: "/api/images" + "/" + file.fd.split("\\").pop() + "/" + req.params.id
->>>>>>> 01578006d9579775a18a3c953dc73962236152b4
                     });
                 }
             }
