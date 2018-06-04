@@ -15,7 +15,8 @@ module.exports = {
     name: {
       type: 'string',
       required: true,
-      maxLength: 130
+      maxLength: 130,
+      unique: true
     },
 
     description: {
