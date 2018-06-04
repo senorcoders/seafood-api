@@ -64,7 +64,8 @@ module.exports = {
       required: true,
       description: `
         0 para admin,
-        1 para usuarios normales
+        1 para usuarios vendedor
+        2 para comprador
       `,
       example: `
         role : {
