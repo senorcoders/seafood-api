@@ -59,12 +59,6 @@ module.exports = {
       example: '2$28a8eabna301089103-13948134nad'
     },
 
-    location: {
-      type: 'string',
-      required: true,
-      description: 'para la direccion de usuario'
-    },
-
     role: {
       type: 'number',
       required: true,
@@ -77,6 +71,14 @@ module.exports = {
           name: "seller",
           company: "idCompany"
         }
+      `
+    },
+
+    dataExtra: {
+      type: "json",
+      required: true,
+      description: `
+        se guardan datos extras que pertenecen a un vendedor, comprador y admin.
       `
     }
 
