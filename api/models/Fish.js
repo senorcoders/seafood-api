@@ -78,6 +78,12 @@ module.exports = {
       required: true
     },
 
+    shoppingCart: {
+      collection: "shoppingcart",
+      via: "fishs",
+      required: false
+    }
+
   },
 
 };

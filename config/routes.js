@@ -88,7 +88,13 @@ module.exports.routes = {
   //Para obtener por multiple id
   'GET /api/fish-ids/:ids': 'FishController.getXMultipleID',
 
+  //Para guardar images en las categorias (FishType)
+  'POST /api/fishtype/images/:id': "ImageController.multipleImagesCategory",
 
+  //Para obtener imagenes de las categorias
+  'GET /api/images/category/:namefile/:id': "ImageController.getImagesCategory",
+
+  
   /***************************
    * 
    * STORE 
@@ -112,6 +118,15 @@ module.exports.routes = {
 
   //Para Obtener galeria de imagenes para store
   'GET /api/store/images/:namefile/:id': 'ImageController.getImagesStore',
+
+  /***********
+   * 
+   * SHOPPING CART
+   * 
+   */
+
+   //Para agregar un producto al carrito de compra
+   'POST /api/shopping/add/:id': 'ShoppingCartController.addItem',
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗

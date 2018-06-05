@@ -448,6 +448,83 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
-    }
+    },
+
+    multipleImagesCategory: async function (req, res) {
+
+        id = req.param("id");
+        let type = await FishType.findOne({ id });
+        if (type === undefined) {
+            return res.serverError("id not found");
+        }
+
+        let dirname = path.join(IMAGES, "category", id);
+        
+        //create directory if not exists
+        if (!fs.existsSync(dirname)) {
+            fs.mkdirSync(dirname);
+        }
+
+        let images = [];
+        ////console.log(req);
+        req.file("images").upload({
+            dirname,
+            maxBytes: 20000000,
+            saveAs: function (stream, cb) {
+                //console.log(stream);
+                cb(null, stream.filename);
+            }
+        }, async function (err, uploadedFiles) {
+            if (err) return res.send(500, err);
+
+            let dirs = [];
+            for (let file of uploadedFiles) {
+                if (file.type.includes("image/") && file["status"] === "finished") {
+                    dirs.push({
+                        filename: file.filename,
+                        src: "/api/images/category/"+ file.filename+ "/" + req.params.id
+                    });
+                }
+            }
+
+            if (type.hasOwnProperty("images") && Object.prototype.toString.call(type.images) === "[object Array]") {
+                for (let dir of dirs) {
+                    if (type.images.findIndex(function (i) { return i.src === dir.src || i.filename === dir.filename }) === -1) {
+                        type.images.push(dir);
+                    }
+                }
+            } else {
+                type.images = dirs;
+            }
+
+            let upda = await FishType.update({ id }, { images: type.images });
+            ////console.log(upda);
+
+            return res.json(type.images);
+        })
+    },
+
+    getImagesCategory: async (req, res) => {
+        try{
+            let dirname = path.join(IMAGES, "category", req.param("id"), req.param("namefile"));
+            console.log(dirname);
+            if (!fs.existsSync(dirname)) {
+                throw new Error("file not exist");
+            }
+
+            // read binary data
+            var data = fs.readFileSync(dirname);
+
+            // convert binary data to base64 encoded string
+            let content = 'image/' + req.param("namefile").split(".").pop();
+            res.contentType(content);
+            res.send(data);
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
+
+    },
 }
 
