@@ -406,7 +406,7 @@ module.exports = {
     },
 
     getLogoAndHeroStore: async (req, res) => {
-        try{
+        try {
             let dirname = path.join(IMAGES, "store", req.param("id"), req.param("main"), req.param("namefile"));
             console.log(dirname);
             if (!fs.existsSync(dirname)) {
@@ -421,15 +421,15 @@ module.exports = {
             res.contentType(content);
             res.send(data);
         }
-        catch(e){
+        catch (e) {
             console.error(e);
             res.serverError(e);
         }
 
     },
 
-    getImagesStore: async (req, res)=>{
-        try{
+    getImagesStore: async (req, res) => {
+        try {
             let dirname = path.join(IMAGES, "store", req.param("id"), req.param("namefile"));
             console.log(dirname);
             if (!fs.existsSync(dirname)) {
@@ -444,7 +444,7 @@ module.exports = {
             res.contentType(content);
             res.send(data);
         }
-        catch(e){
+        catch (e) {
             console.error(e);
             res.serverError(e);
         }
@@ -459,7 +459,7 @@ module.exports = {
         }
 
         let dirname = path.join(IMAGES, "category", id);
-        
+
         //create directory if not exists
         if (!fs.existsSync(dirname)) {
             fs.mkdirSync(dirname);
@@ -482,7 +482,7 @@ module.exports = {
                 if (file.type.includes("image/") && file["status"] === "finished") {
                     dirs.push({
                         filename: file.filename,
-                        src: "/api/images/category/"+ file.filename+ "/" + req.params.id
+                        src: "/api/images/category/" + file.filename + "/" + req.params.id
                     });
                 }
             }
@@ -501,11 +501,11 @@ module.exports = {
             ////console.log(upda);
 
             return res.json(type.images);
-        })
+        });
     },
 
     getImagesCategory: async (req, res) => {
-        try{
+        try {
             let dirname = path.join(IMAGES, "category", req.param("id"), req.param("namefile"));
             console.log(dirname);
             if (!fs.existsSync(dirname)) {
@@ -520,11 +520,81 @@ module.exports = {
             res.contentType(content);
             res.send(data);
         }
-        catch(e){
+        catch (e) {
             console.error(e);
             res.serverError(e);
         }
 
     },
+
+    saveImageLicence: async (req, res) => {
+        id = req.param("id");
+        let user = await User.findOne({ id });
+        if (user === undefined) {
+            return res.serverError("id not found");
+        }
+
+        let dirname = path.join(IMAGES, "license", id);
+
+        //create directory if not exists
+        if (!fs.existsSync(dirname)) {
+            fs.mkdirSync(dirname);
+        }
+
+        ////console.log(req);
+        req.file("license").upload({
+            dirname,
+            maxBytes: 5000000,
+            saveAs: function (stream, cb) {
+                //console.log(stream);
+                cb(null, stream.filename);
+            }
+        }, async function (err, uploadedFiles) {
+            if (err) return res.send(500, err);
+
+            let dir = "";
+            for (let file of uploadedFiles) {
+                if (file.type.includes("image/") && file["status"] === "finished") {
+                    dir = "/api/images/license/" + file.filename + "/" + id;
+                }
+            }
+
+            if (user.hasOwnProperty("dataExtra") && Object.prototype.toString.call(user.dataExtra) === "[object Object]") {
+                user.dataExtra.uploadTradeLicense = dir;
+            } else {
+                user.dataExtra = {
+                    uploadTradeLicense: dir
+                };
+            }
+
+            let upda = await User.update({ id }, { dataExtra: user.dataExtra }).fetch();
+            ////console.log(upda);
+
+            return res.json(upda);
+        });
+    },
+
+    getImagesLicense: async (req, res) => {
+        try {
+            let dirname = path.join(IMAGES, "license", req.param("id"), req.param("namefile"));
+            console.log(dirname);
+            if (!fs.existsSync(dirname)) {
+                throw new Error("file not exist");
+            }
+
+            // read binary data
+            var data = fs.readFileSync(dirname);
+
+            // convert binary data to base64 encoded string
+            let content = 'image/' + req.param("namefile").split(".").pop();
+            res.contentType(content);
+            res.send(data);
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+
+    }
 }
 

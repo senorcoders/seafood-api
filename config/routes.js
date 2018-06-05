@@ -56,6 +56,14 @@ module.exports.routes = {
    * IMAGES
    * 
    */
+
+  //para subir license de usuario
+  'POST /api/user/license/:id': 'ImageController.saveImageLicence',
+
+  //get image license
+  'GET /api/images/license/:namefile/:id': 'ImageController.getImagesLicense',
+
+  //subir multiples images for a fish
   'POST /api/images': 'ImageController.imagesUpload',
   
   //Para guardar multiples images de un producto
