@@ -6,7 +6,22 @@ module.exports = {
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
+    quantity: {
+      type: "json",
+      required: true
+    },
 
+    price: {
+      type: 'json',
+      required: true,
+      example: `
+        price: {
+          type: "$",
+          value: 3,
+          description: $2 for pack
+        }
+        `
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
@@ -16,14 +31,14 @@ module.exports = {
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-    buyer:{
-      model: "user",
+    fish: {
+      model: "fish",
       required: true
     },
-    items: {
-      collection: "itemshopping",
-      via: "shoppingCart",
-      required: false
+
+    shoppingCart: {
+      model: "shoppingcart",
+      required: true
     }
   },
 

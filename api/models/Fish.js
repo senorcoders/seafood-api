@@ -79,8 +79,8 @@ module.exports = {
     },
 
     shoppingCart: {
-      collection: "shoppingcart",
-      via: "fishs",
+      collection: "itemshopping",
+      via: "fish",
       required: false
     }
 
