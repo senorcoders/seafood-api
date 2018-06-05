@@ -45,9 +45,9 @@ the account verification message.)`,
       type: 'string'
     },
 
-    location:  {
+    dataExtra:  {
       required: true,
-      type: 'string'
+      type: 'json'
     },
     
     role: {
@@ -97,7 +97,7 @@ the account verification message.)`,
       firstName: inputs.firstName,
       lastName: inputs.lastName,
       role: inputs.role,
-      location: inputs.location,
+      dataExtra: inputs.dataExtra,
       verified: false,
       code
     })

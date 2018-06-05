@@ -59,23 +59,26 @@ module.exports = {
       example: '2$28a8eabna301089103-13948134nad'
     },
 
-    location: {
-      type: 'string',
-      required: true,
-      description: 'para la direccion de usuario'
-    },
-
     role: {
-      type: 'json',
+      type: 'number',
       required: true,
-      description: `el name del role que puede ser Buller, Seller, Admin, con el campo
-                    company como json para guardar a la compaía que pertence si es
-                    un Seller`,
+      description: `
+        0 para admin,
+        1 para usuarios normales
+      `,
       example: `
         role : {
           name: "seller",
           company: "idCompany"
         }
+      `
+    },
+
+    dataExtra: {
+      type: "json",
+      required: true,
+      description: `
+        se guardan datos extras que pertenecen a un vendedor, comprador y admin.
       `
     }
 
