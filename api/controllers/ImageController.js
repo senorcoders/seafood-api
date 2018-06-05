@@ -1,7 +1,7 @@
 const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
-const IMAGES = path.resolve(__dirname, '../../assets/images/');
+const IMAGES = path.resolve(__dirname, '../../images/');
 
 const writeImage = async function (nameFile, directory, image) {
     return new Promise(function (resolve, reject) {
@@ -98,12 +98,12 @@ module.exports = {
         }
 
         let images = [], i = 0;
-        console.log(req);
+        ////console.log(req);
         req.file("images").upload({
             dirname,
             maxBytes: 20000000,
             saveAs: function (stream, cb) {
-                console.log(stream);
+                //console.log(stream);
                 cb(null, stream.filename);
             }
         }, async function (err, uploadedFiles) {
@@ -121,7 +121,7 @@ module.exports = {
 
             if (fish.hasOwnProperty("images") && Object.prototype.toString.call(fish.images) === "[object Array]") {
                 for (let dir of dirs) {
-                    if (fish.images.findIndex(function (i) { return i.src === dir.src }) === -1) {
+                    if (fish.images.findIndex(function (i) { return i.src === dir.src || i.filename === dir.filename }) === -1) {
                         fish.images.push(dir);
                     }
                 }
@@ -130,7 +130,7 @@ module.exports = {
             }
 
             let upda = await Fish.update({ id: fish.id }, { images: fish.images });
-            //console.log(upda);
+            ////console.log(upda);
 
             return res.json(fish.images);
         })
@@ -142,7 +142,7 @@ module.exports = {
             let id = req.param("id"), namefile = req.param("namefile");
 
             let directory = IMAGES + `${"\\" + id + "\\" + namefile}`;
-            console.log(directory);
+            //console.log(directory);
             if (!fs.existsSync(directory)) {
                 throw new Error("file not exist");
             }
@@ -157,7 +157,7 @@ module.exports = {
 
         }
         catch (e) {
-            console.log(e);
+            //console.log(e);
             res.serverError(e);
         }
 
@@ -168,7 +168,7 @@ module.exports = {
             let id = req.param("id"), namefile = req.param("namefile");
 
             let directory = IMAGES + `${"/" + id + "/" + namefile}`;
-            console.log(directory);
+            //console.log(directory);
 
             let fish = await Fish.findOne({ id });
             if (fish === undefined) {
@@ -187,7 +187,7 @@ module.exports = {
             }
 
             let upda = await Fish.update({ id: fish.id }, { images: fish.images });
-            console.log(upda);
+            //console.log(upda);
 
             if (!fs.existsSync(directory)) {
                 throw new Error("file not exist");
@@ -200,7 +200,7 @@ module.exports = {
 
         }
         catch (e) {
-            console.log(e);
+            //console.log(e);
             res.serverError(e);
         }
     },
@@ -216,9 +216,14 @@ module.exports = {
 
         return new Promise((resolve, reject) => {
             try {
-                let dirname = IMAGES + "store/" + idStore + "logo/";
+                let dirname = path.join(IMAGES, "/store/", idStore);
 
                 //create directory if not exists
+                if (!fs.existsSync(dirname)) {
+                    fs.mkdirSync(dirname);
+                }
+
+                dirname = path.join(dirname, "/logo");
                 if (!fs.existsSync(dirname)) {
                     fs.mkdirSync(dirname);
                 }
@@ -227,7 +232,7 @@ module.exports = {
                     dirname,
                     maxBytes: 5000000,
                     saveAs: function (stream, cb) {
-                        console.log(stream);
+                        //console.log(stream);
                         cb(null, stream.filename);
                     }
                 }, async function (err, uploadedFiles) {
@@ -274,9 +279,14 @@ module.exports = {
 
         return new Promise((resolve, reject) => {
             try {
-                let dirname = IMAGES + "store/" + idStore + "/hero/";
+                let dirname = path.join(IMAGES, "/store/", idStore);
 
                 //create directory if not exists
+                if (!fs.existsSync(dirname)) {
+                    fs.mkdirSync(dirname);
+                }
+
+                dirname = path.join(dirname, "/hero")
                 if (!fs.existsSync(dirname)) {
                     fs.mkdirSync(dirname);
                 }
@@ -285,7 +295,7 @@ module.exports = {
                     dirname,
                     maxBytes: 5000000,
                     saveAs: function (stream, cb) {
-                        console.log(stream);
+                        //console.log(stream);
                         cb(null, stream.filename);
                     }
                 }, async function (err, uploadedFiles) {
@@ -303,11 +313,11 @@ module.exports = {
                         }
                     }
 
-                    let upda = await Store.update({ id: idStore }, { heroImage: dir });
+                    let upda = await Store.update({ id: idStore }, { heroImage: dir }).fetch();
 
                     resolve();
                     if (res !== false) {
-                        res.json(e);
+                        res.json(upda);
                     }
                 })
             }
@@ -332,9 +342,10 @@ module.exports = {
 
         return new Promise(async (resolve, reject) => {
             try {
-                
-                let dirname = IMAGES + "store/" + idStore + "/hero/";
-                let store = await Fish.findOne({ id: idStore });
+
+                let dirname = path.join(IMAGES, "/store/", idStore);
+                let store = await Store.findOne({ id: idStore });
+                console.log(store);
 
                 //create directory if not exists
                 if (!fs.existsSync(dirname)) {
@@ -345,7 +356,7 @@ module.exports = {
                     dirname,
                     maxBytes: 5000000,
                     saveAs: function (stream, cb) {
-                        console.log(stream);
+                        ////console.log(stream);
                         cb(null, stream.filename);
                     }
                 }, async function (err, uploadedFiles) {
@@ -376,11 +387,11 @@ module.exports = {
                         store.galeryImages = dirs;
                     }
 
-                    let upda = await Store.update({ id: idStore }, { galeryImages: store.galeryImages });
+                    let upda = await Store.update({ id: idStore }, { galeryImages: store.galeryImages }).fetch();
 
                     resolve(store);
                     if (res !== false) {
-                        res.json(e);
+                        res.json(upda);
                     }
                 })
             }
@@ -392,7 +403,51 @@ module.exports = {
                 }
             }
         });
-    }
+    },
 
-};
+    getLogoAndHeroStore: async (req, res) => {
+        try{
+            let dirname = path.join(IMAGES, "store", req.param("id"), req.param("main"), req.param("namefile"));
+            console.log(dirname);
+            if (!fs.existsSync(dirname)) {
+                throw new Error("file not exist");
+            }
+
+            // read binary data
+            var data = fs.readFileSync(dirname);
+
+            // convert binary data to base64 encoded string
+            let content = 'image/' + req.param("namefile").split(".").pop();
+            res.contentType(content);
+            res.send(data);
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
+
+    },
+
+    getImagesStore: async (req, res)=>{
+        try{
+            let dirname = path.join(IMAGES, "store", req.param("id"), req.param("namefile"));
+            console.log(dirname);
+            if (!fs.existsSync(dirname)) {
+                throw new Error("file not exist");
+            }
+
+            // read binary data
+            var data = fs.readFileSync(dirname);
+
+            // convert binary data to base64 encoded string
+            let content = 'image/' + req.param("namefile").split(".").pop();
+            res.contentType(content);
+            res.send(data);
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
+    }
+}
 

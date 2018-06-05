@@ -87,6 +87,12 @@ module.exports.routes = {
   //Para actualizar o guardar hero image
   'POST /api/store/gallery/:id': "ImageController.saveImagesStore",
 
+  //Para obtener el logo y hero de store
+  'GET /api/store/images/:main/:namefile/:id': "ImageController.getLogoAndHeroStore",
+
+  //Para Obtener galeria de imagenes para store
+  'GET /api/store/images/:namefile/:id': 'ImageController.getImagesStore',
+
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝

@@ -4,11 +4,9 @@ module.exports = {
     try{
         let imageCtrl = require("./ImageController");
         let owner = req.param("owner"), description = req.param("description");
-        let store = await Store.create({owner, description});
+        let store = await Store.create({owner, description}).fetch();;console.log(store);
 
         await imageCtrl.saveLogoStore(req, store.id);
-        await imageCtrl.saveHeroStore(req, store.id);
-        store = await imageCtrl.saveImagesStore(req, store.id);
         res.json(store);
     }
     catch(e){

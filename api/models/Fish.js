@@ -30,7 +30,7 @@ module.exports = {
 
     minimumOrder:{
       type: "number",
-      required: true
+      required: false
     },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
@@ -70,7 +70,7 @@ module.exports = {
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
     store: {
       model: "store",
-      required: true
+      required: false
     },
 
     type: {
