@@ -75,6 +75,17 @@ module.exports.routes = {
   //Para obtener por multiple id
   'GET /api/fish-ids/:ids': 'FishController.getXMultipleID',
 
+  //Para guardar store con todo y sus imagenes
+  'POST /api/store': "StoreController.save",
+
+  //Para actualizar o guardar logo
+  'POST /api/store/logo/:id': "ImageController.saveLogoStore",
+
+  //Para actualizar o guardar hero image
+  'POST /api/store/hero/:id': "ImageController.saveHeroStore",
+
+  //Para actualizar o guardar hero image
+  'POST /api/store/gallery/:id': "ImageController.saveImagesStore",
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗

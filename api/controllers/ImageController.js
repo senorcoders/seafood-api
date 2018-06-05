@@ -98,11 +98,12 @@ module.exports = {
         }
 
         let images = [], i = 0;
+        console.log(req);
         req.file("images").upload({
             dirname,
             maxBytes: 20000000,
             saveAs: function (stream, cb) {
-                //console.log(stream);
+                console.log(stream);
                 cb(null, stream.filename);
             }
         }, async function (err, uploadedFiles) {
@@ -173,13 +174,13 @@ module.exports = {
             if (fish === undefined) {
                 return res.serverError("id not found");
             }
-            
+
             if (fish.hasOwnProperty("images") && Object.prototype.toString.call(fish.images) === "[object Array]") {
                 let index = fish.images.findIndex(function (i) { return i.filename === namefile })
                 if (index !== -1) {
-                    if( fish.images.length === 1 ){
+                    if (fish.images.length === 1) {
                         fish.images = [];
-                    }else if( fish.images.length > 1 ){
+                    } else if (fish.images.length > 1) {
                         fish.images.splice(index, 1);
                     }
                 }
@@ -202,6 +203,195 @@ module.exports = {
             console.log(e);
             res.serverError(e);
         }
+    },
+
+    saveLogoStore: async (req, res) => {
+        let idStore = "";
+        if (Object.prototype.toString.call(res) === "[object String]") {
+            idStore = res;
+            res = false;
+        } else {
+            idStore = req.param("id");
+        }
+
+        return new Promise((resolve, reject) => {
+            try {
+                let dirname = IMAGES + "store/" + idStore + "logo/";
+
+                //create directory if not exists
+                if (!fs.existsSync(dirname)) {
+                    fs.mkdirSync(dirname);
+                }
+
+                req.file("logo").upload({
+                    dirname,
+                    maxBytes: 5000000,
+                    saveAs: function (stream, cb) {
+                        console.log(stream);
+                        cb(null, stream.filename);
+                    }
+                }, async function (err, uploadedFiles) {
+                    if (err) {
+                        reject(err);
+                        if (res !== false) {
+                            res.serverError(err);
+                        }
+                    }
+
+                    let dir = "";
+                    for (let file of uploadedFiles) {
+                        if (file.type.includes("image/") && file["status"] === "finished") {
+                            dir = "/api/store/images/logo/" + file.fd.split("\\").pop() + "/" + idStore
+                        }
+                    }
+
+                    let upda = await Store.update({ id: idStore }, { logo: dir });
+
+                    resolve();
+                    if (res !== false) {
+                        res.json(e);
+                    }
+                })
+            }
+            catch (e) {
+                console.error(e);
+                reject(e);
+                if (res !== false) {
+                    res.serverError(e);
+                }
+            }
+        });
+    },
+
+    saveHeroStore: async (req, res) => {
+        let idStore = "";
+        if (Object.prototype.toString.call(res) === "[object String]") {
+            idStore = res;
+            res = false;
+        } else {
+            idStore = req.param("id");
+        }
+
+        return new Promise((resolve, reject) => {
+            try {
+                let dirname = IMAGES + "store/" + idStore + "/hero/";
+
+                //create directory if not exists
+                if (!fs.existsSync(dirname)) {
+                    fs.mkdirSync(dirname);
+                }
+
+                req.file("hero").upload({
+                    dirname,
+                    maxBytes: 5000000,
+                    saveAs: function (stream, cb) {
+                        console.log(stream);
+                        cb(null, stream.filename);
+                    }
+                }, async function (err, uploadedFiles) {
+                    if (err) {
+                        reject(err);
+                        if (res !== false) {
+                            res.serverError(err);
+                        }
+                    }
+
+                    let dir = "";
+                    for (let file of uploadedFiles) {
+                        if (file.type.includes("image/") && file["status"] === "finished") {
+                            dir = "/api/store/images/hero/" + file.fd.split("\\").pop() + "/" + idStore;
+                        }
+                    }
+
+                    let upda = await Store.update({ id: idStore }, { heroImage: dir });
+
+                    resolve();
+                    if (res !== false) {
+                        res.json(e);
+                    }
+                })
+            }
+            catch (e) {
+                console.error(e);
+                reject(e);
+                if (res !== false) {
+                    res.serverError(e);
+                }
+            }
+        });
+    },
+
+    saveImagesStore: async (req, res) => {
+        let idStore = "";
+        if (Object.prototype.toString.call(res) === "[object String]") {
+            idStore = res;
+            res = false;
+        } else {
+            idStore = req.param("id");
+        }
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                
+                let dirname = IMAGES + "store/" + idStore + "/hero/";
+                let store = await Fish.findOne({ id: idStore });
+
+                //create directory if not exists
+                if (!fs.existsSync(dirname)) {
+                    fs.mkdirSync(dirname);
+                }
+
+                req.file("images").upload({
+                    dirname,
+                    maxBytes: 5000000,
+                    saveAs: function (stream, cb) {
+                        console.log(stream);
+                        cb(null, stream.filename);
+                    }
+                }, async function (err, uploadedFiles) {
+                    if (err) {
+                        reject(err);
+                        if (res !== false) {
+                            res.serverError(err);
+                        }
+                    }
+
+                    let dirs = [];
+                    for (let file of uploadedFiles) {
+                        if (file.type.includes("image/") && file["status"] === "finished") {
+                            dirs.push({
+                                filename: file.filename,
+                                src: "/api/store/images/" + file.fd.split("\\").pop() + "/" + req.params.id
+                            });
+                        }
+                    }
+
+                    if (store.hasOwnProperty("galeryImages") && Object.prototype.toString.call(store.galeryImages) === "[object Array]") {
+                        for (let dir of dirs) {
+                            if (store.galeryImages.findIndex(function (i) { return i.src === dir.src }) === -1) {
+                                store.galeryImages.push(dir);
+                            }
+                        }
+                    } else {
+                        store.galeryImages = dirs;
+                    }
+
+                    let upda = await Store.update({ id: idStore }, { galeryImages: store.galeryImages });
+
+                    resolve(store);
+                    if (res !== false) {
+                        res.json(e);
+                    }
+                })
+            }
+            catch (e) {
+                console.error(e);
+                reject(e);
+                if (res !== false) {
+                    res.serverError(e);
+                }
+            }
+        });
     }
 
 };

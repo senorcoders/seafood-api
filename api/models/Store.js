@@ -1,5 +1,4 @@
 
-
 module.exports = {
 
   attributes: {
@@ -7,9 +6,15 @@ module.exports = {
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
-    name: {
+
+    logo: {
       type: "string",
-      required: true
+      required: false
+    },
+
+    heroImage: {
+      type: "string",
+      required: false
     },
 
     description: {
@@ -17,65 +22,28 @@ module.exports = {
       required: true
     },
 
-    country: {
-      type: "string",
-      required: true
-    },
-
-    quality: {
-      type: 'string',
-      maxLength: 200,
-      required: true
-    },
-
-    minimumOrder:{
-      type: "number",
-      required: true
+    galeryImages:{
+      type: "json",
+      columnType: "array",
+      required: false
     },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
-    weight: {
-      type: 'json',
-      required: true,
-      example: `
-        weight: {
-          type: "pounds",
-          value: 2
-        }
-      `
-    },
 
-    price: {
-      type: 'json',
-      required: true,
-      example: `
-        price: {
-          type: "$",
-          value: 3,
-          description: $2 for pack
-        }
-      `
-    },
 
-    images: {
-      type: 'json', 
-      columnType: 'array',
-      required: false
-    },
-    
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-    store: {
-      model: "store",
+    owner: {
+      model: "user",
       required: true
     },
 
-    type: {
-      model: 'fishtype',
-      required: true
+    fish: {
+      collection: "fish", 
+      via: 'store'
     },
 
   },
