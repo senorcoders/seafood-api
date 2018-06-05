@@ -50,8 +50,12 @@ module.exports.routes = {
   'POST  /api/v1/entrance/update-password-and-login':    { action: 'entrance/update-password-and-login' },
   'POST  /api/v1/deliver-contact-form-message':          { action: 'deliver-contact-form-message' },
 
-  //API PARA 
-  //LAS IMAGENES
+
+  /*************
+   * 
+   * IMAGES
+   * 
+   */
   'POST /api/images': 'ImageController.imagesUpload',
   
   //Para guardar multiples images de un producto
@@ -63,6 +67,12 @@ module.exports.routes = {
   //Para eliminar imagenes
   'DELETE /api/images/:namefile/:id': 'ImageController.deleteImage',
 
+
+  /***********
+   * 
+   * FISH AND FISHTYPE
+   * 
+   */
   //para buscar mariscos por tipos
   'GET /api/fish-type/:name/:page/:limit': 'FishTypeController.getXNamePagination',
 
@@ -72,8 +82,18 @@ module.exports.routes = {
   //Para obtener los productos por medio de where
   'GET /api/fish/:where': "FishController.customWhere",
 
+  //Para obtener los productos por medio de where
+  'GET /api/fish/search/:name': "FishController.search",
+
   //Para obtener por multiple id
   'GET /api/fish-ids/:ids': 'FishController.getXMultipleID',
+
+
+  /***************************
+   * 
+   * STORE 
+   * 
+   */
 
   //Para guardar store con todo y sus imagenes
   'POST /api/store': "StoreController.save",

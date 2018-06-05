@@ -13,22 +13,49 @@ module.exports = {
     },
 
     customWhere: async function (req, res) {
-        console.log(req.params.where);
         try {
-            let where = false;
-            try {
-                if (req.params.hasOwnProperty("where"))
+
+            var db = Fish.getDatastore().manager;
+
+            // Now we can do anything we could do with a Mongo `db` instance:
+            var fish = db.collection(Fish.tableName);
+
+            if (req.params.hasOwnProperty("where"))
                     where = JSON.parse(req.params.where);
-            }
-            catch (e) {
-                console.error(e);
-            }
+            else
+                res.json({ message: "where not correct" });
 
-            if (where === false)
-                return res.json({ message: "where not correct" });
+            let productos = await fish.find(where);
 
-            let productos = await Fish.find(where).populate("type");
             res.json(productos);
+        }
+        catch (e) {
+            res.serverError(e);
+        }
+    },
+
+    search: async function (req, res) {
+        try {
+
+            var db = Fish.getDatastore().manager;
+
+            // Now we can do anything we could do with a Mongo `db` instance:
+            var fish = db.collection(Fish.tableName);
+            console.log(req.param("name"));
+            let productos = await new Promise((resolve, reject)=>{
+                fish.find({name:{'$regex' : '^.*' + req.param("name")+ '.*$', '$options' : 'i'} })
+                .toArray((err, arr)=>{
+                    if(err){ return reject(err); }
+                    resolve(arr);
+                });
+            });
+
+            console.log(productos);
+            res.json(productos);
+
+            /*let productos = await Fish.find({name: {contains: req.param("name") } }).populate("type");
+            
+            res.json(productos);*/
         }
         catch (e) {
             res.serverError(e);
