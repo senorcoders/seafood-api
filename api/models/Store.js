@@ -1,9 +1,3 @@
-/**
- * FishType.js
- *
- * @description :: A model definition.  Represents a database table/collection/etc.
- * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
- */
 
 module.exports = {
 
@@ -12,17 +6,27 @@ module.exports = {
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
-    name: {
-      type: 'string',
-      required: true,
-      maxLength: 130,
-      unique: true
+
+    logo: {
+      type: "string",
+      required: false
+    },
+
+    heroImage: {
+      type: "string",
+      required: false
     },
 
     description: {
-      type: 'string',
+      type: "string",
       required: true
-    }
+    },
+
+    galeryImages:{
+      type: "json",
+      columnType: "array",
+      required: false
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
@@ -32,6 +36,15 @@ module.exports = {
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
+    owner: {
+      model: "user",
+      required: true
+    },
+
+    fish: {
+      collection: "fish", 
+      via: 'store'
+    },
 
   },
 

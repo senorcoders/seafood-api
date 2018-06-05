@@ -22,23 +22,20 @@ module.exports = {
       required: true
     },
 
-    images: {
-      type: 'json', 
-      columnType: 'array',
-      required: false
-    },
-
-    type: {
-      model: 'fishtype',
-      required: true
-    },
-
     quality: {
       type: 'string',
       maxLength: 200,
       required: true
     },
 
+    minimumOrder:{
+      type: "number",
+      required: false
+    },
+
+    //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
+    //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
+    //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
     weight: {
       type: 'json',
       required: true,
@@ -60,16 +57,26 @@ module.exports = {
           description: $2 for pack
         }
       `
-    }
+    },
 
-    //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
-    //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
-    //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
-
-
+    images: {
+      type: 'json', 
+      columnType: 'array',
+      required: false
+    },
+    
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
+    store: {
+      model: "store",
+      required: false
+    },
+
+    type: {
+      model: 'fishtype',
+      required: true
+    },
 
   },
 
