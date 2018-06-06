@@ -34,9 +34,11 @@ module.exports = {
 
             let code = random("0", 6);
             let fod = await ForgotPassword.findOne({valid: false, code });
-            while(fod === undefined){
+            console.log(fod);
+            while(fod !== undefined){
                 code = random("0", 6);
                 fod = await ForgotPassword.findOne({valid: false, code });
+                console.log(fod);
             }
 
             let forgot = {
@@ -51,6 +53,28 @@ module.exports = {
 
             res.ok();
 
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
+    changePassword: async (req, res)=>{
+        try{
+            let code = req.param("code");
+            let forg = await ForgotPassword.findOne({code, valid: false });
+            let moment = require("moment");
+            if( forg === undefined ){
+                return res.status(400).send("not found code");
+            }else if( moment(forg.createdAt).isAfter(moment()) ){
+                return res.status(400).send("code expired");
+            }
+
+            await ForgotPassword.update({id: forg.id}, {valid: true})
+            let password = await sails.helpers.passwords.hashPassword(req.param("password"));
+            let user = User.update({id: forg.user}, {password}).fetch();
+            res.ok();
         }
         catch(e){
             console.error(e);
