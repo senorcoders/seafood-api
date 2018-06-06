@@ -22,6 +22,11 @@ module.exports = {
       required: true
     },
 
+    location: {
+      type: "string",
+      required: false
+    },
+
     galeryImages:{
       type: "json",
       columnType: "array",
