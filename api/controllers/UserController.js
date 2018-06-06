@@ -73,7 +73,8 @@ module.exports = {
 
             await ForgotPassword.update({id: forg.id}, {valid: true})
             let password = await sails.helpers.passwords.hashPassword(req.param("password"));
-            let user = User.update({id: forg.user}, {password}).fetch();
+            let user = await User.update({id: forg.user}, {password}).fetch();
+            console.log(user);
             res.ok();
         }
         catch(e){
