@@ -41,9 +41,13 @@ module.exports = {
 
             // Now we can do anything we could do with a Mongo `db` instance:
             var fish = db.collection(Fish.tableName);
-            console.log(req.param("name"));
+            console.log(req.param("search"));
             let productos = await new Promise((resolve, reject)=>{
-                fish.find({name:{'$regex' : '^.*' + req.param("name")+ '.*$', '$options' : 'i'} })
+                fish.find({ $or : 
+                    [
+                        { name:{'$regex' : '^.*' + req.param("search")+ '.*$', '$options' : 'i'} },
+                        { description:{'$regex' : '^.*' + req.param("search")+ '.*$', '$options' : 'i'} }
+                    ]  })
                 .toArray((err, arr)=>{
                     if(err){ return reject(err); }
                     resolve(arr);
