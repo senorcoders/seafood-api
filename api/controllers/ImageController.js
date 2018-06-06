@@ -595,6 +595,49 @@ module.exports = {
             res.serverError(e);
         }
 
+    },
+
+    deleteImageCategory: async function (req, res) {
+        try {
+            let id = req.param("id"), namefile = req.param("namefile");
+
+            let directory = path.join(IMAGES, "category", id, namefile);
+            //console.log(directory);
+
+            let type = await FishType.findOne({ id });
+            if (type === undefined) {
+                return res.serverError("id not found");
+            }
+
+            //console.log(upda);
+
+            if (!fs.existsSync(directory)) {
+                throw new Error("file not exist");
+            }
+
+            if (type.hasOwnProperty("images") && Object.prototype.toString.call(type.images) === "[object Array]") {
+                let index = type.images.findIndex(function (i) { return i.filename === namefile })
+                if (index !== -1) {
+                    if (type.images.length === 1) {
+                        type.images = [];
+                    } else if (type.images.length > 1) {
+                        type.images.splice(index, 1);
+                    }
+                }
+            }
+
+            let upda = await FishType.update({ id: type.id }, { images: type.images }).fetch();
+
+            // read binary data
+            var data = fs.unlinkSync(directory);
+
+            res.json(upda);
+
+        }
+        catch (e) {
+            //console.log(e);
+            res.serverError(e);
+        }
     }
 }
 

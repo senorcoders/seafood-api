@@ -51,6 +51,18 @@ module.exports.routes = {
   'POST  /api/v1/deliver-contact-form-message':          { action: 'deliver-contact-form-message' },
 
 
+  /***************
+   * 
+   * USER 
+   * 
+   */
+
+  //Para verificar el codigo
+  'GET /verification/:id/:code': "UserController.verificationCode",
+
+  //Para forgot password
+  'POST /api/user/forgot': 'UserController.resetEmail',
+
   /*************
    * 
    * IMAGES
@@ -59,9 +71,6 @@ module.exports.routes = {
 
   //para subir license de usuario
   'POST /api/user/license/:id': 'ImageController.saveImageLicence',
-
-  //Para verificar el codigo
-  'GET /verification/:id/:code': "UserController.verificationCode",
 
   //get image license
   'GET /api/images/license/:namefile/:id': 'ImageController.getImagesLicense',
@@ -78,6 +87,7 @@ module.exports.routes = {
   //Para eliminar imagenes
   'DELETE /api/images/:namefile/:id': 'ImageController.deleteImage',
 
+  'DELETE /api/images/category/:namefile/:id/': 'ImageController.deleteImageCategory',
 
   /***********
    * 
