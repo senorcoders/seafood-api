@@ -143,8 +143,8 @@ exports.sendEmailForgotPassword = function (email, code) {
             from: '"Senorcoders" <milton@senorcoders.com>', // sender address
             to: email, // list of receivers
             subject: ' Change Password', // Subject line
-            text: 'Use the code for the mobile app or enter the link to change your password', // plain text body
-            html: '<b>Code: ' + code + '</b><br><b>Link: </b><a href="http://138.68.19.227:7000/reset-password/' + code + '">Reset Password</a>' // html body
+            text: 'Enter the link to change your password', // plain text body
+            html: '<b>Code: ' + code + '</b><br><b>Link: </b><a href="http://165.227.125.190:1337/forgot-password?code=' + code + '">Reset Password</a>' // html body
         };
 
         // send mail with defined transport object
