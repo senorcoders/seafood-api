@@ -107,7 +107,7 @@ module.exports.routes = {
   'GET /api/fish/:where': "FishController.customWhere",
 
   //Para obtener los productos por medio de where
-  'GET /api/fish/search/:name': "FishController.search",
+  'POST /api/fish/search/': "FishController.search",
 
   //Para obtener por multiple id
   'GET /api/fish-ids/:ids': 'FishController.getXMultipleID',
