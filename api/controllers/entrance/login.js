@@ -1,3 +1,25 @@
+const jwt = require('jsonwebtoken');
+const secret = require("./../../../config/local").security.key;
+
+const token = async (user) => {
+
+  return new Promise((resolve, reject) => {
+
+    jwt.sign(user, secret, { expiresIn: 31536000 }, function (err, token) {
+      if (err) {
+        console.log(err);
+        return reject(err);
+      }
+
+      user.token = token;
+
+      //console.log(user);
+      resolve(user);
+    });
+
+  })
+};
+
 module.exports = {
 
 
@@ -8,7 +30,7 @@ module.exports = {
 
 
   extendedDescription:
-`This action attempts to look up the user record in the database with the
+    `This action attempts to look up the user record in the database with the
 specified email address.  Then, if such a user exists, it uses
 bcrypt to compare the hashed password from the database with the provided
 password attempt.`,
@@ -31,7 +53,7 @@ password attempt.`,
     rememberMe: {
       description: 'Whether to extend the lifetime of the user\'s session.',
       extendedDescription:
-`Note that this is NOT SUPPORTED when using virtual requests (e.g. sending
+        `Note that this is NOT SUPPORTED when using virtual requests (e.g. sending
 requests over WebSockets instead of HTTP).`,
       type: 'boolean'
     }
@@ -45,7 +67,7 @@ requests over WebSockets instead of HTTP).`,
       responseType: 'json',
       description: 'The requesting user agent has been successfully logged in.',
       extendedDescription:
-`Under the covers, this stores the id of the logged-in user in the session
+        `Under the covers, this stores the id of the logged-in user in the session
 as the \`userId\` key.  The next time this user agent sends a request, assuming
 it includes a cookie (like a web browser), Sails will automatically make this
 user id available as req.session.userId in the corresponding action.  (Also note
@@ -80,13 +102,13 @@ and exposed as \`req.me\`.)`
     });
 
     // If there was no matching user, respond thru the "badCombo" exit.
-    if(!userRecord) {
+    if (!userRecord) {
       throw 'badCombo';
     }
 
     // If the password doesn't match, then also exit thru "badCombo".
     await sails.helpers.passwords.checkPassword(inputs.password, userRecord.password)
-    .intercept('incorrect', 'badCombo');
+      .intercept('incorrect', 'badCombo');
 
     // If "Remember Me" was enabled, then keep the session alive for
     // a longer amount of time.  (This causes an updated "Set Cookie"
@@ -96,8 +118,8 @@ and exposed as \`req.me\`.)`
     if (inputs.rememberMe) {
       if (this.req.isSocket) {
         sails.log.warn(
-          'Received `rememberMe: true` from a virtual request, but it was ignored\n'+
-          'because a browser\'s session cookie cannot be reset over sockets.\n'+
+          'Received `rememberMe: true` from a virtual request, but it was ignored\n' +
+          'because a browser\'s session cookie cannot be reset over sockets.\n' +
           'Please use a traditional HTTP request instead.'
         );
       } else {
@@ -107,6 +129,9 @@ and exposed as \`req.me\`.)`
 
     // Modify the active session instance.
     this.req.session.userId = userRecord.id;
+
+    //Agregar token security
+    userRecord = await token(userRecord);
 
     // Send success response (this is where the session actually gets persisted)
     return exits.success(userRecord);

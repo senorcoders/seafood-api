@@ -20,6 +20,10 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
+    },
+
+    resetEmail: async ()=>{
+        
     }
 
 };
