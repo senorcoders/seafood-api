@@ -130,6 +130,9 @@ module.exports.routes = {
   //Para Obtener galeria de imagenes para store
   'GET /api/store/images/:namefile/:id': 'ImageController.getImagesStore',
 
+  //Para obtener stroe for id
+  'GET /api/store/user/:id': 'StoreController.getXUser',
+   
   /***********
    * 
    * SHOPPING CART
