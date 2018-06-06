@@ -87,7 +87,7 @@ the account verification message.)`,
 
     //Para generar el email aleatorio
     var randomize = require('randomatic');
-    let code = randomize('aA0', 6);
+    let code = randomize('0', 4);
 
     // Build up data for the new user record and save it to the database.
     // (Also use `fetch` to retrieve the new ID so that we can use it below.)
@@ -100,8 +100,12 @@ the account verification message.)`,
       dataExtra: inputs.dataExtra,
       verified: false,
       code
-    })
+    }).fetch();
+    console.log(newUserRecord)
 
+    require("./../../../mailer").sendCode(newUserRecord.id, 
+      newUserRecord.email, newUserRecord.code);
+    
 
     // Since everything went ok, send our 200 response.
     return exits.success();

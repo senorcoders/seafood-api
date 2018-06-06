@@ -81,6 +81,16 @@ module.exports = {
       description: `
         se guardan datos extras que pertenecen a un vendedor, comprador y admin.
       `
+    },
+
+    code: {
+      type: "string",
+      required: false
+    },
+
+    verfication: {
+      type: "boolean",
+      required: false
     }
 
 
@@ -94,7 +104,6 @@ module.exports = {
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
     // n/a
 
-  },
-
+  }
 
 };

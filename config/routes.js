@@ -60,6 +60,9 @@ module.exports.routes = {
   //para subir license de usuario
   'POST /api/user/license/:id': 'ImageController.saveImageLicence',
 
+  //Para verificar el codigo
+  'GET /verification/:id/:code': "UserController.verificationCode",
+
   //get image license
   'GET /api/images/license/:namefile/:id': 'ImageController.getImagesLicense',
 
