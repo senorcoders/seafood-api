@@ -11,7 +11,7 @@ module.exports = {
                 
             if( us.code === code ){
                 us = await User.update({id}, { verification: true }).fetch();
-                res.redirect('http://165.227.125.190:1337/login');
+                res.redirect('http://165.227.125.190:1337/confirmation');
             }else{
                 res.json({message: "code invalid"});
             }
