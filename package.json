@@ -12,7 +12,6 @@
     "express": "^3.0.6",
     "jsonwebtoken": "^8.2.2",
     "moment": "^2.22.2",
-    "mongodb": "^3.0.10",
     "nodemailer": "^4.6.5",
     "randomatic": "^3.0.0",
     "sails": "^1.0.1",
