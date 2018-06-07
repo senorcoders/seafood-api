@@ -152,6 +152,9 @@ module.exports.routes = {
    * 
    */
 
+   //Para crear un carrito
+   'POST /shoppingcart': 'ShoppingCart.createCart',
+
    //Para agregar un producto al carrito de compra
    'POST /api/shopping/add/:id': 'ShoppingCartController.addItem',
 

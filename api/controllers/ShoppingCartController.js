@@ -1,5 +1,32 @@
 
 module.exports = {
+
+    createCart: async function(req, res){
+        try{
+            let buyer = req.param("buyer");
+            let carts = await ShoppingCart.find({ buyer, status: "pending" });
+            if( carts !== undefined && 
+                Object.prototype.toString.call(carts) === '[object Array]' &&
+                carts.length > 0
+            ){
+                let cart = await ShoppingCart.findOne({id: carts[0].id }).populate("items");
+                cart.items = await Promise.all(cart.items.map(async function (it) {
+                    it.fish = await Fish.findOne({ id: it.fish }).populate("type");
+                    return it;
+                }));
+                return res.json(cart)
+            }
+
+            let cart = await ShoppingCart.create({ buyer }).fetch();
+
+            res.json(cart);
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
     addItem: async (req, res) => {
         try {
             let id = req.param("id"),
