@@ -5,6 +5,14 @@ module.exports = {
     getAllPagination: async function (req, res) {
         try {
             let productos = await Fish.find().populate("type").populate("store").paginate({ page: req.params.page, limit: req.params.limit });
+            productos = await Promise.all(productos.map(async function(m){
+                if(m.store === null)
+                    return m;
+                m.store.owner = await User.findOne({id: m.store.owner});
+
+                return m;
+            }));
+            
             res.json(productos);
         }
         catch (e) {
@@ -55,7 +63,7 @@ module.exports = {
                         if(it.store === null)
                             return it;
                         
-                        it.store = await Store.findOne({id: it.store.toString() });
+                        it.store = await Store.findOne({id: it.store.toString() }).populate("owner");
                         return it;
                     }));
 
