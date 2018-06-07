@@ -143,7 +143,7 @@ module.exports.routes = {
   //Para Obtener galeria de imagenes para store
   'GET /api/store/images/:namefile/:id': 'ImageController.getImagesStore',
 
-  //Para obtener stroe for id
+  //Para obtener store for id
   'GET /api/store/user/:id': 'StoreController.getXUser',
    
   /***********
@@ -154,6 +154,9 @@ module.exports.routes = {
 
    //Para agregar un producto al carrito de compra
    'POST /api/shopping/add/:id': 'ShoppingCartController.addItem',
+
+   //Para obtener el store por id
+  'GET /shoppingcart/:id': 'ShoppingCartController.getPopulateXID',
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
