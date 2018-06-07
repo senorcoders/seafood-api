@@ -4,7 +4,7 @@ module.exports = {
 
     getAllPagination: async function (req, res) {
         try {
-            let productos = await Fish.find().populate("type").paginate({ page: req.params.page, limit: req.params.limit });
+            let productos = await Fish.find().populate("type").populate("store").paginate({ page: req.params.page, limit: req.params.limit });
             res.json(productos);
         }
         catch (e) {
