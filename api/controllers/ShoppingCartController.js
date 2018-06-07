@@ -11,11 +11,25 @@ module.exports = {
                 };
 
             let itemShopping = await ItemShopping.create(item);
+
+            //Para calcular el total del carrito
             let cart = await ShoppingCart.findOne({ id }).populate("items");
+            
+            let total=0;
+            for (var it of cart.items) {
+                total += Number(it.price.value*it.quantity.value);
+            }
+
+            total = Number(parseFloat(total).toFixed(2));
+
+            await ShoppingCart.update({ id: cart.id }, { total: total });
+
+            cart.total = total;
             cart.items = await Promise.all(cart.items.map(async (i) => {
                 i.fish = await Fish.findOne({ id: i.fish });
                 return i;
             }));
+
             res.json(cart);
         }
         catch (e) {
