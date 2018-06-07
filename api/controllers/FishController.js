@@ -48,13 +48,21 @@ module.exports = {
                         { name:{'$regex' : '^.*' + req.param("search")+ '.*$', '$options' : 'i'} },
                         { description:{'$regex' : '^.*' + req.param("search")+ '.*$', '$options' : 'i'} }
                     ]  })
-                .toArray((err, arr)=>{
+                .toArray(async (err, arr)=>{
                     if(err){ return reject(err); }
+
+                    arr = await Promise.all(arr.map(async function(it){
+                        if(it.store === null)
+                            return it;
+                        
+                        it.store = await Store.findOne({id: it.store.toString() });
+                        return it;
+                    }));
+
                     resolve(arr);
                 });
             });
 
-            console.log(productos);
             res.json(productos);
 
             /*let productos = await Fish.find({name: {contains: req.param("name") } }).populate("type");
