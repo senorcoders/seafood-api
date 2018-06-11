@@ -678,7 +678,7 @@ module.exports = {
                         return res.status(500).send("field image not found!");
                     }
 
-                    res.ok();
+                    res.json({msg: "success"});
                 })
 
         }
