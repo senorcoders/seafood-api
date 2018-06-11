@@ -119,12 +119,14 @@ module.exports.routes = {
   'POST /api/fishtype/images/:id': "ImageController.multipleImagesCategory",
 
   //Para establecer una imagen primary en el maricos
-  'POST /api/fish/image/:id': 'FishController.setPrimaryImage',
+  'POST /api/fish/image/:id': 'ImageController.setPrimaryImage',
 
   //Para obtener imagenes de las categorias
   'GET /api/images/category/:namefile/:id': "ImageController.getImagesCategory",
 
-  
+  //Para obtener imagen primaria de un producto
+  'GET /api/images/primary/:namefile/:id': 'ImageController.getImagePrimary',
+
   /***************************
    * 
    * STORE 

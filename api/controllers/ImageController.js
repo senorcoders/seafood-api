@@ -638,6 +638,77 @@ module.exports = {
             //console.log(e);
             res.serverError(e);
         }
-    }
+    },
+
+    setPrimaryImage: async function (req, res) {
+
+        try {
+            let src = req.param("src"), id = req.param("id");
+
+            let fish = await Fish.findOne({ id });
+            if (fish === undefined) {
+                return res.status(400).send("fish not found!");
+            }
+
+
+            let dirname = path.join(IMAGES, "primary", id);
+
+            //create directory if not exists
+            if (!fs.existsSync(dirname)) {
+                fs.mkdirSync(dirname);
+            }
+
+            req.file("image")
+                .upload({
+                    dirname,
+                    maxBytes: 5000000,
+                    saveAs: function (stream, cb) {
+                        //console.log(stream);
+                        cb(null, stream.filename);
+                    }
+                }, async (err, uploadedFiles) => {
+
+                    let valid = false;
+                    for (let file of uploadedFiles) {
+                        await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + file.filename + "/" + id });
+                        valid = true;
+                    }
+
+                    if (valid === false) {
+                        return res.status(500).send("field image not found!");
+                    }
+
+                    res.ok();
+                })
+
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
+    getImagePrimary: async (req, res) => {
+        try {
+            let dirname = path.join(IMAGES, "primary", req.param("id"), req.param("namefile"));
+            console.log(dirname);
+            if (!fs.existsSync(dirname)) {
+                throw new Error("file not exist");
+            }
+
+            // read binary data
+            var data = fs.readFileSync(dirname);
+
+            // convert binary data to base64 encoded string
+            let content = 'image/' + req.param("namefile").split(".").pop();
+            res.contentType(content);
+            res.send(data);
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+
+    },
 }
 
