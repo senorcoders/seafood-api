@@ -59,6 +59,11 @@ module.exports = {
       `
     },
 
+    imagePrimary: {
+      type: "json",
+      required: false
+    },
+
     images: {
       type: 'json', 
       columnType: 'array',
