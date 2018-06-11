@@ -63,8 +63,11 @@ module.exports.routes = {
   //Para forgot password
   'POST /api/user/forgot': 'UserController.resetEmail',
 
-  //Para actualizar la contraseña
+  //Para actualizar la contraseña despues de enviar el codigo al correo
   'PUT /api/user/password': 'UserController.changePassword',
+
+  //Para actualizar la contraseña usando la contraseña actual
+  'PUT /api/user/update-password': 'UserController.updatePassword',
 
   /*************
    * 
