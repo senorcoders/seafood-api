@@ -98,7 +98,7 @@ module.exports = {
                 password: await sails.helpers.passwords.hashPassword(newPassword)
             });
 
-            res.ok();
+            res.json({msg: "success"});
         }
         catch (e) {
             console.error(e);
