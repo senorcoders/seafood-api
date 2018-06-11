@@ -109,41 +109,6 @@ module.exports = {
         catch (e) {
             res.serverError(e);
         }
-    },
-
-    setPrimaryImage: async function(req, res){
-
-        try{
-            let src = req.param("src"), id = req.param("id");
-
-            let fish = await Fish.findOne({id});
-            if( fish === undefined ){
-                return res.status(400).send("fish not found!");
-            }
-
-            let valid = false;
-            if( fish.hasOwnProperty("images") ){
-                for(let image of fish.images){
-                    if( src === image.src){
-                        await Fish.update({id}, {imagePrimary: image });
-                        valid = true;
-                    }
-                }
-            }else{
-                return res.status(500).send("fish not contain images");
-            }
-
-            if( valid === false ){
-                return res.status(500).send("src not found!");
-            }
-
-            res.ok();
-            
-        }
-        catch(e){
-            console.error(e);
-            res.serverError(e);
-        }
     }
 
 };
