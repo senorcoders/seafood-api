@@ -196,7 +196,7 @@ module.exports = {
             // read binary data
             var data = fs.unlinkSync(directory);
 
-            res.ok();
+            res.json({msg: "success"})
 
         }
         catch (e) {
@@ -710,5 +710,50 @@ module.exports = {
         }
 
     },
+
+    updateImagePrimary: async (req, res)=>{
+        try{
+            let id = req.param("id"), filename = req.param("filename");
+
+            let fish = await Fish.findOne({ id });
+            if (fish === undefined) {
+                return res.status(400).send("fish not found!");
+            }
+
+            await Fish.update({id}, {imagePrimary: "" });
+
+            let dirname = path.join(IMAGES, "primary", id);
+
+            //create directory if not exists
+            if (!fs.existsSync(dirname)) {
+                fs.mkdirSync(dirname);
+            }
+
+            let directory = path.join(IMAGES, "primary", id, filename);
+            // read binary data
+            fs.unlinkSync(directory);
+
+            req.file("image")
+                .upload({
+                    dirname,
+                    maxBytes: 5000000,
+                    saveAs: function (stream, cb) {
+                        //console.log(stream);
+                        cb(null, stream.filename);
+                    }
+                }, async (err, uploadedFiles) => {
+
+                    for (let file of uploadedFiles) {
+                        await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + file.filename + "/" + id });
+                    }
+
+                    res.json({msg: "success"});
+                })
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
+    }
 }
 
