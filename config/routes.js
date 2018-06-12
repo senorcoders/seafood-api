@@ -127,6 +127,9 @@ module.exports.routes = {
   //Para obtener imagen primaria de un producto
   'GET /api/images/primary/:namefile/:id': 'ImageController.getImagePrimary',
 
+  //Para elimnar la imagen
+  'PUT /api/images/primary/:namefile/:id': 'ImageController.updateImagePrimary',
+
   /***************************
    * 
    * STORE 

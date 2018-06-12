@@ -713,7 +713,7 @@ module.exports = {
 
     updateImagePrimary: async (req, res)=>{
         try{
-            let id = req.param("id"), filename = req.param("filename");
+            let id = req.param("id"), namefile = req.param("namefile");
 
             let fish = await Fish.findOne({ id });
             if (fish === undefined) {
@@ -729,9 +729,12 @@ module.exports = {
                 fs.mkdirSync(dirname);
             }
 
-            let directory = path.join(IMAGES, "primary", id, filename);
+            let directory = path.join(IMAGES, "primary", id, namefile);
+
             // read binary data
-            fs.unlinkSync(directory);
+            if(fs.existsSync(directory)){
+                fs.unlinkSync(directory);
+            }
 
             req.file("image")
                 .upload({
@@ -742,6 +745,7 @@ module.exports = {
                         cb(null, stream.filename);
                     }
                 }, async (err, uploadedFiles) => {
+                    if(err){ return res.serverError(err);}
 
                     for (let file of uploadedFiles) {
                         await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + file.filename + "/" + id });
