@@ -100,6 +100,10 @@ module.exports.routes = {
    * FISH AND FISHTYPE
    * 
    */
+
+  //Para eleimnar un producto
+  'DELETE /api/fish/:id': 'FishController.delete', 
+   
   //para buscar mariscos por tipos
   'GET /api/fish-type/:name/:page/:limit': 'FishTypeController.getXNamePagination',
 
