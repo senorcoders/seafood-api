@@ -12,6 +12,11 @@ module.exports = {
       required: false
     },
 
+    name: {
+      type: "string",
+      required: false
+    },
+
     heroImage: {
       type: "string",
       required: false
