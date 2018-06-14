@@ -69,6 +69,9 @@ module.exports.routes = {
   //Para actualizar la contraseña usando la contraseña actual
   'PUT /api/user/update-password': 'UserController.updatePassword',
 
+  //Para enviar datos del formulario de contacto
+  "POST /api/contact-form/:id": "UserController.sendMessageContact",
+
   /*************
    * 
    * IMAGES
