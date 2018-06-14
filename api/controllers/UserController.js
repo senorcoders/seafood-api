@@ -104,6 +104,30 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
+    },
+
+    sendMessageContact: async (req, res)=>{
+        try{
+            let id = req.param("id"), name = req.param("name"),
+            email= req.param("email"), message = req.param("message");
+
+            let user = await User.findOne({id});
+            if( user === undefined ){
+                return res.status(400).send("not found");
+            }
+
+            await require("./../../mailer").sendDataFormContactToSeller(user.email, {
+                name,
+                email,
+                message
+            });
+
+            res.json({msg : "success"});
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
     }
 
 };

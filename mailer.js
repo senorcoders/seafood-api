@@ -161,3 +161,50 @@ exports.sendEmailForgotPassword = function (email, code) {
         });
     });
 }
+
+exports.sendDataFormContactToSeller = function(email, data){
+    'use strict'
+    console.log('sending data contact form to email ' + email);
+    
+    return new Promise((resolve, reject)=>{
+
+        for(let name of Object.keys(data)){
+            if( data[name] === undefined || data[name] === null ){
+                throw new Error(`Paramter is Required ${name}`)
+            }
+        }
+
+        nodemailer.createTestAccount((err) => {
+
+            if(err){ return reject(err) }
+            
+            // setup email data with unicode symbols
+            let mailOptions = {
+                from: '"Senorcoders" <milton@senorcoders.com>', // sender address
+                to: email, // list of receivers
+                subject: 'New Message of Contact in Seafood Souq', // Subject line
+                text: '', // plain text body
+                html: `
+                    <h2><b>Name:<b> ${data.name}</h2>
+                    <h4><b>Email:<b> ${data.email}</h4> <br>
+                    <p><b>Message:</b> ${data.message}</p>
+                `
+            };
+    
+            // send mail with defined transport object
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    return reject(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                // Preview only available when sending through an Ethereal account
+                console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+                
+                resolve();
+                // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@blurdybloop.com>
+                // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+            });
+        });
+
+    });
+}
