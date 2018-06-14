@@ -116,6 +116,9 @@ module.exports.routes = {
   //Para obtener los productos por medio de where
   'POST /api/fish/search/': "FishController.search",
 
+  //Para obtener sugerencias de los productos
+  "POST /api/fish/suggestions" : "FishController.getSuggestions",
+
   //Para obtener por multiple id
   'GET /api/fish-ids/:ids': 'FishController.getXMultipleID',
 
