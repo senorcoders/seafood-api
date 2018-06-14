@@ -1,12 +1,18 @@
-/**
- * FavoriteFishController
- *
- * @description :: Server-side actions for handling incoming requests.
- * @help        :: See https://sailsjs.com/docs/concepts/actions
- */
 
 module.exports = {
-  
+  getXUser: async (req, res)=>{
+    try{
+        let id = req.param("id");
+        let favorites = await FavoriteFish.find({user: id}).populate("fish");
+
+        res.json(favorites);
+
+    }
+    catch(e){
+        console.error(e);
+        res.serverError(e);
+    }
+  }
 
 };
 
