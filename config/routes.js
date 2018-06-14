@@ -179,6 +179,9 @@ module.exports.routes = {
    //Para obtener el store por id
   'GET /shoppingcart/:id': 'ShoppingCartController.getPopulateXID',
 
+  //Para update items for cart
+  'PUT /shoppingcart/items': 'ShoppingCartController.updateItems',
+
   /********
    * 
    * FAVORITE FISH

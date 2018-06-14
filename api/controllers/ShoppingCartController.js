@@ -1,19 +1,31 @@
 
 module.exports = {
 
-    createCart: async function(req, res){
-        try{
+    createCart: async function (req, res) {
+        try {
             let buyer = req.param("buyer");
             let carts = await ShoppingCart.find({ buyer, status: "pending" });
-            if( carts !== undefined && 
+            if (carts !== undefined &&
                 Object.prototype.toString.call(carts) === '[object Array]' &&
                 carts.length > 0
-            ){
-                let cart = await ShoppingCart.findOne({id: carts[0].id }).populate("items");
+            ) {
+                let cart = await ShoppingCart.findOne({ id: carts[0].id }).populate("items");
                 cart.items = await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish }).populate("type");
                     return it;
                 }));
+
+                let total = 0;
+                for (var it of cart.items) {
+                    total += Number(it.price.value * it.quantity.value);
+                }
+
+                total = Number(parseFloat(total).toFixed(2));
+                if (total !== cart.total) {
+                    await ShoppingCart.update({ id: cart.id }, { total: total });
+                    cart.total = total;
+                }
+
                 return res.json(cart)
             }
 
@@ -21,7 +33,7 @@ module.exports = {
 
             res.json(cart);
         }
-        catch(e){
+        catch (e) {
             console.error(e);
             res.serverError(e);
         }
@@ -41,10 +53,10 @@ module.exports = {
 
             //Para calcular el total del carrito
             let cart = await ShoppingCart.findOne({ id }).populate("items");
-            
-            let total=0;
+
+            let total = 0;
             for (var it of cart.items) {
-                total += Number(it.price.value*it.quantity.value);
+                total += Number(it.price.value * it.quantity.value);
             }
 
             total = Number(parseFloat(total).toFixed(2));
@@ -65,6 +77,29 @@ module.exports = {
         }
     },
 
+    updateItems: async (req, res) => {
+        try {
+
+            let items = req.param("items");
+            if (Object.prototype.toString.call(items) !== "[object Array]") {
+                return res.status(500).send("invalid parameter items");
+            }
+
+            for (let it of items) {
+                let id = it.id;
+                delete it.id;
+                await ItemShopping.update({ id }, it);
+            }
+
+            res.json({ msg: "success" });
+
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
     getPopulateXID: async function (req, res) {
         try {
 
@@ -78,6 +113,17 @@ module.exports = {
                 it.fish = await Fish.findOne({ id: it.fish }).populate("type");
                 return it;
             }));
+
+            let total = 0;
+            for (var it of cart.items) {
+                total += Number(it.price.value * it.quantity.value);
+            }
+
+            total = Number(parseFloat(total).toFixed(2));
+            if (total !== cart.total) {
+                await ShoppingCart.update({ id: cart.id }, { total: total });
+                cart.total = total;
+            }
 
             res.json(cart);
         }
