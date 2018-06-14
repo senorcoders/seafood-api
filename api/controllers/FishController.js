@@ -84,6 +84,48 @@ module.exports = {
             res.serverError(e);
         }
     },
+    
+    getSuggestions: async (req, res)=>{
+        try{
+
+            let name = req.param("name");
+
+            var db = Fish.getDatastore().manager;
+            var fish = db.collection(Fish.tableName);
+
+            console.log(req.param("search"));
+            let fishs = await new Promise((resolve, reject) => {
+                fish.find({ name: { '$regex': '^.*' + name + '.*$', '$options': 'i' } })
+                    .toArray(async (err, arr) => {
+                        if (err) { return reject(err); }
+
+                        resolve(arr);
+                    });
+            });
+
+            let countAndFish = [];
+            fishs.map(function(it){
+                let index = countAndFish.findIndex((t)=>{ if(t.name === it.name) return true; else return false; });
+                if(
+                    index === -1
+                ){
+                    it.count = 1;
+                    countAndFish.push(it);
+                }else{
+                    countAndFish[index].count += 1;
+                }
+
+                return null;
+            });
+
+            res.json(countAndFish);
+
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
+    },
 
     getXMultipleID: async function (req, res) {
         try {
