@@ -109,8 +109,9 @@ module.exports = {
                 if(
                     index === -1
                 ){
-                    it.count = 1;
-                    countAndFish.push(it);
+                    let f = {name : it.name, id: it._id};
+                    f.count = 1;
+                    countAndFish.push(f);
                 }else{
                     countAndFish[index].count += 1;
                 }
