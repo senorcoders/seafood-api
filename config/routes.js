@@ -179,6 +179,15 @@ module.exports.routes = {
    //Para obtener el store por id
   'GET /shoppingcart/:id': 'ShoppingCartController.getPopulateXID',
 
+  /********
+   * 
+   * FAVORITE FISH
+   * 
+   */
+
+   //Para obtener fish por user
+   'GET /api/favoritefish/:id': 'FavoriteFish.getXUSer',
+
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝
