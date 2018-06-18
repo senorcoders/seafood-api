@@ -30,6 +30,21 @@ module.exports = {
         console.error(e);
         res.serverError(e);
     }
+ },
+
+ getStoreSimplified: async (req, res)=>{
+    try{
+        let stores = await Store.find();
+        stores = stores.map(function(it){
+            return {id: it.id, name: it.name};
+        });
+
+        res.json(stores);
+    }
+    catch(e){
+        console.error(e);
+        res.serverError(e);
+    }
  }
 
 };
