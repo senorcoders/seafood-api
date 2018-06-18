@@ -145,6 +145,9 @@ module.exports.routes = {
    * STORE 
    * 
    */
+  
+  //Para obtener stores simplificados son toda su informaciòn
+  'GET /api/store': "StoreController.getStoreSimplified",
 
   //Para guardar store con todo y sus imagenes
   'POST /api/store': "StoreController.save",
