@@ -19,7 +19,7 @@ module.exports = {
         let favorites = await FavoriteFish.find({user, fish}).populate("fish");
 
         if( favorites.length > 0 ){
-          return res.json({msg: true})
+          return res.json({msg: true, id: favorites[0].id})
         }
 
         res.json({msg: false});
