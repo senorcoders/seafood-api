@@ -128,7 +128,18 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
-    }
+    },
 
+    getAdmins: async (req, res)=>{
+        try{
+
+            let users = await User.find({role: 0});
+            res.json(users);
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
+    }
 };
 

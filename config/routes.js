@@ -72,6 +72,9 @@ module.exports.routes = {
   //Para enviar datos del formulario de contacto
   "POST /api/contact-form/:id": "UserController.sendMessageContact",
 
+  //Para obtener admins
+  'GET /api/user/admins': 'UserController.getAdmins',
+
   /*************
    * 
    * IMAGES
