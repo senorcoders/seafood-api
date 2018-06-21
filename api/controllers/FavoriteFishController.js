@@ -15,7 +15,7 @@ module.exports = {
   },
   getXUserAndFish: async (req, res)=>{
     try{
-        let user = req.param("id"), fish = req.param("fish");
+        let user = req.param("user"), fish = req.param("fish");
         let favorites = await FavoriteFish.find({user, fish}).populate("fish");
 
         if( favorites.length > 0 ){
