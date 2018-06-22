@@ -2,6 +2,7 @@ const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 const IMAGES = path.resolve(__dirname, '../../images/');
+const rimraf = require("rimraf");
 
 const writeImage = async function (nameFile, directory, image) {
     return new Promise(function (resolve, reject) {
@@ -196,7 +197,7 @@ module.exports = {
             // read binary data
             var data = fs.unlinkSync(directory);
 
-            res.json({msg: "success"})
+            res.json({ msg: "success" })
 
         }
         catch (e) {
@@ -678,7 +679,7 @@ module.exports = {
                         return res.status(500).send("field image not found!");
                     }
 
-                    res.json({msg: "success"});
+                    res.json({ msg: "success" });
                 })
 
         }
@@ -711,8 +712,8 @@ module.exports = {
 
     },
 
-    updateImagePrimary: async (req, res)=>{
-        try{
+    updateImagePrimary: async (req, res) => {
+        try {
             let id = req.param("id"), namefile = req.param("namefile");
 
             let fish = await Fish.findOne({ id });
@@ -720,7 +721,7 @@ module.exports = {
                 return res.status(400).send("fish not found!");
             }
 
-            await Fish.update({id}, {imagePrimary: "" });
+            await Fish.update({ id }, { imagePrimary: "" });
 
             let dirname = path.join(IMAGES, "primary", id);
 
@@ -732,7 +733,7 @@ module.exports = {
             let directory = path.join(IMAGES, "primary", id, namefile);
 
             // read binary data
-            if(fs.existsSync(directory)){
+            if (fs.existsSync(directory)) {
                 fs.unlinkSync(directory);
             }
 
@@ -745,19 +746,42 @@ module.exports = {
                         cb(null, stream.filename);
                     }
                 }, async (err, uploadedFiles) => {
-                    if(err){ return res.serverError(err);}
+                    if (err) { return res.serverError(err); }
 
                     for (let file of uploadedFiles) {
                         await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + file.filename + "/" + id });
                     }
 
-                    res.json({msg: "success"});
+                    res.json({ msg: "success" });
                 })
         }
-        catch(e){
+        catch (e) {
             console.error(e);
             res.serverError(e);
         }
+    },
+
+    deleteImageXDirName: (dirs) => {
+        return new Promise((resolve, reject) => {
+
+            let dirname = IMAGES;
+            for (let arg of dirs) {
+                if (Object.prototype.toString.call(arg) === '[object String]') {
+                    dirname = path.join(dirname, arg);
+                }
+            }
+
+            console.log(dirname);
+            if (fs.existsSync(dirname) === true) {
+                console.log(true);
+                rimraf(dirname, (er)=>{
+                    if(er){ return reject(er); }
+
+                    resolve();
+                });
+            }
+
+        })
     }
 }
 
