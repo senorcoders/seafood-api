@@ -75,6 +75,9 @@ module.exports.routes = {
   //Para obtener admins
   'GET /api/user/admins': 'UserController.getAdmins',
 
+  //Para Eliminar el usuario
+  'DELETE /api/user/:id': 'UserController.deleteUser',
+
   /*************
    * 
    * IMAGES

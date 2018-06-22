@@ -140,6 +140,48 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
+    },
+
+    deleteUser: async (req, res)=>{
+        try{
+
+            let imageCtrl = require("./ImageController"), 
+            id = req.param("id"), 
+            user = await User.destroy({id}).fetch(); 
+
+            if( user.length === 0 ){
+                return res.status(400).send("not found");
+            } 
+
+            if( user[0].role === 1 ){
+
+                //Eliminamos los store
+                let stores = await Store.find({owner: id});
+
+                //Eliminamos las imagenes de los stores
+                //Y los productos y sus imagenes
+                for(let store of stores){
+                    if( store.hasOwnProperty("logo") && store.logo !== '' ){
+                        let dirs = store.logo.split("/");
+                        await imageCtrl.deleteImageXDirName(["store", dirs.pop()]);
+                    }
+                    
+                    let fishs = await Fish.destroy({store: store.id}).fetch();
+                    for(let fish of fishs){ console.log(fish);
+                        await imageCtrl.deleteImageXDirName([fish.id]);
+                        await imageCtrl.deleteImageXDirName(["primary", fish.id]);
+                    }
+                }
+
+                await Store.destroy({owner: id});
+            }
+
+            res.json({msg: "success"});
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
     }
 };
 
