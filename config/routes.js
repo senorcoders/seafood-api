@@ -194,6 +194,16 @@ module.exports.routes = {
   //Para update items for cart
   'PUT /shoppingcart/items': 'ShoppingCartController.updateItems',
 
+  /***********
+   * 
+   * ITEMS SHOPPING 
+   * 
+   */
+
+   //Para obtener items del carrito
+   'GET /api/items/:id': "ItemShoppingController.getItemsXCart",
+
+   
   /********
    * 
    * FAVORITE FISH
