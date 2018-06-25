@@ -16,6 +16,11 @@ module.exports = {
       defaultsTo: "pending"
     },
 
+    paidDateTime: {
+      type: "datetime",
+      required: false
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
