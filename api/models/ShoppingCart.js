@@ -17,7 +17,8 @@ module.exports = {
     },
 
     paidDateTime: {
-      type: "datetime",
+      type: "string",
+      columnType: "datetime",
       required: false
     },
 
