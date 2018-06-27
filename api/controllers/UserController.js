@@ -51,7 +51,7 @@ module.exports = {
 
             require("./../../mailer").sendEmailForgotPassword(email, forgot.code);
 
-            res.ok();
+            res.json({msg: "success"});
 
         }
         catch (e) {
@@ -75,7 +75,7 @@ module.exports = {
             let password = await sails.helpers.passwords.hashPassword(req.param("password"));
             let user = await User.update({ id: forg.user }, { password }).fetch();
             console.log(user);
-            res.ok();
+            res.json({msg: "success"});
         }
         catch (e) {
             console.error(e);
