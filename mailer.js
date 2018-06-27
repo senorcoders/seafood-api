@@ -144,7 +144,7 @@ exports.sendEmailForgotPassword = function (email, code) {
             to: email, // list of receivers
             subject: ' Change Password', // Subject line
             text: 'Enter the link to change your password', // plain text body
-            html: '<b>Code: ' + code + '</b><br><b>Link: </b><a href="https://seafood.senorcoders.com/recovery-password?code=' + code + '">Reset Password</a>' // html body
+            html: '<b>Code: ' + code + '</b><br><b>Link: </b><a href="https://seafood.senorcoders.com/recovery-password/' + code + '">Reset Password</a>' // html body
         };
 
         // send mail with defined transport object
