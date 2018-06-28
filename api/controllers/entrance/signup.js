@@ -99,12 +99,13 @@ the account verification message.)`,
       role: inputs.role,
       dataExtra: inputs.dataExtra,
       verified: false,
-      code
+      code,
+      status: ""
     }).fetch();
     console.log(newUserRecord)
 
-    require("./../../../mailer").sendCode(newUserRecord.id, 
-      newUserRecord.email, newUserRecord.code);
+    await require("./../../../mailer").newUserNotification(newUserRecord.firstName+ " "+ newUserRecord.lastName, 
+    'brian@senorcoders.com');
     
 
     // Since everything went ok, send our 200 response.

@@ -182,6 +182,43 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
-    }
+    },
+
+    updateStatus: async (req, res)=>{
+        try{
+
+            let id = req.param("id"), status = req.param("status");
+            let user = await User.findOne({id});
+            
+            if( user === undefined ){
+                return res.status(400).send("not found");
+            }
+            if( user.status === status ){
+                return res.json({msg: "ready"});
+            }
+
+            user = await User.update({id}, {status}).fetch();
+            if( status === "accepted" ){
+                if( user.length !== 0 )
+                    await require("./../../mailer").sendCode(user[0].id, user[0].email, user[0].code);
+            }
+            res.json({msg: "success"});
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
+    // updateUser: async (req, res)=>{
+    //     try{
+    //         await User.update({status: "aceptad"}, {status: "accepted"});
+    //         res.json({msg: "success"});
+    //     }
+    //     catch(e){
+    //         console.error(e);
+    //         res.serverError(e);
+    //     }
+    // }
 };
 

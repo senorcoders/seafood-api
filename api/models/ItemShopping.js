@@ -23,6 +23,11 @@ module.exports = {
         `
     },
 
+    shippingStatus: {
+      type: "string",
+      required: false
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝

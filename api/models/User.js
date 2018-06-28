@@ -91,8 +91,12 @@ module.exports = {
     verfication: {
       type: "boolean",
       required: false
-    }
+    },
 
+    status: {
+      type: "string",
+      required: false
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
