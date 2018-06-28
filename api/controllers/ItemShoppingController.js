@@ -61,6 +61,43 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
+    },
+
+    getItemsXStoreAndItemPaid: async function(req, res){
+        try{
+            let id = req.param("id");
+            let store = await Store.findOne({id});
+            if( store === undefined ){
+                return res.status(400).send("not found");
+            }
+
+            //cargamos los fish de la tienda
+            let fishs = await Fish.find({store: store.id});
+
+            //cargamos los items shopping con los datos de cart
+            let itemsShoppings = [];
+            for(let f of fishs){
+                let items = await ItemShopping.find({fish: f.id}).populate("fish").populate("shoppingCart");
+                itemsShoppings = itemsShoppings.concat(items);
+            }
+
+            //filtrmos los items que ya esten pagados
+            itemsShoppings = itemsShoppings.filter(function(it){
+                return it.shoppingCart.status === "paid" && it.shippingStatus === "paid";
+            });
+
+            //Agregamos los datos del comprador
+            itemsShoppings = await Promise.all(itemsShoppings.map(async function(it){
+                it.shoppingCart = await ShoppingCart.findOne({ id: it.shoppingCart.id}).populate("buyer");
+                return it;
+            }));
+
+            res.json(itemsShoppings);
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
     }
 };
 
