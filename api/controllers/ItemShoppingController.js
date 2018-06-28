@@ -40,7 +40,7 @@ module.exports = {
             //cargamos los items shopping con los datos de cart
             let itemsShoppings = [];
             for(let f of fishs){
-                let items = await ItemShopping.find({fish: f.id}).populate("shoppingCart");
+                let items = await ItemShopping.find({fish: f.id}).populate("fish").populate("shoppingCart");
                 itemsShoppings = itemsShoppings.concat(items);
             }
 

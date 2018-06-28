@@ -210,15 +210,15 @@ module.exports = {
         }
     },
 
-    // updateUser: async (req, res)=>{
-    //     try{
-    //         await User.update({status: "aceptad"}, {status: "accepted"});
-    //         res.json({msg: "success"});
-    //     }
-    //     catch(e){
-    //         console.error(e);
-    //         res.serverError(e);
-    //     }
-    // }
+    updateUser: async (req, res)=>{
+        try{
+            await ItemShopping.update({shippingStatus: ""}, {shippingStatus: "pending"});
+            res.json({msg: "success"});
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
+    }
 };
 
