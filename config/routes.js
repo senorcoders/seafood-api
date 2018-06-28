@@ -77,6 +77,11 @@ module.exports.routes = {
 
   //Para Eliminar el usuario
   'DELETE /api/user/:id': 'UserController.deleteUser',
+  
+  //Para que actualize el status del usuario
+  'PUT /user/status/:id/:status': 'UserController.updateStatus',
+
+  // 'PUT /user':'UserController.updateUser',
 
   /*************
    * 

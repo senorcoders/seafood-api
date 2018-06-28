@@ -99,6 +99,7 @@ and exposed as \`req.me\`.)`
     // regardless of which database we're using)
     var userRecord = await User.findOne({
       email: inputs.email.toLowerCase(),
+      status: "accepted"
     });
 
     // If there was no matching user, respond thru the "badCombo" exit.
