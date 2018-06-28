@@ -1,7 +1,19 @@
 
 
 module.exports = {
-  
+    getWithAllData: async function(req, res){
+        try{
+            let item = await ItemShopping.findOne({id: req.param("id")}).populate("fish").populate("shoppingCart");
+            item.shoppingCart = await ShoppingCart.findOne({id: item.shoppingCart.id}).populate("buyer");
+
+            res.json(item);
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
     getItemsXCart: async function (req, res) {
         try{
             let items = await ItemShopping.find({shoppingCart: req.param("id") });
