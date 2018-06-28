@@ -46,7 +46,8 @@ module.exports = {
                     shoppingCart: id,
                     fish: req.param("fish"),
                     quantity: req.param("quantity"),
-                    price: req.param("price")
+                    price: req.param("price"),
+                    shippingStatus: req.param("shippingStatus")
                 };
 
             let itemShopping = await ItemShopping.create(item);
