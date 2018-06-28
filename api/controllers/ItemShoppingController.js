@@ -58,7 +58,7 @@ module.exports = {
 
             //filtrmos los items que ya esten pagados
             itemsShoppings = itemsShoppings.filter(function(it){
-                return it.shoppingCart.status == "paid";
+                return it.shoppingCart.status == "paid" && it.shippingStatus === "pending";
             });
 
             //Agregamos los datos del comprador
@@ -95,7 +95,7 @@ module.exports = {
 
             //filtrmos los items que ya esten pagados
             itemsShoppings = itemsShoppings.filter(function(it){
-                return it.shoppingCart.status === "paid" && it.shippingStatus === "paid";
+                return it.shoppingCart.status === "paid" && it.shippingStatus === "shipped";
             });
 
             //Agregamos los datos del comprador
