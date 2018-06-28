@@ -227,6 +227,15 @@ module.exports.routes = {
    //Para saber si el usuario ya tiene ese producto como favorito
    'POST /api/favoritefish': 'FavoriteFishController.getXUserAndFish',
 
+     /********
+   * 
+   * ITEM SHOPPING
+   * 
+   */
+
+   //Para obtener fish por user
+   'GET /itemshopping/:id': 'ItemShoppingController.getWithAllData',
+
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝
