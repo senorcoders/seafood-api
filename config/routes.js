@@ -180,6 +180,9 @@ module.exports.routes = {
 
   //Para obtener store for id
   'GET /api/store/user/:id': 'StoreController.getXUser',
+
+  //Para obtener productos pagados por tienda
+  'GET /api/store/fish/paid/:id': 'ItemShoppingController.getItemsXStorePaid',
    
   /***********
    * 
