@@ -28,6 +28,16 @@ module.exports = {
       required: false
     },
 
+    trackingID:{
+      type: "string",
+      required: false
+    },
+
+    trackingFile:{
+      type: "string",
+      required: false
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝

@@ -212,8 +212,14 @@ module.exports = {
 
     updateUser: async (req, res)=>{
         try{
-            await ItemShopping.update({shippingStatus: ""}, {shippingStatus: "pending"});
-            res.json({msg: "success"});
+            let users = await User.find();
+            for(let i=0; i<users.length; i++){
+                users[i].dataExtra.Address = "";
+                users[i].dataExtra.City = "";
+                users[i].dataExtra.zipCode = "";
+                await User.update({id: users[i].id}, {dataExtra: users[i].dataExtra });
+            }
+
         }
         catch(e){
             console.error(e);
