@@ -109,6 +109,12 @@ module.exports.routes = {
 
   'DELETE /api/images/category/:namefile/:id/': 'ImageController.deleteImageCategory',
 
+  //Para guardar la imagen de tracking de items sohopping
+  'POST /api/itemshopping/trackingfile/:id': 'ImageController.saveImageTrackingFile',
+
+  ////get la imagen de tracking de items sohopping
+  'GET /api/images/trackingfile/:namefile/:id': 'ImageController.getImagesTrackingFile',
+
   /***********
    * 
    * FISH AND FISHTYPE

@@ -782,6 +782,70 @@ module.exports = {
             }
 
         })
-    }
+    },
+
+    saveImageTrackingFile: async (req, res) => {
+        id = req.param("id");
+        let item = await ItemShopping.findOne({ id });
+        if (item === undefined) {
+            return res.serverError("id not found");
+        }
+
+        let dirname = path.join(IMAGES, "trackingfile", id);
+
+        //create directory if not exists
+        if (!fs.existsSync(dirname)) {
+            fs.mkdirSync(dirname);
+        }
+
+        ////console.log(req);
+        req.file("file").upload({
+            dirname,
+            maxBytes: 5000000,
+            saveAs: function (stream, cb) {
+                //console.log(stream);
+                cb(null, stream.filename);
+            }
+        }, async function (err, uploadedFiles) {
+            if (err) return res.send(500, err);
+
+            let dir = "";
+            for (let file of uploadedFiles) {
+                if (file.type.includes("image/") && file["status"] === "finished") {
+                    dir = "/api/images/trackingfile/" + file.filename + "/" + id;
+                }
+            }
+
+            item.trackingFile = dir;
+
+            let upda = await ItemShopping.update({ id }, { trackingFile: item.trackingFile }).fetch();
+            ////console.log(upda);
+
+            return res.json(upda);
+        });
+    },
+
+    getImagesTrackingFile: async (req, res) => {
+        try {
+            let dirname = path.join(IMAGES, "trackingfile", req.param("id"), req.param("namefile"));
+            console.log(dirname);
+            if (!fs.existsSync(dirname)) {
+                throw new Error("file not exist");
+            }
+
+            // read binary data
+            var data = fs.readFileSync(dirname);
+
+            // convert binary data to base64 encoded string
+            let content = 'image/' + req.param("namefile").split(".").pop();
+            res.contentType(content);
+            res.send(data);
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+
+    },
 }
 
