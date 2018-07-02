@@ -109,7 +109,7 @@ the account verification message.)`,
     
 
     // Since everything went ok, send our 200 response.
-    return exits.success();
+    return exits.success(newUserRecord);
 
   }
 
