@@ -104,6 +104,7 @@ the account verification message.)`,
     }).fetch();
     console.log(newUserRecord)
 
+    await require("./../../../mailer").registerUserRevision(newUserRecord.email);
     await require("./../../../mailer").newUserNotification(newUserRecord.firstName+ " "+ newUserRecord.lastName, 
     'brian@senorcoders.com');
     
