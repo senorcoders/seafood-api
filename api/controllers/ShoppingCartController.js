@@ -132,6 +132,24 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
+    },
+
+    updateShoppingCartPaid: async function(req, res){
+        try{
+
+            let cart = await ShoppingCart.findOne({id: req.param("id") }).populate("buyer");
+            if( cart === undefined ){
+                return res.status(400).send("not found");
+            }
+
+            let fishItem = await ItemShopping.find({shoppingCart: cart.id}).populate("fish");
+            let store = await store.findOne({id: fishItem[0].fish.store }).populate("owner");
+            
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
     }
 
 };
