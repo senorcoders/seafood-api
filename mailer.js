@@ -103,9 +103,42 @@ exports.sendCode = async function (id, email, code) {
     }
 }
 
-
-
 //#endregion
+
+exports.registerUserRevision = function (email) {
+
+    return new Promise(function (resolve, reject) {
+
+        // setup email data with unicode symbols
+        let mailOptions = {
+            from: '"Senorcoders" <milton@senorcoders.com>', // sender address
+            to: email, // list of receivers
+            subject: 'Welcome to Seafood Souq',
+            text: '',
+            html: `
+            <h3>
+            Thank you for registering in the Seafood Souq, the administrator is checking your information, when everything is ready, we will send you an email to log in.
+            </h3>
+            `
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                reject(error)
+                return console.log(error);
+            }
+            console.log('Message sent: %s', info.messageId);
+            // Preview only available when sending through an Ethereal account
+            console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+
+            resolve();
+            // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@blurdybloop.com>
+            // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+        });
+
+    });
+
+}
 
 exports.registerUser = async function (fullName, email, password, verificationCode) {
 
