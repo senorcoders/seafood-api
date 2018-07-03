@@ -157,6 +157,9 @@ module.exports.routes = {
   //Para elimnar la imagen
   'PUT /api/images/primary/:namefile/:id': 'ImageController.updateImagePrimary',
 
+  //Para obtener productos comprador por type
+  'GET /api/fish/type/:type': "FishController.getXTypeWithDataEspecified",
+
   /***************************
    * 
    * STORE 

@@ -84,9 +84,9 @@ module.exports = {
             res.serverError(e);
         }
     },
-    
-    getSuggestions: async (req, res)=>{
-        try{
+
+    getSuggestions: async (req, res) => {
+        try {
 
             let name = req.param("name");
 
@@ -104,15 +104,15 @@ module.exports = {
             });
 
             let countAndFish = [];
-            fishs.map(function(it){
-                let index = countAndFish.findIndex((t)=>{ if(t.name === it.name) return true; else return false; });
-                if(
+            fishs.map(function (it) {
+                let index = countAndFish.findIndex((t) => { if (t.name === it.name) return true; else return false; });
+                if (
                     index === -1
-                ){
-                    let f = {name : it.name, id: it._id};
+                ) {
+                    let f = { name: it.name, id: it._id };
                     f.count = 1;
                     countAndFish.push(f);
-                }else{
+                } else {
                     countAndFish[index].count += 1;
                 }
 
@@ -122,7 +122,7 @@ module.exports = {
             res.json(countAndFish);
 
         }
-        catch(e){
+        catch (e) {
             console.error(e);
             res.serverError(e);
         }
@@ -170,7 +170,7 @@ module.exports = {
             }
 
             let namefile, dirname;
-            if (fish.hasOwnProperty("imagePrimary") && fish.imagePrimary !== ""  && fish.imagePrimary !== null) {
+            if (fish.hasOwnProperty("imagePrimary") && fish.imagePrimary !== "" && fish.imagePrimary !== null) {
                 namefile = fish.imagePrimary.split("/");
                 namefile = namefile[namefile.length - 2];
                 console.log(IMAGES, fish.id, namefile);
@@ -212,6 +212,73 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
-    }
+    },
+
+    getXTypeWithDataEspecified: async (req, res) => {
+        try {
+
+            let type = req.param("type");
+
+            //Para cagar los items de cada carrito cargado
+            async function getItemsCart(shoppingCart) {
+                let items = await ItemShopping.find({ shoppingCart: shoppingCart.id }).populate("fish");
+                items = items.filter(function (it) {
+                    return it.fish.type === type;
+                });
+
+                //Cargamos el comprador y la tienda
+                items = items.map(function (it) {
+                    return {
+                        id: it.fish.id,
+                        name: it.fish.name,
+                        quantity: it.quantity
+                    };
+                });
+
+                return items;
+            }
+
+            let itemsFish = [];
+            let cartsPaid = await ShoppingCart.find({ status: "paid" }).populate("buyer");
+            for (let cart of cartsPaid) {
+                let its = await getItemsCart(cart);
+                itemsFish = itemsFish.concat(its);
+            }
+
+            let itemsP = [];
+            for (let it of itemsFish) {
+                let index = itemsP.findIndex(function (ite) {
+                    return ite.name === it;
+                });
+
+                if (index === -1) {
+                    let parser = it;
+                    parser.quantity = [it.quantity];
+                    itemsP.push(parser);
+                } else {
+
+                    let find = false;
+                    for (let i = 0; i < itemsP[index].quantity.length; i++) {
+                        if( itemsP[index].quantity[i].type === it.quantity.type ){
+                            find = true;
+                            itemsP[index].quantity[i].value += it.quantity.value;
+                            break;
+                        }
+                    }
+
+                    if( find===false ){
+                        itemsP[index].quantity.push(it.quantity);
+                    }
+                }
+            }
+
+            res.json(itemsP);
+
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
 
 };
