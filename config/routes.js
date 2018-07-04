@@ -255,6 +255,7 @@ module.exports.routes = {
   /***********
    * FILES UPLOAD ADMIN
    */
+  'GET /api/admin/files': 'FilesUploadController.getFiles',
   'POST /api/admin/files': 'FilesUploadController.saveFiles',
   'GET /api/admin/:filename/files': 'FilesUploadController.getFile',
   'DELETE /api/admin/:filename/files': 'FilesUploadController.deleteFile',
