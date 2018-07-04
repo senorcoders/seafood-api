@@ -276,7 +276,7 @@ exports.sendDataFormContactToSeller = function (email, data) {
 //#region para enviar un correo cuando se haya pagado un carrito de compra
 
 function addItem(item) {
-    let item = `
+    let itemParser = `
 <div style="background-color:transparent;">
 <div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;" class="block-grid four-up ">
   <div style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;">
@@ -356,10 +356,19 @@ function addItem(item) {
 </div> 
 `;
 
-    return item;
+    return itemParser;
 }
 
-async function getTemplate(msgTitle, msgAfterItems, items) {
+function calcTotaItem(items){
+    let total = 0;
+    for(let it of items){
+        total += it.quantity.value * it.price.value;
+    }
+
+    return items[0].price.type+ " "+ parseFloat(total).toFixed(2);
+}
+
+async function getTemplateShopping(msgTitle, msgBeforeItems, msgAfterItems, items) {
 
     let head, footer;
     await new Promise(function (resolve, reject) {
@@ -375,8 +384,8 @@ async function getTemplate(msgTitle, msgAfterItems, items) {
     });
 
     let itemsTemplate = "";
-    for (let item of items) {
-        itemsTemplate += addItem(item);
+    for (let it of items) {
+        itemsTemplate += addItem(it);
     }
 
     let beforeItems = `
@@ -408,7 +417,7 @@ async function getTemplate(msgTitle, msgAfterItems, items) {
                     <div class="">
 	<!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
 	<div style="color:#555555;line-height:120%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
-		<div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px"><span style="font-size: 15px; line-height: 18px;">${msgAfterItems}</span></p></div>	
+		<div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px"><span style="font-size: 15px; line-height: 18px;">${msgBeforeItems}</span></p></div>	
 	</div>
 	<!--[if mso]></td></tr></table><![endif]-->
 </div>
@@ -439,15 +448,73 @@ async function getTemplate(msgTitle, msgAfterItems, items) {
                     <div class="">
 	<!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
 	<div style="color:#555555;line-height:120%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
-		<div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px"><strong>I'm a new Text block ready for your content.</strong></p></div>	
+		<div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px"><strong>${msgAfterItems+ ": "+ calcTotaItem(items)}</strong></p></div>	
     </div>
     `;
 
     return head+ beforeItems+ afterItems+ footer;
 }
 
-exports.sendCartPaidBuyer = async function(){
+exports.sendCartPaidBuyer = async function(fullName, items, email){
+    let msgTitle = `Hey! ${fullName}`,
+    msgBeforeItems = "You have made the following purchases at Seafood Souq.",
+    msgAfterItems = "The total of your purchased products is";
+
+    let template = await getTemplateShopping(msgTitle, msgBeforeItems, msgAfterItems, items);
     
+    return new Promise(function (resolve, reject) {
+        // setup email data with unicode symbols
+        let mailOptions = {
+            from: '"Senorcoders" <milton@senorcoders.com>', // sender address
+            to: email, // list of receivers
+            subject: 'Shopping at Seafood Souq', // Subject line
+            text: '',
+            html: template
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return reject(error);
+            }
+            console.log('Message sent: %s', info.messageId);
+            // Preview only available when sending through an Ethereal account
+            console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+            resolve();
+            // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@blurdybloop.com>
+            // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+        });
+    });
+}
+
+exports.sendCartSeller = async function(fullName, fullNameBuyer, emailBuyer, items, email){
+    let msgTitle = `Hey! ${fullName}`,
+    msgBeforeItems = "You have sales made for "+ fullNameBuyer+ ", "+ emailBuyer,
+    msgAfterItems = "The total of its products sold is";
+
+    let template = await getTemplateShopping(msgTitle, msgBeforeItems, msgAfterItems, items);
+    
+    return new Promise(function (resolve, reject) {
+        // setup email data with unicode symbols
+        let mailOptions = {
+            from: '"Senorcoders" <milton@senorcoders.com>', // sender address
+            to: email, // list of receivers
+            subject: 'Shopping at Seafood Souq', // Subject line
+            text: '',
+            html: template
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return reject(error);
+            }
+            console.log('Message sent: %s', info.messageId);
+            // Preview only available when sending through an Ethereal account
+            console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+            resolve();
+            // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@blurdybloop.com>
+            // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+        });
+    });
 }
 
 //#endregion

@@ -137,14 +137,47 @@ module.exports = {
     updateShoppingCartPaid: async function(req, res){
         try{
 
-            let cart = await ShoppingCart.findOne({id: req.param("id") }).populate("buyer");
+            let cart = await ShoppingCart.findOne({id: req.param("id"), status: "pending" }).populate("buyer");
             if( cart === undefined ){
                 return res.status(400).send("not found");
             }
 
-            let fishItem = await ItemShopping.find({shoppingCart: cart.id}).populate("fish");
-            let store = await store.findOne({id: fishItem[0].fish.store }).populate("owner");
-            
+            let itemsShopping = await ItemShopping.find({shoppingCart: cart.id}).populate("fish");
+            itemsShopping = await Promise.all(itemsShopping.map(async function(it){
+                it.fish.store = await Store.findOne({id: it.fish.store }).populate("owner");
+
+                return it;
+            }));
+
+            //Se le envia los datos de compras al vendedor
+            await require("./../../mailer").sendCartPaidBuyer(cart.buyer.firstName+ " "+ cart.buyer.lastName, 
+            itemsShopping, cart.buyer.email);
+
+            //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
+            let itemsStore = [];
+            for(let item of itemsShopping){
+
+                let index = itemsStore.findIndex(function(it){
+                    return it[0].fish.store.id === item.fish.store.id;
+                });
+
+                if( index === -1 ){
+                    itemsStore.push( [item] );
+                }else{
+                    itemsStore[index].push(item);
+                }
+            }
+
+            //Se envia los correos a los dueños de las tiendas
+            for(let st of itemsStore){
+                let fullName = st[0].fish.store.owner.firstName+ " "+ st[0].fish.store.owner.lastName;
+                let fullNameBuyer = cart.buyer.firstName+ " "+ cart.buyer.lastName
+                await require("./../../mailer").sendCartSeller(fullName, fullNameBuyer, cart.buyer.email, st, st[0].fish.store.owner.email)
+            }
+
+            cart = await ShoppingCart.update({id: req.param("id") }, {status: "paid"}).fetch();
+
+            res.json(cart);
         }
         catch(e){
             console.error(e);

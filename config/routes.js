@@ -14,25 +14,25 @@ module.exports.routes = {
   //  ╦ ╦╔═╗╔╗ ╔═╗╔═╗╔═╗╔═╗╔═╗
   //  ║║║║╣ ╠╩╗╠═╝╠═╣║ ╦║╣ ╚═╗
   //  ╚╩╝╚═╝╚═╝╩  ╩ ╩╚═╝╚═╝╚═╝
-  'GET /':                   { action: 'view-homepage-or-redirect' },
-  'GET /welcome':            { action: 'dashboard/view-welcome' },
+  'GET /': { action: 'view-homepage-or-redirect' },
+  'GET /welcome': { action: 'dashboard/view-welcome' },
 
-  'GET /faq':                { view:   'pages/faq' },
-  'GET /legal/terms':        { view:   'pages/legal/terms' },
-  'GET /legal/privacy':      { view:   'pages/legal/privacy' },
-  'GET /contact':            { view:   'pages/contact' },
+  'GET /faq': { view: 'pages/faq' },
+  'GET /legal/terms': { view: 'pages/legal/terms' },
+  'GET /legal/privacy': { view: 'pages/legal/privacy' },
+  'GET /contact': { view: 'pages/contact' },
 
-  'GET /signup':             { action: 'entrance/view-signup' },
-  'GET /email/confirm':      { action: 'entrance/confirm-email' },
-  'GET /email/confirmed':    { view:   'pages/entrance/confirmed-email' },
+  'GET /signup': { action: 'entrance/view-signup' },
+  'GET /email/confirm': { action: 'entrance/confirm-email' },
+  'GET /email/confirmed': { view: 'pages/entrance/confirmed-email' },
 
-  'GET /login':              { action: 'entrance/view-login' },
-  'GET /password/forgot':    { action: 'entrance/view-forgot-password' },
-  'GET /password/new':       { action: 'entrance/view-new-password' },
+  'GET /login': { action: 'entrance/view-login' },
+  'GET /password/forgot': { action: 'entrance/view-forgot-password' },
+  'GET /password/new': { action: 'entrance/view-new-password' },
 
-  'GET /account':            { action: 'account/view-account-overview' },
-  'GET /account/password':   { action: 'account/view-edit-password' },
-  'GET /account/profile':    { action: 'account/view-edit-profile' },
+  'GET /account': { action: 'account/view-account-overview' },
+  'GET /account/password': { action: 'account/view-edit-password' },
+  'GET /account/profile': { action: 'account/view-edit-profile' },
 
 
   //  ╔═╗╔═╗╦  ╔═╗╔╗╔╔╦╗╔═╗╔═╗╦╔╗╔╔╦╗╔═╗
@@ -40,15 +40,15 @@ module.exports.routes = {
   //  ╩ ╩╩  ╩  ╚═╝╝╚╝═╩╝╩  ╚═╝╩╝╚╝ ╩ ╚═╝
   // Note that, in this app, these API endpoints may be accessed using the `Cloud.*()` methods
   // from the CloudSDK library.
-  '/api/logout':                           { action: 'account/logout' },
-  'PUT   /api/v1/account/update-password':            { action: 'account/update-password' },
-  'PUT   /api/v1/account/update-profile':             { action: 'account/update-profile' },
-  'PUT   /api/v1/account/update-billing-card':        { action: 'account/update-billing-card' },
-  'PUT   /api/login':                        { action: 'entrance/login' },
-  'POST  /api/signup':                       { action: 'entrance/signup' },
+  '/api/logout': { action: 'account/logout' },
+  'PUT   /api/v1/account/update-password': { action: 'account/update-password' },
+  'PUT   /api/v1/account/update-profile': { action: 'account/update-profile' },
+  'PUT   /api/v1/account/update-billing-card': { action: 'account/update-billing-card' },
+  'PUT   /api/login': { action: 'entrance/login' },
+  'POST  /api/signup': { action: 'entrance/signup' },
   'POST  /api/v1/entrance/send-password-recovery-email': { action: 'entrance/send-password-recovery-email' },
-  'POST  /api/v1/entrance/update-password-and-login':    { action: 'entrance/update-password-and-login' },
-  'POST  /api/v1/deliver-contact-form-message':          { action: 'deliver-contact-form-message' },
+  'POST  /api/v1/entrance/update-password-and-login': { action: 'entrance/update-password-and-login' },
+  'POST  /api/v1/deliver-contact-form-message': { action: 'deliver-contact-form-message' },
 
 
   /***************
@@ -77,7 +77,7 @@ module.exports.routes = {
 
   //Para Eliminar el usuario
   'DELETE /api/user/:id': 'UserController.deleteUser',
-  
+
   //Para que actualize el status del usuario
   'PUT /user/status/:id/:status': 'UserController.updateStatus',
 
@@ -97,10 +97,10 @@ module.exports.routes = {
 
   //subir multiples images for a fish
   'POST /api/images': 'ImageController.imagesUpload',
-  
+
   //Para guardar multiples images de un producto
   'POST /api/fish/images/:id': 'ImageController.multipleImagesUpload',
-  
+
   //Para obtener images custom
   'GET /api/images/:namefile/:id': 'ImageController.getImage',
 
@@ -122,8 +122,8 @@ module.exports.routes = {
    */
 
   //Para eleimnar un producto
-  'DELETE /api/fish/:id': 'FishController.delete', 
-   
+  'DELETE /api/fish/:id': 'FishController.delete',
+
   //para buscar mariscos por tipos
   'GET /api/fish-type/:name/:page/:limit': 'FishTypeController.getXNamePagination',
 
@@ -137,7 +137,7 @@ module.exports.routes = {
   'POST /api/fish/search/': "FishController.search",
 
   //Para obtener sugerencias de los productos
-  "POST /api/fish/suggestions" : "FishController.getSuggestions",
+  "POST /api/fish/suggestions": "FishController.getSuggestions",
 
   //Para obtener por multiple id
   'GET /api/fish-ids/:ids': 'FishController.getXMultipleID',
@@ -165,7 +165,7 @@ module.exports.routes = {
    * STORE 
    * 
    */
-  
+
   //Para obtener stores simplificados son toda su informaciòn
   'GET /api/store': "StoreController.getStoreSimplified",
 
@@ -195,24 +195,27 @@ module.exports.routes = {
 
   //Para obtener productos pagados por tienda y items shippingStatus === 'paid'
   'GET /api/store/fish/items/paid/:id': 'ItemShoppingController.getItemsXStoreAndItemPaid',
-   
+
   /***********
    * 
    * SHOPPING CART
    * 
    */
 
-   //Para crear un carrito
-   'POST /shoppingcart': 'ShoppingCart.createCart',
+  //Para crear un carrito
+  'POST /shoppingcart': 'ShoppingCart.createCart',
 
-   //Para agregar un producto al carrito de compra
-   'POST /api/shopping/add/:id': 'ShoppingCartController.addItem',
+  //Para agregar un producto al carrito de compra
+  'POST /api/shopping/add/:id': 'ShoppingCartController.addItem',
 
-   //Para obtener el store por id
+  //Para obtener el store por id
   'GET /shoppingcart/:id': 'ShoppingCartController.getPopulateXID',
 
   //Para update items for cart
   'PUT /shoppingcart/items': 'ShoppingCartController.updateItems',
+
+  //Para actualizar un carrito de productos a pagado.
+  'PUT /api/shoppingcart/:id': "ShoppingCartController.updateShoppingCartPaid",
 
   /***********
    * 
@@ -220,30 +223,30 @@ module.exports.routes = {
    * 
    */
 
-   //Para obtener items del carrito
-   'GET /api/items/:id': "ItemShoppingController.getItemsXCart",
+  //Para obtener items del carrito
+  'GET /api/items/:id': "ItemShoppingController.getItemsXCart",
 
-   
+
   /********
    * 
    * FAVORITE FISH
    * 
    */
 
-   //Para obtener fish por user
-   'GET /api/favoritefish/:id': 'FavoriteFish.getXUSer',
+  //Para obtener fish por user
+  'GET /api/favoritefish/:id': 'FavoriteFish.getXUSer',
 
-   //Para saber si el usuario ya tiene ese producto como favorito
-   'POST /api/favoritefish': 'FavoriteFishController.getXUserAndFish',
+  //Para saber si el usuario ya tiene ese producto como favorito
+  'POST /api/favoritefish': 'FavoriteFishController.getXUserAndFish',
 
-     /********
-   * 
-   * ITEM SHOPPING
-   * 
-   */
+  /********
+* 
+* ITEM SHOPPING
+* 
+*/
 
-   //Para obtener fish por user
-   'GET /itemshopping/:id': 'ItemShoppingController.getWithAllData',
+  //Para obtener fish por user
+  'GET /itemshopping/:id': 'ItemShoppingController.getWithAllData',
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
@@ -253,7 +256,7 @@ module.exports.routes = {
   //  ╔╦╗╦╔═╗╔═╗  ╦═╗╔═╗╔╦╗╦╦═╗╔═╗╔═╗╔╦╗╔═╗
   //  ║║║║╚═╗║    ╠╦╝║╣  ║║║╠╦╝║╣ ║   ║ ╚═╗
   //  ╩ ╩╩╚═╝╚═╝  ╩╚═╚═╝═╩╝╩╩╚═╚═╝╚═╝ ╩ ╚═╝
-  '/terms':                   '/legal/terms',
-  '/logout':                  '/api/v1/account/logout',
+  '/terms': '/legal/terms',
+  '/logout': '/api/v1/account/logout',
 
 };
