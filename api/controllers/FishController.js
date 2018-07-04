@@ -281,4 +281,66 @@ module.exports = {
         }
     },
 
+    getWithDataEspecified: async (req, res) => {
+        try {
+
+            //Para cagar los items de cada carrito cargado
+            async function getItemsCart(shoppingCart) {
+                let items = await ItemShopping.find({ shoppingCart: shoppingCart.id }).populate("fish");
+
+                //Cargamos el comprador y la tienda
+                items = await Promise.all(items.map(async function (it) {
+
+                    it.fish = await Fish.findOne({id: it.fish.id}).populate("type");
+                    return {
+                        quantity: it.quantity,
+                        type: it.fish.type
+                    };
+                }));
+
+                return items;
+            }
+
+            let itemsFish = [];
+            let cartsPaid = await ShoppingCart.find({ status: "paid" });
+            for (let cart of cartsPaid) {
+                let its = await getItemsCart(cart);
+                itemsFish = itemsFish.concat(its);
+            }
+
+            let itemsP = [];
+            for (let it of itemsFish) {
+                let index = itemsP.findIndex(function (ite) {
+                    return ite.type.id === it.type.id;
+                });
+
+                if (index === -1) {
+                    let parser = it;
+                    parser.quantity = [it.quantity];
+                    itemsP.push(parser);
+                } else {
+
+                    let find = false;
+                    for (let i = 0; i < itemsP[index].quantity.length; i++) {
+                        if( itemsP[index].quantity[i].type === it.quantity.type ){
+                            find = true;
+                            itemsP[index].quantity[i].value += it.quantity.value;
+                            break;
+                        }
+                    }
+
+                    if( find===false ){
+                        itemsP[index].quantity.push(it.quantity);
+                    }
+                }
+            }
+
+            res.json(itemsP);
+
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    }
 };

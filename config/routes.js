@@ -160,6 +160,9 @@ module.exports.routes = {
   //Para obtener productos comprador por type
   'GET /api/fish/type/:type': "FishController.getXTypeWithDataEspecified",
 
+  //Para obtener productos comprados agrupados por categoria
+  'GET /api/fish/type': "FishController.getWithDataEspecified",
+
   /***************************
    * 
    * STORE 
