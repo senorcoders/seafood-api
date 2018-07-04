@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const IMAGES = path.resolve(__dirname, '../../images/');
 const rimraf = require("rimraf");
+var mmm = require('mmmagic'),
+    Magic = mmm.Magic;
 
 const writeImage = async function (nameFile, directory, image) {
     return new Promise(function (resolve, reject) {
