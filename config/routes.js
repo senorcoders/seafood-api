@@ -113,7 +113,7 @@ module.exports.routes = {
   'POST /api/itemshopping/trackingfile/:id': 'ImageController.saveImageTrackingFile',
 
   ////get la imagen de tracking de items sohopping
-  'GET /api/images/trackingfile/:namefile/:id': 'ImageController.getImagesTrackingFile',
+  'GET /api/images/trackingfile/:namefile/:id': 'ImageController.getTrackingFile',
 
   /***********
    * 
