@@ -248,7 +248,7 @@ module.exports = {
             let itemsP = [];
             for (let it of itemsFish) {
                 let index = itemsP.findIndex(function (ite) {
-                    return ite.name === it;
+                    return ite.name === it.name;
                 });
 
                 if (index === -1) {
