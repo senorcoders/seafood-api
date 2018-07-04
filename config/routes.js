@@ -251,6 +251,14 @@ module.exports.routes = {
   //Para obtener fish por user
   'GET /itemshopping/:id': 'ItemShoppingController.getWithAllData',
 
+
+  /***********
+   * FILES UPLOAD ADMIN
+   */
+  'POST /api/admin/files': 'FilesUploadController.saveFiles',
+  'GET /api/admin/:filename/files': 'FilesUploadController.getFile',
+  'DELETE /api/admin/:filename/files': 'FilesUploadController.deleteFile',
+
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝

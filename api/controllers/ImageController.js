@@ -811,7 +811,7 @@ module.exports = {
 
             let dir = "";
             for (let file of uploadedFiles) {
-                if (file.type.includes("image/") && file["status"] === "finished") {
+                if (file["status"] === "finished") {
                     dir = "/api/images/trackingfile/" + file.filename + "/" + id;
                 }
             }
@@ -825,7 +825,7 @@ module.exports = {
         });
     },
 
-    getImagesTrackingFile: async (req, res) => {
+    getTrackingFile: async (req, res) => {
         try {
             let dirname = path.join(IMAGES, "trackingfile", req.param("id"), req.param("namefile"));
             console.log(dirname);
@@ -836,9 +836,18 @@ module.exports = {
             // read binary data
             var data = fs.readFileSync(dirname);
 
+            //get mime type file
+            let mimeType = await new Promise(function (resolve, reject) {
+                var magic = new Magic(mmm.MAGIC_MIME_TYPE);
+                magic.detectFile(dirname, function (err, result) {
+                    if (err){ return reject(err); };
+                    console.log(result);
+                    resolve(result);
+                });
+            });
+
             // convert binary data to base64 encoded string
-            let content = 'image/' + req.param("namefile").split(".").pop();
-            res.contentType(content);
+            res.contentType(mimeType)
             res.send(data);
         }
         catch (e) {
