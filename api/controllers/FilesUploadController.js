@@ -128,6 +128,24 @@ module.exports = {
             res.serverError(e);
         }
 
+    },
+
+    getFiles: async function(req, res){
+        try{
+            let storage = await FilesUploadAdmin.find().limit(1);
+
+            if (storage.length === 0) {
+                return res.status(400).send("not found");
+            }else{
+                storage = storage[0];
+            }
+
+            res.json(storage.files);
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
     }
 
 };
