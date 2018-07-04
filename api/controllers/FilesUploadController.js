@@ -75,7 +75,7 @@ module.exports = {
             });
 
             // convert binary data to base64 encoded string
-            res.setHeader('Content-disposition', 'attachment; filename=' + dirname);
+            res.setHeader('Content-disposition', 'attachment; filename=' + req.param("filename"));
             res.contentType(mimeType)
             res.send(data);
         }
