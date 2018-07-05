@@ -112,6 +112,29 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
+    },
+
+    updateStatusToShipped: async function(req, res){
+        try{
+
+            let  id = req.param("id");
+            let item = await ItemShopping.findOne({id}).populate("shoppingCart").populate("fish");
+            if( item === undefined ){
+                res.status(400).send("not found");
+            }
+
+            let cart = await ShoppingCart.findOne({id: item.shoppingCart.id}).populate("buyer")
+
+            await ItemShopping.update({id}, {shippingStatus:"shipped"})
+
+            await require("./../../mailer").sendEmailItemRoad(cart.buyer.email, item.trackingID, item.trackingFile, item);
+
+            res.json({msg: "success"});
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
     }
 };
 
