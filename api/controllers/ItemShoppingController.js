@@ -58,6 +58,7 @@ module.exports = {
 
             //filtrmos los items que ya esten pagados
             itemsShoppings = itemsShoppings.filter(function(it){
+                if( it.shoppingCart === null || it.shoppingCart.status === null ) return false;
                 return it.shoppingCart.status == "paid" && it.shippingStatus === "pending";
             });
 
