@@ -1,5 +1,8 @@
 const nodemailer = require('nodemailer');
 const config = require("./config/local").mailer;
+const path = require('path');
+const IMAGES = path.join(__dirname, '/images');
+console.log(IMAGES);
 // create reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
     host: config.host,
@@ -502,6 +505,91 @@ exports.sendCartSeller = async function(fullName, fullNameBuyer, emailBuyer, ite
             text: '',
             html: template
         };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return reject(error);
+            }
+            console.log('Message sent: %s', info.messageId);
+            // Preview only available when sending through an Ethereal account
+            console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+            resolve();
+            // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@blurdybloop.com>
+            // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+        });
+    });
+}
+
+//#endregion
+
+//#region para enviar correo cuando un pescado esta de camino
+async function getTemplateItemShopping(item){
+    let producto = `
+    <div style="color:#555555;line-height:120%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
+    <div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px">${item.fish.name}</p></div>	
+</div>
+<!--[if mso]></td></tr></table><![endif]-->
+</div>
+              
+          <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
+          </div>
+        </div>
+          <!--[if (mso)|(IE)]></td><td align="center" width="333" style=" width:333px; padding-right: 0px; padding-left: 0px; padding-top:5px; padding-bottom:5px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]-->
+        <div class="col num8" style="display: table-cell;vertical-align: top;min-width: 320px;max-width: 328px;">
+          <div style="background-color: transparent; width: 100% !important;">
+          <!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:5px; padding-bottom:5px; padding-right: 0px; padding-left: 0px;"><!--<![endif]-->
+
+              
+                <div class="">
+<!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
+<div style="color:#555555;line-height:120%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
+    <div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px">${item.quantity.type+ " - "+ item.quantity.value}</p></div>	
+</div>
+    `;
+
+    return new Promise(function(resolve, reject){
+        fs.readFile("./template_emails/item.html", "utf8", function (err, data) {
+            if (err) { return reject(err); }
+            fs.readFile("./template_emails/item2.html", "utf8", function (err, data2) {
+                if (err) { return reject(err); }
+                resolve(data + producto + data2);
+            });
+        });
+    })
+}
+
+exports.sendEmailItemRoad = async function(email, trackingID, trackingFile, item){
+    let template = await getTemplateItemShopping(item);
+    console.log("item:: ", email);
+    if( trackingID !== "" ){
+        trackingID = ", you tracking ID "+ trackingID
+    }
+
+    return new Promise(function (resolve, reject) {
+        // setup email data with unicode symbols
+        let mailOptions = {
+            from: '"Senorcoders" <milton@senorcoders.com>', // sender address
+            to: email, // list of receivers
+            subject: 'Buy In Seafood Souq '+trackingID, // Subject line
+            text: '',
+            html: template,
+            attachments: [{
+                filename: 'image.png',
+                path: './template_emails/images/seafood.png',
+                cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+        };
+
+        if( trackingFile !== "" ){
+
+            let sp = trackingFile.split("/");
+            let dirname = path.join(IMAGES, "trackingfile", item.id, sp[sp.length-2]);
+            mailOptions.attachments.push({
+                filename: "tracking.png",
+                path: dirname,
+                cid: 'unique@trkeata.ee'
+            });
+        }
 
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {

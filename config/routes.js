@@ -229,6 +229,9 @@ module.exports.routes = {
   //Para obtener items del carrito
   'GET /api/items/:id': "ItemShoppingController.getItemsXCart",
 
+  //Para actualizar status y enviar email
+  'PUT /api/itemshopping/status/:id': "ItemShoppingController.updateStatusToShipped",
+
 
   /********
    * 
