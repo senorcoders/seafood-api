@@ -461,7 +461,7 @@ exports.sendCartPaidBuyer = async function(fullName, items, email){
     msgAfterItems = "The total of your purchased products is";
 
     let template = await getTemplateShopping(msgTitle, msgBeforeItems, msgAfterItems, items);
-    
+    console.log("buyer:: ", email);
     return new Promise(function (resolve, reject) {
         // setup email data with unicode symbols
         let mailOptions = {
@@ -492,7 +492,7 @@ exports.sendCartSeller = async function(fullName, fullNameBuyer, emailBuyer, ite
     msgAfterItems = "The total of its products sold is";
 
     let template = await getTemplateShopping(msgTitle, msgBeforeItems, msgAfterItems, items);
-    
+    console.log("seller:: ", email);
     return new Promise(function (resolve, reject) {
         // setup email data with unicode symbols
         let mailOptions = {
