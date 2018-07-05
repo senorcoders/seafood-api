@@ -175,7 +175,7 @@ module.exports = {
                 await require("./../../mailer").sendCartSeller(fullName, fullNameBuyer, cart.buyer.email, st, st[0].fish.store.owner.email)
             }
 
-            cart = await ShoppingCart.update({id: req.param("id") }, {status: "paid"}).fetch();
+            cart = await ShoppingCart.update({id: req.param("id") }, {status: "paid", paidDateTime: req.param("paidDateTime") }).fetch();
 
             res.json(cart);
         }
