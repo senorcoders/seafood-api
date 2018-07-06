@@ -106,6 +106,17 @@ module.exports = {
                 return it;
             }));
 
+            itemsShoppings = itemsShoppings.sort((a, b)=>{
+                // Turn your strings into dates, and then subtract them
+                // to get a value that is either negative, positive, or zero.
+                return new Date(b.createdAt) - new Date(a.createdAt);
+              });
+
+              itemsShoppings = itemsShoppings.map((a)=>{
+                  a.createdAt = new Date(a.createdAt);
+                  return a;
+              });
+
             res.json(itemsShoppings);
         }
         catch(e){
