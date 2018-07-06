@@ -39,6 +39,46 @@ module.exports = {
         }
     },
 
+    getCartPaid: async (req, res)=>{
+        try{
+            let buyer = req.param("buyer");
+            let carts = await ShoppingCart.find({status:"paid", buyer}).populate("items");
+
+            //Para calcular el total de los carritos
+            let calcTotal = async (cart)=>{
+                cart.items = await Promise.all(cart.items.map(async function (it) {
+                    it.fish = await Fish.findOne({ id: it.fish }).populate("type");
+                    return it;
+                }));
+
+                let total = 0;
+                for (var it of cart.items) {
+                    total += Number(it.price.value * it.quantity.value);
+                }
+
+                total = Number(parseFloat(total).toFixed(2));
+                if (total !== cart.total) {
+                    await ShoppingCart.update({ id: cart.id }, { total: total });
+                    cart.total = total;
+                }
+
+                return cart;
+            }
+
+            let cartFinish = [];
+            for(let cart of carts){
+                let c = await calcTotal(cart);
+                cartFinish.push(c);
+            }
+
+            res.json(cartFinish);
+        }
+        catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
     addItem: async (req, res) => {
         try {
             let id = req.param("id"),
