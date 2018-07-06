@@ -220,6 +220,9 @@ module.exports.routes = {
   //Para actualizar un carrito de productos a pagado.
   'PUT /api/shoppingcart/:id': "ShoppingCartController.updateShoppingCartPaid",
 
+  //Get Cart paid x buyer
+  'GET /api/cart/paid/:buyer': "ShoppingCartController.getCartPaid",
+
   /***********
    * 
    * ITEMS SHOPPING 
