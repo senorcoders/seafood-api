@@ -39,13 +39,13 @@ module.exports = {
         }
     },
 
-    getCartPaid: async (req, res)=>{
-        try{
+    getCartPaid: async (req, res) => {
+        try {
             let buyer = req.param("buyer");
-            let carts = await ShoppingCart.find({status:"paid", buyer}).populate("items");
+            let carts = await ShoppingCart.find({ status: "paid", buyer }).populate("items");
 
             //Para calcular el total de los carritos
-            let calcTotal = async (cart)=>{
+            let calcTotal = async (cart) => {
                 cart.items = await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish }).populate("type");
                     return it;
@@ -66,14 +66,24 @@ module.exports = {
             }
 
             let cartFinish = [];
-            for(let cart of carts){
+            for (let cart of carts) {
                 let c = await calcTotal(cart);
                 cartFinish.push(c);
             }
 
+            cartFinish = cartFinish.sort((a, b) => {
+                // Turn your strings into dates, and then subtract them
+                // to get a value that is either negative, positive, or zero.
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            }).map((a)=>{
+                a.createdAt = new Date(a.createdAt);
+                return a;
+            });
+
+
             res.json(cartFinish);
         }
-        catch(e){
+        catch (e) {
             console.error(e);
             res.serverError(e);
         }
@@ -174,52 +184,52 @@ module.exports = {
         }
     },
 
-    updateShoppingCartPaid: async function(req, res){
-        try{
+    updateShoppingCartPaid: async function (req, res) {
+        try {
 
-            let cart = await ShoppingCart.findOne({id: req.param("id"), status: "pending" }).populate("buyer");
-            if( cart === undefined ){
+            let cart = await ShoppingCart.findOne({ id: req.param("id"), status: "pending" }).populate("buyer");
+            if (cart === undefined) {
                 return res.status(400).send("not found");
             }
 
-            let itemsShopping = await ItemShopping.find({shoppingCart: cart.id}).populate("fish");
-            itemsShopping = await Promise.all(itemsShopping.map(async function(it){
-                it.fish.store = await Store.findOne({id: it.fish.store }).populate("owner");
+            let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id }).populate("fish");
+            itemsShopping = await Promise.all(itemsShopping.map(async function (it) {
+                it.fish.store = await Store.findOne({ id: it.fish.store }).populate("owner");
 
                 return it;
             }));
 
             //Se le envia los datos de compras al vendedor
-            await require("./../../mailer").sendCartPaidBuyer(cart.buyer.firstName+ " "+ cart.buyer.lastName, 
-            itemsShopping, cart.buyer.email);
+            await require("./../../mailer").sendCartPaidBuyer(cart.buyer.firstName + " " + cart.buyer.lastName,
+                itemsShopping, cart.buyer.email);
 
             //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
             let itemsStore = [];
-            for(let item of itemsShopping){
+            for (let item of itemsShopping) {
 
-                let index = itemsStore.findIndex(function(it){
+                let index = itemsStore.findIndex(function (it) {
                     return it[0].fish.store.id === item.fish.store.id;
                 });
 
-                if( index === -1 ){
-                    itemsStore.push( [item] );
-                }else{
+                if (index === -1) {
+                    itemsStore.push([item]);
+                } else {
                     itemsStore[index].push(item);
                 }
             }
 
             //Se envia los correos a los dueños de las tiendas
-            for(let st of itemsStore){
-                let fullName = st[0].fish.store.owner.firstName+ " "+ st[0].fish.store.owner.lastName;
-                let fullNameBuyer = cart.buyer.firstName+ " "+ cart.buyer.lastName
+            for (let st of itemsStore) {
+                let fullName = st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
+                let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName
                 await require("./../../mailer").sendCartSeller(fullName, fullNameBuyer, cart.buyer.email, st, st[0].fish.store.owner.email)
             }
 
-            cart = await ShoppingCart.update({id: req.param("id") }, {status: "paid", paidDateTime: req.param("paidDateTime") }).fetch();
+            cart = await ShoppingCart.update({ id: req.param("id") }, { status: "paid", paidDateTime: req.param("paidDateTime") }).fetch();
 
             res.json(cart);
         }
-        catch(e){
+        catch (e) {
             console.error(e);
             res.serverError(e);
         }
