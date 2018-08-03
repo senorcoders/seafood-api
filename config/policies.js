@@ -32,6 +32,10 @@ module.exports.policies = {
     getImagesLicense: true
   },
 
+  FeaturedTypesController: {
+    saveOrUpdate: true,
+  },
+
   'entrance/*': true,
   'account/logout': true,
   'view-homepage-or-redirect': true,

@@ -266,6 +266,13 @@ module.exports.routes = {
   'GET /api/admin/:filename/files': 'FilesUploadController.getFile',
   'DELETE /api/admin/:filename/files': 'FilesUploadController.deleteFile',
 
+  /******
+   * FEATURED TYPES
+   */
+  "POST /featuredtypes": "FeaturedTypesController.saveOrUpdate",
+
+  "GET /featuredtypes": "FeaturedTypesController.get",
+
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝
