@@ -3,7 +3,11 @@ module.exports = {
   getXUser: async (req, res)=>{
     try{
         let id = req.param("id");
-        let favorites = await FavoriteFish.find({user: id}).populate("fish");
+        let favorites = await FavoriteFish.find({user: id});
+        favorites = await Promise.all(favorites.map(async it=>{
+          it.fish = await Fish.findOne({id: it.fish}).populate("type");
+          return it;
+        }));
 
         res.json(favorites);
 
