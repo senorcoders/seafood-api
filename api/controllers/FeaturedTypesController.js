@@ -8,6 +8,7 @@ module.exports = {
             if(featured.length===0){
                 featured = await FeaturedTypes.create({featuredsID: req.param("featuredsID")}).fetch();
             }else{
+                featured = await FeaturedTypes.update({id: featured[0].id}, {featuredsID: req.param("featuredsID")}).fetch();
                 featured = featured[0];
             }
             console.log(featured);
