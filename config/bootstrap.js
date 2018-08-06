@@ -62,7 +62,7 @@ module.exports.bootstrap = async function(done) {
   await User.createEach([
     { email: 'kharron@senorcoders.com', firstName: 'Kharron', lastName: 'Coders', code: 'odo237',
     password: await sails.helpers.passwords.hashPassword('holahola!'), verified: false, location: 'san juan',
-    role: { name : 'Admin' } }
+    role: 0 }
   ]);
 
   // Save new bootstrap version

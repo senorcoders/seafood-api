@@ -101,7 +101,7 @@ and exposed as \`req.me\`.)`
       email: inputs.email.toLowerCase(),
       status: "accepted"
     });
-
+    console.log(userRecord);
     // If there was no matching user, respond thru the "badCombo" exit.
     if (!userRecord) {
       throw 'badCombo';
