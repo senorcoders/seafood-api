@@ -1,4 +1,4 @@
-
+const favoriteFsihCtrl = require("./FavoriteFishController");
 
 module.exports = {
     getWithAllData: async function(req, res){
@@ -22,6 +22,23 @@ module.exports = {
                 try{
                     it.fish = await Fish.findOne({ id: it.fish });
                     it.fish.store = await Store.findOne({ id: it.fish.store });
+                    it.favorite = await new Promise((resolve, reject)=>{
+                        let ress = {
+                            json: resolve,
+                            serverError: reject
+                        };
+                        reqq = {
+                            param: function(id){
+                                let params = {
+                                    user: req.param("user"),
+                                    fish: it.fish.id
+                                };
+
+                                return params[id];
+                            }
+                        }
+                        favoriteFsihCtrl.getXUserAndFish(reqq, ress);
+                    });
                 }
                 catch(e){
                     console.error(e);

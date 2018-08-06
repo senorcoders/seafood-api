@@ -3,6 +3,7 @@ module.exports = {
   
     saveOrUpdate: async(req, res)=>{
         try{
+
             let featured = await FeaturedTypes.find().limit(1);
             if(featured.length===0){
                 featured = await FeaturedTypes.create({featuredsID: req.param("featuredsID")}).fetch();
