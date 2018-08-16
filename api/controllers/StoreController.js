@@ -45,6 +45,20 @@ module.exports = {
         console.error(e);
         res.serverError(e);
     }
+ },
+
+ getWithTypes: async (req, res)=>{
+    try{
+        let id = req.param("id");
+        let store = await Store.findOne({id});
+        store.fishs =  await Fish.find({store:store.id}).populate("type")
+
+        res.json(store);
+    }
+    catch(e){
+        console.error(e);
+        res.serverError(e);
+    }
  }
 
 };

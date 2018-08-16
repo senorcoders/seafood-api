@@ -169,8 +169,11 @@ module.exports.routes = {
    * 
    */
 
-  //Para obtener stores simplificados son toda su informaciòn
+  //Para obtener stores simplificados con toda su informaciòn
   'GET /api/store': "StoreController.getStoreSimplified",
+
+  //Get Store con los types
+  "GET /store/:id": "StoreController.getWithTypes",
 
   //Para guardar store con todo y sus imagenes
   'POST /api/store': "StoreController.save",
