@@ -27,9 +27,6 @@ function getTemplateVerificationCode(id, email, code) {
         </a>
         <!--[if mso]></center></v:textbox></v:roundrect></td></tr></table><![endif]-->
     </div>
-
-                        
-                 
             <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
             </div>
         </div>
@@ -77,14 +74,14 @@ exports.sendCode = async function (id, email, code) {
             let mailOptions = {
                 from: '"Senorcoders" <milton@senorcoders.com>', // sender address
                 to: email, // list of receivers
-                subject: code + ' Verification Code ✔', // Subject line
+                subject: `Registration Approved - Seafood Souq`, // Subject line
                 text: '', // plain text body
                 html: template, // html body
-                /*attachments: [{
-                    filename: 'image.png',
-                    path: './template_emails/images/logo_team.png',
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './template_emails/images/logo.png',
                     cid: 'unique@kreata.ee' //same cid value as in the html img src
-                }]*/
+                }]
             };
 
             // send mail with defined transport object
