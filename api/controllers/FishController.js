@@ -69,7 +69,12 @@ module.exports = {
                             it.store = await Store.findOne({ id: it.store.toString() }).populate("owner");
                             return it;
                         }));
-
+                        if (arr.length > 0) {
+                            let page_number = Number(req.param("page"));
+                            let page_size = Number(req.param("limit"));
+                            --page_number; // because pages logically start with 1, but technically with 0
+                            arr = arr.slice(page_number * page_size, (page_number + 1) * page_size);
+                        }
                         resolve(arr);
                     });
             });
@@ -259,14 +264,14 @@ module.exports = {
 
                     let find = false;
                     for (let i = 0; i < itemsP[index].quantity.length; i++) {
-                        if( itemsP[index].quantity[i].type === it.quantity.type ){
+                        if (itemsP[index].quantity[i].type === it.quantity.type) {
                             find = true;
                             itemsP[index].quantity[i].value += it.quantity.value;
                             break;
                         }
                     }
 
-                    if( find===false ){
+                    if (find === false) {
                         itemsP[index].quantity.push(it.quantity);
                     }
                 }
@@ -291,7 +296,7 @@ module.exports = {
                 //Cargamos el comprador y la tienda
                 items = await Promise.all(items.map(async function (it) {
 
-                    it.fish = await Fish.findOne({id: it.fish.id}).populate("type");
+                    it.fish = await Fish.findOne({ id: it.fish.id }).populate("type");
                     return {
                         quantity: it.quantity,
                         type: it.fish.type
@@ -322,14 +327,14 @@ module.exports = {
 
                     let find = false;
                     for (let i = 0; i < itemsP[index].quantity.length; i++) {
-                        if( itemsP[index].quantity[i].type === it.quantity.type ){
+                        if (itemsP[index].quantity[i].type === it.quantity.type) {
                             find = true;
                             itemsP[index].quantity[i].value += it.quantity.value;
                             break;
                         }
                     }
 
-                    if( find===false ){
+                    if (find === false) {
                         itemsP[index].quantity.push(it.quantity);
                     }
                 }

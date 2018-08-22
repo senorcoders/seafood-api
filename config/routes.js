@@ -134,7 +134,7 @@ module.exports.routes = {
   'GET /api/fish/:where': "FishController.customWhere",
 
   //Para obtener los productos por medio de where
-  'POST /api/fish/search/': "FishController.search",
+  'POST /api/fish/search/:page/:limit': "FishController.search",
 
   //Para obtener sugerencias de los productos
   "POST /api/fish/suggestions": "FishController.getSuggestions",
