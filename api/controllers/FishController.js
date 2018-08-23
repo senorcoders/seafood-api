@@ -73,7 +73,12 @@ module.exports = {
                         if (arr.length > 0) {
                             let page_number = Number(req.param("page"));
                             let page_size = Number(req.param("limit"));
-                            pages = parseInt(arr.length/page_size, 10);
+                            console.log(arr.length,Number(arr.length/page_size));
+                            if(parseInt(arr.length/page_size, 10)<Number(arr.length/page_size)){
+                                pages = parseInt(arr.length/page_size, 10)+1;
+                            }else{
+                                pages = parseInt(arr.length/page_size, 10)
+                            }
                             --page_number; // because pages logically start with 1, but technically with 0
                             arr = arr.slice(page_number * page_size, (page_number + 1) * page_size);
                         }
