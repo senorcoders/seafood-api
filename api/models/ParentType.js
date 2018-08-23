@@ -1,4 +1,5 @@
 
+
 module.exports = {
 
   attributes: {
@@ -6,23 +7,7 @@ module.exports = {
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
-    name: {
-      type: 'string',
-      required: true,
-      maxLength: 130,
-      unique: true
-    },
 
-    description: {
-      type: 'string',
-      required: true
-    },
-
-    images: {
-      type: "json",
-      columnType: "array",
-      required: false
-    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
@@ -32,16 +17,15 @@ module.exports = {
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-    childsTypes: {
-      collection: "parenttype",
-      via: "parent"
+    parent: {
+      model: "fishtype",
+      required: true
     },
 
-    parentsTypes: {
-      collection: "parenttype",
-      via: "child"
+    child: {
+      model: "fishtype",
+      required: true
     }
-
   },
 
 };
