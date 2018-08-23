@@ -276,6 +276,13 @@ module.exports.routes = {
 
   "GET /featuredtypes": "FeaturedTypesController.get",
 
+   /******
+   * FEATURED TYPES MENU
+   */
+  "POST /featuredtypes-menu": "FishTypeMenu.saveOrUpdate",
+
+  "GET /featuredtypes-menu": "FishTypeMenu.get",
+
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝
