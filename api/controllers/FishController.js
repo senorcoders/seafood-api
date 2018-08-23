@@ -51,6 +51,7 @@ module.exports = {
             // Now we can do anything we could do with a Mongo `db` instance:
             var fish = db.collection(Fish.tableName);
             console.log(req.param("search"));
+            let pages;
             let productos = await new Promise((resolve, reject) => {
                 fish.find({
                     $or:
@@ -72,6 +73,7 @@ module.exports = {
                         if (arr.length > 0) {
                             let page_number = Number(req.param("page"));
                             let page_size = Number(req.param("limit"));
+                            pages = parseInt(arr.length/page_size, 10);
                             --page_number; // because pages logically start with 1, but technically with 0
                             arr = arr.slice(page_number * page_size, (page_number + 1) * page_size);
                         }
@@ -79,7 +81,7 @@ module.exports = {
                     });
             });
 
-            res.json(productos);
+            res.json({fish: productos, pagesCount: pages});
 
             /*let productos = await Fish.find({name: {contains: req.param("name") } }).populate("type");
             
