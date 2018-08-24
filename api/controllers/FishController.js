@@ -5,7 +5,9 @@ module.exports = {
 
     getAllPagination: async function (req, res) {
         try {
-            let productos = await Fish.find().populate("type").populate("store").paginate({ page: req.params.page, limit: req.params.limit });
+            let start = Number(req.params.page);
+            --start;
+            let productos = await Fish.find().populate("type").populate("store").paginate({ page: start, limit: req.params.limit });
             productos = await Promise.all(productos.map(async function (m) {
                 if (m.store === null)
                     return m;
