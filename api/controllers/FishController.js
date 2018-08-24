@@ -14,7 +14,16 @@ module.exports = {
                 return m;
             }));
 
-            res.json(productos);
+            let arr = await Fish.find(),
+                page_size = Number(req.params.limit), pages = 0;
+            console.log(arr.length, Number(arr.length / page_size));
+            if (parseInt(arr.length / page_size, 10) < Number(arr.length / page_size)) {
+                pages = parseInt(arr.length / page_size, 10) + 1;
+            } else {
+                pages = parseInt(arr.length / page_size, 10)
+            }
+
+            res.json({ productos, pagesNumber: pages });
         }
         catch (e) {
             res.serverError(e);
@@ -73,11 +82,11 @@ module.exports = {
                         if (arr.length > 0) {
                             let page_number = Number(req.param("page"));
                             let page_size = Number(req.param("limit"));
-                            console.log(arr.length,Number(arr.length/page_size));
-                            if(parseInt(arr.length/page_size, 10)<Number(arr.length/page_size)){
-                                pages = parseInt(arr.length/page_size, 10)+1;
-                            }else{
-                                pages = parseInt(arr.length/page_size, 10)
+                            console.log(arr.length, Number(arr.length / page_size));
+                            if (parseInt(arr.length / page_size, 10) < Number(arr.length / page_size)) {
+                                pages = parseInt(arr.length / page_size, 10) + 1;
+                            } else {
+                                pages = parseInt(arr.length / page_size, 10)
                             }
                             --page_number; // because pages logically start with 1, but technically with 0
                             arr = arr.slice(page_number * page_size, (page_number + 1) * page_size);
@@ -86,7 +95,7 @@ module.exports = {
                     });
             });
 
-            res.json({fish: productos, pagesCount: pages});
+            res.json({ fish: productos, pagesCount: pages });
 
             /*let productos = await Fish.find({name: {contains: req.param("name") } }).populate("type");
             
