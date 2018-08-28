@@ -187,7 +187,7 @@ module.exports = {
     updateShoppingCartPaid: async function (req, res) {
         try {
 
-            let cart = await ShoppingCart.findOne({ id: req.param("id")/*, status: "pending"*/ }).populate("buyer");
+            let cart = await ShoppingCart.findOne({ id: req.param("id"), status: "pending" }).populate("buyer");
             if (cart === undefined) {
                 return res.status(400).send("not found");
             }
