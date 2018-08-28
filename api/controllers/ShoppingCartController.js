@@ -187,7 +187,7 @@ module.exports = {
     updateShoppingCartPaid: async function (req, res) {
         try {
 
-            let cart = await ShoppingCart.findOne({ id: req.param("id"), status: "pending" }).populate("buyer");
+            let cart = await ShoppingCart.findOne({ id: req.param("id")/*, status: "pending"*/ }).populate("buyer");
             if (cart === undefined) {
                 return res.status(400).send("not found");
             }
@@ -200,8 +200,7 @@ module.exports = {
             }));
 
             //Se le envia los datos de compras al vendedor
-            await require("./../../mailer").sendCartPaidBuyer(cart.buyer.firstName + " " + cart.buyer.lastName,
-                itemsShopping, cart.buyer.email);
+            await require("./../../mailer").sendCartPaidBuyer(itemsShopping, cart.buyer.email);
 
             //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
             let itemsStore = [];
@@ -222,7 +221,7 @@ module.exports = {
             for (let st of itemsStore) {
                 let fullName = st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName
-                await require("./../../mailer").sendCartSeller(fullName, fullNameBuyer, cart.buyer.email, st, st[0].fish.store.owner.email)
+                // await require("./../../mailer").sendCartSeller(fullName, fullNameBuyer, cart.buyer.email, st, st[0].fish.store.owner.email)
             }
 
             cart = await ShoppingCart.update({ id: req.param("id") }, { status: "paid", paidDateTime: req.param("paidDateTime") }).fetch();
