@@ -168,7 +168,7 @@ exports.registerUser = async function (fullName, email, password, verificationCo
 
 exports.newUserNotification = async function (firstName, lastName, role, email) {
 
-    //Obntenemos el template
+    //Obtenemos el template
     let template = await new Promise((resolve, reject) => {
         let tempt = fs.readFileSync(path.join(TEMPLATE, "verify_new_user1.html"), { encoding: "utf-8" })
         let temp0 = `
@@ -293,84 +293,13 @@ exports.sendDataFormContactToSeller = function (email, data) {
 
 function addItem(item) {
     let itemParser = `
-<div style="background-color:transparent;">
-<div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;" class="block-grid four-up ">
-  <div style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;">
-    <!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width: 500px;"><tr class="layout-full-width" style="background-color:transparent;"><![endif]-->
-
-        <!--[if (mso)|(IE)]><td align="center" width="125" style=" width:125px; padding-right: 0px; padding-left: 0px; padding-top:5px; padding-bottom:5px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]-->
-      <div class="col num3" style="max-width: 320px;min-width: 125px;display: table-cell;vertical-align: top;">
-        <div style="background-color: transparent; width: 100% !important;">
-        <!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:5px; padding-bottom:5px; padding-right: 0px; padding-left: 0px;"><!--<![endif]-->
-
-            
-              <div class="">
-<!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
-<div style="color:#555555;line-height:120%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
-  <div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px">${ item.fish.name}</p></div>	
-</div>
-<!--[if mso]></td></tr></table><![endif]-->
-</div>
-            
-        <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
-        </div>
-      </div>
-        <!--[if (mso)|(IE)]></td><td align="center" width="125" style=" width:125px; padding-right: 0px; padding-left: 0px; padding-top:5px; padding-bottom:5px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]-->
-      <div class="col num3" style="max-width: 320px;min-width: 125px;display: table-cell;vertical-align: top;">
-        <div style="background-color: transparent; width: 100% !important;">
-        <!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:5px; padding-bottom:5px; padding-right: 0px; padding-left: 0px;"><!--<![endif]-->
-
-            
-              <div class="">
-<!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
-<div style="color:#555555;line-height:120%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
-  <div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px">${ item.price.type + " " + item.price.value}</p></div>	
-</div>
-<!--[if mso]></td></tr></table><![endif]-->
-</div>
-            
-        <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
-        </div>
-      </div>
-        <!--[if (mso)|(IE)]></td><td align="center" width="125" style=" width:125px; padding-right: 0px; padding-left: 0px; padding-top:5px; padding-bottom:5px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]-->
-      <div class="col num3" style="max-width: 320px;min-width: 125px;display: table-cell;vertical-align: top;">
-        <div style="background-color: transparent; width: 100% !important;">
-        <!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:5px; padding-bottom:5px; padding-right: 0px; padding-left: 0px;"><!--<![endif]-->
-
-            
-              <div class="">
-<!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
-<div style="color:#555555;line-height:120%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
-  <div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 12px;line-height: 14px">${ item.quantity.type + " - " + item.quantity.value}</p></div>	
-</div>
-<!--[if mso]></td></tr></table><![endif]-->
-</div>
-            
-        <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
-        </div>
-      </div>
-        <!--[if (mso)|(IE)]></td><td align="center" width="125" style=" width:125px; padding-right: 0px; padding-left: 0px; padding-top:5px; padding-bottom:5px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]-->
-      <div class="col num3" style="max-width: 320px;min-width: 125px;display: table-cell;vertical-align: top;">
-        <div style="background-color: transparent; width: 100% !important;">
-        <!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:5px; padding-bottom:5px; padding-right: 0px; padding-left: 0px;"><!--<![endif]-->
-
-            
-              <div class="">
-<!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
-<div style="color:#555555;line-height:120%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
-  <div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px">${ parseFloat(item.quantity.value * item.price.value).toFixed(2)}</p></div>	
-</div>
-<!--[if mso]></td></tr></table><![endif]-->
-</div>
-            
-        <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
-        </div>
-      </div>
-    <!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]-->
-  </div>
-</div>
-</div> 
-`;
+                    <div class="row">
+                    <div class="name">${ item.fish.name}</div>
+                    <div class="price-unit">${ item.price.type + " " + item.price.value}</div>
+                    <div class="quantity">${ item.quantity.type + " - " + item.quantity.value}</div>
+                    <div class="subtotal">${ parseFloat(item.quantity.value * item.price.value).toFixed(2)}</div>
+                    </div>
+                `;
 
     return itemParser;
 }
@@ -384,99 +313,27 @@ function calcTotaItem(items) {
     return items[0].price.type + " " + parseFloat(total).toFixed(2);
 }
 
-async function getTemplateShopping(msgTitle, msgBeforeItems, msgAfterItems, items) {
+async function getTemplateShopping(items) {
 
-    let head, footer;
-    await new Promise(function (resolve, reject) {
-        fs.readFile("./template_emails/paid_cart1.html", "utf8", function (err, data) {
-            if (err) { return reject(err); }
-            fs.readFile("./template_emails/paid_cart2.html", "utf8", function (err, data2) {
-                if (err) { return reject(err); }
-                head = data;
-                footer = data2;
-                resolve();
-            });
-        });
-    });
+    let head = fs.readFileSync(path.join(TEMPLATE, "purchase_buyer", "purchase_buyer1.html"), { encoding: "utf-8" })
+    , footer = fs.readFileSync(path.join(TEMPLATE, "purchase_buyer", "purchase_buyer2.html"), { encoding: "utf-8" });
 
     let itemsTemplate = "";
     for (let it of items) {
         itemsTemplate += addItem(it);
     }
 
-    let beforeItems = `
-    <div class="">
-	<!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
-	<div style="color:#555555;line-height:150%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
-		<div style="font-size:12px;line-height:18px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 21px"><strong><span style="font-size: 18px; line-height: 27px;">${msgTitle}</span></strong></p></div>	
-	</div>
-	<!--[if mso]></td></tr></table><![endif]-->
-</div>
-                  
-              <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
-              </div>
-            </div>
-          <!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]-->
-        </div>
-      </div>
-    </div>    <div style="background-color:transparent;">
-      <div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;" class="block-grid ">
-        <div style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;">
-          <!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width: 500px;"><tr class="layout-full-width" style="background-color:transparent;"><![endif]-->
+    let total = `<div class="total">
+    <b>total purchased:</b>  <span class="price">${calcTotaItem(items)}</span>
+    </div>`;
 
-              <!--[if (mso)|(IE)]><td align="center" width="500" style=" width:500px; padding-right: 0px; padding-left: 0px; padding-top:5px; padding-bottom:5px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]-->
-            <div class="col num12" style="min-width: 320px;max-width: 500px;display: table-cell;vertical-align: top;">
-              <div style="background-color: transparent; width: 100% !important;">
-              <!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:5px; padding-bottom:5px; padding-right: 0px; padding-left: 0px;"><!--<![endif]-->
-
-                  
-                    <div class="">
-	<!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
-	<div style="color:#555555;line-height:120%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
-		<div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px"><span style="font-size: 15px; line-height: 18px;">${msgBeforeItems}</span></p></div>	
-	</div>
-	<!--[if mso]></td></tr></table><![endif]-->
-</div>
-                  
-              <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
-              </div>
-            </div>
-          <!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]-->
-        </div>
-      </div>
-    </div>
-    ${ itemsTemplate}    
-    `;
-
-    let afterItems = `
-    
-    <div style="background-color:transparent;">
-      <div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;" class="block-grid ">
-        <div style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;">
-          <!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width: 500px;"><tr class="layout-full-width" style="background-color:transparent;"><![endif]-->
-
-              <!--[if (mso)|(IE)]><td align="center" width="500" style=" width:500px; padding-right: 0px; padding-left: 0px; padding-top:5px; padding-bottom:5px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]-->
-            <div class="col num12" style="min-width: 320px;max-width: 500px;display: table-cell;vertical-align: top;">
-              <div style="background-color: transparent; width: 100% !important;">
-              <!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:5px; padding-bottom:5px; padding-right: 0px; padding-left: 0px;"><!--<![endif]-->
-
-                  
-                    <div class="">
-	<!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
-	<div style="color:#555555;line-height:120%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
-		<div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px"><strong>${msgAfterItems + ": " + calcTotaItem(items)}</strong></p></div>	
-    </div>
-    `;
-
-    return head + beforeItems + afterItems + footer;
+    return head + itemsTemplate + total + footer;
 }
 
-exports.sendCartPaidBuyer = async function (fullName, items, email) {
-    let msgTitle = `Hey! ${fullName}`,
-        msgBeforeItems = "You have made the following purchases at Seafood Souq.",
-        msgAfterItems = "The total of your purchased products is";
+exports.sendCartPaidBuyer = async function (items, email) {
 
-    let template = await getTemplateShopping(msgTitle, msgBeforeItems, msgAfterItems, items);
+
+    let template = await getTemplateShopping(items);
     console.log("buyer:: ", email);
     return new Promise(function (resolve, reject) {
         // setup email data with unicode symbols
@@ -485,7 +342,12 @@ exports.sendCartPaidBuyer = async function (fullName, items, email) {
             to: email, // list of receivers
             subject: 'Shopping at Seafood Souq', // Subject line
             text: '',
-            html: template
+            html: template,
+            attachments: [{
+                filename: 'image.png',
+                path: './template_emails/images/logo.png',
+                cid: 'unique@kreata.ee' //same cid value as in the html img src
+            }]
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
