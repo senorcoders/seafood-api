@@ -43,7 +43,7 @@ module.exports = {
       required: false
     },
 
-    Treatment: {
+    treatment: {
       type: "string",
       required: false
     },
