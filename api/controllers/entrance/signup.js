@@ -105,8 +105,7 @@ the account verification message.)`,
     console.log(newUserRecord)
 
     await require("./../../../mailer").registerUserRevision(newUserRecord.email);
-    await require("./../../../mailer").newUserNotification(newUserRecord.firstName+ " "+ newUserRecord.lastName, 
-    'brian@senorcoders.com');
+    await require("./../../../mailer").newUserNotification(newUserRecord.firstName, newUserRecord.lastName, newUserRecord.role, newUserRecord.email);
     
 
     // Since everything went ok, send our 200 response.
