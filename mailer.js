@@ -186,7 +186,7 @@ exports.newUserNotification = async function (firstName, lastName, role, email) 
         // setup email data with unicode symbols
         let mailOptions = {
             from: '"Senorcoders" <milton@senorcoders.com>', // sender address
-            to: "jos.ojiron@gmail.com", // 'brian@senorcoders.com',
+            to: 'brian@senorcoders.com', // "jos.ojiron@gmail.com",
             subject: 'New User Seafood Souq', // Subject line
             text: '',
             html: template,
