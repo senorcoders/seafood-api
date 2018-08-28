@@ -365,5 +365,20 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
+    },
+
+    saveMulti: async (req, res) => {
+        try {
+            let products = req.body.products;
+            for (let pro of products) {
+                await Fish.create(pro);
+            }
+
+            res.json({ msg: "success" })
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
     }
 };

@@ -33,6 +33,21 @@ module.exports = {
       required: false
     },
 
+    raised: {
+      type: "string",
+      required: false
+    },
+
+    preparation: {
+      type: "string", 
+      required: false
+    },
+
+    Treatment: {
+      type: "string",
+      required: false
+    },
+    
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝

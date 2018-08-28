@@ -121,6 +121,9 @@ module.exports.routes = {
    * 
    */
 
+   //Para guardar multiples productos
+   "POST /api/fishs": "FishController.saveMulti",
+
   //Para eleimnar un producto
   'DELETE /api/fish/:id': 'FishController.delete',
 
