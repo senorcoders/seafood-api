@@ -1,7 +1,8 @@
 const nodemailer = require('nodemailer');
 const config = require("./config/local").mailer;
 const path = require('path');
-const IMAGES = path.join(__dirname, '/images');
+const IMAGES = path.join(__dirname, '/images'),
+    TEMPLATE = path.join(__dirname, "/template_emails");
 console.log(IMAGES);
 // create reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
@@ -165,20 +166,35 @@ exports.registerUser = async function (fullName, email, password, verificationCo
 
 }
 
-exports.newUserNotification = async function (fullName, email) {
+exports.newUserNotification = async function (firstName, lastName, role, email) {
+
+    //Obntenemos el template
+    let template = await new Promise((resolve, reject) => {
+        let tempt = fs.readFileSync(path.join(TEMPLATE, "verify_new_user1.html"), { encoding: "utf-8" })
+        let temp0 = `
+        <b>First Name:</b> ${firstName} <br />
+        <b>Last Name:</b> ${lastName} <br />
+        <b>Email:</b> ${email} <br />
+        <b>Role:</b> ${role === 1 ? 'Seller' : 'Buyer'}
+        `;
+        let temp1 = fs.readFileSync(path.join(TEMPLATE, "verify_new_user2.html"), { encoding: "utf-8" })
+
+        resolve(tempt + temp0 + temp1);
+    });
 
     return new Promise(function (resolve, reject) {
         // setup email data with unicode symbols
         let mailOptions = {
             from: '"Senorcoders" <milton@senorcoders.com>', // sender address
-            to: email, // list of receivers
+            to: "jos.ojiron@gmail.com", // 'brian@senorcoders.com',
             subject: 'New User Seafood Souq', // Subject line
             text: '',
-            html: `
-            <h3>A new user has registered</h3>
-            <h3>${fullName}</h3>
-            <h3>Enter the <a href="https://seafood.senorcoders.com/">APP</a> to verify its status</h3>
-            ` // html body
+            html: template,
+            attachments: [{
+                filename: 'image.png',
+                path: './template_emails/images/logo.png',
+                cid: 'unique@kreata.ee' //same cid value as in the html img src
+            }]
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
@@ -359,13 +375,13 @@ function addItem(item) {
     return itemParser;
 }
 
-function calcTotaItem(items){
+function calcTotaItem(items) {
     let total = 0;
-    for(let it of items){
+    for (let it of items) {
         total += it.quantity.value * it.price.value;
     }
 
-    return items[0].price.type+ " "+ parseFloat(total).toFixed(2);
+    return items[0].price.type + " " + parseFloat(total).toFixed(2);
 }
 
 async function getTemplateShopping(msgTitle, msgBeforeItems, msgAfterItems, items) {
@@ -448,17 +464,17 @@ async function getTemplateShopping(msgTitle, msgBeforeItems, msgAfterItems, item
                     <div class="">
 	<!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
 	<div style="color:#555555;line-height:120%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
-		<div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px"><strong>${msgAfterItems+ ": "+ calcTotaItem(items)}</strong></p></div>	
+		<div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px"><strong>${msgAfterItems + ": " + calcTotaItem(items)}</strong></p></div>	
     </div>
     `;
 
-    return head+ beforeItems+ afterItems+ footer;
+    return head + beforeItems + afterItems + footer;
 }
 
-exports.sendCartPaidBuyer = async function(fullName, items, email){
+exports.sendCartPaidBuyer = async function (fullName, items, email) {
     let msgTitle = `Hey! ${fullName}`,
-    msgBeforeItems = "You have made the following purchases at Seafood Souq.",
-    msgAfterItems = "The total of your purchased products is";
+        msgBeforeItems = "You have made the following purchases at Seafood Souq.",
+        msgAfterItems = "The total of your purchased products is";
 
     let template = await getTemplateShopping(msgTitle, msgBeforeItems, msgAfterItems, items);
     console.log("buyer:: ", email);
@@ -486,10 +502,10 @@ exports.sendCartPaidBuyer = async function(fullName, items, email){
     });
 }
 
-exports.sendCartSeller = async function(fullName, fullNameBuyer, emailBuyer, items, email){
+exports.sendCartSeller = async function (fullName, fullNameBuyer, emailBuyer, items, email) {
     let msgTitle = `Hey! ${fullName}`,
-    msgBeforeItems = "You have sales made for "+ fullNameBuyer+ ", "+ emailBuyer,
-    msgAfterItems = "The total of its products sold is";
+        msgBeforeItems = "You have sales made for " + fullNameBuyer + ", " + emailBuyer,
+        msgAfterItems = "The total of its products sold is";
 
     let template = await getTemplateShopping(msgTitle, msgBeforeItems, msgAfterItems, items);
     console.log("seller:: ", email);
@@ -520,7 +536,7 @@ exports.sendCartSeller = async function(fullName, fullNameBuyer, emailBuyer, ite
 //#endregion
 
 //#region para enviar correo cuando un pescado esta de camino
-async function getTemplateItemShopping(item){
+async function getTemplateItemShopping(item) {
     let producto = `
     <div style="color:#555555;line-height:120%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
     <div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px">${item.fish.name}</p></div>	
@@ -540,11 +556,11 @@ async function getTemplateItemShopping(item){
                 <div class="">
 <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
 <div style="color:#555555;line-height:120%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
-    <div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px">${item.quantity.type+ " - "+ item.quantity.value}</p></div>	
+    <div style="font-size:12px;line-height:14px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px">${item.quantity.type + " - " + item.quantity.value}</p></div>	
 </div>
     `;
 
-    return new Promise(function(resolve, reject){
+    return new Promise(function (resolve, reject) {
         fs.readFile("./template_emails/item.html", "utf8", function (err, data) {
             if (err) { return reject(err); }
             fs.readFile("./template_emails/item2.html", "utf8", function (err, data2) {
@@ -555,11 +571,11 @@ async function getTemplateItemShopping(item){
     })
 }
 
-exports.sendEmailItemRoad = async function(email, trackingID, trackingFile, item){
+exports.sendEmailItemRoad = async function (email, trackingID, trackingFile, item) {
     let template = await getTemplateItemShopping(item);
     console.log("item:: ", email);
-    if( trackingID !== "" ){
-        trackingID = ", you tracking ID "+ trackingID
+    if (trackingID !== "") {
+        trackingID = ", you tracking ID " + trackingID
     }
 
     return new Promise(function (resolve, reject) {
@@ -567,20 +583,20 @@ exports.sendEmailItemRoad = async function(email, trackingID, trackingFile, item
         let mailOptions = {
             from: '"Senorcoders" <milton@senorcoders.com>', // sender address
             to: email, // list of receivers
-            subject: 'Buy In Seafood Souq '+trackingID, // Subject line
+            subject: 'Buy In Seafood Souq ' + trackingID, // Subject line
             text: '',
             html: template,
             attachments: [{
                 filename: 'image.png',
-                path: './template_emails/images/seafood.png',
+                path: './template_emails/images/logo.png',
                 cid: 'unique@kreata.ee' //same cid value as in the html img src
-                }]
+            }]
         };
 
-        if( trackingFile !== "" ){
+        if (trackingFile !== "") {
 
             let sp = trackingFile.split("/");
-            let dirname = path.join(IMAGES, "trackingfile", item.id, sp[sp.length-2]);
+            let dirname = path.join(IMAGES, "trackingfile", item.id, sp[sp.length - 2]);
             mailOptions.attachments.push({
                 filename: "tracking.png",
                 path: dirname,
