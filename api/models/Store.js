@@ -32,16 +32,34 @@ module.exports = {
       required: false
     },
 
-    galeryImages:{
-      type: "json",
-      columnType: "array",
+    SFS_SalesOrderForm:{
+      type: "string",
+      required: false
+    },
+
+    SFS_TradeLicense:{
+      type: "string",
+      required: false
+    },
+
+    SFS_ImportCode:{
+      type: "string",
+      required: false
+    },
+
+    SFS_HSCode:{
+      type: "string",
       required: false
     },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
-
+    galeryImages:{
+      type: "json",
+      columnType: "array",
+      required: false
+    },
 
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗

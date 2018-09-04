@@ -205,6 +205,12 @@ module.exports.routes = {
   //Para obtener productos pagados por tienda y items shippingStatus === 'paid'
   'GET /api/store/fish/items/paid/:id': 'ItemShoppingController.getItemsXStoreAndItemPaid',
 
+  //Para subir las images sfs
+  "POST /api/store/sfs/:id": "StoreController.uploadImagesSFS",
+
+  //Para obtener el sfs image
+  "GET /image/store/sfs/:namefile/:id": "StoreController.getImageSFS",
+
   /***********
    * 
    * SHOPPING CART

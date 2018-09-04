@@ -51,7 +51,7 @@ module.exports.http = {
 
     bodyParser: /*require('express').bodyParser()*/ (function _configureBodyParser(){
        var skipper = require('skipper');
-       var middlewareFn = skipper({ strict: true, maxTimeToBuffer: 10000  });
+       var middlewareFn = skipper({ strict: true, maxTimeToBuffer: 100000,  });
        return middlewareFn;
      })(),
 
