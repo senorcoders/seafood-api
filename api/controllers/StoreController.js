@@ -187,8 +187,9 @@ module.exports = {
                     console.log(dirname);
                     fs.unlinkSync(dirname);
                 }
-                delete store[sfs];
+                store[sfs] = "";
                 delete store["id"];
+                console.log(store);
                 await Store.update({id},store)
             }
 
