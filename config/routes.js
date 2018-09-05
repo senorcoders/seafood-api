@@ -211,6 +211,9 @@ module.exports.routes = {
   //Para obtener el sfs image
   "GET /image/store/sfs/:namefile/:id": "StoreController.getImageSFS",
 
+  //Delete sfs image
+  "DELETE /image/store/sfs/:sfs/:id": "StoreController.deleteImageSFS",
+
   /***********
    * 
    * SHOPPING CART

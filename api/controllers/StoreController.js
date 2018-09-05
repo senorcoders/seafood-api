@@ -95,11 +95,11 @@ module.exports = {
                 console.log("estas");
                 if (err) return res.serverError(err);
 
-                let srcs={
-                    SFS_SalesOrderForm:"",
-                    SFS_TradeLicense:"",
+                let srcs = {
+                    SFS_SalesOrderForm: "",
+                    SFS_TradeLicense: "",
                     SFS_ImportCode: "",
-                    SFS_HSCode:""
+                    SFS_HSCode: ""
                 };
                 let i = 0;
                 for (let file of uploadedFiles) {
@@ -107,16 +107,16 @@ module.exports = {
                         let rs = path.resolve(file.fd);
                         console.log(rs);
                         let nameFile = isWin ? rs.split("\\").pop() : rs.split("/").pop();
-                        if(i==0){
+                        if (i == 0) {
                             srcs.SFS_SalesOrderForm = "/image/store/sfs/" + nameFile + "/" + req.param("id");
                         }
-                        if(i==1){
+                        if (i == 1) {
                             srcs.SFS_TradeLicense = "/image/store/sfs/" + nameFile + "/" + req.param("id");
                         }
-                        if(i==2){
+                        if (i == 2) {
                             srcs.SFS_ImportCode = "/image/store/sfs/" + nameFile + "/" + req.param("id");
                         }
-                        if(i==3){
+                        if (i == 3) {
                             srcs.SFS_HSCode = "/image/store/sfs/" + nameFile + "/" + req.param("id");
                         }
                         i++;
@@ -124,8 +124,8 @@ module.exports = {
                 }
 
                 await Store.update({ id }, srcs);
-                
-                res.json({msg:"success"});
+
+                res.json({ msg: "success" });
             })
 
         }
@@ -135,10 +135,10 @@ module.exports = {
         }
     },
 
-    getImageSFS: async (req, res)=>{
-        try{
+    getImageSFS: async (req, res) => {
+        try {
             let nameFile = req.param("namefile"), id = req.param("id"),
-            dirname = path.join(DIR, id, nameFile);
+                dirname = path.join(DIR, id, nameFile);
 
             let mimeType = await new Promise(function (resolve, reject) {
                 var magic = new Magic(mmm.MAGIC_MIME_TYPE);
@@ -157,7 +157,45 @@ module.exports = {
             }
 
         }
-        catch(e){
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
+    deleteImageSFS: async (req, res) => {
+        try {
+            let sfs = req.param("sfs"), id = req.param("id"); console.log(sfs);
+            let d = `
+            SFS_SalesOrderForm
+            SFS_TradeLicense
+            SFS_ImportCode
+            SFS_HSCode
+            `;
+            let store = await Store.findOne({id});
+            if(store===undefined){
+                res.status(400);
+                return res.send("not found!");
+            }
+
+            if(store[sfs]){
+                let url = store[sfs];
+                let urlsplit = url.split("/").slice(-2);
+                let namefile = urlsplit[0];
+                let dirname = path.join(DIR, id, namefile);
+                if (fs.existsSync(dirname) === true) {
+                    console.log(dirname);
+                    fs.unlinkSync(dirname);
+                }
+                delete store[sfs];
+                delete store["id"];
+                await Store.update({id},{store})
+            }
+
+            res.json({msg:"success"})
+
+        }
+        catch (e) {
             console.error(e);
             res.serverError(e);
         }
