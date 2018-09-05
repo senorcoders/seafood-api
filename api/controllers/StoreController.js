@@ -189,7 +189,7 @@ module.exports = {
                 }
                 delete store[sfs];
                 delete store["id"];
-                await Store.update({id},{store})
+                await Store.update({id},store)
             }
 
             res.json({msg:"success"})
