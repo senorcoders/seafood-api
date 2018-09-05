@@ -163,6 +163,60 @@ module.exports = {
         }
     },
 
+    updateImageSFS: async (req, res) => {
+        try {
+            let sfs = req.param("sfs"), id = req.param("id"); console.log(sfs);
+            let d = `
+            SFS_SalesOrderForm
+            SFS_TradeLicense
+            SFS_ImportCode
+            SFS_HSCode
+            `;
+            let store = await Store.findOne({ id });
+            if (store === undefined) {
+                res.status(400);
+                return res.send("not found!");
+            }
+
+            let dirname = path.join(DIR, id);
+
+            //Si no exite el path, se crea
+            if (fs.existsSync(dirname) === false) {
+                fs.mkdirSync(dirname)
+            }
+
+            req.file("sfs").upload({
+                dirname,
+                maxBytes: 20000000
+            }, async function (err, uploadedFiles) {
+                console.log("estas");
+                if (err) return res.serverError(err);
+
+
+                let src = "";
+                for (let file of uploadedFiles) {
+                    if (file["status"] === "finished") {
+                        let rs = path.resolve(file.fd);
+                        console.log(rs);
+                        let nameFile = isWin ? rs.split("\\").pop() : rs.split("/").pop();
+                        src = "/image/store/sfs/" + nameFile + "/" + req.param("id");
+                    }
+                }
+
+                let st = {};
+                st[sfs] = src;
+                await Store.update({ id }, st);
+
+                res.json({ msg: "success" });
+            });
+
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
     deleteImageSFS: async (req, res) => {
         try {
             let sfs = req.param("sfs"), id = req.param("id"); console.log(sfs);
@@ -172,13 +226,13 @@ module.exports = {
             SFS_ImportCode
             SFS_HSCode
             `;
-            let store = await Store.findOne({id});
-            if(store===undefined){
+            let store = await Store.findOne({ id });
+            if (store === undefined) {
                 res.status(400);
                 return res.send("not found!");
             }
 
-            if(store[sfs]){
+            if (store[sfs]) {
                 let url = store[sfs];
                 let urlsplit = url.split("/").slice(-2);
                 let namefile = urlsplit[0];
@@ -190,10 +244,10 @@ module.exports = {
                 store[sfs] = "";
                 delete store["id"];
                 console.log(store);
-                await Store.update({id},store)
+                await Store.update({ id }, store)
             }
 
-            res.json({msg:"success"})
+            res.json({ msg: "success" })
 
         }
         catch (e) {

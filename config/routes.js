@@ -214,6 +214,9 @@ module.exports.routes = {
   //Delete sfs image
   "DELETE /image/store/sfs/:sfs/:id": "StoreController.deleteImageSFS",
 
+  //Update sfs Image
+  "PUT /image/store/sfs/:sfs/:id": "StoreController.updateImageSFS",
+
   /***********
    * 
    * SHOPPING CART
