@@ -31,9 +31,17 @@ module.exports.policies = {
     getImagesCategory: true,
     getImagesLicense: true
   },
-
+  FeaturedProductsController: {
+    "*": true
+  },
+  FeaturedSellerController: {
+    "*": true
+  },
   FeaturedTypesController: {
-    saveOrUpdate: true,
+    "*": true,
+  },
+  FishTypeMenu: {
+    "*": true
   },
 
   'entrance/*': true,
