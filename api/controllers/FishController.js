@@ -409,7 +409,7 @@ module.exports = {
             if (start < 0) start = 0;
             let productos = await Fish.find(par).populate("type").populate("store").paginate(start, page_size);
 
-            let arr = productos, pages = 0;
+            let arr = await Fish.find(par).populate("type").populate("store"), pages = 0;
             console.log(arr.length, Number(arr.length / page_size));
             if (parseInt(arr.length / page_size, 10) < Number(arr.length / page_size)) {
                 pages = parseInt(arr.length / page_size, 10) + 1;
