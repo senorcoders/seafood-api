@@ -10,21 +10,21 @@
 
 module.exports.policies = {
 
-  //'*': 'is-logged-in',
+  '*': 'is-logged-in',
 
   // Bypass the `is-logged-in` policy for:
   'user/verificationCode': true,
 
-  'FishController': {
-    getAllPagination: true,
-    customWhere: true,
-    search: true,
-    getXMultipleID: true
-  },
+  // 'FishController': {
+  //   getAllPagination: true,
+  //   customWhere: true,
+  //   search: true,
+  //   getXMultipleID: true
+  // },
 
-  FishTypeController: {
-    getXNamePagination: true
-  },
+  // FishTypeController: {
+  //   getXNamePagination: true
+  // },
 
   ImageController: {
     getImage: true,
