@@ -298,6 +298,13 @@ module.exports.routes = {
 
   "GET /featuredtypes-menu": "FishTypeMenu.get",
 
+  /********
+   * 
+   * AVENCED SEARCH
+   * 
+   */
+  "GET /search-avanced/:page/:limit": "FishController.searchAvanced",
+
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝

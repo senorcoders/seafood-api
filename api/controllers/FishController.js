@@ -380,5 +380,49 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
+    },
+
+    searchAvanced: async (req, res) => {
+        try {
+
+            let params = `
+            name,
+            country,
+            fishType,
+            raised,
+            preparation,
+            treatment`;
+
+            let par = {};
+            for (let p of await sails.helpers.parserNameParams(params)) {
+                if (req.param(p) !== undefined) {
+                    if ("fishType" === p) {
+                        par["type"] = req.param(p);
+                    } else
+                        par[p] = { "contains": req.param(p) };
+                }
+            }
+            console.log(par);
+
+            let start = Number(req.params.page), page_size = Number(req.params.limit)
+            --start;
+            if (start < 0) start = 0;
+            let productos = await Fish.find(par).populate("type").populate("store").paginate(start, page_size);
+
+            let arr = productos, pages = 0;
+            console.log(arr.length, Number(arr.length / page_size));
+            if (parseInt(arr.length / page_size, 10) < Number(arr.length / page_size)) {
+                pages = parseInt(arr.length / page_size, 10) + 1;
+            } else {
+                pages = parseInt(arr.length / page_size, 10)
+            }
+
+            res.json({ productos, pagesNumber: pages });
+
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
     }
 };
