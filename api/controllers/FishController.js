@@ -417,7 +417,7 @@ module.exports = {
                 pages = parseInt(arr.length / page_size, 10)
             }
 
-            res.json({ productos, pagesNumber: pages });
+            res.json({ productos, pagesNumber: pages, count: arr.length });
 
         }
         catch (e) {
