@@ -109,18 +109,19 @@ exports.sendCode = async function (id, email, code) {
 exports.registerUserRevision = function (email) {
 
     return new Promise(function (resolve, reject) {
-
+        let template = fs.readFileSync("./template_emails/admin_confirmation.html")
         // setup email data with unicode symbols
         let mailOptions = {
             from: '"Senorcoders" <milton@senorcoders.com>', // sender address
             to: email, // list of receivers
             subject: 'Welcome to Seafood Souq',
             text: '',
-            html: `
-            <h3>
-            Thank you for registering in the Seafood Souq, the administrator is checking your information, when everything is ready, we will send you an email to log in.
-            </h3>
-            `
+            html: template,
+            attachments: [{
+                filename: 'image.png',
+                path: './template_emails/images/logo.png',
+                cid: 'unique@kreata.ee' //same cid value as in the html img src
+            }]
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
