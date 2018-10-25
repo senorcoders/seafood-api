@@ -424,5 +424,31 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
+    },
+
+    getDistinctCountry: async (req, res) => {
+        try {
+            var db = Fish.getDatastore().manager;
+            var fish = db.collection(Fish.tableName);
+
+            let fishs = await new Promise((resolve, reject) => {
+                fish.distinct("country", {},
+                    function (err, docs) {
+                        if (err) {
+                            return reject(err);
+                        }
+                        if (docs) {
+                            resolve(docs);
+                        }
+                    })
+            });
+
+
+            res.json(fishs);
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
     }
 };
