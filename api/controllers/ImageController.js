@@ -776,8 +776,8 @@ module.exports = {
             console.log(dirname);
             if (fs.existsSync(dirname) === true) {
                 console.log(true);
-                rimraf(dirname, (er)=>{
-                    if(er){ return reject(er); }
+                rimraf(dirname, (er) => {
+                    if (er) { return reject(er); }
 
                     resolve();
                 });
@@ -842,7 +842,7 @@ module.exports = {
             let mimeType = await new Promise(function (resolve, reject) {
                 var magic = new Magic(mmm.MAGIC_MIME_TYPE);
                 magic.detectFile(dirname, function (err, result) {
-                    if (err){ return reject(err); };
+                    if (err) { return reject(err); };
                     console.log(result);
                     resolve(result);
                 });
@@ -860,15 +860,44 @@ module.exports = {
 
     },
 
+    saveImageLogoCompany: async (req, res) => {
+        try {
+            let id = req.body.id;
+            let base64 = req.body.logoCompany.replace(/^data:image\/jpeg;base64,/, "");
+            base64 = base64.replace(/^data:image\/png;base64,/, "");
+            var image = new Buffer(base64, 'base64');
+            let directory = path.join(IMAGES, id);
+            if (!fs.existsSync(directory)) {
+                fs.mkdirSync(directory);
+            }
+
+            await resizeSave("logo-small.jpg", directory, image, { width: 50, height: 50 });
+            await writeImage("logo.jpg", directory, image);
+            let users = await User.update({ id }, { logoCompany: `/api/logo-company/${id}` }).fetch();
+            console.log(users);
+            if (users.length === 1){
+                return res.json(users[0]);
+            }
+                
+            res.status(400);
+            res.send("not found");
+            
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
     getImageLogoCompany: async function (req, res) {
 
         try {
             let directory = path.join(path.resolve(__dirname, '../../images/'), "/company");
             let id = req.param("userID"), namefile = req.param("namefile");
 
-            if(req.query.small!==undefined){
+            if (req.query.small !== undefined) {
                 directory = path.join(directory, id, "logo-small.jpg");
-            }else{
+            } else {
                 directory = path.join(directory, id, "logo.jpg");
             }
             console.log(directory);
