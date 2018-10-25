@@ -116,7 +116,7 @@ module.exports.routes = {
   'GET /api/images/trackingfile/:namefile/:id': 'ImageController.getTrackingFile',
 
   "PUT /api/user-logo-company": "ImageController.saveImageLogoCompany",
-  
+
   //get image of logo company, user
   "GET /api/logo-company/:userID": "ImageController.getImageLogoCompany",
 
@@ -309,6 +309,8 @@ module.exports.routes = {
    * 
    */
   "GET /search-avanced/:page/:limit": "FishController.searchAvanced",
+
+  "GET /fish/country": "FishController.getDistinctCountry",
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗

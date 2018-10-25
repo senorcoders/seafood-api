@@ -51,7 +51,7 @@ module.exports = {
 
             require("./../../mailer").sendEmailForgotPassword(email, forgot.code);
 
-            res.json({msg: "success"});
+            res.json({ msg: "success" });
 
         }
         catch (e) {
@@ -75,7 +75,7 @@ module.exports = {
             let password = await sails.helpers.passwords.hashPassword(req.param("password"));
             let user = await User.update({ id: forg.user }, { password }).fetch();
             console.log(user);
-            res.json({msg: "success"});
+            res.json({ msg: "success" });
         }
         catch (e) {
             console.error(e);
@@ -85,20 +85,20 @@ module.exports = {
 
     updatePassword: async (req, res) => {
         try {
-            let email = req.param("email"), password = req.param("password"), 
-            newPassword = req.param("newPassword");
+            let email = req.param("email"), password = req.param("password"),
+                newPassword = req.param("newPassword");
             let user = await User.findOne({ email });
             if (user === undefined) {
                 return res.status(400).send("user not found!");
             }
-            
+
             await sails.helpers.passwords.checkPassword(password, user.password);
 
-            await User.update({id: user.id}, {
+            await User.update({ id: user.id }, {
                 password: await sails.helpers.passwords.hashPassword(newPassword)
             });
 
-            res.json({msg: "success"});
+            res.json({ msg: "success" });
         }
         catch (e) {
             console.error(e);
@@ -106,13 +106,13 @@ module.exports = {
         }
     },
 
-    sendMessageContact: async (req, res)=>{
-        try{
+    sendMessageContact: async (req, res) => {
+        try {
             let id = req.param("id"), name = req.param("name"),
-            email= req.param("email"), message = req.param("message");
+                email = req.param("email"), message = req.param("message");
 
-            let user = await User.findOne({id});
-            if( user === undefined ){
+            let user = await User.findOne({ id });
+            if (user === undefined) {
                 return res.status(400).send("not found");
             }
 
@@ -122,106 +122,107 @@ module.exports = {
                 message
             });
 
-            res.json({msg : "success"});
+            res.json({ msg: "success" });
         }
-        catch(e){
+        catch (e) {
             console.error(e);
             res.serverError(e);
         }
     },
 
-    getAdmins: async (req, res)=>{
-        try{
+    getAdmins: async (req, res) => {
+        try {
 
-            let users = await User.find({role: 0});
+            let users = await User.find({ role: 0 });
             res.json(users);
         }
-        catch(e){
+        catch (e) {
             console.error(e);
             res.serverError(e);
         }
     },
 
-    deleteUser: async (req, res)=>{
-        try{
+    deleteUser: async (req, res) => {
+        try {
 
-            let imageCtrl = require("./ImageController"), 
-            id = req.param("id"), 
-            user = await User.destroy({id}).fetch(); 
+            let imageCtrl = require("./ImageController"),
+                id = req.param("id"),
+                user = await User.destroy({ id }).fetch();
 
-            if( user.length === 0 ){
+            if (user.length === 0) {
                 return res.status(400).send("not found");
-            } 
+            }
 
-            if( user[0].role === 1 ){
+            if (user[0].role === 1) {
 
                 //Eliminamos los store
-                let stores = await Store.find({owner: id});
+                let stores = await Store.find({ owner: id });
 
                 //Eliminamos las imagenes de los stores
                 //Y los productos y sus imagenes
-                for(let store of stores){
-                    if( store.hasOwnProperty("logo") && store.logo !== '' ){
+                for (let store of stores) {
+                    if (store.hasOwnProperty("logo") && store.logo !== '') {
                         let dirs = store.logo.split("/");
                         await imageCtrl.deleteImageXDirName(["store", dirs.pop()]);
                     }
-                    
-                    let fishs = await Fish.destroy({store: store.id}).fetch();
-                    for(let fish of fishs){ console.log(fish);
+
+                    let fishs = await Fish.destroy({ store: store.id }).fetch();
+                    for (let fish of fishs) {
+                        console.log(fish);
                         await imageCtrl.deleteImageXDirName([fish.id]);
                         await imageCtrl.deleteImageXDirName(["primary", fish.id]);
                     }
                 }
 
-                await Store.destroy({owner: id});
+                await Store.destroy({ owner: id });
             }
 
-            res.json({msg: "success"});
+            res.json({ msg: "success" });
         }
-        catch(e){
+        catch (e) {
             console.error(e);
             res.serverError(e);
         }
     },
 
-    updateStatus: async (req, res)=>{
-        try{
+    updateStatus: async (req, res) => {
+        try {
 
             let id = req.param("id"), status = req.param("status");
-            let user = await User.findOne({id});
-            
-            if( user === undefined ){
+            let user = await User.findOne({ id });
+
+            if (user === undefined) {
                 return res.status(400).send("not found");
             }
-            if( user.status === status ){
-                return res.json({msg: "ready"});
+            if (user.status === status) {
+                return res.json({ msg: "ready" });
             }
 
-            user = await User.update({id}, {status}).fetch();
-            if( status === "accepted" ){
-                if( user.length !== 0 )
+            user = await User.update({ id }, { status }).fetch();
+            if (status === "accepted") {
+                if (user.length !== 0)
                     await require("./../../mailer").sendCode(user[0].id, user[0].email, user[0].code);
             }
-            res.json({msg: "success"});
+            res.json({ msg: "success" });
         }
-        catch(e){
+        catch (e) {
             console.error(e);
             res.serverError(e);
         }
     },
 
-    updateUser: async (req, res)=>{
-        try{
+    updateUser: async (req, res) => {
+        try {
             let users = await User.find();
-            for(let i=0; i<users.length; i++){
+            for (let i = 0; i < users.length; i++) {
                 users[i].dataExtra.Address = "";
                 users[i].dataExtra.City = "";
                 users[i].dataExtra.zipCode = "";
-                await User.update({id: users[i].id}, {dataExtra: users[i].dataExtra });
+                await User.update({ id: users[i].id }, { dataExtra: users[i].dataExtra });
             }
 
         }
-        catch(e){
+        catch (e) {
             console.error(e);
             res.serverError(e);
         }
