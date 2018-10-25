@@ -115,6 +115,9 @@ module.exports.routes = {
   ////get la imagen de tracking de items sohopping
   'GET /api/images/trackingfile/:namefile/:id': 'ImageController.getTrackingFile',
 
+  //get image of logo company, user
+  "GET /api/logo-company/:userID": "ImageController.getImageLogoCompany",
+
   /***********
    * 
    * FISH AND FISHTYPE
