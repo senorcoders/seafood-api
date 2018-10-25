@@ -98,6 +98,11 @@ module.exports = {
       required: false
     },
 
+    logoCompany: {
+      type: "string",
+      required: false
+    }
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝

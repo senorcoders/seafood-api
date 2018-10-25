@@ -859,5 +859,38 @@ module.exports = {
         }
 
     },
+
+    getImageLogoCompany: async function (req, res) {
+
+        try {
+            let directory = path.join(path.resolve(__dirname, '../../images/'), "/company");
+            let id = req.param("userID"), namefile = req.param("namefile");
+
+            if(req.query.small!==undefined){
+                directory = path.join(directory, id, "logo-small.jpg");
+            }else{
+                directory = path.join(directory, id, "logo.jpg");
+            }
+            console.log(directory);
+
+            if (!fs.existsSync(directory)) {
+                throw new Error("file not exist");
+            }
+
+            // read binary data
+            var data = fs.readFileSync(directory);
+
+            // convert binary data to base64 encoded string
+            let content = 'image/jpg';
+            res.contentType(content);
+            res.send(data);
+
+        }
+        catch (e) {
+            //console.log(e);
+            res.serverError(e);
+        }
+
+    },
 }
 

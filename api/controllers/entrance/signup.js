@@ -1,3 +1,53 @@
+const sharp = require('sharp');
+const fs = require('fs');
+const path = require('path');
+const IMAGES = path.join(path.resolve(__dirname, '../../../images/'), "/company");
+const rimraf = require("rimraf");
+var mmm = require('mmmagic'),
+  Magic = mmm.Magic;
+
+const writeImage = async function (nameFile, directory, image) {
+  return new Promise(function (resolve, reject) {
+
+    fs.writeFile(path.join(directory, nameFile), image, function (err) {
+
+      if (err) {
+        return reject(err);
+      }
+
+      resolve({ message: "success" });
+
+    });
+
+  });
+}
+
+const resizeSave = async function (nameFile, directory, image, size) {
+
+  return new Promise(function (resolve, reject) {
+
+    sharp(image).resize(size.width, size.height)
+      .crop(sharp.strategy.entropy)
+      .toBuffer(async function (err, data, info) {
+        if (err) { return reject(err); }
+
+        try {
+          let write = await writeImage(nameFile, directory, data);
+          resolve(directory, data, info, true);
+        }
+        catch (e) {
+          reject(e);
+        }
+
+      });
+
+  });
+}
+
+if (!fs.existsSync(IMAGES)) {
+  fs.mkdirSync(IMAGES);
+}
+
 module.exports = {
 
 
@@ -8,7 +58,7 @@ module.exports = {
 
 
   extendedDescription:
-`This creates a new user record in the database, signs in the requesting user agent
+    `This creates a new user record in the database, signs in the requesting user agent
 by modifying its [session](https://sailsjs.com/documentation/concepts/sessions), and
 (if emailing with Mailgun is enabled) sends an account verification email.
 
@@ -35,24 +85,29 @@ the account verification message.)`,
       description: 'The unencrypted password to use for the new account.'
     },
 
-    firstName:  {
+    firstName: {
       required: true,
       type: 'string'
     },
 
-    lastName:  {
+    lastName: {
       required: true,
       type: 'string'
     },
 
-    dataExtra:  {
+    dataExtra: {
       required: true,
       type: 'json'
     },
-    
+
     role: {
       required: true,
       type: 'json'
+    },
+
+    logoCompany: {
+      type: "string",
+      required: false
     }
 
   },
@@ -63,8 +118,8 @@ the account verification message.)`,
     invalid: {
       responseType: 'badRequest',
       description: 'The provided fullName, password and/or email address are invalid.',
-      extendedDescription: 'If this request was sent from a graphical user interface, the request '+
-      'parameters should have been validated/coerced _before_ they were sent.'
+      extendedDescription: 'If this request was sent from a graphical user interface, the request ' +
+        'parameters should have been validated/coerced _before_ they were sent.'
     },
 
     emailAlreadyInUse: {
@@ -104,9 +159,26 @@ the account verification message.)`,
     }).fetch();
     console.log(newUserRecord)
 
+    if (inputs.logoCompany !== undefined) {
+      let base64 = inputs.logoCompany.replace(/^data:image\/jpeg;base64,/, "");
+      base64 = base64.replace(/^data:image\/png;base64,/, "");
+      var image = new Buffer(base64, 'base64');
+      let directory = path.join(IMAGES, newUserRecord.id);
+      if (!fs.existsSync(directory)) {
+        fs.mkdirSync(directory);
+      }
+
+      await resizeSave("logo-small.jpg", directory, image, { width: 50, height: 50 });
+      await writeImage("logo.jpg", directory, image);
+      let users = await User.update({ id: newUserRecord.id }, { logoCompany: `/api/logo-company/${newUserRecord.id}` }).fetch();
+      console.log(users);
+      if (users.length === 1)
+        newUserRecord = users[0];
+    }
+
     await require("./../../../mailer").registerUserRevision(newUserRecord.email);
     await require("./../../../mailer").newUserNotification(newUserRecord.firstName, newUserRecord.lastName, newUserRecord.role, newUserRecord.email);
-    
+
 
     // Since everything went ok, send our 200 response.
     return exits.success(newUserRecord);
