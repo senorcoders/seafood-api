@@ -1,9 +1,9 @@
 const nodemailer = require('nodemailer');
 const config = require("./config/local").mailer;
-const path = require('path');
+const path = require('path'), fs = require("fs");
 const IMAGES = path.join(__dirname, '/images'),
     TEMPLATE = path.join(__dirname, "/template_emails");
-console.log(IMAGES);
+
 // create reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
     host: config.host,
@@ -11,8 +11,6 @@ const transporter = nodemailer.createTransport({
     secure: true, // true for 465, false for other ports
     auth: config.auth
 });
-
-const fs = require("fs");
 
 
 //#region para enviar codigo enlace para verificacion de correo.
@@ -216,16 +214,23 @@ exports.newUserNotification = async function (firstName, lastName, role, email) 
 exports.sendEmailForgotPassword = function (email, code) {
     'use strict'
     console.log('sending reset password, email to ' + email);
-
+    let template = fs.readFileSync("./template_emails/change_password.html", { encoding: "utf-8" })
+    template = template.replace("$coderesetPassword", code);
+    
     nodemailer.createTestAccount((err, account) => {
 
         // setup email data with unicode symbols
         let mailOptions = {
             from: '"Senorcoders" <milton@senorcoders.com>', // sender address
             to: email, // list of receivers
-            subject: ' Change Password', // Subject line
-            text: 'Enter the link to change your password', // plain text body
-            html: '<b>Code: ' + code + '</b><br><b>Link: </b><a href="https://seafood.senorcoders.com/recovery-password/' + code + '">Reset Password</a>' // html body
+            subject: 'Password Recovery for Seafood Souq', // Subject line
+            text: '', // plain text body
+            html: template,
+            attachments: [{
+                filename: 'image.png',
+                path: './template_emails/images/logo.png',
+                cid: 'unique@kreata.ee' //same cid value as in the html img src
+            }]
         };
 
         // send mail with defined transport object
@@ -317,7 +322,7 @@ function calcTotaItem(items) {
 async function getTemplateShopping(items) {
 
     let head = fs.readFileSync(path.join(TEMPLATE, "purchase_buyer", "purchase_buyer1.html"), { encoding: "utf-8" })
-    , footer = fs.readFileSync(path.join(TEMPLATE, "purchase_buyer", "purchase_buyer2.html"), { encoding: "utf-8" });
+        , footer = fs.readFileSync(path.join(TEMPLATE, "purchase_buyer", "purchase_buyer2.html"), { encoding: "utf-8" });
 
     let itemsTemplate = "";
     for (let it of items) {
