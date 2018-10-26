@@ -318,6 +318,7 @@ module.exports.routes = {
    'GET /fishTypes/parents': 'FishTypeController.getParentTypes', 
    'GET /fishTypes/childs': 'FishTypeController.getChildTypes', 
    'GET /fishTypes/:parent_id/childs': 'FishTypeController.getParentChildTypes', 
+   'POST /fish/filter': 'FishController.filterProducts', 
    
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
