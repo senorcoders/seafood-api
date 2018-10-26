@@ -171,6 +171,8 @@ module.exports.routes = {
   //Para obtener productos comprados agrupados por categoria
   'GET /api/fish/type': "FishController.getWithDataEspecified",
 
+ 
+
   /***************************
    * 
    * STORE 
@@ -311,6 +313,9 @@ module.exports.routes = {
   "GET /search-avanced/:page/:limit": "FishController.searchAvanced",
 
   "GET /fish/country": "FishController.getDistinctCountry",
+
+   //Para obtener categorias padres
+   'GET /fishTypes/parents': 'FishTypeController.getParentTypes', 
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗

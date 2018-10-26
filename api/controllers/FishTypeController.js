@@ -36,6 +36,30 @@ module.exports = {
         catch (e) {
             res.serverError(e);
         }
-    }
+    },
+    getParentTypes :  async ( req, res ) => {
+        try {            
+            let childs = await ParentType.find()
+            .then(function ( result ) {
+                return result.map( value => {
+                    return value.child;
+                } )
+            })
+            .catch(function (error) {
+                console.log(error);
+                return res.serverError(error);
+            })
+
+            let cats = await FishType.find({
+                where: { id: { '!': childs } }
+            })
+
+
+             res.status(200).json( cats );
+        } catch (error) {
+            console.log(error);
+            res.serverError(error);
+        }
+    }    
 };
 
