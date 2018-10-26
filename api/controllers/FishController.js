@@ -453,88 +453,64 @@ module.exports = {
     },
     filterProducts: async ( req, res ) => {
         try {
+            let preparation = req.param('preparation');
+            let treatment = req.param('treatment');
+            let raised = req.param('raised');
+
             let country = req.param('country');
             let category = req.param('category');
-            let subcategory = req.param('subcategory');            
+            let subcategory = req.param('subcategory');
 
-            let byCountry = await Fish.find({                
-                where: { country: country }
-            })
-            .then(function ( result ) {
-                return result.map( value => {
-                    return value.id;
-                } )
-            })
-            .catch(function (error) {
-                console.log(error);
-                return res.serverError(error);
-            })
+            let minimumOrder = req.param('minimumOrder');
+            let price = req.param('price'); //price.value
 
+            let condWhere = { where: {}};
+            if( preparation !== '0' )
+                condWhere.where['preparation'] = preparation;
 
-            let bySubCategory = await Fish.find({                
-                where: { type: subcategory }
-            })
-            .then(function ( result ) {
-                return result.map( value => {
-                    return value.id;
-                } )
-            })
-            .catch(function (error) {
-                console.log(error);
-                return res.serverError(error);
-            })
+            if( treatment !== '0' )
+                condWhere.where['treatment'] = treatment;
 
-            /*****************************/
-            let categoryChilds = await ParentType.find({
-                where: { parent: category }
-            })
-            .then(function ( result ) {
-                return result.map( value => {
-                    return value.id;
-                } )
-            })
-            .catch(function (error) {
-                console.log(error);
-                return res.serverError(error);
-            })
-            let finalIn = [];
-            bySubCategoryChilds = [];
-            if( subcategory == '0' && category == '0' ){
-                bySubCategoryChilds = await Fish.find({                
-                    where: { 
-                        id: byCountry
-                    }
-                })
-                .populate("type").populate("store")
-            }else{
-                if( subcategory !== '0' ){
-                    finalIn = [...finalIn, ...categoryChilds ];                                        
-                }else{
-                    finalIn.push(category);
-                    finalIn = [...finalIn, ...bySubCategory ];                       
-                }
-                if( country !== '0' ){
-                    bySubCategoryChilds = await Fish.find({                
-                        where: { 
-                            id: byCountry,
-                            type: finalIn
-                        }
+            if( raised !== '0' )
+                condWhere.where['raised'] = raised;
+
+            if( country !== '0' )
+                condWhere.where['country'] = country;
+            
+            if( subcategory !== '0' ){
+                condWhere.where['type'] = subcategory;                
+            }else {
+                if( category !== '0' ){
+                    let categoryChilds = await ParentType.find({
+                        where: { parent: category }
                     })
-                    .populate("type").populate("store")
-                }else{
-                    bySubCategoryChilds = await Fish.find({                
-                        where: { 
-                            type: finalIn
-                        }
+                    .then(function ( result ) {
+                        return result.map( value => {
+                            return value.id;
+                        } )
                     })
-                    .populate("type").populate("store")
-                }
+                    .catch(function (error) {
+                        console.log(error);
+                        return res.serverError(error);
+                    })
+                    categoryIds = [...category, ...categoryChilds ];
+                    condWhere.where['type'] = subcategory;
+                }                
             }
             
-            res.status(200).json( bySubCategoryChilds );
+            //if( price !== '0' )
+                //condWhere.where['price.value'] = price;
+
+            let fishes = await Fish.find(
+                condWhere
+            )
+
+            res.status(200).json( fishes );
+
         } catch (error) {
             console.log(error);
             res.serverError(error);
-        }
-    }    
+        }            
+
+    }  
 };
