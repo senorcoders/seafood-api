@@ -450,5 +450,91 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
-    }
+    },
+    filterProducts: async ( req, res ) => {
+        try {
+            let country = req.param('country');
+            let category = req.param('category');
+            let subcategory = req.param('subcategory');            
+
+            let byCountry = await Fish.find({                
+                where: { country: country }
+            })
+            .then(function ( result ) {
+                return result.map( value => {
+                    return value.id;
+                } )
+            })
+            .catch(function (error) {
+                console.log(error);
+                return res.serverError(error);
+            })
+
+
+            let bySubCategory = await Fish.find({                
+                where: { type: subcategory }
+            })
+            .then(function ( result ) {
+                return result.map( value => {
+                    return value.id;
+                } )
+            })
+            .catch(function (error) {
+                console.log(error);
+                return res.serverError(error);
+            })
+
+            /*****************************/
+            let categoryChilds = await ParentType.find({
+                where: { parent: category }
+            })
+            .then(function ( result ) {
+                return result.map( value => {
+                    return value.id;
+                } )
+            })
+            .catch(function (error) {
+                console.log(error);
+                return res.serverError(error);
+            })
+            let finalIn = [];
+            bySubCategoryChilds = [];
+            if( subcategory == '0' && category == '0' ){
+                bySubCategoryChilds = await Fish.find({                
+                    where: { 
+                        id: byCountry
+                    }
+                })
+                .populate("type").populate("store")
+            }else{
+                if( subcategory !== '0' ){
+                    finalIn = [...finalIn, ...categoryChilds ];                                        
+                }else{
+                    finalIn.push(category);
+                    finalIn = [...finalIn, ...bySubCategory ];                       
+                }
+                if( country !== '0' ){
+                    bySubCategoryChilds = await Fish.find({                
+                        where: { 
+                            id: byCountry,
+                            type: finalIn
+                        }
+                    })
+                    .populate("type").populate("store")
+                }else{
+                    bySubCategoryChilds = await Fish.find({                
+                        where: { 
+                            type: finalIn
+                        }
+                    })
+                    .populate("type").populate("store")
+                }
+            }
+            
+            res.status(200).json( bySubCategoryChilds );
+        } catch (error) {
+            console.log(error);
+            res.serverError(error);
+        }
+    }    
 };
