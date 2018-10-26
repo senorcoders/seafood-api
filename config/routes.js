@@ -316,6 +316,9 @@ module.exports.routes = {
 
    //Para obtener categorias padres
    'GET /fishTypes/parents': 'FishTypeController.getParentTypes', 
+   'GET /fishTypes/childs': 'FishTypeController.getChildTypes', 
+   'GET /fishTypes/:parent_id/childs': 'FishTypeController.getParentChildTypes', 
+   
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
