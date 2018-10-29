@@ -463,7 +463,7 @@ module.exports = {
             let subcategory = req.param('subcategory');
 
             let minimumOrder = req.param('minimumOrder');
-            let maximumOrder = req.param('minimumOrder');
+            let maximumOrder = req.param('maximumOrder');
             let cooming_soon = req.param('cooming_soon');
             let price = req.param('price'); //price.value
 
@@ -481,10 +481,10 @@ module.exports = {
                 condWhere.where['country'] = country;
 
             if( maximumOrder !== '0' )
-                condWhere.where['maximumOrder'] = maximumOrder;
+                condWhere.where['maximumOrder'] = { '<=': maximumOrder };
 
             if( minimumOrder !== '0' )
-                condWhere.where['minimumOrder'] = minimumOrder;
+                condWhere.where['minimumOrder'] = { '>=': minimumOrder };
             
             if( cooming_soon !== '0' ){
                 condWhere.where['cooming_soon'] = cooming_soon;
