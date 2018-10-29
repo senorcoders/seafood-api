@@ -462,6 +462,8 @@ module.exports = {
             let subcategory = req.param('subcategory');
 
             let minimumOrder = req.param('minimumOrder');
+            let maximumOrder = req.param('minimumOrder');
+            let cooming_soon = req.param('cooming_soon');
             let price = req.param('price'); //price.value
 
             let condWhere = { where: {}};
@@ -476,6 +478,16 @@ module.exports = {
 
             if( country !== '0' )
                 condWhere.where['country'] = country;
+
+            if( maximumOrder !== '0' )
+                condWhere.where['maximumOrder'] = maximumOrder;
+
+            if( minimumOrder !== '0' )
+                condWhere.where['minimumOrder'] = minimumOrder;
+            
+            if( cooming_soon !== '0' ){
+                condWhere.where['cooming_soon'] = cooming_soon;
+            }
             
             if( subcategory !== '0' ){
                 condWhere.where['type'] = subcategory;                
@@ -497,15 +509,43 @@ module.exports = {
                     condWhere.where['type'] = subcategory;
                 }                
             }
+            let fish_price_ids = '';
+            if( price !== '0' ){
+                
+                fish_price_ids = await Fish.native(  function(err, collection) {
+                    if (err) return res.serverError(err);
+
+                    let price_ids =  collection.find({"price.value": { $lte: parseInt(price) } }, {
+                        
+                    }).toArray( async function (err, results) {
+                        if (err) return res.serverError(err);
+                        
+                        justIds =  results.map( ( row ) => {
+                            return row._id.toString()
+                        } )
+                        condWhere.where['id'] =  justIds ;
+                                  
+                        let fishes = await Fish.find(
+                            condWhere
+                        )
+                        .then(function ( result ) {
+                            res.status(200).json( result );
+                        })      
+                        return justIds;
+                    });
+                    return price_ids
+                });            
+            }else{
+                let fishes = await Fish.find(
+                    condWhere
+                )
+                .then(function ( result ) {
+                    res.status(200).json( result );
+                })
+            }
+            console.log( fish_price_ids );             
             
-            //if( price !== '0' )
-                //condWhere.where['price.value'] = price;
-
-            let fishes = await Fish.find(
-                condWhere
-            )
-
-            res.status(200).json( fishes );
+            
 
         } catch (error) {
             console.log(error);
