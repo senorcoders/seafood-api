@@ -450,5 +450,39 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
-    }
+    },
+
+    getFishs: catchErrors(async (req, res) => {
+        let fishstypes = await FishType.find().populate("childsTypes").populate("parentsTypes");
+        fishstypes = await Promise.all(fishstypes.map(async (it) => {
+            try {
+                it.childsTypes = await getChildsTypes(it.childsTypes);
+                it.parentsTypes = await getParentsTypes(it.parentsTypes);
+            }
+            catch (e) {
+                console.error(e);
+            }
+
+            return it;
+        }))
+        res.json(fishstypes);
+    })
+};
+
+getChildsTypes = async childs => {
+    childs = await Promise.all(childs.map(async it => {
+        it.child = await FishType.findOne({ id: it.child });
+        return it;
+    }));
+
+    return childs;
+};
+
+getParentsTypes = async parents => {
+    parents = await Promise.all(parents.map(async it => {
+        it.parent = await FishType.findOne({ id: it.parent });
+        return it;
+    }));
+
+    return parents;
 };
