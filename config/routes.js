@@ -150,6 +150,8 @@ module.exports.routes = {
   //Para obtener por multiple id
   'GET /api/fish-ids/:ids': 'FishController.getXMultipleID',
 
+  "GET /fishtype": "FishController.getFishs",
+
   //Para guardar images en las categorias (FishType)
   'POST /api/fishtype/images/:id': "ImageController.multipleImagesCategory",
 
