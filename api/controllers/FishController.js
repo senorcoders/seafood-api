@@ -506,8 +506,9 @@ module.exports = {
                         console.log(error);
                         return res.serverError(error);
                     })
-                    categoryIds = [...category, ...categoryChilds ];
-                    condWhere.where['type'] = subcategory;
+                    categoryIds = categoryChilds ;
+                    categoryIds.push(category);
+                    condWhere.where['type'] = categoryIds;
                 }                
             }
             let fish_price_ids = '';
