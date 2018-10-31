@@ -469,13 +469,14 @@ module.exports = {
             let maxPrice = req.param('maxPrice'); //price.value
 
             let condWhere = { where: {}};
-            if( preparation !== '0' )
+
+            if( preparation !== '0' && preparation !== undefined && preparation.length != 0 )
                 condWhere.where['preparation'] = preparation;
 
-            if( treatment !== '0' )
+            if( treatment !== '0' && treatment !== undefined && treatment.length != 0 )
                 condWhere.where['treatment'] = treatment;
 
-            if( raised !== '0' )
+            if( raised !== '0' && raised !== undefined && raised.length != 0 )
                 condWhere.where['raised'] = raised;
 
             if( country !== '0' )
