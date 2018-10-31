@@ -465,16 +465,18 @@ module.exports = {
             let minimumOrder = req.param('minimumOrder');
             let maximumOrder = req.param('maximumOrder');
             let cooming_soon = req.param('cooming_soon');
-            let price = req.param('price'); //price.value
+            let minPrice = req.param('minPrice'); //price.value
+            let maxPrice = req.param('maxPrice'); //price.value
 
             let condWhere = { where: {}};
-            if( preparation !== '0' )
+
+            if( preparation !== '0' && preparation !== undefined && preparation.length != 0 )
                 condWhere.where['preparation'] = preparation;
 
-            if( treatment !== '0' )
+            if( treatment !== '0' && treatment !== undefined && treatment.length != 0 )
                 condWhere.where['treatment'] = treatment;
 
-            if( raised !== '0' )
+            if( raised !== '0' && raised !== undefined && raised.length != 0 )
                 condWhere.where['raised'] = raised;
 
             if( country !== '0' )
@@ -512,14 +514,21 @@ module.exports = {
                 }                
             }
             let fish_price_ids = '';
-            if( price !== '0' ){
+            if( minPrice!== '0' || maxPrice !== '0' ){
                 
                 fish_price_ids = await Fish.native(  function(err, collection) {
                     if (err) return res.serverError(err);
 
-                    let price_ids =  collection.find({"price.value": { $lte: parseInt(price) } }, {
-                        
-                    }).toArray( async function (err, results) {
+                    let price_ids =  collection.find(
+                        {
+                            $and: [ 
+                                { 
+                                    "price.value": { $gte: parseInt(minPrice) } 
+                                }, 
+                                { 
+                                    "price.value": { $lte: parseInt(maxPrice) }  
+                                } ] 
+                        }, {}).toArray( async function (err, results) {
                         if (err) return res.serverError(err);
                         
                         justIds =  results.map( ( row ) => {
