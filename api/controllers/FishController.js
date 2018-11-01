@@ -538,7 +538,7 @@ module.exports = {
                                   
                         let fishes = await Fish.find(
                             condWhere
-                        )
+                        ).populate("type")
                         .then(function ( result ) {
                             res.status(200).json( result );
                         })      
@@ -549,7 +549,7 @@ module.exports = {
             }else{
                 let fishes = await Fish.find(
                     condWhere
-                )
+                ).populate("type")
                 .then(function ( result ) {
                     res.status(200).json( result );
                 })
