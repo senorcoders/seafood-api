@@ -99,8 +99,22 @@ module.exports = {
                     price: req.param("price"),
                     shippingStatus: req.param("shippingStatus")
                 };
+            // check if this item is already in this cart
+            let alredyInCart = await ItemShopping.find({
+                shoppingCart: id,
+                fish: item.fish
+            });
+            let itemShopping ;
+            if( alredyInCart !== undefined ){
+                let item_id = alredyInCart[0].id;
+                item.quantity.value += alredyInCart[0].quantity.value;
+                itemShopping = await ItemShopping.update( { id: item_id }, item );
+                //return res.status(200).send( item );
+            }else{
+                itemShopping = await ItemShopping.create(item);    
+            }
 
-            let itemShopping = await ItemShopping.create(item);
+            //let itemShopping = await ItemShopping.create(item);
 
             //Para calcular el total del carrito
             let cart = await ShoppingCart.findOne({ id }).populate("items");

@@ -463,26 +463,40 @@ module.exports = {
             let subcategory = req.param('subcategory');
 
             let minimumOrder = req.param('minimumOrder');
-            let price = req.param('price'); //price.value
+            let maximumOrder = req.param('maximumOrder');
+            let cooming_soon = req.param('cooming_soon');
+            let minPrice = req.param('minPrice'); //price.value
+            let maxPrice = req.param('maxPrice'); //price.value
 
             let condWhere = { where: {}};
-            if( preparation !== '0' )
+
+            if( preparation !== '0' && preparation !== undefined && preparation.length != 0 )
                 condWhere.where['preparation'] = preparation;
 
-            if( treatment !== '0' )
+            if( treatment !== '0' && treatment !== undefined && treatment.length != 0 )
                 condWhere.where['treatment'] = treatment;
 
-            if( raised !== '0' )
+            if( raised !== '0' && raised !== undefined && raised.length != 0 )
                 condWhere.where['raised'] = raised;
 
             if( country !== '0' )
                 condWhere.where['country'] = country;
+
+            if( maximumOrder !== '0' )
+                condWhere.where['maximumOrder'] = { '<=': maximumOrder };
+
+            if( minimumOrder !== '0' )
+                condWhere.where['minimumOrder'] = { '>=': minimumOrder };
+            
+            if( cooming_soon !== '0' ){
+                condWhere.where['cooming_soon'] = cooming_soon;
+            }
             
             if( subcategory !== '0' ){
                 condWhere.where['type'] = subcategory;                
             }else {
                 if( category !== '0' ){
-                    let categoryChilds = await ParentType.find({
+                    let categoryChilds = await FishType.find({
                         where: { parent: category }
                     })
                     .then(function ( result ) {
@@ -494,19 +508,55 @@ module.exports = {
                         console.log(error);
                         return res.serverError(error);
                     })
-                    categoryIds = [...category, ...categoryChilds ];
-                    condWhere.where['type'] = subcategory;
+                    categoryIds = categoryChilds ;
+                    categoryIds.push(category);
+                    condWhere.where['type'] = categoryIds;
                 }                
             }
+            let fish_price_ids = '';
+            if( minPrice!== '0' || maxPrice !== '0' ){
+                
+                fish_price_ids = await Fish.native(  function(err, collection) {
+                    if (err) return res.serverError(err);
+
+                    let price_ids =  collection.find(
+                        {
+                            $and: [ 
+                                { 
+                                    "price.value": { $gte: parseInt(minPrice) } 
+                                }, 
+                                { 
+                                    "price.value": { $lte: parseInt(maxPrice) }  
+                                } ] 
+                        }, {}).toArray( async function (err, results) {
+                        if (err) return res.serverError(err);
+                        
+                        justIds =  results.map( ( row ) => {
+                            return row._id.toString()
+                        } )
+                        condWhere.where['id'] =  justIds ;
+                                  
+                        let fishes = await Fish.find(
+                            condWhere
+                        ).populate("type")
+                        .then(function ( result ) {
+                            res.status(200).json( result );
+                        })      
+                        return justIds;
+                    });
+                    return price_ids
+                });            
+            }else{
+                let fishes = await Fish.find(
+                    condWhere
+                ).populate("type")
+                .then(function ( result ) {
+                    res.status(200).json( result );
+                })
+            }
+            console.log( fish_price_ids );             
             
-            //if( price !== '0' )
-                //condWhere.where['price.value'] = price;
-
-            let fishes = await Fish.find(
-                condWhere
-            )
-
-            res.status(200).json( fishes );
+            
 
         } catch (error) {
             console.log(error);
