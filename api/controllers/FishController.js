@@ -496,7 +496,7 @@ module.exports = {
                 condWhere.where['type'] = subcategory;                
             }else {
                 if( category !== '0' ){
-                    let categoryChilds = await ParentType.find({
+                    let categoryChilds = await FishType.find({
                         where: { parent: category }
                     })
                     .then(function ( result ) {
