@@ -11,7 +11,7 @@ module.exports = {
             ) {
                 let cart = await ShoppingCart.findOne({ id: carts[0].id }).populate("items");
                 cart.items = await Promise.all(cart.items.map(async function (it) {
-                    it.fish = await Fish.findOne({ id: it.fish }).populate("type");
+                    it.fish = await Fish.findOne({ id: it.fish }).populate("type").populate("store");
                     return it;
                 }));
 
@@ -47,7 +47,7 @@ module.exports = {
             //Para calcular el total de los carritos
             let calcTotal = async (cart) => {
                 cart.items = await Promise.all(cart.items.map(async function (it) {
-                    it.fish = await Fish.findOne({ id: it.fish }).populate("type");
+                    it.fish = await Fish.findOne({ id: it.fish }).populate("type").populate("store");
                     return it;
                 }));
 
