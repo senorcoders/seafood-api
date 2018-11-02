@@ -105,7 +105,7 @@ module.exports = {
                 fish: item.fish
             });
             let itemShopping ;
-            if( alredyInCart !== undefined ){
+            if( alredyInCart !== undefined && alredyInCart[0] !== undefined ){		
                 let item_id = alredyInCart[0].id;
                 item.quantity.value += alredyInCart[0].quantity.value;
                 itemShopping = await ItemShopping.update( { id: item_id }, item );
