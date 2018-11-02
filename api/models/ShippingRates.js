@@ -27,8 +27,7 @@ module.exports = {
     },
     operation : {
       type: "string",
-      description: "Under, Over",
-      defaultTo: "under"
+      description: "Under, Over"
     },
     sellerCountry : {
       type: "string",
