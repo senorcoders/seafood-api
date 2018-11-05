@@ -11,8 +11,8 @@ module.exports = {
             productos = await Promise.all(productos.map(async function (m) {
                 if (m.store === null)
                     return m;
-                m.store.owner = await User.findOne({ id: m.store.owner });
-
+                m.store.owner = await User.findOne({ id: m.store.owner });            
+                m.shippingCost =  await require('./ShippingRatesController').getShippingRate( m.country, m.weight.value, m.weight.type ); 
                 return m;
             }));
 
@@ -540,6 +540,7 @@ module.exports = {
                             condWhere
                         ).populate("type")
                         .then(function ( result ) {
+                            let shippingRate = 
                             res.status(200).json( result );
                         })      
                         return justIds;
