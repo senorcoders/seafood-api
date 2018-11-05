@@ -12,6 +12,50 @@ module.exports = {
                 let cart = await ShoppingCart.findOne({ id: carts[0].id }).populate("items");
                 cart.items = await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish }).populate("type").populate("store");
+                    shippingRate = await require('./ShippingRatesController').getShippingRate( it.fish.country, it.quantity.value, it.quantity.type ); 
+                    it.shippingCost = shippingRate;
+                    /*await ShippingRates.find( { sellerCountry: it.fish.country } )
+                    .sort( [{ weight: 'ASC' }] )
+                    .then( 
+                        result => {
+                            var BreakException = {};
+                            try {
+                                result.forEach( row => {
+                                    let over=false;
+                                    let overCost = 0;
+                                    let under = false;
+                                    let unerCost = 0;
+                                    let shippingCost = 0;
+                                    if( row.type == 'Pounds' ) { //changing pounds to kg
+                                        row.weight = row.weight * 2.2;
+                                    }
+                                    if( it.quantity.type !== "kg" ){ //changing pounds to kg
+                                        it.quantity.value = it.quantity.value * 2.2;
+                                    }
+                                    if( row.operation == 'Over' ){
+                                        if( it.quantity.value >= row.weight  ){
+                                            //over = true;
+                                            //overCost = row.cost;
+                                            it.shippingCost = row.cost
+                                            throw BreakException
+                                        }
+                                    }else{
+                                        if( it.quantity.value < row.weight ){
+                                            //underCost = row.cost;
+                                            it.shippingCost = row.cost;
+                                            throw BreakException
+                                        }
+                                    }
+                                });
+                            } catch (e) {
+                                if (e !== BreakException) throw e;
+                            }
+                            
+                        },
+                        error => {
+                            console.log(error);
+                        }
+                    )*/
                     return it;
                 }));
 
