@@ -8,9 +8,6 @@
 module.exports = {
 
     getShippingRate: async (country, weight, type) => {
-        console.log( country ); 
-        console.log( weight ); 
-        console.log( type ); 
         try {
             shippingRate = 0;
             shipping = await ShippingRates.find( { sellerCountry: country } )
@@ -19,33 +16,27 @@ module.exports = {
                     result => {
                         var BreakException = {};
                         try {
+                            let resultSize = Object.keys(result).length ;
+                            let resultCount = 0;
                             result.forEach( row => {
-                                let over=false;
-                                let overCost = 0;
-                                let under = false;
-                                let unerCost = 0;
-                                let shippingCost = 0;
-                                if( row.type == 'Pounds' ) { //changing pounds to kg
-                                    row.weight = row.weight / 2.2;
-                                }
-                                if( type !== "kg" ){ //changing pounds to kg
-                                    weight = weight / 2.2;                                
-                                }
-                                if( row.operation == 'Over' ){
-                                    if( weight >= row.weight  ){
-                                        //over = true;
-                                        //overCost = row.cost;
-                                        shippingRate = row.cost
-                                        throw BreakException
-                                    }
-                                }else{
-                                    if( weight < row.weight ){
-                                        //underCost = row.cost;
+                                resultCount +=1 ;                                
+                                console.log("weight: " + weight );
+                                console.log("row.weight: " + row.weight );
+                                console.log("resultSize: " + resultSize );
+                                console.log("resultCount: " + resultCount );
+                                if( weight < row.weight  ){                                    
+                                    shippingRate = row.cost;
+                                    throw BreakException;
+                                }else {
+                                    if( resultCount == resultSize ){
                                         shippingRate = row.cost;
-                                        throw BreakException
+                                        throw BreakException;
                                     }
                                 }
+                                
+                                
                             });
+                            //shippingRate = shippingRate;
                         } catch (e) {
                             console.log(country +' .. '+ weight +' .. '+ type);
                             return shippingRate;
