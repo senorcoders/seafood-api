@@ -64,6 +64,31 @@ module.exports = {
                 console.error(e);
                 res.serverError(e);
             }
-    }
+    },
+    getCountryWithShippings: async (req, res) => {
+        try {
+            var db = ShippingRates.getDatastore().manager;
+            var shippingRates = db.collection(ShippingRates.tableName);
+
+            let countries = await new Promise((resolve, reject) => {
+                shippingRates.distinct("sellerCountry", {},
+                    function (err, docs) {
+                        if (err) {
+                            return reject(err);
+                        }
+                        if (docs) {
+                            resolve(docs);
+                        }
+                    })
+            });
+
+
+            res.json(countries.sort());
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
 };
 
