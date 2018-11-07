@@ -7,7 +7,7 @@
 
 module.exports = {
 
-    getShippingRate: async (country, weight, type) => {
+    getShippingRate: async (country, weight) => {
         try {
             shippingRate = 0;
             shipping = await ShippingRates.find( { sellerCountry: country } )
@@ -38,7 +38,7 @@ module.exports = {
                             });
                             //shippingRate = shippingRate;
                         } catch (e) {
-                            console.log(country +' .. '+ weight +' .. '+ type);
+                            
                             return shippingRate;
                             if (e !== BreakException) throw e;
                         }
@@ -55,6 +55,19 @@ module.exports = {
                 console.error(e);
                 res.serverError(e);
             }
+    },
+    getShippingRateByWeight: async(req, res) => {
+        try{
+            let shippingRate = await module.exports.getShippingRate(req.params["country"], req.params["weight"])
+            if( shippingRate )
+                res.status(200).json( { "price": shippingRate, "type": "AED" } );
+            else
+                res.status(200).json( { "message": "No Shipping Rate Found" } );
+
+        }catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
     },
     getCountryWithShippings: async (req, res) => {
         try {
