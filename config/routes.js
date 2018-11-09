@@ -325,6 +325,7 @@ module.exports.routes = {
    //SHIPPING
    'GET /shippingRates/countries': 'ShippingRates.getCountryWithShippings',
    'GET /shippingRates/country/:country/:weight': 'ShippingRates.getShippingRateByWeight',
+   'POST /shippingRates/countries': 'ShippingRates.getCountriesShippingRateByWeight',
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
