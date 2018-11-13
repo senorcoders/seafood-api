@@ -85,11 +85,11 @@ module.exports = {
       required: false
     },
 
-    sellerSKU: {
+    seller_sku: {
       type: 'string',
       maxLength: 200,
     },
-    seafoodSKU: {
+    seafood_sku: {
       type: 'string',
       maxLength: 200,
     },
