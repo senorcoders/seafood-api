@@ -12,6 +12,9 @@ module.exports = {
                 let cart = await ShoppingCart.findOne({ id: carts[0].id }).populate("items");
                 cart.items = await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish }).populate("type").populate("store");
+                    shippingRate = await require('./ShippingRatesController').getShippingRate( it.fish.country, it.quantity.value ); 
+                    it.shippingCost = shippingRate;
+                    
                     return it;
                 }));
 
@@ -105,7 +108,7 @@ module.exports = {
                 fish: item.fish
             });
             let itemShopping ;
-            if( alredyInCart !== undefined ){
+            if( alredyInCart !== undefined && alredyInCart[0] !== undefined ){		
                 let item_id = alredyInCart[0].id;
                 item.quantity.value += alredyInCart[0].quantity.value;
                 itemShopping = await ItemShopping.update( { id: item_id }, item );

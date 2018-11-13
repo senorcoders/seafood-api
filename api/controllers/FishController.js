@@ -11,8 +11,8 @@ module.exports = {
             productos = await Promise.all(productos.map(async function (m) {
                 if (m.store === null)
                     return m;
-                m.store.owner = await User.findOne({ id: m.store.owner });
-
+                m.store.owner = await User.findOne({ id: m.store.owner });            
+                m.shippingCost =  await require('./ShippingRatesController').getShippingRate( m.country, m.weight.value ); 
                 return m;
             }));
 
@@ -536,23 +536,42 @@ module.exports = {
                         } )
                         condWhere.where['id'] =  justIds ;
                                   
-                        let fishes = await Fish.find(
+                        /*let fishes = await Fish.find(
                             condWhere
                         ).populate("type")
                         .then(function ( result ) {
+                            let shippingRate = 
                             res.status(200).json( result );
-                        })      
+                        }) */     
+                        let productos = await Fish.find( condWhere ).populate("type").populate("store");
+                        productos = await Promise.all(productos.map(async function (m) {
+                            m.shippingCost =  await require('./ShippingRatesController').getShippingRate( m.country, m.weight.value ); 
+                            if (m.store === null)
+                                return m;
+                            m.store.owner = await User.findOne({ id: m.store.owner });            
+                            return m;
+                        }));
+                        res.status(200).json( productos );
                         return justIds;
                     });
                     return price_ids
                 });            
             }else{
-                let fishes = await Fish.find(
+                /*let fishes = await Fish.find(
                     condWhere
                 ).populate("type")
                 .then(function ( result ) {
                     res.status(200).json( result );
-                })
+                })*/
+                let productos = await Fish.find( condWhere ).populate("type").populate("store");
+                productos = await Promise.all(productos.map(async function (m) {
+                    m.shippingCost =  await require('./ShippingRatesController').getShippingRate( m.country, m.weight.value ); 
+                    if (m.store === null)
+                        return m;
+                    m.store.owner = await User.findOne({ id: m.store.owner });            
+                    return m;
+                }));
+                res.status(200).json( productos );
             }
             console.log( fish_price_ids );             
             
@@ -565,7 +584,7 @@ module.exports = {
 
     },
 
-    getFishs: catchErrors(async (req, res) => {
+    /*getFishs: catchErrors(async (req, res) => {
         let fishstypes = await FishType.find().populate("childsTypes").populate("parentsTypes");
         fishstypes = await Promise.all(fishstypes.map(async (it) => {
             try {
@@ -579,7 +598,7 @@ module.exports = {
             return it;
         }))
         res.json(fishstypes);
-    })
+    })*/
 };
 
 getChildsTypes = async childs => {

@@ -322,12 +322,18 @@ module.exports.routes = {
    'GET /fishTypes/:parent_id/childs': 'FishTypeController.getParentChildTypes', 
    'POST /fish/filter': 'FishController.filterProducts', 
    
+   //SHIPPING
+   'GET /shippingRates/countries': 'ShippingRates.getCountryWithShippings',
+   'GET /shippingRates/country/:country/:weight': 'ShippingRates.getShippingRateByWeight',
+   'POST /shippingRates/countries': 'ShippingRates.getCountriesShippingRateByWeight',
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝
+  //payments
+  'POST /payments/payfort': 'PaymentsController.getAuthorization',
 
-
+  
   //  ╔╦╗╦╔═╗╔═╗  ╦═╗╔═╗╔╦╗╦╦═╗╔═╗╔═╗╔╦╗╔═╗
   //  ║║║║╚═╗║    ╠╦╝║╣  ║║║╠╦╝║╣ ║   ║ ╚═╗
   //  ╩ ╩╩╚═╝╚═╝  ╩╚═╚═╝═╩╝╩╩╚═╚═╝╚═╝ ╩ ╚═╝
