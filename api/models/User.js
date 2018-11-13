@@ -39,7 +39,7 @@ module.exports = {
 
     code: {
       type: 'string',
-      required: true,
+      required: false,
       description: 'para verificar el correo del usuario',
       maxLength: 6,
       example: 'xdC232'
@@ -81,11 +81,6 @@ module.exports = {
       description: `
         se guardan datos extras que pertenecen a un vendedor, comprador y admin.
       `
-    },
-
-    code: {
-      type: "string",
-      required: false
     },
 
     verfication: {
