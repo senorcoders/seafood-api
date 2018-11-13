@@ -84,6 +84,16 @@ module.exports = {
       columnType: 'array',
       required: false
     },
+
+    sellerSKU: {
+      type: 'string',
+      maxLength: 200,
+    },
+    seafoodSKU: {
+      type: 'string',
+      maxLength: 200,
+    },
+
     
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
