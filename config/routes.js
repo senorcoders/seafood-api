@@ -173,7 +173,8 @@ module.exports.routes = {
   //Para obtener productos comprados agrupados por categoria
   'GET /api/fish/type': "FishController.getWithDataEspecified",
 
- 
+  //Generate a new Seafood Souq SKU for the new fish
+  'POST /api/fish/fish/sku': "FishController.generateSKU",
 
   /***************************
    * 
@@ -326,6 +327,8 @@ module.exports.routes = {
    'GET /shippingRates/countries': 'ShippingRates.getCountryWithShippings',
    'GET /shippingRates/country/:country/:weight': 'ShippingRates.getShippingRateByWeight',
    'POST /shippingRates/countries': 'ShippingRates.getCountriesShippingRateByWeight',
+
+   'GET /shippingRates/country/:country/cities/': 'ShippingRates.getCitiesWithShippings',
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗

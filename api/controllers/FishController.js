@@ -582,9 +582,73 @@ module.exports = {
             res.serverError(error);
         }            
 
+    },  
+
+    generateSKU: async (req, res) => {
+        let store = req.param('store_code');
+        let category = req.param('category_code');
+        let subcategory = req.param('subcategory_code');
+        let country = req.param('country');
+        
+        let store_name = await Store.find( 
+            {
+                where: {
+                    "id": store
+                },
+                select: [ "name" ]
+            } 
+        )
+
+        let country_name = await Countries.find( 
+            {
+                where: {
+                    "code": country
+                },
+                select: ["name"]
+            }
+        )
+
+        let category_name = await FishType.find( 
+            {
+                where: {
+                    "id": category
+                },
+                select: [ 'name' ]
+            } 
+        )
+        
+        let subcategory_name = await FishType.find( 
+            {
+                where: {
+                    "id": subcategory
+                },
+                select: [ "name" ]
+            } 
+        )
+
+        let fishes = await Fish.count( {
+            country: country,
+            store: store,
+            type: subcategory,
+            country: country            
+        } )
+
+        let body = {
+            store_name: store_name,
+            country: country_name,
+            category: category_name,
+            sub: subcategory_name,
+            country: country_name
+        }
+        fishes += 1;
+        if(fishes < 10)
+            fishes = '0' + fishes;        
+
+        res.status(200).json( `${store_name[0].name.substring(0, 3).toUpperCase()}-${category_name[0].name.substring(0, 3).toUpperCase()}-${subcategory_name[0].name.substring(0, 3).toUpperCase()}-${country_name[0].name.substring(0, 3).toUpperCase()}-${fishes}` );
+        
     },
 
-    /*getFishs: catchErrors(async (req, res) => {
+    getFishs: catchErrors(async (req, res) => {
         let fishstypes = await FishType.find().populate("childsTypes").populate("parentsTypes");
         fishstypes = await Promise.all(fishstypes.map(async (it) => {
             try {
@@ -598,7 +662,7 @@ module.exports = {
             return it;
         }))
         res.json(fishstypes);
-    })*/
+    })
 };
 
 getChildsTypes = async childs => {

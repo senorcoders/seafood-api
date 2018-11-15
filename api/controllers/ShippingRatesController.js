@@ -130,6 +130,32 @@ module.exports = {
             res.serverError(e);
         }
     },
+    getCitiesWithShippings: async (req, res) => {
+        try {
+            let country = req.params['country'];
+            var db = ShippingRates.getDatastore().manager;
+            var shippingRates = db.collection(ShippingRates.tableName);
+
+            let countries = await new Promise((resolve, reject) => {
+                shippingRates.distinct("sellerCity", { sellerCountry: country  },
+                    function (err, docs) {
+                        if (err) {
+                            return reject(err);
+                        }
+                        if (docs) {
+                            resolve(docs);
+                        }
+                    })
+            });
+
+
+            res.json(countries.sort());
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    }
 };
 
 async function asyncForEach(array, callback) {

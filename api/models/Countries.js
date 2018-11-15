@@ -1,5 +1,5 @@
 /**
- * ShippingRates.js
+ * Countries.js
  *
  * @description :: A model definition.  Represents a database table/collection/etc.
  * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
@@ -12,42 +12,31 @@ module.exports = {
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
-    weight : {
-      type: "number",
-      required: true
-    },
-    type: {
-      type: "string",
-      description: "pounds or kg",
-      required: true
-    },
-    cost : {
-      type: "number",
-      required: true
-    },
-    operation : {
-      type: "string",
-      description: "Under, Over"
-    },
-    sellerCountry : {
-      type: "string",
-      description: "country code"
-    },
-    sellerCity : {
-      type: "string",
-      description: "city code"
-    },
 
+    code: {
+      type: 'string',
+    },
+    name: {
+      type: 'string'
+    },
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
-
+    
+    cities: {
+      type: 'json',      
+      example: `
+        cities: [{
+          code: "MGA",
+          name: "Managua"
+        }]
+      `
+    },
 
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-    
-    
+
   },
 
 };
