@@ -330,6 +330,8 @@ module.exports.routes = {
 
    'GET /shippingRates/country/:country/cities/': 'ShippingRates.getCitiesWithShippings',
 
+    'GET /countries/cities': 'Countries.getAllCities',
+
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝
