@@ -329,8 +329,9 @@ module.exports.routes = {
    'POST /shippingRates/countries': 'ShippingRates.getCountriesShippingRateByWeight',
 
    'GET /shippingRates/country/:country/cities/': 'ShippingRates.getCitiesWithShippings',
+   'POST /shippingRates/cities': 'ShippingRates.getCitiesShippingRateByWeight',
 
-    'GET /countries/cities': 'Countries.getAllCities',
+   'GET /countries/cities': 'Countries.getAllCities',
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
