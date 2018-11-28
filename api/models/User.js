@@ -96,8 +96,11 @@ module.exports = {
     logoCompany: {
       type: "string",
       required: false
-    }
-
+    },
+    
+    firstMileCost: {
+      type: "number"
+    },
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝

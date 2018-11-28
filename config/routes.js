@@ -334,6 +334,12 @@ module.exports.routes = {
 
    'GET /countries/cities': 'Countries.getAllCities',
 
+   //PRICING
+   'GET /pricingCharges/history': 'PricingCharges.getPricingChargesHistory',
+   'GET /pricingCharges/current': 'PricingCharges.getCurrentPricingCharges',
+
+   'GET /pricingCharges/fish/:id': 'PricingCharges.getFishPricingCharges',
+
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝

@@ -1,3 +1,9 @@
+/**
+ * PricingCharges.js
+ *
+ * @description :: A model definition.  Represents a database table/collection/etc.
+ * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
+ */
 
 module.exports = {
 
@@ -6,34 +12,24 @@ module.exports = {
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
-    uaeTaxes: {
-      type: "number"
+    type: {
+      type: 'string'
     },
-    handlingFees: {
-      type: "number"
+    price: {
+      type: 'number'
+    }
+    /*uaeTaxes : {
+      type: "number"      
     },
-    firstMileCosts: {
+    handlingFees : {
+      type: "number"      
+    },
+    customs: {
       type: "number"
     },
     lastMileCost: {
       type: "number"
-    },
-    total: {
-      type: "number",
-      required: false
-    },
-
-    status: {
-      type: "string",
-      defaultsTo: "pending"
-    },
-
-    paidDateTime: {
-      type: "string",
-      columnType: "datetime",
-      required: false
-    },
-
+    }*/
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
@@ -42,15 +38,7 @@ module.exports = {
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-    buyer:{
-      model: "user",
-      required: true
-    },
-    items: {
-      collection: "itemshopping",
-      via: "shoppingCart",
-      required: false
-    }
+
   },
 
 };

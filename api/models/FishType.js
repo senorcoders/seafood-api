@@ -24,6 +24,11 @@ module.exports = {
       required: false
     },
 
+    sfsMargin: {
+      type: 'number',
+      example: '5 this are pecentage'
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
