@@ -22,6 +22,10 @@ module.exports = {
       required: true
     },
 
+    city: {
+      type: "string"
+    },
+
     quality: {
       type: 'string',
       maxLength: 200,

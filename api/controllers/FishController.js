@@ -12,7 +12,7 @@ module.exports = {
                 if (m.store === null)
                     return m;
                 m.store.owner = await User.findOne({ id: m.store.owner });            
-                m.shippingCost =  await require('./ShippingRatesController').getShippingRate( m.country, m.weight.value ); 
+                m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
                 return m;
             }));
 
@@ -545,7 +545,7 @@ module.exports = {
                         }) */     
                         let productos = await Fish.find( condWhere ).populate("type").populate("store");
                         productos = await Promise.all(productos.map(async function (m) {
-                            m.shippingCost =  await require('./ShippingRatesController').getShippingRate( m.country, m.weight.value ); 
+                            m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
                             if (m.store === null)
                                 return m;
                             m.store.owner = await User.findOne({ id: m.store.owner });            
@@ -565,7 +565,7 @@ module.exports = {
                 })*/
                 let productos = await Fish.find( condWhere ).populate("type").populate("store");
                 productos = await Promise.all(productos.map(async function (m) {
-                    m.shippingCost =  await require('./ShippingRatesController').getShippingRate( m.country, m.weight.value ); 
+                    m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
                     if (m.store === null)
                         return m;
                     m.store.owner = await User.findOne({ id: m.store.owner });            
@@ -594,17 +594,16 @@ module.exports = {
             {
                 where: {
                     "id": store
-                },
-                select: [ "name" ]
+                }
             } 
         )
+	
 
         let country_name = await Countries.find( 
             {
                 where: {
                     "code": country
-                },
-                select: ["name"]
+                }
             }
         )
 
@@ -612,8 +611,7 @@ module.exports = {
             {
                 where: {
                     "id": category
-                },
-                select: [ 'name' ]
+                }
             } 
         )
         
@@ -621,8 +619,7 @@ module.exports = {
             {
                 where: {
                     "id": subcategory
-                },
-                select: [ "name" ]
+                }
             } 
         )
 
@@ -634,11 +631,11 @@ module.exports = {
         } )
 
         let body = {
-            store_name: store_name,
-            country: country_name,
-            category: category_name,
-            sub: subcategory_name,
-            country: country_name
+            store_name: store_name[0].name,
+            country: country_name[0].name,
+            category: category_name[0].name,
+            sub: subcategory_name[0].name,
+            country: country_name[0].name
         }
         fishes += 1;
         if(fishes < 10)

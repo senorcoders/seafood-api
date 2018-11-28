@@ -330,8 +330,15 @@ module.exports.routes = {
    'POST /shippingRates/countries': 'ShippingRates.getCountriesShippingRateByWeight',
 
    'GET /shippingRates/country/:country/cities/': 'ShippingRates.getCitiesWithShippings',
+   'POST /shippingRates/cities': 'ShippingRates.getCitiesShippingRateByWeight',
 
-    'GET /countries/cities': 'Countries.getAllCities',
+   'GET /countries/cities': 'Countries.getAllCities',
+
+   //PRICING
+   'GET /pricingCharges/history': 'PricingCharges.getPricingChargesHistory',
+   'GET /pricingCharges/current': 'PricingCharges.getCurrentPricingCharges',
+
+   'GET /pricingCharges/fish/:id': 'PricingCharges.getFishPricingCharges',
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
