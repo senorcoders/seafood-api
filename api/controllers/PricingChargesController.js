@@ -6,9 +6,33 @@
  */
 
 module.exports = {
+    
+    CurrentPricingCharges: async () => {
+        try {
+            let customs = await PricingCharges.find( { where: { type: 'customs' } } ).sort( 'updatedAt DESC' ).limit(1);
+
+            let lastMileCost = await PricingCharges.find( { where: { type: 'lastMileCost' } } ).sort( 'updatedAt DESC' ).limit(1);
+
+            let uaeTaxes = await PricingCharges.find( { where: { type: 'uaeTaxes' } } ).sort( 'updatedAt DESC' ).limit(1);
+
+            let handlingFees = await PricingCharges.find( { where: { type: 'handlingFees' } } ).sort( 'updatedAt DESC' ).limit(1);
+            
+            let data = {
+                "customs": customs,
+                "lastMileCost": lastMileCost,
+                "uaeTaxes": uaeTaxes,
+                "handlingFees": handlingFees
+            }
+            return data; 
+
+        } catch (error) {
+            return errror;
+        }
+        
+    },
 
     getCurrentPricingCharges: async(req, res) => {
-        try{
+        try{            
             let customs = await PricingCharges.find( { where: { type: 'customs' } } ).sort( 'updatedAt DESC' ).limit(1);
 
             let lastMileCost = await PricingCharges.find( { where: { type: 'lastMileCost' } } ).sort( 'updatedAt DESC' ).limit(1);

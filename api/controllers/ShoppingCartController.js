@@ -12,7 +12,7 @@ module.exports = {
                 let cart = await ShoppingCart.findOne({ id: carts[0].id }).populate("items");
                 cart.items = await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish }).populate("type").populate("store");
-                    shippingRate = await require('./ShippingRatesController').getShippingRate( it.fish.country, it.quantity.value ); 
+                    shippingRate = await require('./ShippingRatesController').getShippingRateByCities( it.fish.city, it.quantity.value ); 
                     it.shippingCost = shippingRate;
                     
                     return it;
@@ -30,11 +30,26 @@ module.exports = {
                 }
 
                 return res.json(cart)
-            }
+            };
+            console.log( 'start' );
+            let currentPricingCharges = await require('./PricingChargesController').CurrentPricingCharges();
+            console.log( currentPricingCharges );
+            let uaeTaxes        = currentPricingCharges.uaeTaxes[0].price;
+            let handlingFees    = currentPricingCharges.handlingFees[0].price;
+            let customs         = currentPricingCharges.customs[0].price;            
+            let lastMileCost    = currentPricingCharges.lastMileCost[0].price;            
 
-            let cart = await ShoppingCart.create({ buyer }).fetch();
+            let cart = await ShoppingCart.create(
+                { 
+                    buyer: buyer,
+                    lastMileCost: lastMileCost,                    
+                    customs: customs,
+                    handlingFees: handlingFees,
+                    uaeTaxes: uaeTaxes
+                }
+                ).fetch();
 
-            res.json(cart);
+            res.status(200).json(cart);
         }
         catch (e) {
             console.error(e);
@@ -84,7 +99,7 @@ module.exports = {
             });
 
 
-            res.json(cartFinish);
+            res.status(200).json(cartFinish);
         }
         catch (e) {
             console.error(e);
