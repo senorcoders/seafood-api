@@ -15,40 +15,11 @@ const transporter = nodemailer.createTransport({
 
 //#region para enviar codigo enlace para verificacion de correo.
 
-function getTemplateVerificationCode(id, email, code) {
+function getTemplateVerificationCode(name) {
 
     return new Promise(function (resolve, reject) {
-        let body = `
-        <div align="center" class="button-container center " style="padding-right: 10px; padding-left: 10px; padding-top:10px; padding-bottom:10px;">
-        <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-spacing: 0; border-collapse: collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top:10px; padding-bottom:10px;" align="center"><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="http://138.68.19.227:7000/verification/${id + '/' + code}" style="height:31pt; v-text-anchor:middle; width:150pt;" arcsize="10%" strokecolor="#D61A1A" fillcolor="#D61A1A"><w:anchorlock/><v:textbox inset="0,0,0,0"><center style="color:#ffffff; font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size:16px;"><![endif]-->
-        <a href="https://seafood.senorcoders.com/verification/${id + '/' + code}" target="_blank" style="display: block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #ffffff; background-color: #D61A1A; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; max-width: 200px; width: 160px;width: auto; border-top: 0px solid transparent; border-right: 0px solid transparent; border-bottom: 0px solid transparent; border-left: 0px solid transparent; padding-top: 5px; padding-right: 20px; padding-bottom: 5px; padding-left: 20px; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;mso-border-alt: none">
-            <span style="font-size:16px;line-height:32px;"><span style="font-size: 15px; line-height: 30px;" data-mce-style="font-size: 15px;">Confirm Email Address</span></span>
-        </a>
-        <!--[if mso]></center></v:textbox></v:roundrect></td></tr></table><![endif]-->
-    </div>
-            <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
-            </div>
-        </div>
-        <!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]-->
-        </div>
-        </div>
-        </div>    <div style="background-color:transparent;">
-        <div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;" class="block-grid ">
-        <div style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;">
-        <!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width: 500px;"><tr class="layout-full-width" style="background-color:transparent;"><![endif]-->
-
-            <!--[if (mso)|(IE)]><td align="center" width="500" style=" width:500px; padding-right: 0px; padding-left: 0px; padding-top:5px; padding-bottom:5px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]-->
-        <div class="col num12" style="min-width: 320px;max-width: 500px;display: table-cell;vertical-align: top;">
-            <div style="background-color: transparent; width: 100% !important;">
-            <!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:5px; padding-bottom:5px; padding-right: 0px; padding-left: 0px;"><!--<![endif]-->
-
-                
-                <div class="">
-        <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
-        <div style="color:#555555;line-height:150%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
-        <div style="font-size:12px;line-height:18px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;">If there are any problems with the button, just copy and paste this link in your browser address bar:</span></p><p style="margin: 0;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px; color: rgb(0, 0, 255);">https://seafood.senorcoders.com/verification/${id + '/' + code}</span></p></div>	
-        </div>
-    `;
+        let body=`
+        <div class=""><!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 20px; padding-bottom: 20px;"><![endif]--><div style="color:#555555;line-height:120%;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 20px; padding-bottom: 20px;"><div style="font-size:12px;line-height:14px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;color:#555555;text-align:left;"><p style="margin: 0;font-size: 12px;line-height: 14px"><span style="font-size: 22px; line-height: 26px; color: rgb(51, 51, 51);"><strong><span style="line-height: 26px; font-size: 22px;">Hey ${name},</span></strong></span></p></div></div><!--[if mso]></td></tr></table><![endif]--></div>`;
         fs.readFile("./template_emails/verification_code_part1.html", "utf8", function (err, data) {
             if (err) { return reject(err); }
             fs.readFile("./template_emails/verification_code_part2.html", "utf8", function (err, data2) {
@@ -59,13 +30,13 @@ function getTemplateVerificationCode(id, email, code) {
     });
 }
 
-exports.sendCode = async function (id, email, code) {
+exports.sendCode = async function (id, email, code,name) {
     try {
 
         'use strict'
         console.log('sending email to verfication code ' + email);
 
-        let template = await getTemplateVerificationCode(id, email, code);
+        let template = await getTemplateVerificationCode(name);
 
         nodemailer.createTestAccount((err, account) => {
 
@@ -73,7 +44,7 @@ exports.sendCode = async function (id, email, code) {
             let mailOptions = {
                 from: '"Senorcoders" <milton@senorcoders.com>', // sender address
                 to: email, // list of receivers
-                subject: `Registration Approved - Seafood Souq`, // Subject line
+                subject: `Welcome Onboard, Getting Started with Seafood Souq !`, // Subject line
                 text: '', // plain text body
                 html: template, // html body
                 attachments: [{
