@@ -7,16 +7,32 @@ module.exports = {
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
     uaeTaxes: {
-      type: "number"
+      type: "number",
+      required: false
     },
     handlingFees: {
-      type: "number"
+      type: "number",
+      required: false
     },
     firstMileCosts: {
-      type: "number"
+      type: "number",
+      required: false
     },
     lastMileCost: {
-      type: "number"
+      type: "number",
+      required: false
+    },
+    customs: {
+      type: "number",
+      required: false
+    },
+    sfsMargin: {
+      type: "number",
+      required: false
+    },
+    shipping: {
+      type: "number",
+      required: false
     },
     total: {
       type: "number",
