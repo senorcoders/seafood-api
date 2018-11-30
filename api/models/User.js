@@ -93,6 +93,18 @@ module.exports = {
       required: false
     },
 
+    denialMessage: {
+      type: 'string',
+      required: false
+    },
+
+    denialType: {
+      type: 'number',
+      required: false,
+      description: `1- Contact in the Future
+                    2- Never Contact Again`
+    },
+    
     logoCompany: {
       type: "string",
       required: false

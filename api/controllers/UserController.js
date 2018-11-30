@@ -198,10 +198,20 @@ module.exports = {
                 return res.json({ msg: "ready" });
             }
 
-            user = await User.update({ id }, { status }).fetch();
             if (status === "accepted") {
-                if (user.length !== 0)
-                    await require("./../../mailer").sendCode(user[0].id, user[0].email, user[0].code);
+                user = await User.update({ id }, { status }).fetch();
+                if (user.length !== 0){
+                    await require("./../../mailer").sendCode(user[0].id, user[0].email, user[0].code);                    
+                }
+            }else if( status === "denied" ) {
+                console.log( 'denied' );
+                let denialMessage = req.body['denialMessage'];
+                let denialType = req.body['denialType'];
+                user = await User.update({ id }, { status, denialMessage, denialType }).fetch();
+                await require("./../../mailer").sendDenialMessage(user[0].id, user[0].email, denialMessage);                    
+            }else{
+                console.log( 'else' );
+                user = await User.update({ id }, { status }).fetch();
             }
             res.json({ msg: "success" });
         }
