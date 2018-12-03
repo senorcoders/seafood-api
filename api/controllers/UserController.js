@@ -199,10 +199,15 @@ module.exports = {
             }
 
             user = await User.update({ id }, { status }).fetch();
+            let name=user[0].firstName+" "+user[0].lastName;
             if (status === "accepted") {
                 if (user.length !== 0){
-                    let name=user[0].firstName+" "+user[0].lastName;
                     await require("./../../mailer").sendCode(user[0].id, user[0].email, user[0].code,name);
+                }
+            }
+            else{
+                if (user.length !== 0){
+                    await require("./../../mailer").registrationRejection(user[0].email,user[0].role,name);
                 }
             }
             res.json({ msg: "success" });
