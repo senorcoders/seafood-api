@@ -289,6 +289,10 @@ module.exports.routes = {
   //Para obtener fish por user
   'GET /itemshopping/:id': 'ItemShoppingController.getWithAllData',
 
+  //Get items by status
+
+  'GET /itemshopping/status/:status': 'ItemShoppingController.getItemsByStatus',
+
 
   /***********
    * FILES UPLOAD ADMIN

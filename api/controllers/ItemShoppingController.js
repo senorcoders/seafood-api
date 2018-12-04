@@ -153,13 +153,78 @@ module.exports = {
 
             let cart = await ShoppingCart.findOne({id: item.shoppingCart.id}).populate("buyer")
 
-            await ItemShopping.update({id}, {shippingStatus:"shipped"})
+            await ItemShopping.update({id}, {shippingStatus:"shipped", status: '5c017b0e47fb07027943a406'})
 
             await require("./../../mailer").sendEmailItemRoad(cart.buyer.email, item.trackingID, item.trackingFile, item);
 
             res.json({msg: "success"});
         }
         catch(e){
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
+    updateItemStatus: async ( req, res ) => {
+        try {
+            let id = req.param("id");
+            let status = req.param("status");
+
+            let item = await ItemShopping.findOne({id}).populate("shoppingCart").populate("fish");
+            if( item === undefined ){
+                res.status(400).send("not found");
+            }
+
+            let cart = await ShoppingCart.findOne({id: item.shoppingCart.id}).populate("buyer")
+
+            if( status == '5c017b0e47fb07027943a406' ){ //admin marks the item as shipped
+                await ItemShopping.update({id}, {shippingStatus:"shipped", status: '5c017b0e47fb07027943a406'})
+                await require("./../../mailer").sendEmailItemRoad(cart.buyer.email, item.trackingID, item.trackingFile, item);
+            }else if( status == '5c017b1447fb07027943a407' ) {//admin marks the item as arrived
+                await ItemShopping.update({id}, { status: '5c017b1447fb07027943a407'})
+            }else if( status == '5c017b2147fb07027943a408' ){ //out for delivery
+                await ItemShopping.update({id}, { status: '5c017b2147fb07027943a408'})
+            }else if( status == '5c017b3c47fb07027943a409' ){ //Delivered
+                await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409'})
+            }else if( status == '5c017b4547fb07027943a40a' ){ //Pending Repayment
+                await ItemShopping.update({id}, { status: '5c017b4547fb07027943a40a'})
+            }else if( status == '5c017b4f47fb07027943a40b' ){ //Seller Repaid
+                await ItemShopping.update({id}, { status: '5c017b4f47fb07027943a40b'})
+            }else if( status == '5c017b5a47fb07027943a40c' ){ //Client Cancelled Order"
+                await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c'})
+            }else if( status == '5c017b7047fb07027943a40e' ){ //Refunded
+                await ItemShopping.update({id}, { status: '5c017b7047fb07027943a40e'})
+            }else if( status == '5c06f4bf7650a503f4b731fd' ){ //Seller Cancelled Order
+                await ItemShopping.update({id}, { status: '5c06f4bf7650a503f4b731fd'})
+            }else{
+                res.status(400).send("status not found")
+            }
+            res.status(200).json( { "message": "status updated" } );
+
+
+
+
+        } catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
+    getItemsByStatus: async ( req, res ) => {
+        try {                                    
+            let status_id = req.param("status");
+            let items = await ItemShopping.find({ status: status_id }).populate("fish").populate("shoppingCart").populate("status").sort('updatedAt DESC');
+            
+            items = await Promise.all(items.map(async function(it){
+                it.store = await Store.findOne({ id: it.fish.store});
+                return it;
+            }));
+
+            
+
+            res.status(200).json( items );
+            
+        } catch (e) {
             console.error(e);
             res.serverError(e);
         }
