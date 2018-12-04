@@ -200,18 +200,22 @@ module.exports = {
 
             if (status === "accepted") {
                 user = await User.update({ id }, { status }).fetch();
+                let name=user[0].firstName+" "+user[0].lastName;
                 if (user.length !== 0){
-                    await require("./../../mailer").sendCode(user[0].id, user[0].email, user[0].code);                    
+                    await require("./../../mailer").sendCode(user[0].id, user[0].email, user[0].code, name);                    
                 }
             }else if( status === "denied" ) {
                 console.log( 'denied' );
                 let denialMessage = req.body['denialMessage'];
                 let denialType = req.body['denialType'];
                 user = await User.update({ id }, { status, denialMessage, denialType }).fetch();
-                await require("./../../mailer").sendDenialMessage(user[0].id, user[0].email, denialMessage);                    
+                let name=user[0].firstName+" "+user[0].lastName;
+                //await require("./../../mailer").sendDenialMessage(user[0].id, user[0].email, denialMessage); 
+                //await require("./../../mailer").registrationRejection(user[0].email,user[0].role,name);                   
             }else{
                 console.log( 'else' );
                 user = await User.update({ id }, { status }).fetch();
+                let name=user[0].firstName+" "+user[0].lastName;
             }
             res.json({ msg: "success" });
         }
