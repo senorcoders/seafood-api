@@ -1,3 +1,9 @@
+/**
+ * OrderStatus.js
+ *
+ * @description :: A model definition.  Represents a database table/collection/etc.
+ * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
+ */
 
 module.exports = {
 
@@ -6,41 +12,27 @@ module.exports = {
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
-    quantity: {
-      type: "json",
-      required: true
-    },
-
-    price: {
-      type: 'json',
-      required: true,
+    status: {
+      type: 'string',
       example: `
-        price: {
-          type: "$",
-          value: 3,
-          description: $2 for pack
-        }
-        `
-    },
+        open
+        pending seller confirmation
+        pending fulfillment
+        shipped
+        arrived
+        out for delivery
+        delivered
+        
 
-    shippingFiles: {
-      type: 'json',
-      required: false
-    },
+        pending repayment
+        seller repaid
+        
+        cancelled order
+        pending refund
+        refunded
 
-    shippingStatus: {
-      type: "string",
-      required: false
-    },
 
-    trackingID:{
-      type: "string",
-      required: false
-    },
-
-    trackingFile:{
-      type: "string",
-      required: false
+      `
     },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
@@ -51,22 +43,8 @@ module.exports = {
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-    fish: {
-      model: "fish",
-      required: true
-    },
 
-    shoppingCart: {
-      model: "shoppingcart",
-      required: true
-    },
-
-    status: {
-      model: "OrderStatus",
-      required: false
-    }
-
-  }
+  },
 
 };
 

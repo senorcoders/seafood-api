@@ -1,6 +1,23 @@
 
 module.exports = {
 
+    testOrder: async ( req, res ) => {
+        try {
+            let lastOrder = await ShoppingCart.find().sort('orderNumber DESC').limit(1);//.max('orderNumber');
+            let max = 0;
+            console.log( lastOrder );
+            if(lastOrder.length > 0){
+                if( lastOrder[0].hasOwnProperty("orderNumber") ) {
+                    max = lastOrder[0].orderNumber + 1;
+                }                                            
+            }
+
+            res.status( 200 ).json( max );
+        } catch (error) {
+            res.serverError( error );
+        }
+    },
+
     createCart: async function (req, res) {
         try {
             let buyer = req.param("buyer");
@@ -33,6 +50,7 @@ module.exports = {
             };
             console.log( 'start' );
             let currentPricingCharges = await require('./PricingChargesController').CurrentPricingCharges();
+            
             console.log( currentPricingCharges );
             let uaeTaxes        = currentPricingCharges.uaeTaxes[0].price;
             let handlingFees    = currentPricingCharges.handlingFees[0].price;
@@ -218,6 +236,11 @@ module.exports = {
 
     updateShoppingCartPaid: async function (req, res) {
         try {
+            let lastOrder = await ShoppingCart.find().sort('orderNumber DESC').limit(1);//.max('orderNumber');
+            let max = 0;
+            if(lastOrder.length > 0)
+                if( lastOrder[0].hasOwnProperty("orderNumber") ) 
+                    max = lastOrder[0].orderNumber + 1;
 
             let cart = await ShoppingCart.findOne({ id: req.param("id"), status: "pending" }).populate("buyer");
             if (cart === undefined) {
@@ -231,13 +254,16 @@ module.exports = {
                 return it;
             }));
 
-            //Se le envia los datos de compras al vendedor
-            await require("./../../mailer").sendCartPaidBuyer(itemsShopping, cart.buyer.email);
+            
 
+            //Se le envia los datos de compras al vendedor
+            //await require("./../../mailer").sendCartPaidBuyer(itemsShopping, cart.buyer.email);
+            let updateStatusItem = await ItemShopping.update( { shoppingCart: cart.id  }, { status: '5c017ae247fb07027943a404' } )
+            console.log( updateStatusItem );
             //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
             let itemsStore = [];
             for (let item of itemsShopping) {
-
+                
                 let index = itemsStore.findIndex(function (it) {
                     return it[0].fish.store.id === item.fish.store.id;
                 });
@@ -255,8 +281,17 @@ module.exports = {
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName
                 // await require("./../../mailer").sendCartSeller(fullName, fullNameBuyer, cart.buyer.email, st, st[0].fish.store.owner.email)
             }
+            
+            let OrderNumber     = max;
+            let OrderStatus     = "5c017ad347fb07027943a403"; //Pending Seller Confirmation
 
-            cart = await ShoppingCart.update({ id: req.param("id") }, { status: "paid", paidDateTime: req.param("paidDateTime") }).fetch();
+            cart = await ShoppingCart.update({ id: req.param("id") }, { 
+                status: "paid", 
+                paidDateTime: req.param("paidDateTime") ,
+                orderNumber: OrderNumber,
+                orderStatus: OrderStatus
+                
+            }).fetch();
 
             res.json(cart);
         }

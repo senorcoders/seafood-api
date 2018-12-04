@@ -96,7 +96,7 @@ module.exports.routes = {
   //get image license
   'GET /api/images/license/:namefile/:id': 'ImageController.getImagesLicense',
 
-  //subir multiples images for a fish
+  //subir una imagen for a fish
   'POST /api/images': 'ImageController.imagesUpload',
 
   //Para guardar multiples images de un producto
@@ -252,6 +252,9 @@ module.exports.routes = {
   //Get Cart paid x buyer
   'GET /api/cart/paid/:buyer': "ShoppingCartController.getCartPaid",
 
+  //test order
+  'GET /api/cart/test': "ShoppingCartController.testOrder",
+
   /***********
    * 
    * ITEMS SHOPPING 
@@ -333,6 +336,8 @@ module.exports.routes = {
    'POST /shippingRates/cities': 'ShippingRates.getCitiesShippingRateByWeight',
 
    'GET /countries/cities': 'Countries.getAllCities',
+
+   'POST /shipping/:id/upload/': 'Image.uploadShippingInformation',
 
    //PRICING
    'GET /pricingCharges/history': 'PricingCharges.getPricingChargesHistory',

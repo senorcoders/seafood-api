@@ -3,8 +3,8 @@ const favoriteFsihCtrl = require("./FavoriteFishController");
 module.exports = {
     getWithAllData: async function(req, res){
         try{
-            let item = await ItemShopping.findOne({id: req.param("id")}).populate("fish").populate("shoppingCart");
-            item.shoppingCart = await ShoppingCart.findOne({id: item.shoppingCart.id}).populate("buyer");
+            let item = await ItemShopping.findOne({id: req.param("id")}).populate("fish").populate("shoppingCart").populate( 'status' );
+            item.shoppingCart = await ShoppingCart.findOne({id: item.shoppingCart.id}).populate("buyer").populate( 'orderStatus' );
 
             res.json(item);
         }
@@ -69,7 +69,7 @@ module.exports = {
             //cargamos los items shopping con los datos de cart
             let itemsShoppings = [];
             for(let f of fishs){
-                let items = await ItemShopping.find({fish: f.id}).populate("fish").populate("shoppingCart");
+                let items = await ItemShopping.find({fish: f.id}).populate("fish").populate("shoppingCart").populate("status").sort('updatedAt DESC');
                 itemsShoppings = itemsShoppings.concat(items);
             }
 

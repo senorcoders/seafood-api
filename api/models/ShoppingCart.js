@@ -50,6 +50,11 @@ module.exports = {
       required: false
     },
 
+    orderNumber: {
+      type: "number",
+      required: false
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
@@ -65,6 +70,11 @@ module.exports = {
     items: {
       collection: "itemshopping",
       via: "shoppingCart",
+      required: false
+    },
+
+    orderStatus: {
+      model: "OrderStatus",
       required: false
     }
   },

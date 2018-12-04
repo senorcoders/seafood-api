@@ -44,48 +44,133 @@ const resizeSave = async function (nameFile, directory, image, size) {
     });
 }
 
+const singleImagesUpload = async function (imageBody, model, id, name) {
+    name = id + '-' +name;
+    console.log( imageBody[0] );
+    let base64 = imageBody.replace(/^data:image\/jpeg;base64,/, '');
+    base64 = base64.replace(/^data:image\/png;base64,/, '');
+    let image = new Buffer(base64, 'base64');
+
+    let directory = [];
+
+    directory.push(path.resolve(__dirname, '../../assets/images/' + model));
+    directory.push(path.resolve(__dirname, '../../assets/images/' + model + '/' + id));
+
+    let nameFile = name; //id;
+
+    //create directory if not exists
+    if (!fs.existsSync(directory[0])) {
+        fs.mkdirSync(directory[0]);
+    }
+
+    if (!fs.existsSync(directory[1])) {
+        fs.mkdirSync(directory[1]);
+    }
+          
+    //para original
+    let original = await writeImage(nameFile, directory[1], image);
+
+    return [original];
+
+}
+
 
 module.exports = {
 
-    imagesUpload: async function (req, res) {
+    uploadShippingInformation: async ( req, res ) => {
+        let orderID = req.params.id;
+        console.dir( req.body.image0 );
+        //console.log(  req.body.image1  );
+        let image0 = await singleImagesUpload( req.body.image0, 'ItemShopping', orderID, 0 );
+        let image1 = await singleImagesUpload( req.body.image1, 'ItemShopping', orderID, 1 );
+        let image2 = await singleImagesUpload( req.body.image2, 'ItemShopping', orderID, 2 );
+        let image3 = await singleImagesUpload( req.body.image3, 'ItemShopping', orderID, 3 );
+        let image4 = await singleImagesUpload( req.body.image4, 'ItemShopping', orderID, 4 );
+        let image5 = await singleImagesUpload( req.body.image5, 'ItemShopping', orderID, 5 );
+        let image6 = await singleImagesUpload( req.body.image6, 'ItemShopping', orderID, 6 );
+        let image7 = await singleImagesUpload( req.body.image7, 'ItemShopping', orderID, 7 );
+        let image8 = await singleImagesUpload( req.body.image8, 'ItemShopping', orderID, 8 );
+        let image9 = await singleImagesUpload( req.body.image9, 'ItemShopping', orderID, 9 );
 
-        let base64 = req.body.image.replace(/^data:image\/jpeg;base64,/, '');
-        base64 = base64.replace(/^data:image\/png;base64,/, '');
-        let image = new Buffer(base64, 'base64');
+        updateItemShopping = await ItemShopping.update( { id: orderID }, { status: '5c017af047fb07027943a405' } )
+        
+        
+        //console.log( image1 );
 
-        let directory = [];
-
-        directory.push(path.resolve(__dirname, '../../assets/images/' + req.body.model));
-        directory.push(path.resolve(__dirname, '../../assets/images/' + req.body.model + '/' + req.body.id));
-
-        let nameFile = req.body.id;
-
-        //create directory if not exists
-        if (!fs.existsSync(directory[0])) {
-            fs.mkdirSync(directory[0]);
-        }
-
-        if (!fs.existsSync(directory[1])) {
-            fs.mkdirSync(directory[1]);
-        }
-
-        //Para imagenes de 250 x 200
-        let m250x200 = await resizeSave(nameFile + '300x200', directory[1], image, { width: 300, height: 200 });
-
-        //Para imagenes de 350 x 300
-        let m450x350 = await resizeSave(nameFile + '400x300', directory[1], image, { width: 400, height: 300 });
-
-        //Para imagenes de 450 x 350
-        let m700x600 = await resizeSave(nameFile + '700x600', directory[1], image, { width: 700, height: 600 });
-
-
-        //para original
-        let original = await writeImage(nameFile, directory[1], image);
-
-        res.json([m250x200, m450x350, m700x600, original]);
-
+        res.status(200).json( updateItemShopping, image0, image1, image2, image3, image4, image5, image6, image7, image8, image9 );
     },
 
+    imagesUpload: async function (req, res) {
+
+        ItemShoppingID = req.param("id");
+
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                let dirname = path.join(IMAGES, "/ItemShopping/", ItemShoppingID);
+                let itemShopping = await ItemShopping.findOne({ id: ItemShoppingID });
+                console.log(ItemShopping);
+
+                //create directory if not exists
+                if (!fs.existsSync(dirname)) {
+                    fs.mkdirSync(dirname);
+                }
+
+                req.file("images").upload({
+                    dirname,
+                    maxBytes: 5000000,
+                    saveAs: function (stream, cb) {
+                        ////console.log(stream);
+                        cb(null, stream.filename);
+                    }
+                }, async function (err, uploadedFiles) {
+                    if (err) {
+                        reject(err);
+                        if (res !== false) {
+                            res.serverError(err);
+                        }
+                    }
+
+                    let dirs = [];
+                    for (let file of uploadedFiles) {
+                        if (file.type.includes("image/") && file["status"] === "finished") {
+                            dirs.push({
+                                filename: file.filename,
+                                src: "/api/ItemShopping/images/" + file.filename + "/" + ItemShoppingID
+                            });
+                        }
+                    }
+
+                    if (itemShopping.hasOwnProperty("shippingFiles") && Object.prototype.toString.call(itemShopping.shippingFiles) === "[object Array]") {
+                        for (let dir of dirs) {
+                            if (itemShopping.shippingFiles.findIndex(function (i) { return i.src === dir.src }) === -1) {
+                                itemShopping.shippingFiles.push(dir);
+                            }
+                        }
+                    } else {
+                        itemShopping.shippingFiles = dirs;
+                    }
+
+                    let upda = await itemShopping.update({ id: ItemShoppingID }, { shippingFiles: itemShopping.shippingFiles }).fetch();
+
+                    resolve(itemShopping);
+                    if (res !== false) {
+                        res.json(upda);
+                    }
+                })
+            }
+            catch (e) {
+                console.error(e);
+                reject(e);
+                if (res !== false) {
+                    res.serverError(e);
+                }
+            }
+        });
+
+    },
+    
     multipleImagesUpload: async function (req, res) {
 
         let fish = await Fish.findOne({ id: req.params.id });
@@ -921,5 +1006,7 @@ module.exports = {
         }
 
     },
+
+    
 }
 
