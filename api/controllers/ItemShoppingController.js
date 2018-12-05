@@ -198,6 +198,7 @@ module.exports = {
                     //send email to seller
                     await require("./../../mailer").sendEmailOrderStatusSeller(name,cart,store);
                     //send email to admin
+                    await require("./../../mailer").sendEmailOrderStatusAdmin(name,cart,store);
                 }
             }else if( status == '5c017b7047fb07027943a40e' ){ //Refunded
                 await ItemShopping.update({id}, { status: '5c017b7047fb07027943a40e'})
