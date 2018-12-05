@@ -266,7 +266,8 @@ module.exports.routes = {
 
   //Para actualizar status y enviar email
   'PUT /api/itemshopping/status/:id': "ItemShoppingController.updateStatusToShipped",
-
+  //change status and send emails
+  'PUT /api/itemshopping/:id/:status':"ItemShoppingController.updateItemStatus",
 
   /********
    * 

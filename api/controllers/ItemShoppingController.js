@@ -191,8 +191,10 @@ module.exports = {
             }else if( status == '5c017b4f47fb07027943a40b' ){ //Seller Repaid
                 await ItemShopping.update({id}, { status: '5c017b4f47fb07027943a40b'})
             }else if( status == '5c017b5a47fb07027943a40c' ){ //Client Cancelled Order"
-                //await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c'});
-                await require("./../../mailer").sendEmailOrderStatus(name,cart,store);
+                let item=await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c'}).fetch();
+                if(item.length > 0){
+                    await require("./../../mailer").sendEmailOrderStatus(name,cart,store);
+                }
             }else if( status == '5c017b7047fb07027943a40e' ){ //Refunded
                 await ItemShopping.update({id}, { status: '5c017b7047fb07027943a40e'})
             }else if( status == '5c06f4bf7650a503f4b731fd' ){ //Seller Cancelled Order
