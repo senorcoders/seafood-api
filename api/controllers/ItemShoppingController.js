@@ -22,6 +22,7 @@ module.exports = {
                 try{
                     it.fish = await Fish.findOne({ id: it.fish });
                     it.fish.store = await Store.findOne({ id: it.fish.store });
+                    it.fish.storeOwner = await User.findOne( { id: it.fish.store.owner } );
                     it.favorite = await new Promise((resolve, reject)=>{
                         let ress = {
                             json: resolve,
@@ -174,9 +175,9 @@ module.exports = {
             if( item === undefined ){
                 res.status(400).send("not found");
             }
-
+            let store=await Store.findOne({id:item.fish.store})
             let cart = await ShoppingCart.findOne({id: item.shoppingCart.id}).populate("buyer")
-
+            let name=cart.buyer.firstName+' '+cart.buyer.lastName;
             if( status == '5c017b0e47fb07027943a406' ){ //admin marks the item as shipped
                 await ItemShopping.update({id}, {shippingStatus:"shipped", status: '5c017b0e47fb07027943a406'})
                 await require("./../../mailer").sendEmailItemRoad(cart.buyer.email, item.trackingID, item.trackingFile, item);
@@ -191,7 +192,10 @@ module.exports = {
             }else if( status == '5c017b4f47fb07027943a40b' ){ //Seller Repaid
                 await ItemShopping.update({id}, { status: '5c017b4f47fb07027943a40b'})
             }else if( status == '5c017b5a47fb07027943a40c' ){ //Client Cancelled Order"
-                await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c'})
+                let item=await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c'}).fetch();
+                if(item.length > 0){
+                    await require("./../../mailer").sendEmailOrderStatus(name,cart,store);
+                }
             }else if( status == '5c017b7047fb07027943a40e' ){ //Refunded
                 await ItemShopping.update({id}, { status: '5c017b7047fb07027943a40e'})
             }else if( status == '5c06f4bf7650a503f4b731fd' ){ //Seller Cancelled Order

@@ -30,6 +30,7 @@ module.exports = {
                 cart.items = await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish }).populate("type").populate("store");
                     shippingRate = await require('./ShippingRatesController').getShippingRateByCities( it.fish.city, it.quantity.value ); 
+                    it.owner = await User.findOne( { id: it.fish.store.owner } )
                     it.shippingCost = shippingRate;
                     
                     return it;
@@ -236,6 +237,7 @@ module.exports = {
 
     updateShoppingCartPaid: async function (req, res) {
         try {
+            let paidDateTime=new Date().toISOString();
             let lastOrder = await ShoppingCart.find().sort('orderNumber DESC').limit(1);//.max('orderNumber');
             let max = 0;
             if(lastOrder.length > 0)
@@ -274,25 +276,26 @@ module.exports = {
                     itemsStore[index].push(item);
                 }
             }
-
+            // let shippingRate = []
+            // let storeName=[];
             //Se envia los correos a los dueños de las tiendas
             for (let st of itemsStore) {
+                // storeName.push(st[0].fish.store.name);
+                // shippingRate.push(await require('./ShippingRatesController').getShippingRateByCities( st[0].fish.city, st[0].quantity.value ));
                 let fullName = st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName
                 // await require("./../../mailer").sendCartSeller(fullName, fullNameBuyer, cart.buyer.email, st, st[0].fish.store.owner.email)
             }
-            
             let OrderNumber     = max;
             let OrderStatus     = "5c017ad347fb07027943a403"; //Pending Seller Confirmation
 
             cart = await ShoppingCart.update({ id: req.param("id") }, { 
                 status: "paid", 
-                paidDateTime: req.param("paidDateTime") ,
+                paidDateTime: paidDateTime ,
                 orderNumber: OrderNumber,
                 orderStatus: OrderStatus
                 
             }).fetch();
-
             res.json(cart);
         }
         catch (e) {

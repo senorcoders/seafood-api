@@ -270,6 +270,8 @@ module.exports.routes = {
   //get shipping images from cart
   'GET /api/ItemShopping/shipping/images/:itemID/:imageIndex': "ImageController.serveShippingImage",
 
+  //change status and send emails
+  'PUT /api/itemshopping/:id/:status':"ItemShoppingController.updateItemStatus",
 
   /********
    * 
