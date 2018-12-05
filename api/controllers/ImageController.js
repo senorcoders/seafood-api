@@ -15,7 +15,7 @@ const writeImage = async function (nameFile, directory, image) {
                 return reject(err);
             }
 
-            resolve({ message: "success" });
+            resolve({ message: "success", path: directory + '/' + nameFile});
 
         });
 
@@ -45,8 +45,8 @@ const resizeSave = async function (nameFile, directory, image, size) {
 }
 
 const singleImagesUpload = async function (imageBody, model, id, name) {
-    name = id + '-' +name;
-    console.log( imageBody[0] );
+    //name = id + '-' +name;
+    //console.log( imageBody[0] );
     let base64 = imageBody.replace(/^data:image\/jpeg;base64,/, '');
     base64 = base64.replace(/^data:image\/png;base64,/, '');
     let image = new Buffer(base64, 'base64');
@@ -69,7 +69,7 @@ const singleImagesUpload = async function (imageBody, model, id, name) {
           
     //para original
     let original = await writeImage(nameFile, directory[1], image);
-
+    console.log( original );
     return [original];
 
 }
@@ -78,26 +78,89 @@ const singleImagesUpload = async function (imageBody, model, id, name) {
 module.exports = {
 
     uploadShippingInformation: async ( req, res ) => {
-        let orderID = req.params.id;
-        console.dir( req.body.image0 );
-        //console.log(  req.body.image1  );
-        let image0 = await singleImagesUpload( req.body.image0, 'ItemShopping', orderID, 0 );
-        let image1 = await singleImagesUpload( req.body.image1, 'ItemShopping', orderID, 1 );
-        let image2 = await singleImagesUpload( req.body.image2, 'ItemShopping', orderID, 2 );
-        let image3 = await singleImagesUpload( req.body.image3, 'ItemShopping', orderID, 3 );
-        let image4 = await singleImagesUpload( req.body.image4, 'ItemShopping', orderID, 4 );
-        let image5 = await singleImagesUpload( req.body.image5, 'ItemShopping', orderID, 5 );
-        let image6 = await singleImagesUpload( req.body.image6, 'ItemShopping', orderID, 6 );
-        let image7 = await singleImagesUpload( req.body.image7, 'ItemShopping', orderID, 7 );
-        let image8 = await singleImagesUpload( req.body.image8, 'ItemShopping', orderID, 8 );
-        let image9 = await singleImagesUpload( req.body.image9, 'ItemShopping', orderID, 9 );
+        try {
+            let orderID = req.params.id;
+            let shippingImagePath = 'ItemShopping/shipping/images';
+            //console.dir( req.body.image0 );
+            //console.log(  req.body.image1  );
+            let image0 = await singleImagesUpload( req.body.image0, shippingImagePath, orderID, 0 );
+            let image1 = await singleImagesUpload( req.body.image1, shippingImagePath, orderID, 1 );
+            let image2 = await singleImagesUpload( req.body.image2, shippingImagePath, orderID, 2 );
+            let image3 = await singleImagesUpload( req.body.image3, shippingImagePath, orderID, 3 );
+            let image4 = await singleImagesUpload( req.body.image4, shippingImagePath, orderID, 4 );
+            let image5 = await singleImagesUpload( req.body.image5, shippingImagePath, orderID, 5 );
+            let image6 = await singleImagesUpload( req.body.image6, shippingImagePath, orderID, 6 );
+            let image7 = await singleImagesUpload( req.body.image7, shippingImagePath, orderID, 7 );
+            let image8 = await singleImagesUpload( req.body.image8, shippingImagePath, orderID, 8 );
+            let image9 = await singleImagesUpload( req.body.image9, shippingImagePath, orderID, 9 );
 
-        updateItemShopping = await ItemShopping.update( { id: orderID }, { status: '5c017af047fb07027943a405' } )
-        
-        
-        //console.log( image1 );
+            let images_url = [ 
+                orderID + '/' + '0.jpg', 
+                orderID + '/' + '1.jpg', 
+                orderID + '/' + '2.jpg', 
+                orderID + '/' + '3.jpg', 
+                orderID + '/' + '4.jpg', 
+                orderID + '/' + '5.jpg', 
+                orderID + '/' + '6.jpg', 
+                orderID + '/' + '7.jpg', 
+                orderID + '/' + '8.jpg', 
+                orderID + '/' + '9.jpg'
+            ];
+            /*let images_url = [ 
+                shippingImagePath + '/' + orderID + '-0.jpg', 
+                shippingImagePath + '/' + orderID + '-1.jpg', 
+                shippingImagePath + '/' + orderID + '-2.jpg', 
+                shippingImagePath + '/' + orderID + '-3.jpg', 
+                shippingImagePath + '/' + orderID + '-4.jpg', 
+                shippingImagePath + '/' + orderID + '-5.jpg', 
+                shippingImagePath + '/' + orderID + '-6.jpg', 
+                shippingImagePath + '/' + orderID + '-7.jpg', 
+                shippingImagePath + '/' + orderID + '-8.jpg', 
+                shippingImagePath + '/' + orderID + '-9.jpg'
+            ];*/
+            console.log( images_url );
 
-        res.status(200).json( updateItemShopping, image0, image1, image2, image3, image4, image5, image6, image7, image8, image9 );
+            updateItemShopping = await ItemShopping.update( { id: orderID }, { status: '5c017af047fb07027943a405', shippingFiles: images_url } );
+            
+
+            
+            //console.log( image1 );
+
+            res.status(200).json( updateItemShopping, image0, image1, image2, image3, image4, image5, image6, image7, image8, image9 );    
+        } catch (error) {
+            res.serverError( error );
+        }
+        
+    },
+    serveShippingImage: async ( req, res ) => {
+        console.log('found');
+        try {
+            let rootImagePath = path.resolve(__dirname, '../../assets/images/');
+            let imagePath = req.param("itemID");
+            let namefile =  req.param("imageIndex") + '.jpg';
+            console.log( namefile );
+            
+            
+            let shippingImagePath = '/ItemShopping/shipping/images';
+            console.log( rootImagePath );
+            let directory =  rootImagePath + shippingImagePath + '/' + imagePath + '/' + namefile;
+            console.log( directory );
+            if (!fs.existsSync(directory)) {
+                throw new Error("file not exist");
+            }
+            
+            // read binary data
+            var data = fs.readFileSync(directory);
+            // convert binary data to base64 encoded string
+            let content = 'image/' + namefile.split(".").pop();
+            res.contentType(content);
+            res.send(data);
+            
+            //res.status(200).json( { "message": "found it" } );
+        } catch (error) {
+            console.log( error );
+            res.serverError( error );
+        }
     },
 
     imagesUpload: async function (req, res) {

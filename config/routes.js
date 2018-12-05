@@ -267,6 +267,9 @@ module.exports.routes = {
   //Para actualizar status y enviar email
   'PUT /api/itemshopping/status/:id': "ItemShoppingController.updateStatusToShipped",
 
+  //get shipping images from cart
+  'GET /api/ItemShopping/shipping/images/:itemID/:imageIndex': "ImageController.serveShippingImage",
+
 
   /********
    * 
