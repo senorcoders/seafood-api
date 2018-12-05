@@ -30,6 +30,7 @@ module.exports = {
                 cart.items = await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish }).populate("type").populate("store");
                     shippingRate = await require('./ShippingRatesController').getShippingRateByCities( it.fish.city, it.quantity.value ); 
+                    it.owner = await User.findOne( { id: it.fish.store.owner } )
                     it.shippingCost = shippingRate;
                     
                     return it;

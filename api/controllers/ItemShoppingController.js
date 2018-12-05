@@ -22,6 +22,7 @@ module.exports = {
                 try{
                     it.fish = await Fish.findOne({ id: it.fish });
                     it.fish.store = await Store.findOne({ id: it.fish.store });
+                    it.fish.storeOwner = await User.findOne( { id: it.fish.store.owner } );
                     it.favorite = await new Promise((resolve, reject)=>{
                         let ress = {
                             json: resolve,
@@ -225,6 +226,20 @@ module.exports = {
             
             items = await Promise.all(items.map(async function(it){
                 it.store = await Store.findOne({ id: it.fish.store});
+                fishCountry = await Countries.findOne( { code: it.fish.country } );
+                
+                it.country = {
+                    code: fishCountry.code,  
+                    name: fishCountry.name
+                }
+
+                Promise.all(fishCountry.cities.map(async function(city){ 
+                    if( city.code === it.fish.city ){
+                        it.city = city;
+                    }
+                    return city;
+                } ) );
+
                 return it;
             }));
 

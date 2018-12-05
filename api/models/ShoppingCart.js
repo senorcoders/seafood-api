@@ -34,6 +34,10 @@ module.exports = {
       type: "number",
       required: false
     },
+    totalOtherFees: {
+      type: "number",
+      required: false
+    },
     total: {
       type: "number",
       required: false
@@ -48,8 +52,7 @@ module.exports = {
       type: "string",
       columnType: "datetime",
       required: false
-    },
-
+    },        
     orderNumber: {
       type: "number",
       required: false
