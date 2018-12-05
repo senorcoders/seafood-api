@@ -175,7 +175,7 @@ module.exports = {
             if( item === undefined ){
                 res.status(400).send("not found");
             }
-            let store=await Store.findOne({id:item.fish.store})
+            let store=await Store.findOne({id:item.fish.store}).populate("owner")
             let cart = await ShoppingCart.findOne({id: item.shoppingCart.id}).populate("buyer")
             let name=cart.buyer.firstName+' '+cart.buyer.lastName;
             if( status == '5c017b0e47fb07027943a406' ){ //admin marks the item as shipped
@@ -194,7 +194,11 @@ module.exports = {
             }else if( status == '5c017b5a47fb07027943a40c' ){ //Client Cancelled Order"
                 let item=await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c'}).fetch();
                 if(item.length > 0){
+                    //send email to buyer
                     await require("./../../mailer").sendEmailOrderStatus(name,cart,store);
+                    //send email to seller
+                    await require("./../../mailer").sendEmailOrderStatusSeller(name,cart,store);
+                    //send email to admin
                 }
             }else if( status == '5c017b7047fb07027943a40e' ){ //Refunded
                 await ItemShopping.update({id}, { status: '5c017b7047fb07027943a40e'})
