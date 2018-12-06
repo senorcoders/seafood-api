@@ -275,18 +275,17 @@ module.exports = {
                     itemsStore[index].push(item);
                 }
             }
-            // let shippingRate = []
-             let storeName=[];
+            let storeName=[];
+            let OrderNumber     = max;
+            let OrderStatus     = "5c017ad347fb07027943a403"; //Pending Seller Confirmation
             //Se envia los correos a los dueños de las tiendas
             for (let st of itemsStore) {
                 storeName.push(st[0].fish.store.name);
                 // shippingRate.push(await require('./ShippingRatesController').getShippingRateByCities( st[0].fish.city, st[0].quantity.value ));
                 let fullName = st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName
-                // await require("./../../mailer").sendCartSeller(fullName, fullNameBuyer, cart.buyer.email, st, st[0].fish.store.owner.email)
+                await require("./../../mailer").sendCartPaidSellerNotified(fullName, cart, st, OrderNumber,st[0].fish.store.owner.email)
             }
-            let OrderNumber     = max;
-            let OrderStatus     = "5c017ad347fb07027943a403"; //Pending Seller Confirmation
 
             // cart = await ShoppingCart.update({ id: req.param("id") }, { 
             //     status: "paid", 
@@ -295,7 +294,7 @@ module.exports = {
             //     orderStatus: OrderStatus
                 
             // }).fetch();
-            await require("./../../mailer").sendCartPaidBuyer(itemsShopping, cart,OrderNumber,storeName);
+            //await require("./../../mailer").sendCartPaidBuyer(itemsShopping, cart,OrderNumber,storeName);
             res.json(cart);
         }
         catch (e) {
