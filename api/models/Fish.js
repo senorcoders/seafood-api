@@ -116,6 +116,11 @@ module.exports = {
       collection: "itemshopping",
       via: "fish",
       required: false
+    },
+
+    status: {
+      model: "FishStatus",
+      required: false
     }
 
   },
