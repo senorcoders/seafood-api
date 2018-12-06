@@ -7,7 +7,7 @@ module.exports = {
         try {
             let start = Number(req.params.page);
             --start;
-            let productos = await Fish.find().populate("type").populate("store").paginate({ page: start, limit: req.params.limit });
+            let productos = await Fish.find( {status: '5c0866f9a0eda00b94acbdc2'} ).populate("type").populate("store").paginate({ page: start, limit: req.params.limit });
             productos = await Promise.all(productos.map(async function (m) {
                 if (m.store === null)
                     return m;
@@ -16,7 +16,7 @@ module.exports = {
                 return m;
             }));
 
-            let arr = await Fish.find(),
+            let arr = await Fish.find( {status: '5c0866f9a0eda00b94acbdc2'} ),
                 page_size = Number(req.params.limit), pages = 0;
             console.log(arr.length, Number(arr.length / page_size));
             if (parseInt(arr.length / page_size, 10) < Number(arr.length / page_size)) {
@@ -110,7 +110,7 @@ module.exports = {
 
     getSuggestions: async (req, res) => {
         try {
-
+            
             let name = req.param("name");
 
             var db = Fish.getDatastore().manager;
@@ -118,7 +118,7 @@ module.exports = {
 
             console.log(req.param("search"));
             let fishs = await new Promise((resolve, reject) => {
-                fish.find({ name: { '$regex': '^.*' + name + '.*$', '$options': 'i' } })
+                fish.find({ status: '5c0866f9a0eda00b94acbdc2', name: { '$regex': '^.*' + name + '.*$', '$options': 'i' } })
                     .toArray(async (err, arr) => {
                         if (err) { return reject(err); }
 
@@ -244,7 +244,7 @@ module.exports = {
 
             //Para cagar los items de cada carrito cargado
             async function getItemsCart(shoppingCart) {
-                let items = await ItemShopping.find({ shoppingCart: shoppingCart.id }).populate("fish");
+                let items = await ItemShopping.find({ shoppingCart: shoppingCart.id }).populate("fish", { where: {status: '5c0866f9a0eda00b94acbdc2'} });
                 items = items.filter(function (it) {
                     return it.fish.type === type;
                 });
@@ -309,7 +309,7 @@ module.exports = {
 
             //Para cagar los items de cada carrito cargado
             async function getItemsCart(shoppingCart) {
-                let items = await ItemShopping.find({ shoppingCart: shoppingCart.id }).populate("fish");
+                let items = await ItemShopping.find({ shoppingCart: shoppingCart.id }).populate("fish", { where: {status: '5c0866f9a0eda00b94acbdc2'} });
 
                 //Cargamos el comprador y la tienda
                 items = await Promise.all(items.map(async function (it) {
@@ -468,7 +468,7 @@ module.exports = {
             let minPrice = req.param('minPrice'); //price.value
             let maxPrice = req.param('maxPrice'); //price.value
 
-            let condWhere = { where: {}};
+            let condWhere = { where: {status: '5c0866f9a0eda00b94acbdc2'} };
 
             if( preparation !== '0' && preparation !== undefined && preparation.length != 0 )
                 condWhere.where['preparation'] = preparation;
@@ -497,7 +497,7 @@ module.exports = {
             }else {
                 if( category !== '0' ){
                     let categoryChilds = await FishType.find({
-                        where: { parent: category }
+                        where: { parent: category, status: '5c0866f9a0eda00b94acbdc2' }
                     })
                     .then(function ( result ) {
                         return result.map( value => {
@@ -522,6 +522,7 @@ module.exports = {
                     let price_ids =  collection.find(
                         {
                             $and: [ 
+                                {status: '5c0866f9a0eda00b94acbdc2'},
                                 { 
                                     "price.value": { $gte: parseInt(minPrice) } 
                                 }, 
@@ -643,6 +644,54 @@ module.exports = {
 
         res.status(200).json( `${store_name[0].name.substring(0, 3).toUpperCase()}-${category_name[0].name.substring(0, 3).toUpperCase()}-${subcategory_name[0].name.substring(0, 3).toUpperCase()}-${country_name[0].name.substring(0, 3).toUpperCase()}-${fishes}` );
         
+    },
+
+    updateStatus: async ( req, res ) => {
+        try {
+            let id = req.param("id");
+            let statusID = req.param("statusID");
+
+            let fish = await Fish.update({id}, { status: statusID }).fetch();
+
+            if( statusID == '5c0866f2a0eda00b94acbdc1' ){ //Not Approved
+                //TODO: add here email templates
+            }else if( statusID == '5c0866f9a0eda00b94acbdc2' ){ //Approved
+                //TODO: add here email templates
+            }
+
+            res.status( 200 ).json( fish )
+        } catch (error) {
+            res.serverError( error );
+        }
+    },
+
+    getPendingProducts: async ( req, res ) => {
+        try {
+            let fishes = await Fish.find( { status: '5c0866e4a0eda00b94acbdc0' } ).populate( 'store' ).populate( 'type' );
+            fishes = await Promise.all(fishes.map(async (it) => {
+                try {
+                    let owner = await User.findOne( { id:  it.store.owner } )
+                    it.owner = {
+                        id: owner.id,
+                        email: owner.email,
+                        firstName: owner.firstName,
+                        lastName: owner.lastName,
+                        location: owner.location,
+                        dataExtra: owner.dataExtra
+                    }
+                }
+                catch (e) {
+                    console.error(e);
+                }                
+                return it;
+            }))
+
+
+            res.status( 200 ).json( fishes );
+        } catch (error) {
+            console.log( error );
+            res.serverError( error );
+        }
     },
 
     getFishs: catchErrors(async (req, res) => {
