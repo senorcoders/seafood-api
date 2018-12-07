@@ -97,7 +97,9 @@ module.exports = {
       type: 'string',
       maxLength: 200,
     },
-
+    SFSAdminFeedback:{
+      type:'string'
+    },
     
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗

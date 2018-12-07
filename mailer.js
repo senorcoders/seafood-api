@@ -1018,5 +1018,106 @@ exports.sendEmailItemRoad = async function (email, trackingID, trackingFile, ite
         });
     });
 }
+async function getTemplateProductApproved(seller,product){
+    return new Promise(function (resolve, reject) {
+        let header=`<div class=""><!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 20px; padding-bottom: 20px;"><![endif]--><div style="color:#555555;line-height:120%;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 20px; padding-bottom: 20px;"><div style="font-size:12px;line-height:14px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;color:#555555;text-align:left;"><p style="margin: 0;font-size: 12px;line-height: 14px"><span style="font-size: 22px; line-height: 26px; color: rgb(51, 51, 51);"><strong><span style="line-height: 26px; font-size: 22px;">Hey ${seller.firstName} ${seller.lastName},</span></strong></span></p></div></div><!--[if mso]></td></tr></table><![endif]--></div><!--[if (!mso)&(!IE)]><!--></div><!--<![endif]--></div></div><!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]--></div></div></div>`
+        let body=`<div style="background-color:transparent;"><div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;" class="block-grid "><div style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;"><!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width: 500px;"><tr class="layout-full-width" style="background-color:transparent;"><![endif]--><!--[if (mso)|(IE)]><td align="center" width="500" style=" width:500px; padding-right: 0px; padding-left: 0px; padding-top:0px; padding-bottom:0px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]--><div class="col num12" style="min-width: 320px;max-width: 500px;display: table-cell;vertical-align: top;"><div style="background-color: transparent; width: 100% !important;"><!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:0px; padding-bottom:0px; padding-right: 0px; padding-left: 0px;"><!--<![endif]--><div class=""><!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]--><div style="color:#555555;line-height:150%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><div style="font-size:12px;line-height:18px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;">We are pleased to inform you that the product you have uploaded ${product.name} has been approved. It is now live on the platform and buyers can view and order it.</span></p><p style="margin-top: 20px;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;font-weight: bold;">Product Details:</span></p><p style="margin-top: 20px;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;"><b>Name: </b>${product.name}<br><b>seller SKU: </b>${product.seller_sku}<br><b>SKU: </b>${product.seafood_sku}<br><b>Description: </b>${product.description}<br><b>Quality: </b>${product.quality}<br><b>Country: </b>${product.country}<br><b>City: </b>${product.city}<br><b>Price: </b>${product.price.value}<br><b>Minimum Order: </b>${product.minimumOrder}<br><b>Maximum Order: </b>${product.maximumOrder}<br><b>Raised: </b>${product.raised}<br><b>Preparation: </b>${product.preparation}<br><b>Treatment: </b>${product.treatment}</span></p>`;
+        fs.readFile("./template_emails/products/product_header.html", "utf8", function (err, data) {
+                if (err) { return reject(err); }
+                fs.readFile("./template_emails/products/product_footer.html", "utf8", function (err, data2) {
+                    if (err) { return reject(err); }
+                    resolve(data + header + body + data2);
+                });
+            });
+    })
+}
+//send email if product is approved
+exports.sendEmailProductApproved=async function(seller,product){
+    try{
+        let template = await getTemplateProductApproved(seller,product);
+        nodemailer.createTestAccount((err, account) => {
 
+            // setup email data with unicode symbols
+            let mailOptions = {
+                from: '"Senorcoders" <milton@senorcoders.com>', // sender address
+                to: seller.email, // list of receivers
+                subject: `Product #${product.seafood_sku} is awaiting Review`, // Subject line
+                text: '', // plain text body
+                html: template, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './template_emails/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            };
+
+            // send mail with defined transport object
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                // Preview only available when sending through an Ethereal account
+                console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+
+                // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@blurdybloop.com>
+                // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+            });
+        });
+    }
+    catch (e) {
+        console.error(e);
+    }    
+}
+async function getTemplateProductRejected(seller,product,SFSAdminFeedback){
+    return new Promise(function (resolve, reject) {
+        let header=`<div class=""><!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 20px; padding-bottom: 20px;"><![endif]--><div style="color:#555555;line-height:120%;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 20px; padding-bottom: 20px;"><div style="font-size:12px;line-height:14px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;color:#555555;text-align:left;"><p style="margin: 0;font-size: 12px;line-height: 14px"><span style="font-size: 22px; line-height: 26px; color: rgb(51, 51, 51);"><strong><span style="line-height: 26px; font-size: 22px;">Hey ${seller.firstName} ${seller.lastName},</span></strong></span></p></div></div><!--[if mso]></td></tr></table><![endif]--></div><!--[if (!mso)&(!IE)]><!--></div><!--<![endif]--></div></div><!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]--></div></div></div>`
+        let body=`<div style="background-color:transparent;"><div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;" class="block-grid "><div style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;"><!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width: 500px;"><tr class="layout-full-width" style="background-color:transparent;"><![endif]--><!--[if (mso)|(IE)]><td align="center" width="500" style=" width:500px; padding-right: 0px; padding-left: 0px; padding-top:0px; padding-bottom:0px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]--><div class="col num12" style="min-width: 320px;max-width: 500px;display: table-cell;vertical-align: top;"><div style="background-color: transparent; width: 100% !important;"><!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:0px; padding-bottom:0px; padding-right: 0px; padding-left: 0px;"><!--<![endif]--><div class=""><!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]--><div style="color:#555555;line-height:150%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><div style="font-size:12px;line-height:18px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;">We are regret to inform you that the product you have uploaded ${product.name} has not been approved. It is now still under review and awaiting modification from your side to comply with SFS products <a href="#" style="text-decoration: underline;color: blue">guidelines.</a></span></p><p style="margin-top: 20px;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;font-weight: bold;">Product Details:</span></p><p style="margin-top: 20px;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;"><b>Name: </b>${product.name}<br><b>seller SKU: </b>${product.seller_sku}<br><b>SKU: </b>${product.seafood_sku}<br><b>Description: </b>${product.description}<br><b>Quality: </b>${product.quality}<br><b>Country: </b>${product.country}<br><b>City: </b>${product.city}<br><b>Price: </b>${product.price.value}<br><b>Minimum Order: </b>${product.minimumOrder}<br><b>Maximum Order: </b>${product.maximumOrder}<br><b>Raised: </b>${product.raised}<br><b>Preparation: </b>${product.preparation}<br><b>Treatment: </b>${product.treatment}</span></p><p style="margin-top: 20px;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;">To help get your products live on the platform, we encourage you to review the feedback given by SFS Team below:<p style="margin-top: 20px;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;">${SFSAdminFeedback}</span></p></span></p>`;
+        fs.readFile("./template_emails/products/product_header.html", "utf8", function (err, data) {
+                if (err) { return reject(err); }
+                fs.readFile("./template_emails/products/product_rejected_footer.html", "utf8", function (err, data2) {
+                    if (err) { return reject(err); }
+                    resolve(data + header + body + data2);
+                });
+            });
+    })
+}
+//send email if product is approved
+exports.sendEmailProductRejected=async function(seller,product,SFSAdminFeedback){
+    try{
+        let template = await getTemplateProductRejected(seller,product,SFSAdminFeedback);
+        nodemailer.createTestAccount((err, account) => {
+
+            // setup email data with unicode symbols
+            let mailOptions = {
+                from: '"Senorcoders" <milton@senorcoders.com>', // sender address
+                to: seller.email, // list of receivers
+                subject: `Product #${product.seafood_sku} is awaiting Review`, // Subject line
+                text: '', // plain text body
+                html: template, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './template_emails/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            };
+
+            // send mail with defined transport object
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                // Preview only available when sending through an Ethereal account
+                console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+
+                // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@blurdybloop.com>
+                // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+            });
+        });
+    }
+    catch (e) {
+        console.error(e);
+    }    
+}
 //#endregion
