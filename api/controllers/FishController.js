@@ -693,6 +693,58 @@ module.exports = {
             res.serverError( error );
         }
     },
+    getItemCharges: async ( req, res ) => {
+        try {
+            
+            let id = req.param( 'id' );
+            let weight = req.param( 'weight' );
+
+            let fish = await Fish.findOne( { id } ).populate( 'type' ).populate( 'store' );
+            let fishPrice = fish.price.value;
+            let owner = await User.findOne( { id: fish.store.owner } ) ;
+            let firstMileCost = owner.firstMileCost * weight * fishPrice;
+            let firstMileFee = firstMileCost * weight * fishPrice;
+
+            shipping = await require( './ShippingRatesController' ).getShippingRateByCities( fish.city, weight );
+            shippingCost = shipping * weight;
+
+            currentAdminCharges = await require( './PricingChargesController' ).CurrentPricingCharges();
+            customs         = currentAdminCharges.customs[0].price;
+            uaeTaxes        = currentAdminCharges.uaeTaxes[0].price;
+            handlingFees    = currentAdminCharges.handlingFees[0].price;
+            lastMileCost    = currentAdminCharges.lastMileCost[0].price;
+            let sfsMargin   =  fish.type.sfsMargin;
+            let shippingFee = shipping * weight;
+            let customsFee  = ( ( customs / 100 ) + 1) * ( fishPrice * weight );
+            let handlingFee = handlingFees * weight;            
+
+            let charges = {
+                weight: weight,
+                sfsMargin: sfsMargin,
+                shipping: shipping,
+                customs: customs,
+                uaeTaxes: uaeTaxes,
+                firstMileCost: firstMileCost,
+                lastMileCost: lastMileCost,
+                shippingFee: shippingFee,
+                customsFee: customsFee,                
+                handlingFee: handlingFee,
+                firstMileFee: firstMileFee,
+                shippingCost: {
+                    cost: firstMileCost + shippingFee + lastMileCost,
+                    include: 'first mile cost + shipping fee + last mile cost'
+                },
+                sfsMarginCost: sfsMargin * weight,
+                
+            }
+
+            res.status( 200 ).json( charges );
+
+        } catch (error) {
+            console.log( error );
+            res.serverError( error );
+        }
+    },
 
     getFishs: catchErrors(async (req, res) => {
         let fishstypes = await FishType.find().populate("childsTypes").populate("parentsTypes");

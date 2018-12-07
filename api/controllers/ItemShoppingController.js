@@ -178,7 +178,9 @@ module.exports = {
             let store=await Store.findOne({id:item.fish.store}).populate("owner")
             let cart = await ShoppingCart.findOne({id: item.shoppingCart.id}).populate("buyer")
             let name=cart.buyer.firstName+' '+cart.buyer.lastName;
-            if( status == '5c017b0e47fb07027943a406' ){ //admin marks the item as shipped
+            if( status == '5c017af047fb07027943a405' ){//pending seller fulfillment
+                await ItemShopping.update({id}, { status: '5c017af047fb07027943a405'})
+            }else if( status == '5c017b0e47fb07027943a406' ){ //admin marks the item as shipped
                 await ItemShopping.update({id}, {shippingStatus:"shipped", status: '5c017b0e47fb07027943a406'})
                 await require("./../../mailer").sendEmailItemRoad(cart.buyer.email, item.trackingID, item.trackingFile, item);
             }else if( status == '5c017b1447fb07027943a407' ) {//admin marks the item as arrived
@@ -251,6 +253,6 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
-    }
+    }    
 };
 

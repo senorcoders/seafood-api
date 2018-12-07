@@ -279,6 +279,8 @@ module.exports.routes = {
   //change status and send emails
   'PUT /api/itemshopping/:id/:status':"ItemShoppingController.updateItemStatus",
 
+  'GET /api/fish/:id/charges/:weight': 'FishController.getItemCharges',
+
   /********
    * 
    * FAVORITE FISH

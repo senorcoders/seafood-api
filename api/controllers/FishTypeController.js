@@ -117,6 +117,6 @@ module.exports = {
             console.log(error);
             res.serverError(error);
         }
-    }    
+    }
 };
 
