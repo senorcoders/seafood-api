@@ -650,16 +650,26 @@ module.exports = {
         try {
             let id = req.param("id");
             let statusID = req.param("statusID");
-
-            let fish = await Fish.update({id}, { status: statusID }).fetch();
-
+            let SFSAdminFeedback=req.param("SFSAdminFeedback")
+            let fishUpdated;
+            //let fish = await Fish.update({id}, { status: statusID,statusReason:reason }).fetch();
+            let fish=await Fish.findOne({id}).populate('store');
+            let store=await Store.findOne({id:fish.store.id}).populate('owner');
             if( statusID == '5c0866f2a0eda00b94acbdc1' ){ //Not Approved
-                //TODO: add here email templates
+                if( SFSAdminFeedback && SFSAdminFeedback!==''){
+                    fishUpdated = await Fish.update({id}, { status: statusID,SFSAdminFeedback:SFSAdminFeedback }).fetch();
+                    await require("./../../mailer").sendEmailProductRejected(store.owner, fish,SFSAdminFeedback);
+                }
+                else{
+                    res.serverError( {'msg':"You need to provide a reason for not approved the product"} )
+                }
             }else if( statusID == '5c0866f9a0eda00b94acbdc2' ){ //Approved
                 //TODO: add here email templates
+                fishUpdated = await Fish.update({id}, { status: statusID }).fetch();
+                await require("./../../mailer").sendEmailProductApproved(store.owner, fish);
             }
 
-            res.status( 200 ).json( fish )
+            res.status( 200 ).json( fishUpdated )
         } catch (error) {
             res.serverError( error );
         }

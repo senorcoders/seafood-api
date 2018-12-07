@@ -196,12 +196,12 @@ module.exports = {
             }else if( status == '5c017b5a47fb07027943a40c' ){ //Client Cancelled Order"
                 let item=await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c'}).fetch();
                 if(item.length > 0){
-                    //send email to buyer
-                    await require("./../../mailer").sendEmailOrderStatus(name,cart,store);
-                    //send email to seller
-                    await require("./../../mailer").sendEmailOrderStatusSeller(name,cart,store);
-                    //send email to admin
-                    await require("./../../mailer").sendEmailOrderStatusAdmin(name,cart,store);
+                //     //send email to buyer
+                    await require("./../../mailer").sendEmailOrderStatus(name,cart,store,item);
+                //     //send email to seller
+                     await require("./../../mailer").sendEmailOrderStatusSeller(name,cart,store,item);
+                //     //send email to admin
+                     await require("./../../mailer").sendEmailOrderStatusAdmin(name,cart,store,item);
                 }
             }else if( status == '5c017b7047fb07027943a40e' ){ //Refunded
                 await ItemShopping.update({id}, { status: '5c017b7047fb07027943a40e'})

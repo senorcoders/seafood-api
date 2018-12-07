@@ -261,7 +261,6 @@ module.exports = {
             //Se le envia los datos de compras al vendedor
             //await require("./../../mailer").sendCartPaidBuyer(itemsShopping, cart.buyer.email);
             let updateStatusItem = await ItemShopping.update( { shoppingCart: cart.id  }, { status: '5c017ae247fb07027943a404' } )
-            console.log( updateStatusItem );
             //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
             let itemsStore = [];
             for (let item of itemsShopping) {
@@ -276,19 +275,19 @@ module.exports = {
                     itemsStore[index].push(item);
                 }
             }
-            // let shippingRate = []
-            // let storeName=[];
+            let storeName=[];
+            let OrderNumber     = max;
+            let OrderStatus     = "5c017ad347fb07027943a403"; //Pending Seller Confirmation
             //Se envia los correos a los dueños de las tiendas
             for (let st of itemsStore) {
-                // storeName.push(st[0].fish.store.name);
+                storeName.push(st[0].fish.store.name);
                 // shippingRate.push(await require('./ShippingRatesController').getShippingRateByCities( st[0].fish.city, st[0].quantity.value ));
                 let fullName = st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName
-                // await require("./../../mailer").sendCartSeller(fullName, fullNameBuyer, cart.buyer.email, st, st[0].fish.store.owner.email)
+                await require("./../../mailer").sendCartPaidSellerNotified(fullName, cart, st, OrderNumber,st[0].fish.store.owner.email)
             }
-            let OrderNumber     = max;
-            let OrderStatus     = "5c017ad347fb07027943a403"; //Pending Seller Confirmation
-
+            await require("./../../mailer").sendCartPaidBuyer(itemsShopping, cart,OrderNumber,storeName);
+            await require("./../../mailer").sendCartPaidAdmin(itemsShopping, cart,OrderNumber,storeName);
             cart = await ShoppingCart.update({ id: req.param("id") }, { 
                 status: "paid", 
                 paidDateTime: paidDateTime ,
