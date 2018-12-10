@@ -2,7 +2,25 @@ const path = require("path"), fs = require("fs");
 const IMAGES = path.resolve(__dirname, '../../images/');
 
 module.exports = {
-
+    addFish: async (req, res) => {
+        try {
+            let body = req.body;
+            let product=await Fish.create(body).fetch();
+            let store=await Store.findOne(product.store).populate('owner')
+            if(product){
+                await require("./../../mailer").sendEmailNewProductAdded(product,store.owner);
+                await require("./../../mailer").sendEmailNewProductAddedSeller(product,store.owner);
+                res.json({ product })
+            }
+            else{
+                res.serverError({message:"error saving product"});
+            }
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
     getAllPagination: async function (req, res) {
         try {
             let start = Number(req.params.page);
