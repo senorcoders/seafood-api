@@ -126,7 +126,8 @@ module.exports.routes = {
    * FISH AND FISHTYPE
    * 
    */
-
+   //add new product and send email
+   "POST /fish":"FishController.addFish",
    //Para guardar multiples productos
    "POST /api/fishs": "FishController.saveMulti",
 

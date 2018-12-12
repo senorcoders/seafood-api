@@ -839,6 +839,73 @@ exports.sendEmailOrderStatus=async function(name,cart,store,item){
         console.error(e);
     }    
 }
+async function getTemplateOrderArrived(name,cart,store,item){
+    let paidDateTime=await formatDates(cart.paidDateTime);
+    return new Promise(function (resolve, reject) {
+    let header=`<div class=""><!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 20px; padding-bottom: 20px;"><![endif]--><div style="color:#555555;line-height:120%;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 20px; padding-bottom: 20px;"><div style="font-size:12px;line-height:14px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;color:#555555;text-align:left;"><p style="margin: 0;font-size: 12px;line-height: 14px"><span style="font-size: 22px; line-height: 26px; color: rgb(51, 51, 51);"><strong><span style="line-height: 26px; font-size: 22px;">Hey ${name},</span></strong></span></p></div></div><!--[if mso]></td></tr></table><![endif]--></div><!--[if (!mso)&(!IE)]><!--></div><!--<![endif]--></div></div><!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]--></div></div></div>`
+    let body=`<div style="background-color:transparent;"><div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;" class="block-grid "><div style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;"><!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width: 500px;"><tr class="layout-full-width" style="background-color:transparent;"><![endif]--><!--[if (mso)|(IE)]><td align="center" width="500" style=" width:500px; padding-right: 0px; padding-left: 0px; padding-top:0px; padding-bottom:0px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]--><div class="col num12" style="min-width: 320px;max-width: 500px;display: table-cell;vertical-align: top;"><div style="background-color: transparent; width: 100% !important;"><!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:0px; padding-bottom:0px; padding-right: 0px; padding-left: 0px;"><!--<![endif]--><div class=""><!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]--><div style="color:#555555;line-height:150%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><div style="font-size:12px;line-height:18px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;">Thank you for shopping on Seafood Souq !</span></p><p style="margin-top: 20px;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;">Your order placed on ${paidDateTime}  has arrived in Dubai and is awaiting delivery.</span></p><p style="margin-top: 20px;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;">Your Order Details:</span></p></div></div><!--[if mso]></td></tr></table><![endif]--></div><!--[if (!mso)&(!IE)]><!--></div><!--<![endif]--></div></div><!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]--></div></div></div><div style="background-color:transparent;"><div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;" class="block-grid "><div style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;"><!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width: 500px;"><tr class="layout-full-width" style="background-color:transparent;"><![endif]--><!--[if (mso)|(IE)]><td align="center" width="500" style=" width:500px; padding-right: 0px; padding-left: 0px; padding-top:0px; padding-bottom:0px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]--><div class="col num12" style="min-width: 320px;max-width: 500px;display: table-cell;vertical-align: top;"><div style="background-color: transparent; width: 100% !important;"><!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:0px; padding-bottom:0px; padding-right: 0px; padding-left: 0px;"><!--<![endif]--><div class=""><!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]--><div style="color:#555555;line-height:150%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><div style="font-size:12px;line-height:18px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><div style="font-size: 15px; float: left;width: 40%;">Order # ${cart.orderNumber}</div><div style="font-size: 15px; float: left;width: 60%;padding-left: 5px;box-sizing: border-box; text-align: right;"><span style="color:red;"><span style="color:#9aa84f;font-weight: bold;">Estimated Delivery: Thursday, Nov 1, 2018</span></span></div></div></div><div style="clear: both;"></div><!--[if mso]></td></tr></table><![endif]--></div><!--[if (!mso)&(!IE)]><!--></div><!--<![endif]--></div></div><!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]--></div></div></div>`;
+    let tableStart=`<div style="background-color:transparent;"><div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;" class="block-grid "><div style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;"><!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width: 500px;"><tr class="layout-full-width" style="background-color:transparent;"><![endif]--><!--[if (mso)|(IE)]><td align="center" width="500" style=" width:500px; padding-right: 0px; padding-left: 0px; padding-top:0px; padding-bottom:0px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]--><div class="col num12" style="min-width: 320px;max-width: 500px;display: table-cell;vertical-align: top;"><div style="background-color: transparent; width: 100% !important;"><!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:0px; padding-bottom:0px; padding-right: 0px; padding-left: 0px;"><!--<![endif]--><div class=""><!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]--><div style="color:#555555;line-height:150%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><div style="font-size:12px;line-height:18px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;border: 1px solid black;box-sizing: border-box;">`
+        ,tableEnd=`</div></div><div style="clear: both;"></div><!--[if mso]></td></tr></table><![endif]--></div><!--[if (!mso)&(!IE)]><!--></div><!--<![endif]--></div></div><!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]--></div></div></div>   `
+    let itemsTemplate = "";
+    let img;
+    if(item.fish.imagePrimary && item.fish.imagePrimary!=''){
+        img=`<img src="https://apiseafood.senorcoders.com${item.fish.imagePrimary}" alt="" style="width:100%" />`
+    }
+    else{
+        img=''
+    }
+    itemsTemplate=`<div style="display: table;height: 100%;flex-wrap: wrap;box-sizing: border-box;padding: 0 0 2px 5px;align-items: center;width:100%"><div style="width: 30%;float: left;box-sizing: border-box;padding-top: 5px; height: 100%">${img}</div><div style="width: 50%;float: left;box-sizing:border-box;padding: 5px; height: 100%">Shipment 1 of 1 sold by ${store.name}<br /><span style="color:blue;font-weight: bold;">${item.fish.name}</span> <br /> <span style="color:black;font-weight: bold;">QTY - ${item.quantity.value} ${item.quantity.type}</span></div><div style="width: 20%;float: left;background: #b9b4b4;box-sizing:border-box;padding: 5px;color:black; text-transform: uppercase;font-size: 14px; height: 100%;align-items: center;border-left: 1px solid black;position:relative;display:table"><p style="position: absolute;top: 50%;transform: translate(0,-50%)">${item.price.value* item.quantity.value} AED</p></div></div>`
+    let shipping=cart.shipping,otherTaxes=cart.totalOtherFees;
+    let subtotal=cart.total+shipping+otherTaxes;
+    let taxesHtml=`<div style="display: table;height: 100%;flex-wrap: wrap;box-sizing: border-box;padding: 0 0 2px 5px;align-items: center;width: 100%;"><div style="width: 30%;float: left;box-sizing: border-box;padding-top: 5px; height: 100%"></div><div style="width: 50%;float: left;box-sizing:border-box;padding: 5px; height: 100%; font-weight: lighter;">Shipping Fees</div><div style="width: 20%;float: left;background: #b9b4b4;box-sizing:border-box;padding: 5px;color:black; text-transform: uppercase;font-size: 14px; height: 100%;border-left: 1px solid black;"><span style="position: absolute;top: 50%;transform: translate(0,-50%)">${shipping} AED</span></div></div><div style="display: table;height: 100%;flex-wrap: wrap;box-sizing: border-box;padding: 0 0 2px 5px;align-items: center;width: 100%;"><div style="width: 30%;float: left;box-sizing: border-box;padding-top: 5px; height: 100%"></div><div style="width: 50%;float: left;box-sizing:border-box;padding: 5px; height: 100%; font-weight: lighter;">Taxes and Customs and other Fees </div><div style="width: 20%;float: left;background: #b9b4b4;box-sizing:border-box;padding: 5px;color:black; text-transform: uppercase;font-size: 14px; height: 100%;align-items: center;border-left: 1px solid black;"><span style="position: absolute;top: 50%;transform: translate(0,-50%)">${otherTaxes} AED</span></div></div>`
+    let subtotalHtml=`<div style="display: table;height: 100%;flex-wrap: wrap;box-sizing: border-box;padding: 0 0 2px 5px;align-items: center;width: 100%;"><div style="width: 30%;float: left;box-sizing: border-box;padding-top: 5px; height: 100%"></div><div style="width: 50%;float: left;box-sizing:border-box;padding: 5px; height: 100%; font-weight: bold;;font-size: 14px"> Sub Total</div><div style="width: 20%;float: left;background: #b9b4b4;box-sizing:border-box;padding: 5px;color:black; text-transform: uppercase;font-size: 14px; height: 100%;border-left: 1px solid black; font-weight: bold;"><span style="position: absolute;top: 50%;transform: translate(0,-50%)">${subtotal}AED</span></div></div>`
+    let prefooter=`<div style="background-color:transparent;"><div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;" class="block-grid "><div style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;"><!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width: 500px;"><tr class="layout-full-width" style="background-color:transparent;"><![endif]--><!--[if (mso)|(IE)]><td align="center" width="500" style=" width:500px; padding-right: 0px; padding-left: 0px; padding-top:0px; padding-bottom:0px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]--><div class="col num12" style="min-width: 320px;max-width: 500px;display: table-cell;vertical-align: top;"><div style="background-color: transparent; width: 100% !important;"><!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:0px; padding-bottom:0px; padding-right: 0px; padding-left: 0px;"><!--<![endif]--><div class=""><!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]--><div style="color:#555555;line-height:150%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><div style="font-size:12px;line-height:18px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;">Your Order will be delivered to: <br>Address: ${cart.buyer.dataExtra.Address},<br> City: ${cart.buyer.dataExtra.City},<br> Country: ${cart.buyer.dataExtra.country},<br> zipCode: ${cart.buyer.dataExtra.zipCode}</span></p>`
+    fs.readFile("./template_emails/order_arrived/header.html", "utf8", function (err, data) {
+            if (err) { return reject(err); }
+            fs.readFile("./template_emails/order_arrived/footer.html", "utf8", function (err, data2) {
+                if (err) { return reject(err); }
+                resolve(data + header + body +tableStart+itemsTemplate+taxesHtml+subtotalHtml +tableEnd+prefooter+ data2);
+            });
+        });
+    })
+}
+exports.sendEmailOrderArrived=async function(name,cart,store,item){
+        try{
+    let template = await getTemplateOrderArrived(name,cart,store,item);
+    nodemailer.createTestAccount((err, account) => {
+
+            // setup email data with unicode symbols
+            let mailOptions = {
+                from: '"Senorcoders" <milton@senorcoders.com>', // sender address
+                to: cart.buyer.email, // list of receivers
+                subject: `Order #${cart.orderNumber} has arrived in Dubai !`, // Subject line
+                text: '', // plain text body
+                html: template, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './template_emails/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            };
+
+            // send mail with defined transport object
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                // Preview only available when sending through an Ethereal account
+                console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+
+                // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@blurdybloop.com>
+                // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+            });
+        });
+    }
+    catch (e) {
+        console.error(e);
+    }    
+}
 async function getTemplateOrderCancelSeller(name,cart,store,item){
     let paidDateTime=await formatDates(cart.paidDateTime);
     return new Promise(async function (resolve, reject) {
@@ -1093,6 +1160,109 @@ exports.sendEmailProductRejected=async function(seller,product,SFSAdminFeedback)
                 from: '"Senorcoders" <milton@senorcoders.com>', // sender address
                 to: seller.email, // list of receivers
                 subject: `Product #${product.seafood_sku} is awaiting Review`, // Subject line
+                text: '', // plain text body
+                html: template, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './template_emails/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            };
+
+            // send mail with defined transport object
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                // Preview only available when sending through an Ethereal account
+                console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+
+                // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@blurdybloop.com>
+                // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+            });
+        });
+    }
+    catch (e) {
+        console.error(e);
+    }    
+}
+async function getTemplateNewProductAdded(product,seller){
+    return new Promise(function (resolve, reject) {
+        let header=`<div class=""><!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 20px; padding-bottom: 20px;"><![endif]--><div style="color:#555555;line-height:120%;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 20px; padding-bottom: 20px;"><div style="font-size:12px;line-height:14px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;color:#555555;text-align:left;"><p style="margin: 0;font-size: 12px;line-height: 14px"><span style="font-size: 22px; line-height: 26px; color: rgb(51, 51, 51);"><strong><span style="line-height: 26px; font-size: 22px;">Hey Admin,</span></strong></span></p></div></div><!--[if mso]></td></tr></table><![endif]--></div><!--[if (!mso)&(!IE)]><!--></div><!--<![endif]--></div></div><!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]--></div></div></div><div style="background-color:transparent;"><div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;" class="block-grid "><div style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;"><!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width: 500px;"><tr class="layout-full-width" style="background-color:transparent;"><![endif]--><!--[if (mso)|(IE)]><td align="center" width="500" style=" width:500px; padding-right: 0px; padding-left: 0px; padding-top:0px; padding-bottom:0px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]--><div class="col num12" style="min-width: 320px;max-width: 500px;display: table-cell;vertical-align: top;"><div style="background-color: transparent; width: 100% !important;"><!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:0px; padding-bottom:0px; padding-right: 0px; padding-left: 0px;"><!--<![endif]-->`
+        let body=`<div class=""><!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]--><div style="color:#555555;line-height:150%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><div style="font-size:12px;line-height:18px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;">A new product has been uploaded by ${seller.firstName} ${seller.lastName}, and is awaiting your review. Please login into the Admin dashboard review the product and update its status.</span></p><p style="margin-top: 20px;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;">Product Details:</span></p><p style="margin-top: 20px;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;"><b>Name: </b>${product.name}<br><b>seller SKU: </b>${product.seller_sku}<br><b>SKU: </b>${product.seafood_sku}<br><b>Description: </b>${product.description}<br><b>Quality: </b>${product.quality}<br><b>Country: </b>${product.country}<br><b>City: </b>${product.city}<br><b>Price: </b>${product.price.value}<br><b>Minimum Order: </b>${product.minimumOrder}<br><b>Maximum Order: </b>${product.maximumOrder}<br><b>Raised: </b>${product.raised}<br><b>Preparation: </b>${product.preparation}<br><b>Treatment: </b>${product.treatment}</span></p></div></div><!--[if mso]></td></tr></table><![endif]--></div><!--[if (!mso)&(!IE)]><!--></div><!--<![endif]--></div></div><!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]--></div></div></div>`;
+        fs.readFile("./template_emails/new_product/header.html", "utf8", function (err, data) {
+            if (err) { return reject(err); }
+            fs.readFile("./template_emails/new_product/footer.html", "utf8", function (err, data2) {
+                if (err) { return reject(err); }
+                resolve(data +header+ body + data2);
+            });
+        });
+    })
+}
+//send email to admin to notify new product
+exports.sendEmailNewProductAdded=async function(product,seller){
+    try{
+        let template = await getTemplateNewProductAdded(product,seller);
+        nodemailer.createTestAccount((err, account) => {
+
+            // setup email data with unicode symbols
+            let mailOptions = {
+                from: '"Senorcoders" <milton@senorcoders.com>', // sender address
+                to: 'bryandanglas05@gmail.com', // list of receivers
+                subject: `Product #${product.seafood_sku} is awaiting Review `, // Subject line
+                text: '', // plain text body
+                html: template, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './template_emails/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            };
+
+            // send mail with defined transport object
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                // Preview only available when sending through an Ethereal account
+                console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+
+                // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@blurdybloop.com>
+                // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+            });
+        });
+    }
+    catch (e) {
+        console.error(e);
+    }    
+}
+async function getTemplateNewProductAddedSeller(product,seller){
+    return new Promise(function (resolve, reject) {
+        let header=`<div class=""><!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 20px; padding-bottom: 20px;"><![endif]--><div style="color:#555555;line-height:120%;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 20px; padding-bottom: 20px;"><div style="font-size:12px;line-height:14px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;color:#555555;text-align:left;"><p style="margin: 0;font-size: 12px;line-height: 14px"><span style="font-size: 22px; line-height: 26px; color: rgb(51, 51, 51);"><strong><span style="line-height: 26px; font-size: 22px;">Hey ${seller.firstName} ${seller.lastName},</span></strong></span></p></div></div><!--[if mso]></td></tr></table><![endif]--></div><!--[if (!mso)&(!IE)]><!--></div><!--<![endif]--></div></div><!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]--></div></div></div><div style="background-color:transparent;"><div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;" class="block-grid "><div style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;"><!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width: 500px;"><tr class="layout-full-width" style="background-color:transparent;"><![endif]--><!--[if (mso)|(IE)]><td align="center" width="500" style=" width:500px; padding-right: 0px; padding-left: 0px; padding-top:0px; padding-bottom:0px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]--><div class="col num12" style="min-width: 320px;max-width: 500px;display: table-cell;vertical-align: top;"><div style="background-color: transparent; width: 100% !important;"><!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:0px; padding-bottom:0px; padding-right: 0px; padding-left: 0px;"><!--<![endif]-->`
+        let body=`<div class=""><!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]--><div style="color:#555555;line-height:150%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><div style="font-size:12px;line-height:18px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;">Thank you for uploading a new product with the title ${product.name} into SFS shop front. As per our Quality Assurance process, the item uploaded is under review and will be processed shortly. Please note that products under review will not appear on the platform until they are approved</span></p><p style="margin-top: 20px;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;">We aim to get back to you with an update on the product status within the next 24 hours.</span></p><p style="margin-top: 20px;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;">Product Details:</span></p><p style="margin-top: 20px;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;"><b>Name: </b>${product.name}<br><b>seller SKU: </b>${product.seller_sku}<br><b>SKU: </b>${product.seafood_sku}<br><b>Description: </b>${product.description}<br><b>Quality: </b>${product.quality}<br><b>Country: </b>${product.country}<br><b>City: </b>${product.city}<br><b>Price: </b>${product.price.value}<br><b>Minimum Order: </b>${product.minimumOrder}<br><b>Maximum Order: </b>${product.maximumOrder}<br><b>Raised: </b>${product.raised}<br><b>Preparation: </b>${product.preparation}<br><b>Treatment: </b>${product.treatment}</span></p><p style="margin-top: 20px;font-size: 14px;line-height: 21px"><span style="font-size: 15px; line-height: 22px;">To view and manage your products, please login into your account or press on the button below.</span></p></div></div><!--[if mso]></td></tr></table><![endif]--></div><!--[if (!mso)&(!IE)]><!--></div><!--<![endif]--></div></div><!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]--></div></div></div>`;
+        let prefooter=`<div style="background-color:transparent;"><div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;" class="block-grid "><div style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;"><!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width: 500px;"><tr class="layout-full-width" style="background-color:transparent;"><![endif]--><!--[if (mso)|(IE)]><td align="center" width="500" style=" width:500px; padding-right: 0px; padding-left: 0px; padding-top:5px; padding-bottom:5px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]--><div class="col num12" style="min-width: 320px;max-width: 500px;display: table-cell;vertical-align: top;"><div style="background-color: transparent; width: 100% !important;"><!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:5px; padding-bottom:5px; padding-right: 0px; padding-left: 0px;"><!--<![endif]--><div align="center" class="button-container center " style="padding-right: 10px; padding-left: 10px; padding-top:10px; padding-bottom:10px;"><!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-spacing: 0; border-collapse: collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top:10px; padding-bottom:10px;" align="center"><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="http://seafood.senorcoders.com/my-products" style="height:31pt; v-text-anchor:middle; width:150pt;" arcsize="10%" strokecolor="#D61A1A" fillcolor="#D61A1A"><w:anchorlock/><v:textbox inset="0,0,0,0"><center style="color:#ffffff; font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size:16px;"><![endif]--><a href="http://seafood.senorcoders.com/my-products" target="_blank" style="display: block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #ffffff; background-color: #D61A1A; max-width: 200px; width: 160px;width: auto; border-top: 0px solid transparent; border-right: 0px solid transparent; border-bottom: 0px solid transparent; border-left: 0px solid transparent; padding-top: 5px; padding-right: 20px; padding-bottom: 5px; padding-left: 20px; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;mso-border-alt: none"><span style="font-size:16px;line-height:32px;"><span style="font-size: 15px; line-height: 30px;" data-mce-style="font-size: 15px;">Manage Products</span></span></a><!--[if mso]></center></v:textbox></v:roundrect></td></tr></table><![endif]--></div><!--[if (!mso)&(!IE)]><!--></div><!--<![endif]--></div></div><!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]--></div></div></div>`
+        fs.readFile("./template_emails/new_product/header.html", "utf8", function (err, data) {
+            if (err) { return reject(err); }
+            fs.readFile("./template_emails/new_product/footer.html", "utf8", function (err, data2) {
+                if (err) { return reject(err); }
+                resolve(data +header+ body + prefooter+data2);
+            });
+        });
+    })
+}
+//send email to seller to notify new product
+exports.sendEmailNewProductAddedSeller=async function(product,seller){
+    try{
+        let template = await getTemplateNewProductAddedSeller(product,seller);
+        nodemailer.createTestAccount((err, account) => {
+
+            // setup email data with unicode symbols
+            let mailOptions = {
+                from: '"Senorcoders" <milton@senorcoders.com>', // sender address
+                to: seller.email, // list of receivers
+                subject: `Product #${product.seafood_sku} is Under Review `, // Subject line
                 text: '', // plain text body
                 html: template, // html body
                 attachments: [{
