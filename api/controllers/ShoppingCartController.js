@@ -27,44 +27,91 @@ module.exports = {
                 carts.length > 0
             ) {
                 let cart = await ShoppingCart.findOne({ id: carts[0].id }).populate("items");
+                let totalShipping  = 0;
+                let totalHandling  = 0;
+                let totalSFSMargin = 0;
+                let totalCustoms   = 0;
+                let totalUAETaxes  = 0;
+                let totalOtherFees = 0;
+                let subtotal       = 0;
+                let total          = 0;
+
+                let currentPricingCharges = await require('./PricingChargesController').CurrentPricingCharges();
                 cart.items = await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish }).populate("type").populate("store");
+                    console.log( 'it fish', it.fish.id );
+                    console.log( 'it qty', it.quantity.value );
+                    it.fishCharges  = await require('./FishController').getItemChargesByWeight(it.fish.id, it.quantity.value)
+                    //console.log('fishCharges', FishCharges);
+                    //it.fishCharges = FishCharges;
                     shippingRate = await require('./ShippingRatesController').getShippingRateByCities( it.fish.city, it.quantity.value ); 
                     it.owner = await User.findOne( { id: it.fish.store.owner } )
                     it.shippingCost = shippingRate;
+                    totalShipping  += it.fishCharges.shippingCost.cost;
+                    totalHandling  += it.fishCharges.handlingFee;
+                    totalSFSMargin += it.fishCharges.sfsMarginCost;
+                    totalCustoms   += it.fishCharges.customsFee;
+                    subtotal += it.price.value * it.quantity.value;
                     
+                    it.currentCharges = {
+                        sfsMargin   : it.fishCharges.sfsMargin,
+                        shipping    : it.fishCharges.shipping,
+                        customs     : it.fishCharges.customs                        
+                    };
+                    it.shipping     = it.fishCharges.shippingCost.cost;
+                    it.handling     = it.fishCharges.handlingFee;
+                    it.sfsMargin    = it.fishCharges.sfsMarginCost;
+                    it.customs      = it.fishCharges.customsFee;                
+                    
+
+
+                    await ItemShopping.update({ id: it.id }, {
+                        currentCharges: it.currentCharges,
+                        shipping: it.shipping,
+                        handling: it.handling,
+                        sfsMargin: it.sfsMargin,
+                        customs: it.customs                        
+                    })
+
                     return it;
-                }));
-
-                let total = 0;
-                for (var it of cart.items) {
+                }));                
+                
+                totalOtherFees += totalHandling + totalSFSMargin +totalCustoms;
+                totalUAETaxes += subtotal * currentPricingCharges.uaeTaxes[0].price / 100;
+                total         =  subtotal + totalShipping + totalUAETaxes + totalOtherFees;
+                /*for (var it of cart.items) {
                     total += Number(it.price.value * it.quantity.value);
-                }
-
+                }*/
+                totalOtherFees = Number(parseFloat(totalOtherFees).toFixed(2));
+                totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
                 total = Number(parseFloat(total).toFixed(2));
                 if (total !== cart.total) {
-                    await ShoppingCart.update({ id: cart.id }, { total: total });
+                    await ShoppingCart.update({ id: cart.id }, { 
+                        currentCharges: currentPricingCharges,
+                        subTotal: subtotal,
+                        handlingFees: totalHandling,
+                        shipping: totalShipping,
+                        sfsMargin: totalSFSMargin,
+                        customs: totalCustoms,
+                        total: total,//
+                        totalOtherFees: totalOtherFees,//
+                        uaeTaxes: totalUAETaxes,
+                    });
                     cart.total = total;
+                    cart.customs = totalCustoms;
+
                 }
 
                 return res.json(cart)
             };
             console.log( 'start' );
-            let currentPricingCharges = await require('./PricingChargesController').CurrentPricingCharges();
+            
             
             console.log( currentPricingCharges );
-            let uaeTaxes        = currentPricingCharges.uaeTaxes[0].price;
-            let handlingFees    = currentPricingCharges.handlingFees[0].price;
-            let customs         = currentPricingCharges.customs[0].price;            
-            let lastMileCost    = currentPricingCharges.lastMileCost[0].price;            
-
+      
             let cart = await ShoppingCart.create(
                 { 
-                    buyer: buyer,
-                    lastMileCost: lastMileCost,                    
-                    customs: customs,
-                    handlingFees: handlingFees,
-                    uaeTaxes: uaeTaxes
+                    buyer: buyer                                        
                 }
                 ).fetch();
 

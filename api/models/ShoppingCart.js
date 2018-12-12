@@ -34,6 +34,10 @@ module.exports = {
       type: "number",
       required: false
     },
+    subTotal: {
+      type: "number",
+      required: false
+    },
     totalOtherFees: {
       type: "number",
       required: false
@@ -42,7 +46,9 @@ module.exports = {
       type: "number",
       required: false
     },
-
+    currentCharges: {
+      type: "json"
+    },
     status: {
       type: "string",
       defaultsTo: "pending"

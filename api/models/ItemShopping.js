@@ -43,6 +43,27 @@ module.exports = {
       required: false
     },
 
+    currentCharges: {
+      type: 'json',
+      required: false
+    },
+    shipping: {
+      type: 'number',
+      required: false
+    },
+    handling: {
+      type: 'number',
+      required: false
+    },
+    sfsMargin: { 
+      type: 'number',
+      required: false
+    },
+    customs: {
+      type: 'number',
+      required: false
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝

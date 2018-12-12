@@ -711,44 +711,7 @@ module.exports = {
             let id = req.param( 'id' );
             let weight = req.param( 'weight' );
 
-            let fish = await Fish.findOne( { id } ).populate( 'type' ).populate( 'store' );
-            let fishPrice = fish.price.value;
-            let owner = await User.findOne( { id: fish.store.owner } ) ;
-            let firstMileCost = owner.firstMileCost * weight * fishPrice;
-            let firstMileFee = firstMileCost * weight * fishPrice;
-
-            shipping = await require( './ShippingRatesController' ).getShippingRateByCities( fish.city, weight );
-            shippingCost = shipping * weight;
-
-            currentAdminCharges = await require( './PricingChargesController' ).CurrentPricingCharges();
-            customs         = currentAdminCharges.customs[0].price;
-            uaeTaxes        = currentAdminCharges.uaeTaxes[0].price;
-            handlingFees    = currentAdminCharges.handlingFees[0].price;
-            lastMileCost    = currentAdminCharges.lastMileCost[0].price;
-            let sfsMargin   =  fish.type.sfsMargin;
-            let shippingFee = shipping * weight;
-            let customsFee  = ( ( customs / 100 ) + 1) * ( fishPrice * weight );
-            let handlingFee = handlingFees * weight;            
-
-            let charges = {
-                weight: weight,
-                sfsMargin: sfsMargin,
-                shipping: shipping,
-                customs: customs,
-                uaeTaxes: uaeTaxes,
-                firstMileCost: firstMileCost,
-                lastMileCost: lastMileCost,
-                shippingFee: shippingFee,
-                customsFee: customsFee,                
-                handlingFee: handlingFee,
-                firstMileFee: firstMileFee,
-                shippingCost: {
-                    cost: firstMileCost + shippingFee + lastMileCost,
-                    include: 'first mile cost + shipping fee + last mile cost'
-                },
-                sfsMarginCost: sfsMargin * weight,
-                
-            }
+            let charges = await  module.exports.getItemChargesByWeight( id, weight ); 
 
             res.status( 200 ).json( charges );
 
@@ -756,6 +719,52 @@ module.exports = {
             console.log( error );
             res.serverError( error );
         }
+    },
+
+    getItemChargesByWeight: async ( id, weight) => {
+        let fish = await Fish.findOne( { id } ).populate( 'type' ).populate( 'store' );
+                let fishPrice = fish.price.value;
+                let owner = await User.findOne( { id: fish.store.owner } ) ;
+                let firstMileCost = owner.firstMileCost * weight * fishPrice;
+                let firstMileFee = firstMileCost * weight * fishPrice;
+    
+                shipping = await require( './ShippingRatesController' ).getShippingRateByCities( fish.city, weight );
+                //shippingCost = shipping * weight;
+    
+                currentAdminCharges = await require( './PricingChargesController' ).CurrentPricingCharges();
+                customs         = currentAdminCharges.customs[0].price;  
+                uaeTaxes        = currentAdminCharges.uaeTaxes[0].price; //Taxes in the UAE are 5% on the final price paid by the buyer (not by item)
+                handlingFees    = currentAdminCharges.handlingFees[0].price;
+                lastMileCost    = currentAdminCharges.lastMileCost[0].price;
+                sfsMargin       = fish.type.sfsMargin;
+                
+                //calculate cost
+                let shippingFee   = shipping * weight;
+                let customsFee    = ( customs / 100 )  * ( fishPrice * weight ); //Customs in the UAE are 5% on the Seller’s invoice (The seller’s Sale excluding additional Costs
+                let handlingFee   = handlingFees * weight; //are 3 AED/KG to get the shipment released from Customs.
+                let sfsMarginCost = (sfsMargin / 100) * fishPrice * weight; //calculated from the total amount of the the product sales excluding shipping fees and taxes.
+                let shippingCost  = firstMileCost + shippingFee + lastMileCost; //first mile cost + shipping fee + last mile cost
+    
+                let charges = {
+                    weight: weight,
+                    sfsMargin: sfsMargin,
+                    shipping: shipping,
+                    customs: customs,
+                    uaeTaxes: uaeTaxes,
+                    firstMileCost: firstMileCost,
+                    lastMileCost: lastMileCost,
+                    shippingFee: shippingFee,
+                    customsFee: customsFee,                
+                    handlingFee: handlingFee,
+                    firstMileFee: firstMileFee,
+                    shippingCost: {
+                        cost: shippingCost,
+                        include: 'first mile cost + shipping fee + last mile cost'
+                    },
+                    sfsMarginCost
+                    
+                }
+                return charges;
     },
 
     getFishs: catchErrors(async (req, res) => {
@@ -773,6 +782,8 @@ module.exports = {
         }))
         res.json(fishstypes);
     })
+
+    
 };
 
 getChildsTypes = async childs => {
@@ -792,3 +803,4 @@ getParentsTypes = async parents => {
 
     return parents;
 }
+
