@@ -28,7 +28,6 @@ module.exports = {
             ) {
                 let cart = await ShoppingCart.findOne({ id: carts[0].id }).populate("items");
                 let totalShipping  = 0;
-                let totalHandling  = 0;
                 let totalSFSMargin = 0;
                 let totalCustoms   = 0;
                 let totalUAETaxes  = 0;
@@ -46,59 +45,59 @@ module.exports = {
                     //it.fishCharges = FishCharges;
                     shippingRate = await require('./ShippingRatesController').getShippingRateByCities( it.fish.city, it.quantity.value ); 
                     it.owner = await User.findOne( { id: it.fish.store.owner } )
-                    it.shippingCost = shippingRate;
+                    it.shippingCost = it.fishCharges.shippingCost.cost;
+
                     totalShipping  += it.fishCharges.shippingCost.cost;
-                    totalHandling  += it.fishCharges.handlingFee;
                     totalSFSMargin += it.fishCharges.sfsMarginCost;
                     totalCustoms   += it.fishCharges.customsFee;
-                    subtotal += it.price.value * it.quantity.value;
+                    totalUAETaxes  += it.fishCharges.uaeTaxesFee;
                     
+                    subtotal       += it.fishCharges.fishCost;
+                    total          += it.fishCharges.finalPrice;
+
                     it.currentCharges = {
                         sfsMargin   : it.fishCharges.sfsMargin,
                         shipping    : it.fishCharges.shipping,
                         customs     : it.fishCharges.customs                        
                     };
                     it.shipping     = it.fishCharges.shippingCost.cost;
-                    it.handling     = it.fishCharges.handlingFee;
                     it.sfsMargin    = it.fishCharges.sfsMarginCost;
-                    it.customs      = it.fishCharges.customsFee;                
+                    it.customs      = it.fishCharges.customsFee; 
+                    it.uaeTaxes     = it.fishCharges.uaeTaxesFee;        
                     
 
 
                     await ItemShopping.update({ id: it.id }, {
                         currentCharges: it.currentCharges,
-                        shipping: it.shipping,
-                        handling: it.handling,
+                        shipping:  it.shipping,
                         sfsMargin: it.sfsMargin,
-                        customs: it.customs                        
+                        customs:   it.customs,
+                        uaeTaxes:  it.uaeTaxes
                     })
 
                     return it;
                 }));                
                 
-                totalOtherFees += totalHandling + totalSFSMargin +totalCustoms;
-                totalUAETaxes += subtotal * currentPricingCharges.uaeTaxes[0].price / 100;
-                total         =  subtotal + totalShipping + totalUAETaxes + totalOtherFees;
-                /*for (var it of cart.items) {
-                    total += Number(it.price.value * it.quantity.value);
-                }*/
+                totalOtherFees = totalSFSMargin + totalCustoms;                             
                 totalOtherFees = Number(parseFloat(totalOtherFees).toFixed(2));
                 totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
                 total = Number(parseFloat(total).toFixed(2));
-                if (total !== cart.total) {
+                if (total !== cart.total) { 
                     await ShoppingCart.update({ id: cart.id }, { 
                         currentCharges: currentPricingCharges,
                         subTotal: subtotal,
-                        handlingFees: totalHandling,
                         shipping: totalShipping,
                         sfsMargin: totalSFSMargin,
                         customs: totalCustoms,
-                        total: total,//
-                        totalOtherFees: totalOtherFees,//
+                        total: total,
+                        totalOtherFees: totalOtherFees,
                         uaeTaxes: totalUAETaxes,
                     });
                     cart.total = total;
                     cart.customs = totalCustoms;
+                    cart.totalOtherFees = totalOtherFees;
+                    cart.totalUAETaxes = totalUAETaxes
+
 
                 }
 

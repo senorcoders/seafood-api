@@ -63,7 +63,10 @@ module.exports = {
       type: 'number',
       required: false
     },
-
+    uaeTaxes: {
+      type: 'number',
+      required: false
+    },
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
