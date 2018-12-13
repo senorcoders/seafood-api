@@ -200,12 +200,12 @@ module.exports = {
             }else if( status == '5c017b5a47fb07027943a40c' ){ //Client Cancelled Order"
                 let data=await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c'}).fetch();
                 if(data.length > 0){
-                //     //send email to buyer
+                    //send email to buyer
                     await require("./../../mailer").sendEmailOrderStatus(name,cart,store,item);
-                //     //send email to seller
+                    //send email to seller
                      await require("./../../mailer").sendEmailOrderStatusSeller(name,cart,store,item);
-                //     //send email to admin
-                     await require("./../../mailer").sendEmailOrderStatusAdmin(name,cart,store,item);
+                    //send email to admin
+                    await require("./../../mailer").sendEmailOrderStatusAdmin(name,cart,store,item);
                 }
             }else if( status == '5c017b7047fb07027943a40e' ){ //Refunded
                 await ItemShopping.update({id}, { status: '5c017b7047fb07027943a40e'})
