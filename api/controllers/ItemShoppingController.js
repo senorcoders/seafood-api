@@ -210,7 +210,13 @@ module.exports = {
             }else if( status == '5c017b7047fb07027943a40e' ){ //Refunded
                 await ItemShopping.update({id}, { status: '5c017b7047fb07027943a40e'})
             }else if( status == '5c06f4bf7650a503f4b731fd' ){ //Seller Cancelled Order
-                await ItemShopping.update({id}, { status: '5c06f4bf7650a503f4b731fd'})
+                let data=await ItemShopping.update({id}, { status: '5c06f4bf7650a503f4b731fd'}).fetch();
+                if(data.length > 0){
+                    //send email to buyer
+                    await require("./../../mailer").orderCancelledBySellerBuyerNotified(name,cart,store,item);
+                    //send email to admin
+                    await require("./../../mailer").orderCancelledBySellerAdminNotified(name,cart,store,item);
+                }
             }else{
                 res.status(400).send("status not found")
             }
