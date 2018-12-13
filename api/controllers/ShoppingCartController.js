@@ -333,7 +333,7 @@ module.exports = {
                 await require("./../../mailer").sendCartPaidSellerNotified(fullName, cart, st, OrderNumber,st[0].fish.store.owner.email)
             }
             await require("./../../mailer").sendCartPaidBuyer(itemsShopping, cart,OrderNumber,storeName);
-            await require("./../../mailer").sendCartPaidAdmin(itemsShopping, cart,OrderNumber,storeName);
+             await require("./../../mailer").sendCartPaidAdmin(itemsShopping, cart,OrderNumber,storeName);
             cart = await ShoppingCart.update({ id: req.param("id") }, { 
                 status: "paid", 
                 paidDateTime: paidDateTime ,
