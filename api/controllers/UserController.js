@@ -203,6 +203,9 @@ module.exports = {
                 let name=user[0].firstName+" "+user[0].lastName;
                 if (user.length !== 0){
                     await require("./../../mailer").sendCode(user[0].id, user[0].email, user[0].code, name);                    
+                    if(user[0].role==1){
+                        await require("./../../mailer").sendSellerEmail(user[0].email, name);
+                    }
                 }
             }else if( status === "denied" ) {
                 console.log( 'denied' );
