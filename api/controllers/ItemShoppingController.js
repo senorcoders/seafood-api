@@ -181,8 +181,10 @@ module.exports = {
             if( status == '5c017af047fb07027943a405' ){//pending seller fulfillment
                 await ItemShopping.update({id}, { status: '5c017af047fb07027943a405'})
             }else if( status == '5c017b0e47fb07027943a406' ){ //admin marks the item as shipped
-                await ItemShopping.update({id}, {shippingStatus:"shipped", status: '5c017b0e47fb07027943a406'})
-                await require("./../../mailer").sendEmailItemRoad(cart.buyer.email, item.trackingID, item.trackingFile, item);
+                let data=await ItemShopping.update({id}, {shippingStatus:"shipped", status: '5c017b0e47fb07027943a406'}).fetch();
+                if(data.length > 0){
+                    await require("./../../mailer").sendEmailItemRoad(name,cart,store,item);
+                }
             }else if( status == '5c017b1447fb07027943a407' ) {//admin marks the item as arrived
                 let data=await ItemShopping.update({id}, { status: '5c017b1447fb07027943a407'}).fetch()
                 if(data.length > 0){
