@@ -194,7 +194,13 @@ module.exports = {
             }else if( status == '5c017b2147fb07027943a408' ){ //out for delivery
                 await ItemShopping.update({id}, { status: '5c017b2147fb07027943a408'})
             }else if( status == '5c017b3c47fb07027943a409' ){ //Delivered
-                await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409'})
+                let data=await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409'}).fetch()
+                if(data.length > 0){
+                    //send email to buyer 
+                    await require("./../../mailer").sendEmailOrderDelivered(name,cart,store,item);
+                    //send email to seller
+                    await require("./../../mailer").sendEmailOrderDeliveredSeller(cart,store,item);
+                }
             }else if( status == '5c017b4547fb07027943a40a' ){ //Pending Repayment
                 await ItemShopping.update({id}, { status: '5c017b4547fb07027943a40a'})
             }else if( status == '5c017b4f47fb07027943a40b' ){ //Seller Repaid
