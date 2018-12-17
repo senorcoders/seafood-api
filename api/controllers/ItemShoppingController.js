@@ -181,8 +181,10 @@ module.exports = {
             if( status == '5c017af047fb07027943a405' ){//pending seller fulfillment
                 await ItemShopping.update({id}, { status: '5c017af047fb07027943a405'})
             }else if( status == '5c017b0e47fb07027943a406' ){ //admin marks the item as shipped
-                await ItemShopping.update({id}, {shippingStatus:"shipped", status: '5c017b0e47fb07027943a406'})
-                await require("./../../mailer").sendEmailItemRoad(cart.buyer.email, item.trackingID, item.trackingFile, item);
+                let data=await ItemShopping.update({id}, {shippingStatus:"shipped", status: '5c017b0e47fb07027943a406'}).fetch();
+                if(data.length > 0){
+                    await require("./../../mailer").sendEmailItemRoad(name,cart,store,item);
+                }
             }else if( status == '5c017b1447fb07027943a407' ) {//admin marks the item as arrived
                 let data=await ItemShopping.update({id}, { status: '5c017b1447fb07027943a407'}).fetch()
                 if(data.length > 0){
@@ -192,7 +194,13 @@ module.exports = {
             }else if( status == '5c017b2147fb07027943a408' ){ //out for delivery
                 await ItemShopping.update({id}, { status: '5c017b2147fb07027943a408'})
             }else if( status == '5c017b3c47fb07027943a409' ){ //Delivered
-                await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409'})
+                let data=await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409'}).fetch()
+                if(data.length > 0){
+                    //send email to buyer 
+                    await require("./../../mailer").sendEmailOrderDelivered(name,cart,store,item);
+                    //send email to seller
+                    await require("./../../mailer").sendEmailOrderDeliveredSeller(cart,store,item);
+                }
             }else if( status == '5c017b4547fb07027943a40a' ){ //Pending Repayment
                 await ItemShopping.update({id}, { status: '5c017b4547fb07027943a40a'})
             }else if( status == '5c017b4f47fb07027943a40b' ){ //Seller Repaid
@@ -200,17 +208,23 @@ module.exports = {
             }else if( status == '5c017b5a47fb07027943a40c' ){ //Client Cancelled Order"
                 let data=await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c'}).fetch();
                 if(data.length > 0){
-                //     //send email to buyer
+                    //send email to buyer
                     await require("./../../mailer").sendEmailOrderStatus(name,cart,store,item);
-                //     //send email to seller
+                    //send email to seller
                      await require("./../../mailer").sendEmailOrderStatusSeller(name,cart,store,item);
-                //     //send email to admin
-                     await require("./../../mailer").sendEmailOrderStatusAdmin(name,cart,store,item);
+                    //send email to admin
+                    await require("./../../mailer").sendEmailOrderStatusAdmin(name,cart,store,item);
                 }
             }else if( status == '5c017b7047fb07027943a40e' ){ //Refunded
                 await ItemShopping.update({id}, { status: '5c017b7047fb07027943a40e'})
             }else if( status == '5c06f4bf7650a503f4b731fd' ){ //Seller Cancelled Order
-                await ItemShopping.update({id}, { status: '5c06f4bf7650a503f4b731fd'})
+                let data=await ItemShopping.update({id}, { status: '5c06f4bf7650a503f4b731fd'}).fetch();
+                if(data.length > 0){
+                    //send email to buyer
+                    await require("./../../mailer").orderCancelledBySellerBuyerNotified(name,cart,store,item);
+                    //send email to admin
+                    await require("./../../mailer").orderCancelledBySellerAdminNotified(name,cart,store,item);
+                }
             }else{
                 res.status(400).send("status not found")
             }
