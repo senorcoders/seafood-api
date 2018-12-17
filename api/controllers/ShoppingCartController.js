@@ -80,6 +80,7 @@ module.exports = {
                 
                 totalOtherFees = totalSFSMargin + totalCustoms;                             
                 totalOtherFees = Number(parseFloat(totalOtherFees).toFixed(2));
+                totalShipping = Number(parseFloat(totalShipping).toFixed(2));
                 totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
                 total = Number(parseFloat(total).toFixed(2));
                 if (total !== cart.total) { 
@@ -204,7 +205,9 @@ module.exports = {
 
             let total = 0;
             for (var it of cart.items) {
-                total += Number(it.price.value * it.quantity.value);
+                //total += Number(it.price.value * it.quantity.value);
+                itemCharges  = await require('./FishController').getItemChargesByWeight(it.fish.id, it.quantity.value);
+                total += itemCharges['finalPrice'];
             }
 
             total = Number(parseFloat(total).toFixed(2));
