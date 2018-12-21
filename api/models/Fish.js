@@ -100,7 +100,18 @@ module.exports = {
     SFSAdminFeedback:{
       type:'string'
     },
-    
+    stock: {
+      type: 'number',
+      required: false
+    },
+    waterLostRate: {
+      type: 'string',
+      required: false
+    },
+    mortalityRate: {
+      type: 'number',
+      required: false
+    },
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝

@@ -16,13 +16,14 @@ module.exports = {
 
     getItemsXCart: async function (req, res) {
         try{
-            let items = await ItemShopping.find({shoppingCart: req.param("id") });
+            let items = await ItemShopping.find({shoppingCart: req.param("id") }).populate('status');
             items = await Promise.all(items.map(async function(it){
                 console.log(it);
                 try{
                     it.fish = await Fish.findOne({ id: it.fish });
                     it.fish.store = await Store.findOne({ id: it.fish.store });
-                    it.fish.storeOwner = await User.findOne( { id: it.fish.store.owner } );
+                    it.ItemStatus = await OrderStatus.findOne( { id: it.status } );
+                    it.fish.storeOwner = await User.findOne( { id: it.fish.store.owner } );                
                     it.favorite = await new Promise((resolve, reject)=>{
                         let ress = {
                             json: resolve,
@@ -170,6 +171,7 @@ module.exports = {
         try {
             let id = req.param("id");
             let status = req.param("status");
+            var ts = Math.round((new Date()).getTime() / 1000);
 
             let item = await ItemShopping.findOne({id}).populate("shoppingCart").populate("fish");
             if( item === undefined ){
@@ -181,20 +183,29 @@ module.exports = {
             if( status == '5c017af047fb07027943a405' ){//pending seller fulfillment
                 await ItemShopping.update({id}, { status: '5c017af047fb07027943a405'})
             }else if( status == '5c017b0e47fb07027943a406' ){ //admin marks the item as shipped
-                let data=await ItemShopping.update({id}, {shippingStatus:"shipped", status: '5c017b0e47fb07027943a406'}).fetch();
+                let data=await ItemShopping.update({id}, 
+                    { 
+                        shippingStatus:"shipped", 
+                        status: '5c017b0e47fb07027943a406',
+                        shippedAt: ts
+                    }
+                ).fetch();
                 if(data.length > 0){
                     await require("./../../mailer").sendEmailItemRoad(name,cart,store,item);
                 }
             }else if( status == '5c017b1447fb07027943a407' ) {//admin marks the item as arrived
-                let data=await ItemShopping.update({id}, { status: '5c017b1447fb07027943a407'}).fetch()
+                let data=await ItemShopping.update({id}, { 
+                    status: '5c017b1447fb07027943a407',
+                    arrivedAt: ts
+                }).fetch()
                 if(data.length > 0){
                     //send email to buyer 
                     await require("./../../mailer").sendEmailOrderArrived(name,cart,store,item);
                 }
             }else if( status == '5c017b2147fb07027943a408' ){ //out for delivery
-                await ItemShopping.update({id}, { status: '5c017b2147fb07027943a408'})
+                await ItemShopping.update({id}, { status: '5c017b2147fb07027943a408', outForDeliveryAt: ts })
             }else if( status == '5c017b3c47fb07027943a409' ){ //Delivered
-                let data=await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409'}).fetch()
+                let data=await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409', deliveredAt: ts}).fetch()
                 if(data.length > 0){
                     //send email to buyer 
                     await require("./../../mailer").sendEmailOrderDelivered(name,cart,store,item);
@@ -206,7 +217,7 @@ module.exports = {
             }else if( status == '5c017b4f47fb07027943a40b' ){ //Seller Repaid
                 await ItemShopping.update({id}, { status: '5c017b4f47fb07027943a40b'})
             }else if( status == '5c017b5a47fb07027943a40c' ){ //Client Cancelled Order"
-                let data=await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c'}).fetch();
+                let data=await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c', cancelAt:ts}).fetch();
                 if(data.length > 0){
                     //send email to buyer
                     await require("./../../mailer").sendEmailOrderStatus(name,cart,store,item);
@@ -218,7 +229,7 @@ module.exports = {
             }else if( status == '5c017b7047fb07027943a40e' ){ //Refunded
                 await ItemShopping.update({id}, { status: '5c017b7047fb07027943a40e'})
             }else if( status == '5c06f4bf7650a503f4b731fd' ){ //Seller Cancelled Order
-                let data=await ItemShopping.update({id}, { status: '5c06f4bf7650a503f4b731fd'}).fetch();
+                let data=await ItemShopping.update({id}, { status: '5c06f4bf7650a503f4b731fd', cancelAt: ts}).fetch();
                 if(data.length > 0){
                     //send email to buyer
                     await require("./../../mailer").orderCancelledBySellerBuyerNotified(name,cart,store,item);

@@ -67,6 +67,27 @@ module.exports = {
       type: 'number',
       required: false
     },
+    shippedAt: {
+      type: 'number',
+      required: false
+    },
+    arrivedAt: {
+      type: 'number',
+      required: false
+    },
+    outForDeliveryAt:{
+      type: 'number',
+      required: false
+    },
+    deliveredAt:{
+      type: 'number',
+      required: false
+    },
+    cancelAt: {
+      type: 'number',
+      required: false
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
