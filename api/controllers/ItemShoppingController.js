@@ -237,8 +237,8 @@ module.exports = {
                     //send email to admin
                     await require("./../../mailer").orderCancelledBySellerAdminNotified(name,cart,store,item);
                 }
-            }else if ( status == '5c017af047fb07027943a405'){//pending fulfillment
-                let data=await ItemShopping.update({id}, { status: '5c06f4bf7650a503f4b731fd', cancelAt: ts}).fetch();                
+            }else if ( status == '5c13f453d827ce28632af048'){//pending fulfillment
+                let data=await ItemShopping.update({id}, { status: '5c13f453d827ce28632af048', cancelAt: ts}).fetch();                
             }else{
                 res.status(400).send("status not found")
             }
