@@ -306,7 +306,8 @@ module.exports.routes = {
   //Get items by status
 
   'GET /itemshopping/status/:status': 'ItemShoppingController.getItemsByStatus',
-
+  'GET /itemshopping/payed': 'ItemShoppingController.getPayedItems',
+  
 
   /***********
    * FILES UPLOAD ADMIN

@@ -740,7 +740,7 @@ module.exports = {
     },
 
     getItemChargesByWeight: async ( id, weight) => {
-        let fish = await Fish.findOne( { id } ).populate( 'type' ).populate( 'store' );
+        let fish = await Fish.findOne( { where: { id: id } } ).populate( 'type' ).populate( 'store' );
                 let fishPrice = fish.price.value;
                 let owner = await User.findOne( { id: fish.store.owner } ) ;
                 let firstMileCost = owner.firstMileCost;

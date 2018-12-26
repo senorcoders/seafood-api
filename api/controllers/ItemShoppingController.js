@@ -215,7 +215,8 @@ module.exports = {
             }else if( status == '5c017b4547fb07027943a40a' ){ //Pending Repayment
                 await ItemShopping.update({id}, { status: '5c017b4547fb07027943a40a'})
             }else if( status == '5c017b4f47fb07027943a40b' ){ //Seller Repaid
-                await ItemShopping.update({id}, { status: '5c017b4f47fb07027943a40b'})
+                let repayedRef = req.param("ref");
+                await ItemShopping.update({id}, { status: '5c017b4f47fb07027943a40b', repayedAt: ts, repayedRef: repayedRef})
             }else if( status == '5c017b5a47fb07027943a40c' ){ //Client Cancelled Order"
                 let data=await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c', cancelAt:ts}).fetch();
                 if(data.length > 0){
@@ -270,6 +271,47 @@ module.exports = {
                     }
                     return city;
                 } ) );
+
+                return it;
+            }));
+
+            
+
+            res.status(200).json( items );
+            
+        } catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+    getPayedItems: async ( req, res ) => {
+        try {                                    
+            //let status_id = req.param("status");
+            let items = await ItemShopping.find(
+                { 
+                    where: {
+                        status: [ '5c017af047fb07027943a405', '5c017b0e47fb07027943a406', '5c017b1447fb07027943a407', '5c017b2147fb07027943a408', '5c017b3c47fb07027943a409', '5c017b4547fb07027943a40a' ]
+                    } 
+                }
+            ).populate("fish").populate("shoppingCart").populate("status").sort('updatedAt DESC');
+            
+            items = await Promise.all(items.map(async function(it){
+                it.store = await Store.findOne({ id: it.fish.store});
+                if(it.fish.country){
+                    fishCountry = await Countries.findOne( { code: it.fish.country } );
+                    it.country = {
+                        code: fishCountry.code,  
+                        name: fishCountry.name
+                    }
+
+                    Promise.all(fishCountry.cities.map(async function(city){ 
+                        if( city.code === it.fish.city ){
+                            it.city = city;
+                        }
+                        return city;
+                    } ) );    
+                }
+                
 
                 return it;
             }));

@@ -87,6 +87,14 @@ module.exports = {
       type: 'number',
       required: false
     },
+    repayedAt: {
+      type: 'number',
+      required: false
+    },
+    repayedRef: {
+      type: 'string',
+      required: false
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗

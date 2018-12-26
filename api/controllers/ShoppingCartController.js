@@ -206,7 +206,7 @@ module.exports = {
             let total = 0;
             for (var it of cart.items) {
                 //total += Number(it.price.value * it.quantity.value);
-                itemCharges  = await require('./FishController').getItemChargesByWeight(it.fish.id, it.quantity.value);
+                itemCharges  = await require('./FishController').getItemChargesByWeight(it.fish, it.quantity.value);
                 total += itemCharges['finalPrice'];
             }
 
