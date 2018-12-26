@@ -120,8 +120,7 @@ module.exports = {
             ];*/
             console.log( images_url );
 
-            updateItemShopping = await ItemShopping.update( { id: orderID }, { status: '5c13f453d827ce28632af048', shippingFiles: images_url } );
-            
+            updateItemShopping = await ItemShopping.update( { id: orderID }, { shippingFiles: images_url } );            
 
             
             //console.log( image1 );
