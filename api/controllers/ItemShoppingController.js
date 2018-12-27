@@ -18,11 +18,11 @@ module.exports = {
         try{
             let items = await ItemShopping.find({shoppingCart: req.param("id") }).populate('status');
             items = await Promise.all(items.map(async function(it){
-                console.log(it);
+                //console.log(it);
                 try{
                     it.fish = await Fish.findOne({ id: it.fish });
                     it.fish.store = await Store.findOne({ id: it.fish.store });
-                    it.ItemStatus = await OrderStatus.findOne( { id: it.status } );
+                    // it.ItemStatus = await OrderStatus.findOne( { id: it.status } );
                     it.fish.storeOwner = await User.findOne( { id: it.fish.store.owner } );                
                     it.favorite = await new Promise((resolve, reject)=>{
                         let ress = {
