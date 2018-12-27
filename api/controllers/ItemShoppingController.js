@@ -326,6 +326,29 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
-    }    
+    },
+    getPayedItemsByOrderNumber: async ( req, res ) => {
+        let orderNumber=req.param('orderNumber')
+        try {  
+            let shoppingCart=await ShoppingCart.find({'orderNumber':orderNumber}); 
+            let items=[];
+            for(let sc of shoppingCart){
+                items= await ItemShopping.find(
+                { 
+                    where: {
+                        shoppingCart:sc.id,
+                        status: [ '5c017af047fb07027943a405', '5c017b0e47fb07027943a406', '5c017b1447fb07027943a407', '5c017b2147fb07027943a408', '5c017b3c47fb07027943a409', '5c017b4547fb07027943a40a' ],
+
+                    } 
+                }
+                ).populate("fish").populate("shoppingCart").populate("status").sort('updatedAt DESC');
+            }                              
+            res.status(200).json( items );
+            
+        } catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    }        
 };
 
