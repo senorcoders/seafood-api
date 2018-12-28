@@ -63,7 +63,10 @@ module.exports = {
                     if(!it.fishCharges.sfsMarginCost || it.fishCharges.sfsMarginCost == "NaN"){
                         it.fishCharges.sfsMarginCost = 0;
                     }
-                    
+                    if(!it.fishCharges.uaeTaxes || it.fishCharges.uaeTaxes == "NaN"){
+                        it.fishCharges.uaeTaxes = 0;
+                    }
+
                     it.shipping     = it.fishCharges.shippingCost.cost;
                     it.sfsMargin    = it.fishCharges.sfsMarginCost;
                     it.customs      = it.fishCharges.customsFee; 
