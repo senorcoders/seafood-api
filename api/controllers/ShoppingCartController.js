@@ -63,7 +63,7 @@ module.exports = {
                     if(!it.fishCharges.sfsMarginCost || it.fishCharges.sfsMarginCost == "NaN"){
                         it.fishCharges.sfsMarginCost = 0;
                     }
-                    if(!it.fishCharges.uaeTaxes || it.fishCharges.uaeTaxes == "NaN"){
+                    if(!it.fishCharges.uaeTaxesFee || it.fishCharges.uaeTaxesFee == "NaN"){
                         it.fishCharges.uaeTaxes = 0;
                     }
 
