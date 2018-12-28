@@ -60,6 +60,10 @@ module.exports = {
                         shipping    : it.fishCharges.shipping,
                         customs     : it.fishCharges.customs                        
                     };
+                    if(!it.fishCharges.sfsMarginCost || it.fishCharges.sfsMarginCost == "NaN"){
+                        it.fishCharges.sfsMarginCost = 0;
+                    }
+                    
                     it.shipping     = it.fishCharges.shippingCost.cost;
                     it.sfsMargin    = it.fishCharges.sfsMarginCost;
                     it.customs      = it.fishCharges.customsFee; 
