@@ -241,9 +241,5 @@ module.exports = {
         }
     },
 
-    testEmail: async (req, res) => {
-        let result = await MailerService.sendApprovedSellerEmail( 'espinoza8917@gmail.com', 'test' );
-        res.( result );
-    },
 };
 
