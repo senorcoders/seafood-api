@@ -203,8 +203,8 @@ module.exports = {
                 let name=user[0].firstName+" "+user[0].lastName;
                 if (user.length !== 0){
                     await require("./../../mailer").sendCode(user[0].id, user[0].email, user[0].code, name);                    
-                    if(user[0].role==1){
-                        await require("./../../mailer").sendSellerEmail(user[0].email, name);
+                    if(user[0].role==1){                        
+                        let result = await MailerService.sendApprovedSellerEmail( user[0].email, name  );
                     }
                 }
             }else if( status === "denied" ) {
@@ -239,6 +239,11 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
-    }
+    },
+
+    testEmail: async (req, res) => {
+        let result = await MailerService.sendApprovedSellerEmail( 'espinoza8917@gmail.com', 'test' );
+        res.( result );
+    },
 };
 

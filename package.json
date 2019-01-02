@@ -9,6 +9,7 @@
     "@sailshq/lodash": "^3.10.3",
     "@sailshq/socket.io-redis": "^5.2.0",
     "async": "2.0.1",
+    "email-templates": "^5.0.2",
     "express": "^3.0.6",
     "jsonwebtoken": "^8.2.2",
     "mmmagic": "^0.5.0",
