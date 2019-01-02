@@ -112,9 +112,6 @@ module.exports = {
                 return res.json(cart)
             };
             console.log( 'start' );
-            
-            
-            //console.log( currentPricingCharges );
       
             let cart = await ShoppingCart.create(
                 { 

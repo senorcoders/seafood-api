@@ -378,5 +378,6 @@ module.exports.routes = {
   //  ╩ ╩╩╚═╝╚═╝  ╩╚═╚═╝═╩╝╩╩╚═╚═╝╚═╝ ╩ ╚═╝
   '/terms': '/legal/terms',
   '/logout': '/api/v1/account/logout',
-
+  
+  'GET /user/test': 'UserController.testEmail', //for test email
 };
