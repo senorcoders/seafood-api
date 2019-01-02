@@ -107,7 +107,7 @@ module.exports = {
             console.log( 'start' );
             
             
-            console.log( currentPricingCharges );
+            // console.log( currentPricingCharges );
       
             let cart = await ShoppingCart.create(
                 { 
