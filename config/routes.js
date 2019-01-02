@@ -307,6 +307,8 @@ module.exports.routes = {
 
   'GET /itemshopping/status/:status': 'ItemShoppingController.getItemsByStatus',
   'GET /itemshopping/payed': 'ItemShoppingController.getPayedItems',
+  'GET /itemshopping/cancel': 'ItemShoppingController.getCancelledItems',
+  
   //get items by status and order number
   'GET /itemshopping/payed/:orderNumber':'ItemShoppingController.getPayedItemsByOrderNumber',
 

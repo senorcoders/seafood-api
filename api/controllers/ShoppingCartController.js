@@ -60,6 +60,13 @@ module.exports = {
                         shipping    : it.fishCharges.shipping,
                         customs     : it.fishCharges.customs                        
                     };
+                    if(!it.fishCharges.sfsMarginCost || it.fishCharges.sfsMarginCost == "NaN"){
+                        it.fishCharges.sfsMarginCost = 0;
+                    }
+                    if(!it.fishCharges.uaeTaxesFee || it.fishCharges.uaeTaxesFee == "NaN"){
+                        it.fishCharges.uaeTaxes = 0;
+                    }
+
                     it.shipping     = it.fishCharges.shippingCost.cost;
                     it.sfsMargin    = it.fishCharges.sfsMarginCost;
                     it.customs      = it.fishCharges.customsFee; 
@@ -105,9 +112,6 @@ module.exports = {
                 return res.json(cart)
             };
             console.log( 'start' );
-            
-            
-            // console.log( currentPricingCharges );
       
             let cart = await ShoppingCart.create(
                 { 
