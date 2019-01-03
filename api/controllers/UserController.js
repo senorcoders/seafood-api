@@ -46,11 +46,11 @@ module.exports = {
                 code,
                 valid: false
             };
-
+            let name= user.firstName+' '+user.lastName;
             forgot = await ForgotPassword.create(forgot).fetch();
 
-            require("./../../mailer").sendEmailForgotPassword(email, forgot.code);
-
+            //require("./../../mailer").sendEmailForgotPassword(email, forgot.code);
+            await MailerService.sendEmailForgotPassword(email, forgot.code,name);
             res.json({ msg: "success" });
 
         }

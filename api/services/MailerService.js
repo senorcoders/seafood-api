@@ -126,5 +126,36 @@ module.exports = {
         .catch(
             console.error
         )    
+    },
+    sendEmailForgotPassword: ( emailAddress, code, name ) => {
+        email.render( '../email_templates/forgot_password',
+            {
+                code:code,
+                name:name
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         emailAddress,
+                subject:    'Password Recovery for Seafood Souq',                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
     }
 }
