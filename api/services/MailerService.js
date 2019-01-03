@@ -30,6 +30,36 @@ const email = new Email({
 });
 
 module.exports = {
+    sendApprovedEmail: ( id, emailAddress, code, name ) => {
+        email.render( '../email_templates/approved_account',
+                {
+                name:       name
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         emailAddress,
+                subject:    'Welcome Onboard, Getting Started with Seafood Souq !',                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
     sendApprovedSellerEmail: ( emailAddress, name ) => {
         email.render( '../email_templates/approved_seller',
                 {
@@ -58,6 +88,38 @@ module.exports = {
         
                 // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
                 // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    sendRejectedEmail: ( emailAddress,role, name,denialMessage ) => {
+        email.render( '../email_templates/rejected_seller',
+            {
+                name:name,
+                message:denialMessage,
+                roleType:role
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         emailAddress,
+                subject:    'Update - Seafood Souq Account',                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
             })
                 
         } )

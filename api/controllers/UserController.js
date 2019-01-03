@@ -202,7 +202,8 @@ module.exports = {
                 user = await User.update({ id }, { status }).fetch();
                 let name=user[0].firstName+" "+user[0].lastName;
                 if (user.length !== 0){
-                    await require("./../../mailer").sendCode(user[0].id, user[0].email, user[0].code, name);                    
+                    // await require("./../../mailer").sendCode(user[0].id, user[0].email, user[0].code, name);
+                    await MailerService.sendApprovedEmail(user[0].id, user[0].email, user[0].code, name);                     
                     if(user[0].role==1){                        
                         let result = await MailerService.sendApprovedSellerEmail( user[0].email, name  );
                     }
@@ -214,7 +215,7 @@ module.exports = {
                 user = await User.update({ id }, { status, denialMessage, denialType }).fetch();
                 let name=user[0].firstName+" "+user[0].lastName;
                 //await require("./../../mailer").sendDenialMessage(user[0].id, user[0].email, denialMessage); 
-                await require("./../../mailer").registrationRejection(user[0].email,user[0].role,name,denialMessage);                   
+                await MailerService.sendRejectedEmail(user[0].email,user[0].role,name,denialMessage);                   
             }
             res.json({ msg: "success" });
         }
