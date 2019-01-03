@@ -348,7 +348,7 @@ module.exports = {
                 orderStatus: OrderStatus
                 
             }).fetch();
-            await ItemShopping.update( { shoppingCart: req.param("id") } ).set( { status: OrderStatus } );
+            await ItemShopping.update( { shoppingCart: req.param("id") } ).set( { status: '5c017ae247fb07027943a404' } );
             res.json(cart);
         }
         catch (e) {
