@@ -348,6 +348,7 @@ module.exports = {
                 orderStatus: OrderStatus
                 
             }).fetch();
+            await ItemShopping.update( { shoppingCart: req.param("id") } ).set( { status: OrderStatus } );
             res.json(cart);
         }
         catch (e) {
