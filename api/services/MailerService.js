@@ -519,4 +519,118 @@ module.exports = {
             console.error
         )    
     }
+    buyerCancelledOrderBuyer: ( name,cart,store,item) => {
+    	let paidDateTime=await formatDates(cart.paidDateTime);
+        email.render( '../email_templates/buyer_cancelled_order',
+            {
+                name:name,
+                cart:cart,
+                store:store,
+                item:item,
+                paidDateTime:paidDateTime
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         cart.buyer.email,
+                subject:    `Order #${cart.orderNumber} is Cancelled`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    buyerCancelledOrderSeller: ( name,cart,store,item) => {
+    	let paidDateTime=await formatDates(cart.paidDateTime);
+        email.render( '../email_templates/buyer_cancelled_order_seller',
+            {
+                name:name,
+                cart:cart,
+                store:store,
+                item:item,
+                paidDateTime:paidDateTime
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         cart.buyer.email,
+                subject:    `Order #${cart.orderNumber} is Cancelled`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    buyerCancelledOrderAdmin: ( name,cart,store,item) => {
+    	let paidDateTime=await formatDates(cart.paidDateTime);
+        email.render( '../email_templates/buyer_cancelled_order_admin',
+            {
+                name:name,
+                cart:cart,
+                store:store,
+                item:item,
+                paidDateTime:paidDateTime
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         'brian@senorcoders.com',
+                subject:    `Order #${cart.orderNumber} is Cancelled`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    async function formatDates(d){
+	    let date=new Date(d)
+	    let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+	    // get time am or pm
+	    let hours=date.getHours()
+	    let min = date.getMinutes();
+	    let dates=months[date.getMonth()]+'/'+ date.getDate()+ '/'+date.getFullYear()+'/'+hours+':'+ min;
+	    return dates
+	}
 }
