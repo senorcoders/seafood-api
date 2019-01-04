@@ -383,5 +383,140 @@ module.exports = {
         .catch(
             console.error
         )    
+    },
+    sendCartPaidSellerNotified: ( sellerName,cart,items,orderNumber,emailAddress) => {
+        email.render( '../email_templates/cart_paid_seller_notified',
+            {
+                sellerName:sellerName,
+                cart:cart,
+                items:items,
+                orderNumber:orderNumber
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         emailAddress,
+                subject:    `Order #${orderNumber} is Placed`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    sendCartPaidBuyerNotified: ( items,cart,orderNumber,stores) => {
+    	let store,storeLng=stores.length;
+		    for(let [index,value] of stores.entries()){
+		        if(index==0){
+		            if(storeLng>1){
+		                store=value+' and ';
+		            }
+		            else{
+		                store=value;
+		            }
+		        }else{
+		            if(index==storeLng-1){
+		                 store+=value
+		            }else{
+		                store+=value+' and '
+		            }
+		        }
+		    }
+        email.render( '../email_templates/cart_paid_buyer_notified',
+            {
+                name:cart.buyer.firstName+ ' '+ cart.buyer.lastName,
+                cart:cart,
+                items:items,
+                orderNumber:orderNumber,
+                store:store
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         cart.buyer.email,
+                subject:    `Order #${orderNumber} is Placed`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    sendCartPaidAdminNotified: ( items,cart,orderNumber,stores) => {
+    	let store,storeLng=stores.length;
+		    for(let [index,value] of stores.entries()){
+		        if(index==0){
+		            if(storeLng>1){
+		                store=value+' and ';
+		            }
+		            else{
+		                store=value;
+		            }
+		        }else{
+		            if(index==storeLng-1){
+		                 store+=value
+		            }else{
+		                store+=value+' and '
+		            }
+		        }
+		    }
+        email.render( '../email_templates/cart_paid_admin_notified',
+            {
+                name:cart.buyer.firstName+ ' '+ cart.buyer.lastName,
+                cart:cart,
+                items:items,
+                orderNumber:orderNumber,
+                store:store
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         'brian@senorcoders.com',
+                subject:    `Order #${orderNumber} is Placed`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
     }
 }
