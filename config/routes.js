@@ -220,6 +220,9 @@ module.exports.routes = {
   //Para obtener productos pagados por tienda
   'GET /api/store/fish/paid/:id': 'ItemShoppingController.getItemsXStorePaid',
 
+  
+  'GET /api/store/orders/user/:id': 'StoreController.getStoreOrders',
+
   //Para obtener productos pagados por tienda y items shippingStatus === 'paid'
   'GET /api/store/fish/items/paid/:id': 'ItemShoppingController.getItemsXStoreAndItemPaid',
 

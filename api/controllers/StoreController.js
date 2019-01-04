@@ -254,6 +254,23 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
+    },
+
+    getStoreOrders: async ( req, res ) => {
+        let userID =  req.param("id");
+
+        let store = await Store.findOne( { where: { owner: userID } }  );
+
+        if( store === undefined ) 
+            return res.status(400).status("not found");
+        
+        let storeFishes = await fish.find( { store: store.id } );
+
+        let storeFishesIds = array();
+        storeFishes.map( item => {
+            storeFishesIds.push(item.id);
+        } )
+        res.status(200).json( storeFishesIds );
     }
 
 };
