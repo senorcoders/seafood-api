@@ -258,5 +258,67 @@ module.exports = {
         .catch(
             console.error
         )    
+    },
+    newProductAddedAdminNotified: ( product, seller ) => {
+        email.render( '../email_templates/new_product_awaiting_review',
+            {
+                name:seller.firstName+' '+seller.lastName,
+                product:product
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         'brian@senorcoders.com',
+                subject:    `Product #${product.seafood_sku} is awaiting Review`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    newProductAddedSellerNotified: ( product, seller ) => {
+        email.render( '../email_templates/new_product_seller_notified',
+            {
+                name:seller.firstName+' '+seller.lastName,
+                product:product
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         seller.email,
+                subject:    `Product #${product.seafood_sku} is Under Review `,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
     }
 }

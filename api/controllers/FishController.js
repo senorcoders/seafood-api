@@ -8,8 +8,10 @@ module.exports = {
             let product=await Fish.create(body).fetch();
             let store=await Store.findOne(product.store).populate('owner')
             if(product){
-                await require("./../../mailer").sendEmailNewProductAdded(product,store.owner);
-                await require("./../../mailer").sendEmailNewProductAddedSeller(product,store.owner);
+                await MailerService.newProductAddedAdminNotified(product,store.owner);
+                await MailerService.newProductAddedSellerNotified(product,store.owner);
+                //await require("./../../mailer").sendEmailNewProductAdded(product,store.owner);
+                //await require("./../../mailer").sendEmailNewProductAddedSeller(product,store.owner);
                 res.json({ product })
             }
             else{
