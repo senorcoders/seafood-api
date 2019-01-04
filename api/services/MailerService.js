@@ -30,6 +30,74 @@ const email = new Email({
 });
 
 module.exports = {
+	registerNewUser: ( user ) => {
+        email.render( '../email_templates/register_new_user',
+            {
+                name:user.firstName+' '+user.lastName,
+                id:user.id, 
+                code:user.code
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         user.email,
+                subject:    'Your Account is Under Review',                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    newUserNotification: (role) => {
+    	let roleType;
+    	if(role==0){
+            roleType="Admin"
+        }else if(role==1){
+            roleType="Seller"
+        }else{roleType="Buyer"}
+        email.render( '../email_templates/new_user_admin_notification',
+            {
+                role:roleType
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         'brian@senorcoders.com',
+                subject:    `New ${roleType} is pending confirmation`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
     sendApprovedEmail: ( id, emailAddress, code, name ) => {
         email.render( '../email_templates/approved_account',
                 {
