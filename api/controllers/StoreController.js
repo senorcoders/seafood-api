@@ -259,18 +259,86 @@ module.exports = {
     getStoreOrders: async ( req, res ) => {
         let userID =  req.param("id");
 
-        let store = await Store.findOne( { where: { owner: userID } }  );
+        let store = await Store.find( { where: { owner: userID } }  );
 
         if( store === undefined ) 
             return res.status(400).status("not found");
-        
-        let storeFishes = await fish.find( { store: store.id } );
 
-        let storeFishesIds = array();
+        let storeIds = []; 
+        store.map( item => {
+            storeIds.push( cartBid );
+        } )
+
+        let storeFishes = await F   // end get buyer informationish.find( { store: storeIds } );
+
+        let storeFishesIds = [];
         storeFishes.map( item => {
             storeFishesIds.push(item.id);
         } )
-        res.status(200).json( storeFishesIds );
+
+        itemsBuyed = await ItemShopping.find( { where: { fish: storeFishesIds } } );
+
+        let ordersIds = []; 
+        itemsBuyed.map( item => {
+            ordersIds.push( item.shoppingCart );
+        } )
+
+        let StoreOrders = await ShoppingCart.find( { 
+            where: 
+            { 
+                id: ordersIds, 
+                status: 'paid'
+            },
+            sort: 'updatedAt DESC'
+        } ).populate("buyer");
+        
+        res.status(200).json( StoreOrders );
+    },
+    getStoreOrderItems: async (req, res) =>{
+        let userID =  req.param("id");
+        let shoppingCartID = req.param('shoppingCartID');
+
+        // get buyer information
+        let shoppingCart = await ShoppingCart.findOne( { where: shoppingCartID } ).populate('buyer');
+        // end get buyer information
+        
+        let store = await Store.find( { where: { owner: userID } }  );
+        
+        if( store === undefined ) 
+            return res.status(400).status("not found");
+
+        let storeIds = []; 
+        store.map( item => {
+            storeIds.push( item.id );
+        } )
+        //console.log(storeIds);
+        let storeFishes = await Fish.find( { store: storeIds } );
+
+        let storeFishesIds = [];
+        storeFishes.map( item => {
+            storeFishesIds.push(item.id);
+        } )
+        console.log( 'shoppingCart: ', shoppingCartID );
+        console.log('fishes ids: ', storeFishesIds);
+        let items = await ItemShopping.find( 
+            { 
+                where: 
+                { 
+                    and: [
+                        { fish: storeFishesIds },
+                        { shoppingCart: shoppingCartID } 
+
+                    ]
+                } 
+            } 
+        ).populate("fish").populate("shoppingCart").populate("status").sort('updatedAt DESC');
+        
+        items.map( item => {
+            item.shoppingCart = shoppingCart;
+        } )
+
+        res.status(200).json(items);
+
     }
 
 };
