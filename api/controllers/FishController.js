@@ -8,8 +8,10 @@ module.exports = {
             let product=await Fish.create(body).fetch();
             let store=await Store.findOne(product.store).populate('owner')
             if(product){
-                await require("./../../mailer").sendEmailNewProductAdded(product,store.owner);
-                await require("./../../mailer").sendEmailNewProductAddedSeller(product,store.owner);
+                await MailerService.newProductAddedAdminNotified(product,store.owner);
+                await MailerService.newProductAddedSellerNotified(product,store.owner);
+                //await require("./../../mailer").sendEmailNewProductAdded(product,store.owner);
+                //await require("./../../mailer").sendEmailNewProductAddedSeller(product,store.owner);
                 res.json({ product })
             }
             else{
@@ -678,7 +680,8 @@ module.exports = {
                 console.log( SFSAdminFeedback )
                 if( SFSAdminFeedback && SFSAdminFeedback!==''){
                     fishUpdated = await Fish.update({id}, { status: statusID,SFSAdminFeedback:SFSAdminFeedback }).fetch();
-                    await require("./../../mailer").sendEmailProductRejected(store.owner, fish,SFSAdminFeedback);
+                    //await require("./../../mailer").sendEmailProductRejected(store.owner, fish,SFSAdminFeedback);
+                    await MailerService.newProductRejected(store.owner, fish,SFSAdminFeedback);
                 }
                 else{
                     res.serverError( {'msg':"You need to provide a reason for not approved the product"} )
@@ -686,7 +689,8 @@ module.exports = {
             }else if( statusID == '5c0866f9a0eda00b94acbdc2' ){ //Approved
                 
                 fishUpdated = await Fish.update({id}, { status: statusID }).fetch();
-                await require("./../../mailer").sendEmailProductApproved(store.owner, fish);
+                await MailerService.newProductAccepted(store.owner, fish);
+                //await require("./../../mailer").sendEmailProductApproved(store.owner, fish);
             }
 
             res.status( 200 ).json( fishUpdated )

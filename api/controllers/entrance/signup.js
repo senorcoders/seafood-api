@@ -175,9 +175,10 @@ the account verification message.)`,
       if (users.length === 1)
         newUserRecord = users[0];
     }
-
-    await require("./../../../mailer").registerUserRevision(newUserRecord);
-    await require("./../../../mailer").newUserNotification(newUserRecord.firstName, newUserRecord.lastName, newUserRecord.role, newUserRecord.email);
+    await MailerService.registerNewUser(newUserRecord);
+    //await require("./../../../mailer").registerUserRevision(newUserRecord);
+    await MailerService.newUserNotification(newUserRecord.firstName, newUserRecord.lastName, newUserRecord.role, newUserRecord.email);
+    //await require("./../../../mailer").newUserNotification(newUserRecord.firstName, newUserRecord.lastName, newUserRecord.role, newUserRecord.email);
 
 
     // Since everything went ok, send our 200 response.

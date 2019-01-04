@@ -46,11 +46,11 @@ module.exports = {
                 code,
                 valid: false
             };
-
+            let name= user.firstName+' '+user.lastName;
             forgot = await ForgotPassword.create(forgot).fetch();
 
-            require("./../../mailer").sendEmailForgotPassword(email, forgot.code);
-
+            //require("./../../mailer").sendEmailForgotPassword(email, forgot.code);
+            await MailerService.sendEmailForgotPassword(email, forgot.code,name);
             res.json({ msg: "success" });
 
         }
@@ -115,12 +115,13 @@ module.exports = {
             if (user === undefined) {
                 return res.status(400).send("not found");
             }
-
-            await require("./../../mailer").sendDataFormContactToSeller(user.email, {
-                name,
-                email,
-                message
-            });
+            let nameSeller=user.firstName+ ' ' +user.lastName;
+            // await require("./../../mailer").sendDataFormContactToSeller(user.email,name, {
+            //     name,
+            //     email,
+            //     message
+            // });
+            await MailerService.sendDataFormContactToSeller(user.email,nameSeller,name,email,message);
 
             res.json({ msg: "success" });
         }
@@ -202,7 +203,8 @@ module.exports = {
                 user = await User.update({ id }, { status }).fetch();
                 let name=user[0].firstName+" "+user[0].lastName;
                 if (user.length !== 0){
-                    await require("./../../mailer").sendCode(user[0].id, user[0].email, user[0].code, name);                    
+                    // await require("./../../mailer").sendCode(user[0].id, user[0].email, user[0].code, name);
+                    await MailerService.sendApprovedEmail(user[0].id, user[0].email, user[0].code, name);                     
                     if(user[0].role==1){                        
                         let result = await MailerService.sendApprovedSellerEmail( user[0].email, name  );
                     }
@@ -214,7 +216,7 @@ module.exports = {
                 user = await User.update({ id }, { status, denialMessage, denialType }).fetch();
                 let name=user[0].firstName+" "+user[0].lastName;
                 //await require("./../../mailer").sendDenialMessage(user[0].id, user[0].email, denialMessage); 
-                await require("./../../mailer").registrationRejection(user[0].email,user[0].role,name,denialMessage);                   
+                await MailerService.sendRejectedEmail(user[0].email,user[0].role,name,denialMessage);                   
             }
             res.json({ msg: "success" });
         }
