@@ -257,8 +257,8 @@ module.exports = {
     },
 
     getStoreOrders: async ( req, res ) => {
-        let userID =  req.param("id");
-
+        let userID = req.param("id");        
+        let status = req.param("status") ;
         let store = await Store.find( { where: { owner: userID } }  );
 
         if( store === undefined ) 
@@ -266,17 +266,22 @@ module.exports = {
 
         let storeIds = []; 
         store.map( item => {
-            storeIds.push( cartBid );
+            storeIds.push( item.id );
         } )
 
-        let storeFishes = await F   // end get buyer informationish.find( { store: storeIds } );
+        let storeFishes = await Fish.find( { store: storeIds } );  
+         // end get buyer information
 
         let storeFishesIds = [];
         storeFishes.map( item => {
             storeFishesIds.push(item.id);
         } )
 
-        itemsBuyed = await ItemShopping.find( { where: { fish: storeFishesIds } } );
+        itemsBuyed = await ItemShopping.find( { 
+            where: { 
+                fish: storeFishesIds 
+            } 
+        } );
 
         let ordersIds = []; 
         itemsBuyed.map( item => {
@@ -290,9 +295,28 @@ module.exports = {
                 status: 'paid'
             },
             sort: 'updatedAt DESC'
-        } ).populate("buyer");
+        } ).populate("buyer").populate("items");
+
+        ordersShipped = [];
+        ordersNotShipped = [];
+
+        StoreOrders.map( order => {
+            order.allShipped = true;
+            order.items.map( item => {
+                if( item.status == '5c017ae247fb07027943a404' || item.status == '5c017af047fb07027943a405' ) {
+                    order.allShipped = false;
+                }            
+            } )
+            if( order.allShipped )
+                ordersShipped.push( order );
+            else 
+                ordersNotShipped.push( order );
+        } )
         
-        res.status(200).json( StoreOrders );
+        if( status == 'shipped' )
+            res.status(200).json( ordersShipped );
+        else
+            res.status(200).json( ordersNotShipped );
     },
     getStoreOrderItems: async (req, res) =>{
         let userID =  req.param("id");

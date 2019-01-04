@@ -221,7 +221,7 @@ module.exports.routes = {
   'GET /api/store/fish/paid/:id': 'ItemShoppingController.getItemsXStorePaid',
 
   // Get store orders
-  'GET /api/store/orders/user/:id': 'StoreController.getStoreOrders',
+  'GET /api/store/orders/:status/user/:id': 'StoreController.getStoreOrders',
 
   // Get all items of the store
   'GET /api/store/:owner/order/:shoppingCartID': 'StoreController.getStoreOrderItems', 
