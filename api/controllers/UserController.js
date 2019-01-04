@@ -115,12 +115,13 @@ module.exports = {
             if (user === undefined) {
                 return res.status(400).send("not found");
             }
-
-            await require("./../../mailer").sendDataFormContactToSeller(user.email, {
-                name,
-                email,
-                message
-            });
+            let nameSeller=user.firstName+ ' ' +user.lastName;
+            // await require("./../../mailer").sendDataFormContactToSeller(user.email,name, {
+            //     name,
+            //     email,
+            //     message
+            // });
+            await MailerService.sendDataFormContactToSeller(user.email,nameSeller,name,email,message);
 
             res.json({ msg: "success" });
         }

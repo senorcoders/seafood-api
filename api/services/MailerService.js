@@ -157,5 +157,38 @@ module.exports = {
         .catch(
             console.error
         )    
+    },
+    sendDataFormContactToSeller: ( emailAddress,nameSeller,nameBuyer,emailBuyer,message ) => {
+        email.render( '../email_templates/contact_message',
+            {
+                nameBuyer:nameBuyer,
+                nameSeller:nameSeller,
+                message:message,
+                emailBuyer:emailBuyer
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         emailAddress,
+                subject:    'New Message of Contact in Seafood Souq',                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
     }
 }
