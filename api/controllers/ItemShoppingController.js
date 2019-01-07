@@ -210,9 +210,11 @@ module.exports = {
                 let data=await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409', deliveredAt: ts}).fetch()
                 if(data.length > 0){
                     //send email to buyer 
-                    await require("./../../mailer").sendEmailOrderDelivered(name,cart,store,item);
+                    // await require("./../../mailer").sendEmailOrderDelivered(name,cart,store,item);
+                    await MailerService.orderDeliveredBuyer(name,cart,store,item);
                     //send email to seller
-                    await require("./../../mailer").sendEmailOrderDeliveredSeller(cart,store,item);
+                    await MailerService.orderArrivedSeller(cart,store,item);
+                    // await require("./../../mailer").sendEmailOrderDeliveredSeller(cart,store,item);
                 }
             }else if( status == '5c017b4547fb07027943a40a' ){ //Pending Repayment
                 await ItemShopping.update({id}, { status: '5c017b4547fb07027943a40a'})

@@ -771,5 +771,74 @@ module.exports = {
         .catch(
             console.error
         )    
+    },
+    orderDeliveredBuyer: async( name,cart,store,item) => {
+        let paidDateTime=await formatDates(cart.paidDateTime);
+        email.render( '../email_templates/order_delivered_buyer',
+            {
+                name:name,
+                cart:cart,
+                store:store,
+                item:item,
+                paidDateTime:paidDateTime
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         cart.buyer.email,
+                subject:    `Order #${cart.orderNumber} is Delivered !`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    orderArrivedSeller: async( cart,store,item) => {
+        let paidDateTime=await formatDates(cart.paidDateTime);
+        email.render( '../email_templates/order_delivered_seller',
+            {
+                cart:cart,
+                store:store,
+                item:item,
+                paidDateTime:paidDateTime
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         store.owner.email,
+                subject:    `Order #${cart.orderNumber} is Delivered !`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
     }
 }
