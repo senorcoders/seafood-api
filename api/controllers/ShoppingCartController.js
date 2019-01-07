@@ -338,9 +338,12 @@ module.exports = {
                 let fullName = st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName
                 //await require("./../../mailer").sendCartPaidSellerNotified(fullName, cart, st, OrderNumber,st[0].fish.store.owner.email)
+                await MailerService.sendCartPaidSellerNotified(fullName, cart, st, OrderNumber,st[0].fish.store.owner.email)
             }
-            //await require("./../../mailer").sendCartPaidBuyer(itemsShopping, cart,OrderNumber,storeName);
-            // await require("./../../mailer").sendCartPaidAdmin(itemsShopping, cart,OrderNumber,storeName);
+            await MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName);
+            await MailerService.sendCartPaidAdminNotified(itemsShopping, cart,OrderNumber,storeName)
+            // await require("./../../mailer").sendCartPaidBuyer(itemsShopping, cart,OrderNumber,storeName);
+            //  await require("./../../mailer").sendCartPaidAdmin(itemsShopping, cart,OrderNumber,storeName);
             cart = await ShoppingCart.update({ id: req.param("id") }, { 
                 status: "paid", 
                 paidDateTime: paidDateTime ,

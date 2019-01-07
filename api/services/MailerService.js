@@ -28,6 +28,15 @@ const email = new Email({
         }
     }
 });
+async function formatDates(d){
+        let date=new Date(d)
+        let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        // get time am or pm
+        let hours=date.getHours()
+        let min = date.getMinutes();
+        let dates=months[date.getMonth()]+'/'+ date.getDate()+ '/'+date.getFullYear()+'/'+hours+':'+ min;
+        return dates
+    };
 
 module.exports = {
 	registerNewUser: ( user ) => {
@@ -360,6 +369,454 @@ module.exports = {
                 from:       sender,
                 to:         seller.email,
                 subject:    `Product #${product.seafood_sku} is awaiting Review`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    sendCartPaidSellerNotified: ( sellerName,cart,items,orderNumber,emailAddress) => {
+        email.render( '../email_templates/cart_paid_seller_notified',
+            {
+                sellerName:sellerName,
+                cart:cart,
+                items:items,
+                orderNumber:orderNumber
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         emailAddress,
+                subject:    `Order #${orderNumber} is Placed`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    sendCartPaidBuyerNotified: ( items,cart,orderNumber,stores) => {
+    	let store,storeLng=stores.length;
+		    for(let [index,value] of stores.entries()){
+		        if(index==0){
+		            if(storeLng>1){
+		                store=value+' and ';
+		            }
+		            else{
+		                store=value;
+		            }
+		        }else{
+		            if(index==storeLng-1){
+		                 store+=value
+		            }else{
+		                store+=value+' and '
+		            }
+		        }
+		    }
+        email.render( '../email_templates/cart_paid_buyer_notified',
+            {
+                name:cart.buyer.firstName+ ' '+ cart.buyer.lastName,
+                cart:cart,
+                items:items,
+                orderNumber:orderNumber,
+                store:store
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         cart.buyer.email,
+                subject:    `Order #${orderNumber} is Placed`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    sendCartPaidAdminNotified: ( items,cart,orderNumber,stores) => {
+    	let store,storeLng=stores.length;
+		    for(let [index,value] of stores.entries()){
+		        if(index==0){
+		            if(storeLng>1){
+		                store=value+' and ';
+		            }
+		            else{
+		                store=value;
+		            }
+		        }else{
+		            if(index==storeLng-1){
+		                 store+=value
+		            }else{
+		                store+=value+' and '
+		            }
+		        }
+		    }
+        email.render( '../email_templates/cart_paid_admin_notified',
+            {
+                name:cart.buyer.firstName+ ' '+ cart.buyer.lastName,
+                cart:cart,
+                items:items,
+                orderNumber:orderNumber,
+                store:store
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         'brian@senorcoders.com',
+                subject:    `Order #${orderNumber} is Placed`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    buyerCancelledOrderBuyer: async( name,cart,store,item) => {
+    	let paidDateTime=await formatDates(cart.paidDateTime);
+        email.render( '../email_templates/buyer_cancelled_order',
+            {
+                name:name,
+                cart:cart,
+                store:store,
+                item:item,
+                paidDateTime:paidDateTime
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         cart.buyer.email,
+                subject:    `Order #${cart.orderNumber} is Cancelled`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    buyerCancelledOrderSeller: async( cart,store,item) => {
+    	let paidDateTime=await formatDates(cart.paidDateTime);
+        email.render( '../email_templates/buyer_cancelled_order_seller',
+            {
+                name:store.owner.firstName+ ' ' + store.owner.lastName,
+                cart:cart,
+                store:store,
+                item:item,
+                paidDateTime:paidDateTime
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         store.owner.email,
+                subject:    `Order #${cart.orderNumber} is Cancelled`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    buyerCancelledOrderAdmin: async ( cart,store,item) => {
+    	let paidDateTime=await formatDates(cart.paidDateTime);
+        email.render( '../email_templates/buyer_cancelled_order_admin',
+            {
+                cart:cart,
+                store:store,
+                item:item,
+                paidDateTime:paidDateTime
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         'brian@senorcoders.com',
+                subject:    `Order #${cart.orderNumber} is Cancelled`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    sellerCancelledOrderBuyer: async( name,cart,store,item) => {
+        let paidDateTime=await formatDates(cart.paidDateTime);
+        email.render( '../email_templates/seller_cancelled_order_buyer',
+            {
+                name:name,
+                cart:cart,
+                store:store,
+                item:item,
+                paidDateTime:paidDateTime
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         cart.buyer.email,
+                subject:    'Your Order has been cancelled !',                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    sellerCancelledOrderAdmin: async( name,cart,store,item) => {
+        let paidDateTime=await formatDates(cart.paidDateTime);
+        email.render( '../email_templates/seller_cancelled_order_admin',
+            {
+                name:name,
+                cart:cart,
+                store:store,
+                item:item,
+                paidDateTime:paidDateTime
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         'brian@senorcoders.com',
+                subject:    `Order #${cart.orderNumber} is Cancelled`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    itemShipped: async( name,cart,store,item) => {
+        let paidDateTime=await formatDates(cart.paidDateTime);
+        email.render( '../email_templates/itemShipped',
+            {
+                name:name,
+                cart:cart,
+                store:store,
+                item:item,
+                paidDateTime:paidDateTime
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         cart.buyer.email,
+                subject:    `Order #${cart.orderNumber} is being Shipped`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    orderArrived: async( name,cart,store,item) => {
+        let paidDateTime=await formatDates(cart.paidDateTime);
+        email.render( '../email_templates/order_arrived',
+            {
+                name:name,
+                cart:cart,
+                store:store,
+                item:item,
+                paidDateTime:paidDateTime
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         cart.buyer.email,
+                subject:    `Order #${cart.orderNumber} has arrived in Dubai !`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    orderDeliveredBuyer: async( name,cart,store,item) => {
+        let paidDateTime=await formatDates(cart.paidDateTime);
+        email.render( '../email_templates/order_delivered_buyer',
+            {
+                name:name,
+                cart:cart,
+                store:store,
+                item:item,
+                paidDateTime:paidDateTime
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         cart.buyer.email,
+                subject:    `Order #${cart.orderNumber} is Delivered !`,                    
+                html:       res, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+        } )
+        .catch(
+            console.error
+        )    
+    },
+    orderArrivedSeller: async( cart,store,item) => {
+        let paidDateTime=await formatDates(cart.paidDateTime);
+        email.render( '../email_templates/order_delivered_seller',
+            {
+                cart:cart,
+                store:store,
+                item:item,
+                paidDateTime:paidDateTime
+            }
+        )
+        .then( res=> {            
+            transporter.sendMail( { 
+                from:       sender,
+                to:         store.owner.email,
+                subject:    `Order #${cart.orderNumber} is Delivered !`,                    
                 html:       res, // html body
                 attachments: [{
                     filename: 'logo.png',
