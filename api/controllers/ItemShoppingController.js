@@ -192,7 +192,7 @@ module.exports = {
                 ).fetch();
                 if(data.length > 0){
                 	await MailerService.itemShipped(name,cart,store,item)
-                    await require("./../../mailer").sendEmailItemRoad(name,cart,store,item);
+                    //await require("./../../mailer").sendEmailItemRoad(name,cart,store,item);
                 }
             }else if( status == '5c017b1447fb07027943a407' ) {//admin marks the item as arrived
                 let data=await ItemShopping.update({id}, { 
@@ -201,7 +201,8 @@ module.exports = {
                 }).fetch()
                 if(data.length > 0){
                     //send email to buyer 
-                    await require("./../../mailer").sendEmailOrderArrived(name,cart,store,item);
+                    await MailerService.orderArrived(name,cart,store,item)
+                    // await require("./../../mailer").sendEmailOrderArrived(name,cart,store,item);
                 }
             }else if( status == '5c017b2147fb07027943a408' ){ //out for delivery
                 await ItemShopping.update({id}, { status: '5c017b2147fb07027943a408', outForDeliveryAt: ts })
