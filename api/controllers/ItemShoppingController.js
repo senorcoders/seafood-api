@@ -191,6 +191,7 @@ module.exports = {
                     }
                 ).fetch();
                 if(data.length > 0){
+                	await MailerService.itemShipped(name,cart,store,item)
                     await require("./../../mailer").sendEmailItemRoad(name,cart,store,item);
                 }
             }else if( status == '5c017b1447fb07027943a407' ) {//admin marks the item as arrived
@@ -236,9 +237,11 @@ module.exports = {
                 let data=await ItemShopping.update({id}, { status: '5c06f4bf7650a503f4b731fd', cancelAt: ts}).fetch();
                 if(data.length > 0){
                     //send email to buyer
-                    await require("./../../mailer").orderCancelledBySellerBuyerNotified(name,cart,store,item);
+                    await MailerService.sellerCancelledOrderBuyer(name,cart,store,item);
+                    // await require("./../../mailer").orderCancelledBySellerBuyerNotified(name,cart,store,item);
                     //send email to admin
-                    await require("./../../mailer").orderCancelledBySellerAdminNotified(name,cart,store,item);
+                    await MailerService.sellerCancelledOrderAdmin(name,cart,store,item);
+                    // await require("./../../mailer").orderCancelledBySellerAdminNotified(name,cart,store,item);
                 }
             }else if ( status == '5c13f453d827ce28632af048'){//pending fulfillment
                 let data=await ItemShopping.update({id}, { status: '5c13f453d827ce28632af048', cancelAt: ts}).fetch();                
