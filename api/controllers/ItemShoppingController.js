@@ -409,5 +409,40 @@ module.exports = {
             res.serverError(e);
         }
     },
+    getAllOrders: async (req, res) => {
+        try {
+            let where = { };
+            if( req.param("status") ) {
+                if( req.param("status") !==undefined ){
+                    where.status = req.param('status')
+                    console.log( 'by status' );
+                }
+            }
+            if( req.param("orderNumber" ) ) {
+                let shoppingCart = await ShoppingCart.findOne( { orderNumber: req.param( 'orderNumber' ) } )
+                if( !shoppingCart )
+                    return res.status( 200 ).json( { "message": "Order not found" } );
+
+                if( shoppingCart !== undefined ){
+                    where.shoppingCart = shoppingCart.id;
+                    console.log( 'by orderNumber' );
+                }
+            }
+            console.log( where );
+            let items = await ItemShopping.find( where ).populate( 'fish' ).populate( 'shoppingCart' ).populate( 'status' ).sort( 'updatedAt DESC' ).limit( 100 );
+
+            await Promise.all(items.map(async function(it){
+                it.store = await Store.findOne({ id: it.fish.store});               
+                return it;
+            }));      
+            
+           
+
+            res.status(200).json( items );
+        } catch (error) {
+            console.error(error);
+            res.serverError(error);
+        }
+    }    
 };
 

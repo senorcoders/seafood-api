@@ -290,7 +290,14 @@ module.exports.routes = {
 
   'GET /api/fish/:id/charges/:weight': 'FishController.getItemCharges',
 
-  
+  // get all orders
+  'GET /api/itemshopping/all': 'ItemShoppingController.getAllOrders',
+  // get all orders by status
+  'GET /api/itemshopping/status/:status': 'ItemShoppingController.getAllOrders',
+  // get all orders by order number
+  'GET /api/itemshopping/order-number/:orderNumber': 'ItemShoppingController.getAllOrders',
+  // get all orders by status and order number
+  'GET /api/itemshopping/status/:status/order-number/:orderNumber': 'ItemShoppingController.getAllOrders',  
 
   /********
    * 
