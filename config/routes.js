@@ -220,6 +220,13 @@ module.exports.routes = {
   //Para obtener productos pagados por tienda
   'GET /api/store/fish/paid/:id': 'ItemShoppingController.getItemsXStorePaid',
 
+  // Get store orders
+  'GET /api/store/orders/:status/user/:id': 'StoreController.getStoreOrders',
+
+  // Get all items of the store
+  'GET /api/store/:owner/order/:shoppingCartID': 'StoreController.getStoreOrderItems', 
+
+
   //Para obtener productos pagados por tienda y items shippingStatus === 'paid'
   'GET /api/store/fish/items/paid/:id': 'ItemShoppingController.getItemsXStoreAndItemPaid',
 
@@ -262,6 +269,7 @@ module.exports.routes = {
   //test order
   'GET /api/cart/test': "ShoppingCartController.testOrder",
 
+  
   /***********
    * 
    * ITEMS SHOPPING 
@@ -281,6 +289,15 @@ module.exports.routes = {
   'PUT /api/itemshopping/:id/:status':"ItemShoppingController.updateItemStatus",
 
   'GET /api/fish/:id/charges/:weight': 'FishController.getItemCharges',
+
+  // get all orders
+  'GET /api/itemshopping/all': 'ItemShoppingController.getAllOrders',
+  // get all orders by status
+  'GET /api/itemshopping/status/:status': 'ItemShoppingController.getAllOrders',
+  // get all orders by order number
+  'GET /api/itemshopping/order-number/:orderNumber': 'ItemShoppingController.getAllOrders',
+  // get all orders by status and order number
+  'GET /api/itemshopping/status/:status/order-number/:orderNumber': 'ItemShoppingController.getAllOrders',  
 
   /********
    * 

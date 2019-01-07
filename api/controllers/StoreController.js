@@ -254,6 +254,115 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
+    },
+
+    getStoreOrders: async ( req, res ) => {
+        let userID = req.param("id");        
+        let status = req.param("status") ;
+        let store = await Store.find( { where: { owner: userID } }  );
+
+        if( store === undefined ) 
+            return res.status(400).status("not found");
+
+        let storeIds = []; 
+        store.map( item => {
+            storeIds.push( item.id );
+        } )
+
+        let storeFishes = await Fish.find( { store: storeIds } );  
+         // end get buyer information
+
+        let storeFishesIds = [];
+        storeFishes.map( item => {
+            storeFishesIds.push(item.id);
+        } )
+
+        itemsBuyed = await ItemShopping.find( { 
+            where: { 
+                fish: storeFishesIds 
+            } 
+        } );
+
+        let ordersIds = []; 
+        itemsBuyed.map( item => {
+            ordersIds.push( item.shoppingCart );
+        } )
+
+        let StoreOrders = await ShoppingCart.find( { 
+            where: 
+            { 
+                id: ordersIds, 
+                status: 'paid'
+            },
+            sort: 'updatedAt DESC'
+        } ).populate("buyer").populate("items");
+
+        ordersShipped = [];
+        ordersNotShipped = [];
+
+        StoreOrders.map( order => {
+            order.allShipped = true;
+            order.items.map( item => {
+                if( item.status == '5c017ae247fb07027943a404' || item.status == '5c017af047fb07027943a405' ) {
+                    order.allShipped = false;
+                }            
+            } )
+            if( order.allShipped )
+                ordersShipped.push( order );
+            else 
+                ordersNotShipped.push( order );
+        } )
+        
+        if( status == 'shipped' )
+            res.status(200).json( ordersShipped );
+        else
+            res.status(200).json( ordersNotShipped );
+    },
+    getStoreOrderItems: async (req, res) =>{
+        let userID =  req.param("id");
+        let shoppingCartID = req.param('shoppingCartID');
+
+        // get buyer information
+        let shoppingCart = await ShoppingCart.findOne( { where: shoppingCartID } ).populate('buyer');
+        // end get buyer information
+        
+        let store = await Store.find( { where: { owner: userID } }  );
+        
+        if( store === undefined ) 
+            return res.status(400).status("not found");
+
+        let storeIds = []; 
+        store.map( item => {
+            storeIds.push( item.id );
+        } )
+        //console.log(storeIds);
+        let storeFishes = await Fish.find( { store: storeIds } );
+
+        let storeFishesIds = [];
+        storeFishes.map( item => {
+            storeFishesIds.push(item.id);
+        } )
+        console.log( 'shoppingCart: ', shoppingCartID );
+        console.log('fishes ids: ', storeFishesIds);
+        let items = await ItemShopping.find( 
+            { 
+                where: 
+                { 
+                    and: [
+                        { fish: storeFishesIds },
+                        { shoppingCart: shoppingCartID } 
+
+                    ]
+                } 
+            } 
+        ).populate("fish").populate("shoppingCart").populate("status").sort('updatedAt DESC');
+        
+        items.map( item => {
+            item.shoppingCart = shoppingCart;
+        } )
+
+        res.status(200).json(items);
+
     }
 
 };

@@ -191,7 +191,8 @@ module.exports = {
                     }
                 ).fetch();
                 if(data.length > 0){
-                    await require("./../../mailer").sendEmailItemRoad(name,cart,store,item);
+                	await MailerService.itemShipped(name,cart,store,item)
+                    //await require("./../../mailer").sendEmailItemRoad(name,cart,store,item);
                 }
             }else if( status == '5c017b1447fb07027943a407' ) {//admin marks the item as arrived
                 let data=await ItemShopping.update({id}, { 
@@ -200,7 +201,8 @@ module.exports = {
                 }).fetch()
                 if(data.length > 0){
                     //send email to buyer 
-                    await require("./../../mailer").sendEmailOrderArrived(name,cart,store,item);
+                    await MailerService.orderArrived(name,cart,store,item)
+                    // await require("./../../mailer").sendEmailOrderArrived(name,cart,store,item);
                 }
             }else if( status == '5c017b2147fb07027943a408' ){ //out for delivery
                 await ItemShopping.update({id}, { status: '5c017b2147fb07027943a408', outForDeliveryAt: ts })
@@ -208,9 +210,11 @@ module.exports = {
                 let data=await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409', deliveredAt: ts}).fetch()
                 if(data.length > 0){
                     //send email to buyer 
-                    await require("./../../mailer").sendEmailOrderDelivered(name,cart,store,item);
+                    // await require("./../../mailer").sendEmailOrderDelivered(name,cart,store,item);
+                    await MailerService.orderDeliveredBuyer(name,cart,store,item);
                     //send email to seller
-                    await require("./../../mailer").sendEmailOrderDeliveredSeller(cart,store,item);
+                    await MailerService.orderArrivedSeller(cart,store,item);
+                    // await require("./../../mailer").sendEmailOrderDeliveredSeller(cart,store,item);
                 }
             }else if( status == '5c017b4547fb07027943a40a' ){ //Pending Repayment
                 await ItemShopping.update({id}, { status: '5c017b4547fb07027943a40a'})
@@ -221,11 +225,14 @@ module.exports = {
                 let data=await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c', cancelAt:ts}).fetch();
                 if(data.length > 0){
                     //send email to buyer
-                    await require("./../../mailer").sendEmailOrderStatus(name,cart,store,item);
+                    await MailerService.buyerCancelledOrderBuyer(name,cart,store,item)
+                    // await require("./../../mailer").sendEmailOrderStatus(name,cart,store,item);
                     //send email to seller
-                     await require("./../../mailer").sendEmailOrderStatusSeller(name,cart,store,item);
+                    await MailerService.buyerCancelledOrderSeller(cart,store,item)
+                    // await require("./../../mailer").sendEmailOrderStatusSeller(name,cart,store,item);
                     //send email to admin
-                    await require("./../../mailer").sendEmailOrderStatusAdmin(name,cart,store,item);
+                    await MailerService.buyerCancelledOrderAdmin(cart,store,item)
+                    // await require("./../../mailer").sendEmailOrderStatusAdmin(name,cart,store,item);
                 }
             }else if( status == '5c017b7047fb07027943a40e' ){ //Refunded
                 await ItemShopping.update({id}, { status: '5c017b7047fb07027943a40e'})
@@ -233,9 +240,11 @@ module.exports = {
                 let data=await ItemShopping.update({id}, { status: '5c06f4bf7650a503f4b731fd', cancelAt: ts}).fetch();
                 if(data.length > 0){
                     //send email to buyer
-                    await require("./../../mailer").orderCancelledBySellerBuyerNotified(name,cart,store,item);
+                    await MailerService.sellerCancelledOrderBuyer(name,cart,store,item);
+                    // await require("./../../mailer").orderCancelledBySellerBuyerNotified(name,cart,store,item);
                     //send email to admin
-                    await require("./../../mailer").orderCancelledBySellerAdminNotified(name,cart,store,item);
+                    await MailerService.sellerCancelledOrderAdmin(name,cart,store,item);
+                    // await require("./../../mailer").orderCancelledBySellerAdminNotified(name,cart,store,item);
                 }
             }else if ( status == '5c13f453d827ce28632af048'){//pending fulfillment
                 let data=await ItemShopping.update({id}, { status: '5c13f453d827ce28632af048', cancelAt: ts}).fetch();                
@@ -408,6 +417,41 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
-    }        
+    },
+    getAllOrders: async (req, res) => {
+        try {
+            let where = { };
+            if( req.param("status") ) {
+                if( req.param("status") !==undefined ){
+                    where.status = req.param('status')
+                    console.log( 'by status' );
+                }
+            }
+            if( req.param("orderNumber" ) ) {
+                let shoppingCart = await ShoppingCart.findOne( { orderNumber: req.param( 'orderNumber' ) } )
+                if( !shoppingCart )
+                    return res.status( 200 ).json( { "message": "Order not found" } );
+
+                if( shoppingCart !== undefined ){
+                    where.shoppingCart = shoppingCart.id;
+                    console.log( 'by orderNumber' );
+                }
+            }
+            console.log( where );
+            let items = await ItemShopping.find( where ).populate( 'fish' ).populate( 'shoppingCart' ).populate( 'status' ).sort( 'updatedAt DESC' ).limit( 100 );
+
+            await Promise.all(items.map(async function(it){
+                it.store = await Store.findOne({ id: it.fish.store});               
+                return it;
+            }));      
+            
+           
+
+            res.status(200).json( items );
+        } catch (error) {
+            console.error(error);
+            res.serverError(error);
+        }
+    }    
 };
 
