@@ -222,13 +222,13 @@ module.exports = {
                 if(data.length > 0){
                     //send email to buyer
                     await MailerService.buyerCancelledOrderBuyer(name,cart,store,item)
-                    await require("./../../mailer").sendEmailOrderStatus(name,cart,store,item);
+                    // await require("./../../mailer").sendEmailOrderStatus(name,cart,store,item);
                     //send email to seller
-                    await MailerService.buyerCancelledOrderSeller(name,cart,store,item)
-                    await require("./../../mailer").sendEmailOrderStatusSeller(name,cart,store,item);
+                    await MailerService.buyerCancelledOrderSeller(cart,store,item)
+                    // await require("./../../mailer").sendEmailOrderStatusSeller(name,cart,store,item);
                     //send email to admin
-                    await MailerService.buyerCancelledOrderAdmin(name,cart,store,item)
-                    await require("./../../mailer").sendEmailOrderStatusAdmin(name,cart,store,item);
+                    await MailerService.buyerCancelledOrderAdmin(cart,store,item)
+                    // await require("./../../mailer").sendEmailOrderStatusAdmin(name,cart,store,item);
                 }
             }else if( status == '5c017b7047fb07027943a40e' ){ //Refunded
                 await ItemShopping.update({id}, { status: '5c017b7047fb07027943a40e'})

@@ -28,6 +28,15 @@ const email = new Email({
         }
     }
 });
+async function formatDates(d){
+        let date=new Date(d)
+        let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        // get time am or pm
+        let hours=date.getHours()
+        let min = date.getMinutes();
+        let dates=months[date.getMonth()]+'/'+ date.getDate()+ '/'+date.getFullYear()+'/'+hours+':'+ min;
+        return dates
+    };
 
 module.exports = {
 	registerNewUser: ( user ) => {
@@ -518,8 +527,8 @@ module.exports = {
         .catch(
             console.error
         )    
-    }
-    buyerCancelledOrderBuyer: ( name,cart,store,item) => {
+    },
+    buyerCancelledOrderBuyer: async( name,cart,store,item) => {
     	let paidDateTime=await formatDates(cart.paidDateTime);
         email.render( '../email_templates/buyer_cancelled_order',
             {
@@ -554,11 +563,11 @@ module.exports = {
             console.error
         )    
     },
-    buyerCancelledOrderSeller: ( name,cart,store,item) => {
+    buyerCancelledOrderSeller: async( cart,store,item) => {
     	let paidDateTime=await formatDates(cart.paidDateTime);
         email.render( '../email_templates/buyer_cancelled_order_seller',
             {
-                name:name,
+                name:store.owner.firstName+ ' ' + store.owner.lastName,
                 cart:cart,
                 store:store,
                 item:item,
@@ -568,7 +577,7 @@ module.exports = {
         .then( res=> {            
             transporter.sendMail( { 
                 from:       sender,
-                to:         cart.buyer.email,
+                to:         store.owner.email,
                 subject:    `Order #${cart.orderNumber} is Cancelled`,                    
                 html:       res, // html body
                 attachments: [{
@@ -589,11 +598,10 @@ module.exports = {
             console.error
         )    
     },
-    buyerCancelledOrderAdmin: ( name,cart,store,item) => {
+    buyerCancelledOrderAdmin: async ( cart,store,item) => {
     	let paidDateTime=await formatDates(cart.paidDateTime);
         email.render( '../email_templates/buyer_cancelled_order_admin',
             {
-                name:name,
                 cart:cart,
                 store:store,
                 item:item,
@@ -623,14 +631,5 @@ module.exports = {
         .catch(
             console.error
         )    
-    },
-    async function formatDates(d){
-	    let date=new Date(d)
-	    let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-	    // get time am or pm
-	    let hours=date.getHours()
-	    let min = date.getMinutes();
-	    let dates=months[date.getMonth()]+'/'+ date.getDate()+ '/'+date.getFullYear()+'/'+hours+':'+ min;
-	    return dates
-	}
+    }
 }
