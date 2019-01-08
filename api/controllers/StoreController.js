@@ -355,7 +355,7 @@ module.exports = {
                     ]
                 } 
             } 
-        ).populate("fish").populate("shoppingCart").populate("status").sort('updatedAt DESC');
+        ).populate("fish").populate("shoppingCart").populate("status").sort('createdAt DESC');
         
         items.map( item => {
             item.shoppingCart = shoppingCart;
