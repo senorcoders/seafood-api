@@ -269,8 +269,7 @@ module.exports = {
             }else if ( status == '5c13f453d827ce28632af048'){//pending fulfillment
                 let data=await ItemShopping.update({id}, { status: '5c13f453d827ce28632af048', cancelAt: ts, updateInfo: currentUpdateDates}).fetch();                
             }else{
-                let data=await ItemShopping.update({id}, { status: status, updateInfo: currentUpdateDates}).fetch();                
-                res.status(200).json( { "message": "status updated" } );
+                let data=await ItemShopping.update({id}, { status: status, updateInfo: currentUpdateDates}).fetch();                                
             }
             res.status(200).json( { "message": "status updated" } );
 
