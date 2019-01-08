@@ -190,7 +190,8 @@ module.exports = {
                     action: newStatus.status,
                     at: ts,
                     by: userEmail,
-                    userID: userID
+                    userID: userID,
+                    ip: req.ip
                 } 
             )
             let store=await Store.findOne({id:item.fish.store}).populate("owner")
