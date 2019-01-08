@@ -285,7 +285,7 @@ module.exports = {
     getItemsByStatus: async ( req, res ) => {
         try {                                    
             let status_id = req.param("status");
-            let items = await ItemShopping.find({ status: status_id }).populate("fish").populate("shoppingCart").populate("status").sort('updatedAt DESC');
+            let items = await ItemShopping.find({ status: status_id }).populate("fish").populate("shoppingCart").populate("status").sort('createdAt DESC');
             
             items = await Promise.all(items.map(async function(it){
                 it.store = await Store.findOne({ id: it.fish.store});
@@ -324,7 +324,7 @@ module.exports = {
                         status: '5c017b3c47fb07027943a409'
                     } 
                 }
-            ).populate("fish").populate("shoppingCart").populate("status").sort('updatedAt DESC');
+            ).populate("fish").populate("shoppingCart").populate("status").sort('createdAt DESC');
             
             items = await Promise.all(items.map(async function(it){
                 it.store = await Store.findOne({ id: it.fish.store});
@@ -365,7 +365,7 @@ module.exports = {
                         status: ['5c017b5a47fb07027943a40c','5c06f4bf7650a503f4b731fd']
                     } 
                 }
-            ).populate("fish").populate("shoppingCart").populate("status").sort('updatedAt DESC');
+            ).populate("fish").populate("shoppingCart").populate("status").sort('createdAt DESC');
             
             items = await Promise.all(items.map(async function(it){
                 it.store = await Store.findOne({ id: it.fish.store});
@@ -411,7 +411,7 @@ module.exports = {
 
                     } 
                 }
-                ).populate("fish").populate("shoppingCart").populate("status").sort('updatedAt DESC');
+                ).populate("fish").populate("shoppingCart").populate("status").sort('createdAt DESC');
             }      
             await Promise.all(items.map(async function(it){
                 it.store = await Store.findOne({ id: it.fish.store});
@@ -458,7 +458,7 @@ module.exports = {
                 }
             }
             console.log( where );
-            let items = await ItemShopping.find( where ).populate( 'fish' ).populate( 'shoppingCart' ).populate( 'status' ).sort( 'updatedAt DESC' ).limit( 100 );
+            let items = await ItemShopping.find( where ).populate( 'fish' ).populate( 'shoppingCart' ).populate( 'status' ).sort( 'createdAt DESC' ).limit( 100 );
 
             await Promise.all(items.map(async function(it){
                 it.store = await Store.findOne({ id: it.fish.store});               
