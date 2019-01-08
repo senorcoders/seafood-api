@@ -91,6 +91,10 @@ module.exports = {
       type: 'number',
       required: false
     },
+    updateInfo: {
+      type: 'json',
+      required: false
+    },
     repayedRef: {
       type: 'string',
       required: false
