@@ -185,12 +185,15 @@ module.exports = {
                 currentUpdateDates =  item.updateInfo;
             }
             let newStatus = await OrderStatus.findOne( { id: status } );
+            let user = await User.findOne( { id: userID } );
             currentUpdateDates.push( 
                 { 
                     action: newStatus.status,
                     at: ts,
-                    by: userEmail,
+                    by: `${user.firstName} ${user.lastName}`,
                     userID: userID,
+                    email: userEmail,
+                    name: `${user.firstName} ${user.lastName}`,
                     ip: req.ip
                 } 
             )
