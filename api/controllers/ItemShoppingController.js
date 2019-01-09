@@ -446,6 +446,14 @@ module.exports = {
                     where.status = req.param('status')
                     console.log( 'by status' );
                 }
+            }else {
+                let status = await OrderStatus.find();
+                let statusIDs = [];
+                status.map( record => {
+                    statusIDs.push( record.id );
+                } )
+    
+                where.status = statusIDs;
             }
             if( req.param("orderNumber" ) ) {
                 let shoppingCart = await ShoppingCart.findOne( { orderNumber: req.param( 'orderNumber' ) } )
@@ -459,13 +467,7 @@ module.exports = {
             
             }
              // get items status available, this way we don't get items in the cart
-             let status = await OrderStatus.find();
-             let statusIDs = [];
-             status.map( record => {
-                 statusIDs.push( record.id );
-             } )
- 
-             where.status = statusIDs;
+             
              
             console.log( where );
             let items = await ItemShopping.find( where ).populate( 'fish' ).populate( 'shoppingCart' ).populate( 'status' ).sort( 'createdAt DESC' ).limit( 100 );
