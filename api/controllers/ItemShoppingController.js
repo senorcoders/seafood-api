@@ -285,7 +285,7 @@ module.exports = {
     getItemsByStatus: async ( req, res ) => {
         try {                                    
             let status_id = req.param("status");
-            let items = await ItemShopping.find({ status: status_id }).populate("fish").populate("shoppingCart").populate("status").sort('updatedAt DESC');
+            let items = await ItemShopping.find({ status: status_id }).populate("fish").populate("shoppingCart").populate("status").sort('createdAt DESC');
             
             items = await Promise.all(items.map(async function(it){
                 it.store = await Store.findOne({ id: it.fish.store});
@@ -324,7 +324,7 @@ module.exports = {
                         status: '5c017b3c47fb07027943a409'
                     } 
                 }
-            ).populate("fish").populate("shoppingCart").populate("status").sort('updatedAt DESC');
+            ).populate("fish").populate("shoppingCart").populate("status").sort('createdAt DESC');
             
             items = await Promise.all(items.map(async function(it){
                 it.store = await Store.findOne({ id: it.fish.store});
@@ -365,7 +365,7 @@ module.exports = {
                         status: ['5c017b5a47fb07027943a40c','5c06f4bf7650a503f4b731fd']
                     } 
                 }
-            ).populate("fish").populate("shoppingCart").populate("status").sort('updatedAt DESC');
+            ).populate("fish").populate("shoppingCart").populate("status").sort('createdAt DESC');
             
             items = await Promise.all(items.map(async function(it){
                 it.store = await Store.findOne({ id: it.fish.store});
@@ -411,7 +411,7 @@ module.exports = {
 
                     } 
                 }
-                ).populate("fish").populate("shoppingCart").populate("status").sort('updatedAt DESC');
+                ).populate("fish").populate("shoppingCart").populate("status").sort('createdAt DESC');
             }      
             await Promise.all(items.map(async function(it){
                 it.store = await Store.findOne({ id: it.fish.store});
@@ -452,13 +452,87 @@ module.exports = {
                 if( !shoppingCart )
                     return res.status( 200 ).json( { "message": "Order not found" } );
 
+                if( shoppingCart !== undefined ){                    
+                    where.shoppingCart = shoppingCart.id;
+                    console.log( 'by orderNumber' );
+                }
+            
+            }
+             // get items status available, this way we don't get items in the cart
+             let status = await OrderStatus.find();
+             let statusIDs = [];
+             status.map( record => {
+                 statusIDs.push( record.id );
+             } )
+ 
+             where.status = statusIDs;
+             
+            console.log( where );
+            let items = await ItemShopping.find( where ).populate( 'fish' ).populate( 'shoppingCart' ).populate( 'status' ).sort( 'createdAt DESC' ).limit( 100 );
+
+            await Promise.all(items.map(async function(it){
+                it.store = await Store.findOne({ id: it.fish.store});               
+                return it;
+            }));      
+            
+           
+
+            res.status(200).json( items );
+        } catch (error) {
+            console.error(error);
+            res.serverError(error);
+        }
+    },
+    getBuyerOrders: async (req, res) => {
+        try {
+            let buyer = req.param("buyer");
+            let where = { };
+
+            // check if we had to filter by status
+            if( req.param("status") ) {
+                if( req.param("status") !==undefined ){
+                    where.status = req.param('status')
+                    console.log( 'by status' );
+                }
+            }else{
+                // get items status available, this way we don't get items in the cart
+                let status = await OrderStatus.find();
+                let statusIDs = [];
+                status.map( record => {
+                    statusIDs.push( record.id );
+                } )
+                where.status = statusIDs;
+            }
+
+            // check if we had to filter by order number
+            if( req.param("orderNumber" ) ) {
+                let shoppingCart = await ShoppingCart.findOne( { buyer: buyer, orderNumber: req.param( 'orderNumber' ) } )
+                if( !shoppingCart )
+                    return res.status( 200 ).json( { "message": "Order not found" } );
+
                 if( shoppingCart !== undefined ){
                     where.shoppingCart = shoppingCart.id;
                     console.log( 'by orderNumber' );
                 }
+            }else { // just getting buyer orders
+                let shoppingCart = await ShoppingCart.find( { buyer: buyer } )
+                if( !shoppingCart )
+                    return res.status( 200 ).json( { "message": "Order not found" } );
+
+                if( shoppingCart !== undefined ){
+                    let shoppingCartIDs = [];
+                    shoppingCart.map( cart => {
+                        shoppingCartIDs.push( cart.id );
+                    } )
+                    where.shoppingCart = shoppingCartIDs;
+                    console.log( 'by orderNumber' );
+                }                
             }
-            console.log( where );
-            let items = await ItemShopping.find( where ).populate( 'fish' ).populate( 'shoppingCart' ).populate( 'status' ).sort( 'updatedAt DESC' ).limit( 100 );
+            
+
+            
+            console.log('where', where);
+            let items = await ItemShopping.find( where ).populate( 'fish' ).populate( 'shoppingCart' ).populate( 'status' ).sort( 'createdAt DESC' ).limit( 100 );
 
             await Promise.all(items.map(async function(it){
                 it.store = await Store.findOne({ id: it.fish.store});               
