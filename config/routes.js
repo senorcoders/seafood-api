@@ -297,7 +297,17 @@ module.exports.routes = {
   // get all orders by order number
   'GET /api/itemshopping/order-number/:orderNumber': 'ItemShoppingController.getAllOrders',
   // get all orders by status and order number
-  'GET /api/itemshopping/status/:status/order-number/:orderNumber': 'ItemShoppingController.getAllOrders',  
+  'GET /api/itemshopping/status/:status/order-number/:orderNumber': 'ItemShoppingController.getAllOrders',
+  
+  
+  // get all orders of buyer
+  'GET /api/itemshopping/:buyer/all': 'ItemShoppingController.getBuyerOrders',
+  // get all orders by status of buyer
+  'GET /api/itemshopping/:buyer/status/:status': 'ItemShoppingController.getBuyerOrders',
+  // get all orders by order number of buyer
+  'GET /api/itemshopping/:buyer/order-number/:orderNumber': 'ItemShoppingController.getBuyerOrders',
+  // get all orders by status and order number of buyer
+  'GET /api/itemshopping/:buyer/status/:status/order-number/:orderNumber': 'ItemShoppingController.getBuyerOrders',
 
   /********
    * 
