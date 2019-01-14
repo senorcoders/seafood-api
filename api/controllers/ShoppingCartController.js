@@ -21,12 +21,9 @@ module.exports = {
     createCart: async function (req, res) {
         try {
             let buyer = req.param("buyer");
-            let carts = await ShoppingCart.find({ buyer, status: "pending" });
-            if (carts !== undefined &&
-                Object.prototype.toString.call(carts) === '[object Array]' &&
-                carts.length > 0
-            ) {
-                let cart = await ShoppingCart.findOne({ id: carts[0].id }).populate("items");
+            let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items");
+            let currentAdminCharges = await require( './PricingChargesController' ).CurrentPricingCharges();
+            if (cart !== undefined ) {                
                 let totalShipping  = 0;
                 let totalSFSMargin = 0;
                 let totalCustoms   = 0;
@@ -35,19 +32,87 @@ module.exports = {
                 let subtotal       = 0;
                 let total          = 0;
 
-                let currentPricingCharges = await require('./PricingChargesController').CurrentPricingCharges();
+                //group items by seller
+                shippingItems  = [];
+                await Promise.all( cart.items.map( async item => {
+                    let itemStore = await Fish.findOne( { id: item.fish } ).populate('store');
+                    let fishCharges  = await require('./FishController').getItemChargesByWeight(item.fish, item.quantity.value, currentAdminCharges)
+                    item.fish = itemStore;
+                    item.store = itemStore.store.id;
+                    item.country = itemStore.country;
+                    item.city = itemStore.city;
+                    item.fishCharges     = fishCharges;
+
+                    //order items by store and putting them into shippingItems
+                    let storeIsThere=false
+                    let storeIndex = 0;
+                    shippingItems.map( ( shippingItem, index ) => {
+                        if( shippingItem.store == itemStore.store.id ){                        
+                            storeIsThere = true;
+                            storeIndex = index;
+                        }
+                    } )
+                    if( !storeIsThere ){
+                        shippingItems.push( { store: itemStore.store.id, items: [] } );
+                        shippingItems[ shippingItems.length -1 ].items.push( item );
+                    }else{
+                        shippingItems[ storeIndex ].items.push( item );
+                    }
+                    
+                } ) )
+
+
+                await Promise.all( shippingItems.map( async store => {
+                    let totalWeight = 0;
+                    let country = '';
+                    let city = '';
+                    let firstMileFee = 0;
+                    await Promise.all( store.items.map( async item => {
+                        fishCharges  = await require('./FishController').getItemChargesByWeight(item.fish.id, item.quantity.value, currentAdminCharges)
+                        firstMileFee = fishCharges.firstMileFee;
+                        totalWeight += item.quantity.value;
+                        country = item.country;
+                        city = item.city;
+                    } ) )
+                    shippingRate = await require('./FishController').getShippingBySeller( firstMileFee, city, totalWeight ); 
+                    store.totalWeight = totalWeight;
+                    store.shipping = shippingRate; //{ firstMileFee, totalWeight: totalWeight, country: country, city: city };
+                    
+                    // now we calculate how much belongs to each product in the seller
+                    store.items.map( item => {
+                        item.shippingStore = item.quantity.value * store.shipping.shippingCost / store.totalWeight;
+                        item.shipping = item.shippingStore;
+                        item.fishCharges.shippingCost.cost = item.shippingStore;
+                    } )
+                } ) )
+                
+                //return res.status(200).json( shippingItems );
+                
+                //return res.json( shippingItems );
+                let currentPricingCharges = currentAdminCharges;
                 cart.items = await Promise.all(cart.items.map(async function (it) {
-                    it.fish = await Fish.findOne({ id: it.fish }).populate("type").populate("store");
-                    console.log( 'it fish', it.fish.id );
-                    console.log( 'it qty', it.quantity.value );
-                    it.fishCharges  = await require('./FishController').getItemChargesByWeight(it.fish.id, it.quantity.value)
+                    it.fish = await Fish.findOne({ id: it.fish.id }).populate("type").populate("store");
+                    it.fishCharges  = await require('./FishController').getItemChargesByWeight(it.fish.id, it.quantity.value, currentPricingCharges)
                     //console.log('fishCharges', FishCharges);
                     //it.fishCharges = FishCharges;
                     shippingRate = await require('./ShippingRatesController').getShippingRateByCities( it.fish.city, it.quantity.value ); 
                     it.owner = await User.findOne( { id: it.fish.store.owner } )
                     it.shippingCost = it.fishCharges.shippingCost.cost;
+                    
+                    //now we calculate the shipping for each seller so we replace the shipping calc
+                    await Promise.all( shippingItems.map( async store => {
+                        await Promise.all(store.items.map( async item => {
+                            if( item.id == it.id ) {
+                                it.fishCharges.finalPrice = it.fishCharges.finalPrice - it.fishCharges.shippingCost.cost + item.shippingStore ;
+                                it.fishCharges.shippingCost.cost = item.shippingStore;
+                                console.log( 'shipping', item.shippingStore);
+                                it.shipping   =  item.shippingStore;
+                            }
+                        } ) )
+                    } ) )
 
-                    totalShipping  += it.fishCharges.shippingCost.cost;
+                    totalShipping  += it.fishCharges.shippingCost.cost ;
+                    console.log( 'now shipping', totalShipping);
                     totalSFSMargin += it.fishCharges.sfsMarginCost;
                     totalCustoms   += it.fishCharges.customsFee;
                     totalUAETaxes  += it.fishCharges.uaeTaxesFee;
@@ -67,7 +132,7 @@ module.exports = {
                         it.fishCharges.uaeTaxes = 0;
                     }
 
-                    it.shipping     = it.fishCharges.shippingCost.cost;
+                    
                     it.sfsMargin    = it.fishCharges.sfsMarginCost;
                     it.customs      = it.fishCharges.customsFee; 
                     it.uaeTaxes     = it.fishCharges.uaeTaxesFee;        
@@ -88,6 +153,7 @@ module.exports = {
                 totalOtherFees = totalSFSMargin + totalCustoms;                             
                 totalOtherFees = Number(parseFloat(totalOtherFees).toFixed(2));
                 totalShipping = Number(parseFloat(totalShipping).toFixed(2));
+                console.log('total SHipping', totalShipping);
                 totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
                 total = Number(parseFloat(total).toFixed(2));
                 if (total !== cart.total) { 
@@ -104,7 +170,9 @@ module.exports = {
                     cart.total = total;
                     cart.customs = totalCustoms;
                     cart.totalOtherFees = totalOtherFees;
-                    cart.totalUAETaxes = totalUAETaxes
+                    cart.totalUAETaxes = totalUAETaxes;
+                    cart.totalShipping = totalShipping;
+                    cart.shipping = totalShipping;
 
 
                 }
@@ -113,7 +181,7 @@ module.exports = {
             };
             console.log( 'start' );
       
-            let cart = await ShoppingCart.create(
+            cart = await ShoppingCart.create(
                 { 
                     buyer: buyer                                        
                 }

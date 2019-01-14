@@ -22,6 +22,11 @@ module.exports = {
       required: true
     },
 
+    processingCountry: {
+      type: "string",
+      required: false
+    },
+
     city: {
       type: "string"
     },

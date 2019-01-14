@@ -117,6 +117,76 @@ module.exports = {
             console.log(error);
             res.serverError(error);
         }
+    },
+    getTypeByLevel: async ( req, res ) => {
+        try {
+            let level = req.param( 'level' );
+            let types = await FishType.find( { level } );
+
+            res.status( 200 ).json( { types } );
+        } catch (error) {
+            res.status( 400 ),json( { error } );   
+        }
+    },
+    getFishTypeTree: async (req, res) => {
+        try {
+            let types = await FishType.find( { level: 0 } );
+
+            await Promise.all( types.map( async (type0) => {
+                let childs0 = await FishType.find( { level:1, parent: type0.id } );
+
+                await Promise.all(  childs0.map( async ( type1 ) => {
+                    let childs1 = await FishType.find( { level:2, parent: type1.id } );
+
+                    await Promise.all( childs1.map( async (type2) => {
+                        let childs2 = await FishType.find( { level:3, parent: type2.id } )
+
+                        type2.childs = childs2;
+                    } ) )
+
+                    type1.childs = childs1;
+
+                } ) )
+                type0.childs = childs0;
+            } ) )
+            
+            res.status( 200 ).json( types );
+        } catch (error) {
+            res.status( 400 ),json( { error } );   
+        }
+    },
+    getAllParentsLevel: async ( req, res ) => {
+        try {
+            
+            let types = await FishType.find( { level: [ 0, 1, 2 ] } );
+
+            res.status( 200 ).json( types );
+        } catch (error) {
+            res.status( 400 ),json( { error } );   
+        }
+    },
+    getAllChildsByLevel: async ( req, res ) => {
+        try {
+            let parent_id = req.param( 'parent_id' );
+            let parent = await FishType.findOne( { id: parent_id } );
+
+            parentsIDS = [];
+            parentsIDS.push( parent_id );
+            childs = [];
+            for (let index = parent.level + 1; index <= 4; index++) {                
+                console.log( parentsIDS );
+                directChilds = await FishType.find( { parent: parentsIDS } );
+                childs.push( { level: index, fishTypes: directChilds } );
+                parentsIDS = [];
+                directChilds.map( child => {
+                    parentsIDS.push( child.id );
+                } )
+            }            
+
+            res.status( 200 ).json( { childs } );
+        } catch (error) {
+            res.status( 400 ),json( { error } );   
+        }
     }
 };
 
