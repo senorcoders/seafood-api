@@ -71,6 +71,17 @@ module.exports = {
         }
     },
 
+    getAllProductsWithTypes: async (req, res) => {
+        try {
+            let fishs = await Fish.find().populate("type").populate("store")
+
+            res.json(fishs)
+        }
+        catch (e) {
+            console.error(e);
+        }
+    },
+
     uploadImagesSFS: async (req, res) => {
         try {
             let id = req.param("id");

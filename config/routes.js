@@ -189,12 +189,15 @@ module.exports.routes = {
    * STORE 
    * 
    */
+  // Get all seafood souq products with types for admin edit 
+  "GET /store/allProducts": "StoreController.getAllProductsWithTypes",
 
   //Para obtener stores simplificados con toda su informaciòn
   'GET /api/store': "StoreController.getStoreSimplified",
 
   //Get Store con los types
   "GET /store/:id": "StoreController.getWithTypes",
+
 
   //Para guardar store con todo y sus imagenes
   'POST /api/store': "StoreController.save",
@@ -374,6 +377,17 @@ module.exports.routes = {
    'GET /fishTypes/parents': 'FishTypeController.getParentTypes', 
    'GET /fishTypes/childs': 'FishTypeController.getChildTypes', 
    'GET /fishTypes/:parent_id/childs': 'FishTypeController.getParentChildTypes', 
+
+   // get fish type by level
+   'GET /getTypeLevel': 'FishType.getTypeLevel',
+
+   'GET /allFishTypeParents':'FishTypeController.getAllParentsLevel',
+   'GET /fishTypes/Tree': 'FishTypeController.getFishTypeTree',
+
+   'GET /fishTypes/level/:level': 'FishTypeController.getTypeByLevel',
+   'GET /fishTypes/:parent_id/all_levels': 'FishTypeController.getAllChildsByLevel',
+
+
    'POST /fish/filter': 'FishController.filterProducts', 
    
    //SHIPPING

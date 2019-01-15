@@ -89,7 +89,6 @@ module.exports = {
                         console.log(error);
                     }
                 )
-                console.log( shippingRate );
                 return shippingRate;
             }
             catch (e) {

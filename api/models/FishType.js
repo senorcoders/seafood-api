@@ -29,6 +29,12 @@ module.exports = {
       example: '5 this are pecentage'
     },
 
+    level: {
+      type: 'number',
+      required: false,
+      example: '0 , 1 , 2, 4'
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
