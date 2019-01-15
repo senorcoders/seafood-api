@@ -125,7 +125,21 @@ module.exports = {
 
             res.status( 200 ).json( { types } );
         } catch (error) {
-            res.status( 400 ),json( { error } );   
+            res.status( 400 ).json( { error } );   
+        }
+    },
+    getTypeLevel: async ( req, res ) => {
+        try {
+            let level0 = await FishType.find( { level: 0 } );
+            let level1 = await FishType.find( { level: 1 } );
+            let level2 = await FishType.find( { level: 2 } );
+            let level3 = await FishType.find( { level: 3 } );
+
+            res.status( 200 ).json( {
+                level0, level1, level2, level3
+            } )
+        } catch (error) {
+            res.status( 400 ).json( { error } );   
         }
     },
     getFishTypeTree: async (req, res) => {
