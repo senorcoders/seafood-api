@@ -481,6 +481,8 @@ module.exports = {
             let country = req.param('country');
             let category = req.param('category');
             let subcategory = req.param('subcategory');
+            let subspecies = req.param('subspecies');
+            let descriptor = req.param('descriptor');
 
             let minimumOrder = req.param('minimumOrder');
             let maximumOrder = req.param('maximumOrder');
@@ -511,8 +513,86 @@ module.exports = {
             if( cooming_soon !== '0' ){
                 condWhere.where['cooming_soon'] = cooming_soon;
             }
+
+            console.log( 'category', category );
+            if( descriptor !== '0' ){
+                condWhere.where['descriptor'] = descriptor;
+            } else if ( subspecies !== '0' ){
+                let descriptorChilds = [];
+                
+                level1 = await FishType.find({
+                    where: { parent: subspecies }
+                });
+                console.log( 'level1', level1 );
+                
+                Promise.all( level1.map( async value1 => {
+                    descriptorChilds.push( value1.id );
+
+                    level2 = await FishType.find( { parent: value1.id } );
+                    console.log( 'level2', level2 );
+
+
+                    return categoryChilds;
+                } ) );
+                condWhere.where['descriptor'] = descriptorChilds;
+                condWhere.where['type'] = subspecies;
+            } else if ( subcategory !== '0' ) {
+                
+                console.log( 'parent' )
+                //condWhere.where['type'] =;
+                let categoryChilds = [];
+                categoryChilds.push( subcategory );
+                level1 = await FishType.find({
+                    where: { parent: subcategory }
+                });
+                console.log( 'level1', level1 );
+                
+                Promise.all( level1.map( async value1 => {
+                    categoryChilds.push( value1.id );
+
+                    level2 = await FishType.find( { parent: value1.id } );
+                    console.log( 'level2', level2 );
+
+
+                    return categoryChilds;
+                } ) );
+
+                condWhere.where['type'] =  categoryChilds ;
+            } else if ( category !== '0' ) {
+                console.log( 'parent' )
+                //condWhere.where['type'] =;
+                let categoryChilds = [];
+                categoryChilds.push( category );
+                level1 = await FishType.find({
+                    where: { parent: category }
+                });
+                console.log( 'level1', level1 );
+                
+                Promise.all( level1.map( async value1 => {
+                    categoryChilds.push( value1.id );
+
+                    level2 = await FishType.find( { parent: value1.id } );
+                    console.log( 'level2', level2 );
+
+                    Promise.all( level2.map( async value2 => {
+                        categoryChilds.push( value2.id );
+
+                        level3 = await FishType.find( { parent: value2.id } );
+                        console.log( 'level3', level3 );
+                        level3.map( value3 => {
+                            categoryChilds.push( value3.id );
+                        } )
+                        return categoryChilds;
+
+                    } ) )
+
+                    return categoryChilds;
+                } ) );
+
+                condWhere.where['type'] =  categoryChilds ;
+            }
             
-            if( subcategory !== '0' ){
+            /*if( subcategory !== '0' ){
                 condWhere.where['type'] = subcategory;                
             }else {
                 if( category !== '0' ){
@@ -532,7 +612,7 @@ module.exports = {
                     categoryIds.push(category);
                     condWhere.where['type'] = categoryIds;
                 }                
-            }
+            }*/
             let fish_price_ids = '';
             if( minPrice!== '0' || maxPrice !== '0' ){
                 
@@ -553,7 +633,7 @@ module.exports = {
                                 } ] 
                         }, { "status": '5c0866f9a0eda00b94acbdc2' } ).toArray( async function (err, results) {
                         if (err) return res.serverError(err);
-                        console.log( 'justids', results );
+                        //console.log( 'justids', results );
                         justIds =  results.map( ( row ) => {
                             return row._id.toString()
                         } )
@@ -596,7 +676,7 @@ module.exports = {
                 }));
                 res.status(200).json( productos );
             }
-            console.log( fish_price_ids );             
+            //console.log( fish_price_ids );             
             
             
 
