@@ -538,20 +538,22 @@ module.exports = {
                 
                 fish_price_ids = await Fish.native(  function(err, collection) {
                     if (err) return res.serverError(err);
-
+                    console.log( 'min', minPrice );
+                    console.log( 'max', maxPrice );
+                    //{status: '5c0866f9a0eda00b94acbdc2'},
                     let price_ids =  collection.find(
                         {
                             $and: [ 
-                                {status: '5c0866f9a0eda00b94acbdc2'},
+                                
                                 { 
                                     "price.value": { $gte: parseInt(minPrice) } 
                                 }, 
                                 { 
                                     "price.value": { $lte: parseInt(maxPrice) }  
                                 } ] 
-                        }, {}).toArray( async function (err, results) {
+                        }, { "status": '5c0866f9a0eda00b94acbdc2' } ).toArray( async function (err, results) {
                         if (err) return res.serverError(err);
-                        
+                        console.log( 'justids', results );
                         justIds =  results.map( ( row ) => {
                             return row._id.toString()
                         } )
@@ -576,7 +578,7 @@ module.exports = {
                         return justIds;
                     });
                     return price_ids
-                });            
+                });
             }else{
                 /*let fishes = await Fish.find(
                     condWhere

@@ -130,6 +130,11 @@ module.exports = {
       required: true
     },
 
+    descriptor: {
+      model: 'fishtype',
+      required: false
+    },
+
     shoppingCart: {
       collection: "itemshopping",
       via: "fish",

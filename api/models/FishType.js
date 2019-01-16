@@ -35,6 +35,11 @@ module.exports = {
       example: '0 , 1 , 2, 4'
     },
 
+    parent: {
+      type: 'string',
+      required: false
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝

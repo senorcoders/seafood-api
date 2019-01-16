@@ -176,7 +176,7 @@ module.exports = {
 
             res.status( 200 ).json( types );
         } catch (error) {
-            res.status( 400 ),json( { error } );   
+            res.status( 400 ).json( { error } );
         }
     },
     getAllChildsByLevel: async ( req, res ) => {
@@ -199,7 +199,32 @@ module.exports = {
 
             res.status( 200 ).json( { childs } );
         } catch (error) {
-            res.status( 400 ),json( { error } );   
+            res.status( 400 ).json( { error } );   
+        }
+    },
+    getParentLevel: async ( req, res ) => {
+        try {
+            let fishID = req.param( 'fishID' );
+
+            console.log( fishID );
+            
+            let fish = await Fish.findOne( { id: fishID } ).populate('type').populate('descriptor');
+
+            console.log( fish );
+            let level2 = fish.type;
+            
+            let descriptor = fish.descriptor;
+            
+
+            let level1 = await FishType.findOne( { id: level2.parent } );
+
+            let level0 = await FishType.findOne( { id: level1.parent } );
+
+            res.status( 200 ).json( { level0, level1, level2, descriptor } );
+            
+
+        } catch (error) {
+            res.status( 400 ).json( error );
         }
     }
 };
