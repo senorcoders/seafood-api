@@ -195,10 +195,23 @@ module.exports = {
         }
     },
 
+    getOpenOrders: async( req, res ) => {
+        try {
+            let buyer = req.param("buyer");
+            let orders = await ShoppingCart.find({ orderStatus: "5c017ad347fb07027943a403", buyer }).populate("items").populate('orderStatus');
+
+            res.status( 200 ).json( orders );
+
+        } catch (error) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
     getCartPaid: async (req, res) => {
         try {
             let buyer = req.param("buyer");
-            let carts = await ShoppingCart.find({ status: "paid", buyer }).populate("items");
+            let carts = await ShoppingCart.find({ status: "close", buyer }).populate("items").sort( "createdAt DESC" );
 
             //Para calcular el total de los carritos
             let calcTotal = async (cart) => {

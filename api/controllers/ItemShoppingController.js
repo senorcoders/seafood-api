@@ -231,6 +231,25 @@ module.exports = {
                 await ItemShopping.update({id}, { status: '5c017b2147fb07027943a408', outForDeliveryAt: ts, updateInfo: currentUpdateDates })
             }else if( status == '5c017b3c47fb07027943a409' ){ //Delivered
                 let data=await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409', deliveredAt: ts, updateInfo: currentUpdateDates}).fetch()
+
+                //check if order is close
+                let orderItems = await ItemShopping.find( { where: { shoppingCart: item.shoppingCart.id } } );
+                console.log( 'status' )
+                let isClose = true;
+                orderItems.map( itemOrder => {
+                    console.log( itemOrder.status );
+                    if( itemOrder.status !== '5c017b3c47fb07027943a409' && itemOrder.status !== '5c017b7047fb07027943a40e'  ) {
+                        isClose = false;
+                    }
+                } )
+                // all items are delivered or refunded, so let's update the order status
+                if( isClose ) {
+                    await ShoppingCart.update( { id: item.shoppingCart.id }, {
+                        orderStatus: '5c40b364970dc99bb06bed6a',
+                        status: 'closed'
+                    } )
+                }
+
                 if(data.length > 0){
                     //send email to buyer 
                     // await require("./../../mailer").sendEmailOrderDelivered(name,cart,store,item);
@@ -239,6 +258,8 @@ module.exports = {
                     await MailerService.orderArrivedSeller(cart,store,item);
                     // await require("./../../mailer").sendEmailOrderDeliveredSeller(cart,store,item);
                 }
+                
+
             }else if( status == '5c017b4547fb07027943a40a' ){ //Pending Repayment
                 await ItemShopping.update({id}, { status: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates})
             }else if( status == '5c017b4f47fb07027943a40b' ){ //Seller Repaid
@@ -259,6 +280,26 @@ module.exports = {
                 }
             }else if( status == '5c017b7047fb07027943a40e' ){ //Refunded
                 await ItemShopping.update({id}, { status: '5c017b7047fb07027943a40e', updateInfo: currentUpdateDates})
+
+                let orderItems = await ItemShopping.find( { where: { shoppingCart: item.shoppingCart.id } } );
+
+                let isClose = true;
+                console.log( 'status' );
+                orderItems.map( itemOrder => {
+                    console.log( itemOrder.status );
+                    if( itemOrder.status !== '5c017b3c47fb07027943a409' && itemOrder.status !== '5c017b7047fb07027943a40e'  ) {
+                        isClose = false;
+                    }
+                } )
+                // all items are delivered or refunded, so let's update the order status
+                if( isClose ) {
+                    await ShoppingCart.update( { id: item.shoppingCart.id }, {
+                        orderStatus: '5c40b364970dc99bb06bed6a',
+                        status: 'closed'
+                    } )
+                }
+
+
             }else if( status == '5c06f4bf7650a503f4b731fd' ){ //Seller Cancelled Order
                 let data=await ItemShopping.update({id}, { status: '5c06f4bf7650a503f4b731fd', cancelAt: ts, updateInfo: currentUpdateDates}).fetch();
                 if(data.length > 0){
@@ -439,6 +480,26 @@ module.exports = {
         } catch (e) {
             console.error(e);
             res.serverError(e);
+        }
+    },
+    getBuyerCanceledDeliveredOrders: async ( req, res ) => {
+        try {
+            let where = {
+                status: [ '5c06f4bf7650a503f4b731fd', '5c017b5a47fb07027943a40c', '5c017b3c47fb07027943a409' ]
+            }
+            let items = await ItemShopping.find( where ).populate( 'fish' ).populate( 'shoppingCart' ).populate( 'status' ).sort( 'createdAt DESC' ).limit( 1000 );
+
+            await Promise.all(items.map(async function(it){
+                it.store = await Store.findOne({ id: it.fish.store});               
+                return it;
+            }));      
+            
+           
+
+            res.status(200).json( items );
+        } catch (error) {
+            console.error(error);
+            res.serverError(error);
         }
     },
     getAllOrders: async (req, res) => {

@@ -269,6 +269,9 @@ module.exports.routes = {
   //Get Cart paid x buyer
   'GET /api/cart/paid/:buyer': "ShoppingCartController.getCartPaid",
 
+  // Get open orders 
+  'GET /api/orders/open/:buyer': "ShoppingCartController.getOpenOrders",
+
   //test order
   'GET /api/cart/test': "ShoppingCartController.testOrder",
 
@@ -305,6 +308,8 @@ module.exports.routes = {
   
   // get all orders of buyer
   'GET /api/itemshopping/:buyer/all': 'ItemShoppingController.getBuyerOrders',
+  // get all canceled and delivered items
+  'GET /api/itemshopping/:buyer/canceled-delivered': 'ItemShoppingController.getBuyerCanceledDeliveredOrders',
   // get all orders by status of buyer
   'GET /api/itemshopping/:buyer/status/:status': 'ItemShoppingController.getBuyerOrders',
   // get all orders by order number of buyer
