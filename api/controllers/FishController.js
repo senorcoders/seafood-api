@@ -27,7 +27,7 @@ module.exports = {
         try {
             let start = Number(req.params.page);
             --start;
-            let productos = await Fish.find( {status: '5c0866f9a0eda00b94acbdc2'} ).populate("type").populate("store").paginate({ page: start, limit: req.params.limit });
+            let productos = await Fish.find( {status: '5c0866f9a0eda00b94acbdc2'} ).populate("type").populate("store").populate('status').paginate({ page: start, limit: req.params.limit });
             productos = await Promise.all(productos.map(async function (m) {
                 if (m.store === null)
                     return m;
