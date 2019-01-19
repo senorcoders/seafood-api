@@ -537,7 +537,12 @@ module.exports = {
             let items = await ItemShopping.find( where ).populate( 'fish' ).populate( 'shoppingCart' ).populate( 'status' ).sort( 'createdAt DESC' ).limit( 100 );
 
             await Promise.all(items.map(async function(it){
-                it.store = await Store.findOne({ id: it.fish.store});               
+//		console.log( it.fish.store );
+		if( it.hasOwnProperty( 'fish' ) && it.fish !== undefined && it.fish !== null ){
+		  if( it.fish.hasOwnProperty('store') && it.fish.store !== null && it.fish.store !== undefined ){
+                	it.store = await Store.findOne({ id: it.fish.store});
+		  }
+		}
                 return it;
             }));      
             
