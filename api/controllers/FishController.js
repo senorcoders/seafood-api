@@ -212,43 +212,52 @@ module.exports = {
                 return res.status(400).send("fish not found!");
             }
 
-            let namefile, dirname;
-            if (fish.hasOwnProperty("imagePrimary") && fish.imagePrimary !== "" && fish.imagePrimary !== null) {
-                namefile = fish.imagePrimary.split("/");
-                namefile = namefile[namefile.length - 2];
-                console.log(IMAGES, fish.id, namefile);
-                dirname = path.join(IMAGES, "primary", fish.id, namefile);
-                console.log(dirname);
-                if (fs.existsSync(dirname)) {
-                    console.log("exits primary");
-                    fs.unlinkSync(dirname);
-                    //dirname = path.join(IMAGES, "primary", fish.id);
-                    //fs.unlinkSync(dirname);
-                }
-            }
+            //check if had records in the carts
+            let hasRecords = await ItemShopping.find( { fish: id } );
 
-            if (fish.hasOwnProperty("images") && fish.iamges !== null && Object.prototype.toString.call(fish.images) === "[object Array]") {
-                for (let file of fish.images) {
-
-                    namefile = file.filename;
-                    dirname = path.join(IMAGES, fish.id, namefile);
+            if( hasRecords.length > 0 ) { 
+                // we can't deleted from the database so we are going to update the status of the fish
+                let updatedFish = await Fish.update( { id: id }, { status: '5c45f7a382295a06e36cb304' } );
+                res.status( 200 ).json( updatedFish );
+            } else {
+                let namefile, dirname;
+                if (fish.hasOwnProperty("imagePrimary") && fish.imagePrimary !== "" && fish.imagePrimary !== null) {
+                    namefile = fish.imagePrimary.split("/");
+                    namefile = namefile[namefile.length - 2];
+                    console.log(IMAGES, fish.id, namefile);
+                    dirname = path.join(IMAGES, "primary", fish.id, namefile);
                     console.log(dirname);
                     if (fs.existsSync(dirname)) {
-                        console.log("exists");
+                        console.log("exits primary");
                         fs.unlinkSync(dirname);
+                        //dirname = path.join(IMAGES, "primary", fish.id);
+                        //fs.unlinkSync(dirname);
                     }
                 }
 
-                //dirname = path.join(IMAGES, fish.id);
-                //if (fs.existsSync(dirname)) {
-                //    console.log("exists");
-                //    fs.unlinkSync(dirname);
-                //}
+                if (fish.hasOwnProperty("images") && fish.iamges !== null && Object.prototype.toString.call(fish.images) === "[object Array]") {
+                    for (let file of fish.images) {
+
+                        namefile = file.filename;
+                        dirname = path.join(IMAGES, fish.id, namefile);
+                        console.log(dirname);
+                        if (fs.existsSync(dirname)) {
+                            console.log("exists");
+                            fs.unlinkSync(dirname);
+                        }
+                    }
+
+                    //dirname = path.join(IMAGES, fish.id);
+                    //if (fs.existsSync(dirname)) {
+                    //    console.log("exists");
+                    //    fs.unlinkSync(dirname);
+                    //}
+                }
+
+                await Fish.destroy({ id });
+                res.json(fish);
             }
 
-            await Fish.destroy({ id });
-
-            res.json(fish);
 
         }
         catch (e) {
@@ -904,7 +913,10 @@ module.exports = {
                 shipping = await require( './ShippingRatesController' ).getShippingRateByCities( fish.city, weight );
                 //shippingCost = shipping * weight;
                 
-                //currentAdminCharges = await require( './PricingChargesController' ).CurrentPricingCharges();
+                if( currentAdminCharges === undefined ){
+                    currentAdminCharges = await require( './PricingChargesController' ).CurrentPricingCharges();
+                }
+
                 customs         = currentAdminCharges.customs[0].price;  
                 uaeTaxes        = currentAdminCharges.uaeTaxes[0].price; //Taxes in the UAE are 5% on the final price paid by the buyer (not by item)
                 handlingFees    = currentAdminCharges.handlingFees[0].price;

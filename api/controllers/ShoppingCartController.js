@@ -136,7 +136,7 @@ module.exports = {
                     it.sfsMargin    = it.fishCharges.sfsMarginCost;
                     it.customs      = it.fishCharges.customsFee; 
                     it.uaeTaxes     = it.fishCharges.uaeTaxesFee;        
-                    
+                    console.log( 'fish charges error', it.fishCharges );
 
 
                     await ItemShopping.update({ id: it.id }, {
@@ -147,7 +147,7 @@ module.exports = {
                         uaeTaxes:  it.uaeTaxes
                     })
 
-                    return it;
+                    //return res.json(cart)
                 }));                
                 
                 totalOtherFees = totalSFSMargin + totalCustoms;                             
