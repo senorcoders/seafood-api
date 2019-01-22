@@ -90,7 +90,7 @@ module.exports = {
                 
                 //return res.json( shippingItems );
                 let currentPricingCharges = currentAdminCharges;
-                cart.items = await Promise.all(cart.items.map(async function (it) {
+                await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish.id }).populate("type").populate("store");
                     it.fishCharges  = await require('./FishController').getItemChargesByWeight(it.fish.id, it.quantity.value, currentPricingCharges)
                     //console.log('fishCharges', FishCharges);
