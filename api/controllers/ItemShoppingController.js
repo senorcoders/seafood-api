@@ -617,6 +617,19 @@ module.exports = {
             console.error(error);
             res.serverError(error);
         }
-    }    
+    },
+    updateBuyerETA: async( req, res ) => {
+        try {
+            let etas = req.body.etas;
+            items = await Promise.all(etas.map(async function(eta){
+                await ItemShopping.update( { id: eta.id }, { buyerExpectedDeliveryDate: buyerExpectedDeliveryDate } );
+            } ) );
+
+            res.status(200).json(etas);
+
+        } catch (error) {
+            res.status(400).json( error );
+        }
+    }
 };
 

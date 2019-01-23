@@ -19,6 +19,9 @@ module.exports = {
     name: {
       type: 'string'
     },
+    numberOfDaysForDelivery: {
+      type: 'number'
+    },
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝

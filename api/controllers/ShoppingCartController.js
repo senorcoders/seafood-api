@@ -40,7 +40,7 @@ module.exports = {
                     item.fish = itemStore;
                     item.store = itemStore.store.id;
                     item.country = itemStore.country;
-                    item.city = itemStore.city;
+                    item.city = itemStore.city;                    
                     item.fishCharges     = fishCharges;
 
                     //order items by store and putting them into shippingItems
@@ -71,7 +71,7 @@ module.exports = {
                         fishCharges  = await require('./FishController').getItemChargesByWeight(item.fish.id, item.quantity.value, currentAdminCharges)
                         firstMileFee = fishCharges.firstMileFee;
                         totalWeight += item.quantity.value;
-                        country = item.country;
+                        country = item.country;                        
                         city = item.city;
                     } ) )
                     shippingRate = await require('./FishController').getShippingBySeller( firstMileFee, city, totalWeight ); 
@@ -90,9 +90,18 @@ module.exports = {
                 
                 //return res.json( shippingItems );
                 let currentPricingCharges = currentAdminCharges;
-                cart.items = await Promise.all(cart.items.map(async function (it) {
+                let today = new Date();
+  
+                await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish.id }).populate("type").populate("store");
                     it.fishCharges  = await require('./FishController').getItemChargesByWeight(it.fish.id, it.quantity.value, currentPricingCharges)
+                    
+                    let fishCountry = await Countries.findOne( { code: it.fish.country } );
+                    console.log( 'fishCountry', fishCountry );
+                    it.adminNumberOfDaysForDelivery = fishCountry.eta;
+                    min = new Date();
+                    min.setDate( today.getDate() + fishCountry.eta );
+                    it.minDeliveryDate = min;
                     //console.log('fishCharges', FishCharges);
                     //it.fishCharges = FishCharges;
                     shippingRate = await require('./ShippingRatesController').getShippingRateByCities( it.fish.city, it.quantity.value ); 
@@ -108,11 +117,19 @@ module.exports = {
                                 console.log( 'shipping', item.shippingStore);
                                 it.shipping   =  item.shippingStore;
                             }
-                        } ) )
+                            return item;
+                        } ) );
+                        return store;
                     } ) )
 
+                    //console.log( 'fish charges error', it.fishCharges );
+                    /*it.fishCharges.sfsMargin = 0;
+                    it.fishCharges.sfsMarginCost = 0;
+                    it.fishCharges.uaeTaxesFee = 0;
+                    it.fishCharges.finalPrice = 0;*/
+
                     totalShipping  += it.fishCharges.shippingCost.cost ;
-                    console.log( 'now shipping', totalShipping);
+                    //console.log( 'now shipping', totalShipping);
                     totalSFSMargin += it.fishCharges.sfsMarginCost;
                     totalCustoms   += it.fishCharges.customsFee;
                     totalUAETaxes  += it.fishCharges.uaeTaxesFee;
@@ -125,10 +142,18 @@ module.exports = {
                         shipping    : it.fishCharges.shipping,
                         customs     : it.fishCharges.customs                        
                     };
+
+                    
+
                     if(!it.fishCharges.sfsMarginCost || it.fishCharges.sfsMarginCost == "NaN"){
                         it.fishCharges.sfsMarginCost = 0;
                     }
                     if(!it.fishCharges.uaeTaxesFee || it.fishCharges.uaeTaxesFee == "NaN"){
+                        it.fishCharges.uaeTaxes = 0;
+                        it.fishCharges.uaeTaxesFee = 0;
+                    }
+
+                    if( !it.fishCharges.uaeTaxes || it.fishCharges.uaeTaxes == "NaN" ) {
                         it.fishCharges.uaeTaxes = 0;
                     }
 
@@ -136,7 +161,7 @@ module.exports = {
                     it.sfsMargin    = it.fishCharges.sfsMarginCost;
                     it.customs      = it.fishCharges.customsFee; 
                     it.uaeTaxes     = it.fishCharges.uaeTaxesFee;        
-                    console.log( 'fish charges error', it.fishCharges );
+                    
 
 
                     await ItemShopping.update({ id: it.id }, {
@@ -147,7 +172,7 @@ module.exports = {
                         uaeTaxes:  it.uaeTaxes
                     })
 
-                    //return res.json(cart)
+                    return it;
                 }));                
                 
                 totalOtherFees = totalSFSMargin + totalCustoms;                             

@@ -99,6 +99,18 @@ module.exports = {
       type: 'string',
       required: false
     },
+    buyerExpectedDeliveryDate: {
+      type: 'string',
+      required: false
+    },
+    sellerExpectedDeliveryDate: {
+      type: 'string',
+      required: false
+    },
+    adminNumberOfDaysForDelivery: {
+      type: 'number',
+      required: false
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗

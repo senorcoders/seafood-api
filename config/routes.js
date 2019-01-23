@@ -317,6 +317,8 @@ module.exports.routes = {
   // get all orders by status and order number of buyer
   'GET /api/itemshopping/:buyer/status/:status/order-number/:orderNumber': 'ItemShoppingController.getBuyerOrders',
 
+
+  'PUT /api/itemsshopping/updateETA': 'ItemShoppingController.updateBuyerETA',
   /********
    * 
    * FAVORITE FISH
