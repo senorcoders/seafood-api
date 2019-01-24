@@ -56,6 +56,11 @@ module.exports = {
       type: "string",
       required: false
     },
+
+    wholeFishWeight: {
+      type: "string",
+      required: false
+    }
     
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
