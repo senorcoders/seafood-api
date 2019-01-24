@@ -835,5 +835,27 @@ module.exports = {
         .catch(
             console.error
         )    
-    }
+    },
+    sentAdminWarningETA: async(item) => {
+                
+            transporter.sendMail( { 
+                from:       sender,
+                to:         'milton@senorcoders.com',
+                subject:    `ETA Warning`,                    
+                html:       'Seller ETA is greater than Buyer ETA for the item  ' + item.id, // html body
+                attachments: [{
+                    filename: 'logo.png',
+                    path: './assets/images/logo.png',
+                    cid: 'unique@kreata.ee' //same cid value as in the html img src
+                }]
+            }, ( error, info ) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);
+                return 'Message sent: %s', info.messageId;
+            })
+                
+          
+    },
 }

@@ -201,7 +201,33 @@ module.exports = {
             let cart = await ShoppingCart.findOne({id: item.shoppingCart.id}).populate("buyer")
             let name=cart.buyer.firstName+' '+cart.buyer.lastName;
             if( status == '5c017af047fb07027943a405' ){//pending seller fulfillment
-                await ItemShopping.update({id}, { status: '5c017af047fb07027943a405', updateInfo: currentUpdateDates})
+
+                let buyerDateParts = item.buyerExpectedDeliveryDate.split('/');
+                let buyerMonth = buyerDateParts[0] - 1;
+                let buyerDay = buyerDateParts[1];
+                let buyerYear = buyerDateParts[2];
+
+                let buyerDate = new Date( buyerYear, buyerMonth, buyerDay );
+
+                let sellerDateParts = req.body.sellerExpectedDeliveryDate.split('/');
+                let sellerMonth = sellerDateParts[0] - 1;
+                let sellerDay = sellerDateParts[1];
+                let sellerYear = sellerDateParts[2];
+
+                let sellerDate = new Date( sellerYear, sellerMonth, sellerDay );
+                console.log( 'seller', sellerDate);
+                console.log( 'buyer', buyerDate );  
+                if( sellerDate > buyerDate ){
+                    //sent email to the admin with an alert
+                    console.log( 'sent email' );
+                    await MailerService.sentAdminWarningETA(item);
+                }
+                
+                //await ItemShopping.update({id}, { status: '5c017af047fb07027943a405', sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate , updateInfo: currentUpdateDates});
+
+                //                    
+
+
             }else if( status == '5c017b0e47fb07027943a406' ){ //admin marks the item as shipped
                 
                 let data=await ItemShopping.update({id}, 
