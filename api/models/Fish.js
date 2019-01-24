@@ -12,6 +12,11 @@ module.exports = {
       required: true
     },
 
+    brandName: {
+      type: "string",
+      required: false
+    },
+
     description: {
       type: "string",
       required: true
