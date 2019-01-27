@@ -98,9 +98,16 @@ module.exports = {
                     
                     let fishCountry = await Countries.findOne( { code: it.fish.country } );
                     console.log( 'fishCountry', fishCountry );
-                    it.adminNumberOfDaysForDelivery = fishCountry.eta;
-                    min = new Date();
-                    min.setDate( today.getDate() + fishCountry.eta );
+		    min = new Date();
+		    if ( fishCountry == undefined ) {
+			it.adminNumberOfDaysForDelivery = 3;
+ 			min.setDate( today.getDate() + 3 );
+		    }else {
+                        it.adminNumberOfDaysForDelivery = fishCountry.eta;
+		        min.setDate( today.getDate() + fishCountry.eta );
+		    }
+                    //min = new Date();
+                    //min.setDate( today.getDate() + fishCountry.eta );
                     it.minDeliveryDate = min;
                     //console.log('fishCharges', FishCharges);
                     //it.fishCharges = FishCharges;
