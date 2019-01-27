@@ -417,6 +417,9 @@ module.exports.routes = {
 
    'GET /pricingCharges/fish/:id': 'PricingCharges.getFishPricingCharges',
 
+    // COUNTRIES
+    'PUT /api/countries/cityeta': 'Countries.updateCityEta',
+
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝

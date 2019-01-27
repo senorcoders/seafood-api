@@ -31,7 +31,8 @@ module.exports = {
       example: `
         cities: [{
           code: "MGA",
-          name: "Managua"
+          name: "Managua",
+          minETA: "ETA"
         }]
       `
     },
