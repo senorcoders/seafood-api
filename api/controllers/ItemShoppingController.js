@@ -182,7 +182,9 @@ module.exports = {
             let currentUpdateDates = [];
             
             if( item.hasOwnProperty('updateInfo') ){
-                currentUpdateDates =  item.updateInfo;
+            	if(item.updateInfo!=null){
+            		currentUpdateDates =  item.updateInfo;
+            	}
             }
             let newStatus = await OrderStatus.findOne( { id: status } );
             let user = await User.findOne( { id: userID } );
@@ -220,7 +222,7 @@ module.exports = {
                 if( sellerDate > buyerDate ){
                     //sent email to the admin with an alert
                     console.log( 'sent email' );
-                    await MailerService.sentAdminWarningETA(item);
+                    await MailerService.sentAdminWarningETA(cart,store,item,name);
                 }
                 
                 await ItemShopping.update({id}, { status: '5c017af047fb07027943a405', sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate , updateInfo: currentUpdateDates});

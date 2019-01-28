@@ -836,13 +836,22 @@ module.exports = {
             console.error
         )    
     },
-    sentAdminWarningETA: async(item) => {
-                
+    sentAdminWarningETA: async(cart,store,item,buyer) => {
+        email.render( '../email_templates/admin_warning_ETA',
+            {
+                cart:cart,
+                store:store,
+                item:item,
+                sellerName:store.owner.firstName+' '+store.owner.lastName,
+                buyerName:buyer
+            }
+        )
+        .then(res=>{
             transporter.sendMail( { 
                 from:       sender,
                 to:         'milton@senorcoders.com',
                 subject:    `ETA Warning`,                    
-                html:       'Seller ETA is greater than Buyer ETA for the item  ' + item.id, // html body
+                html:       res, // html body
                 attachments: [{
                     filename: 'logo.png',
                     path: './assets/images/logo.png',
@@ -855,7 +864,7 @@ module.exports = {
                 console.log('Message sent: %s', info.messageId);
                 return 'Message sent: %s', info.messageId;
             })
-                
+        })                
           
     },
 }
