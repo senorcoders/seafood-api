@@ -222,7 +222,7 @@ module.exports = {
                 if( sellerDate > buyerDate ){
                     //sent email to the admin with an alert
                     console.log( 'sent email' );
-                    await MailerService.sentAdminWarningETA(cart,store,item,name);
+                    await MailerService.sentAdminWarningETA(cart,store,item,name,req.body.sellerExpectedDeliveryDate);
                 }
                 
                 await ItemShopping.update({id}, { status: '5c017af047fb07027943a405', sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate , updateInfo: currentUpdateDates});

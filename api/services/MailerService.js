@@ -836,14 +836,15 @@ module.exports = {
             console.error
         )    
     },
-    sentAdminWarningETA: async(cart,store,item,buyer) => {
+    sentAdminWarningETA: async(cart,store,item,buyer,sellerExpectedDeliveryDate) => {
         email.render( '../email_templates/admin_warning_ETA',
             {
                 cart:cart,
                 store:store,
                 item:item,
                 sellerName:store.owner.firstName+' '+store.owner.lastName,
-                buyerName:buyer
+                buyerName:buyer,
+                sellerExpectedDeliveryDate:sellerExpectedDeliveryDate
             }
         )
         .then(res=>{
