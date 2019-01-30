@@ -48,9 +48,9 @@ module.exports = {
             //let invoices = await xero.invoices.get();
             //console.log( 'invoices', invoices );
 
-        let orders = await ShoppingCart.find( { status: 'paid'/*, xeroRef: ''*/ },  ).populate( 'buyer' ).populate( 'items' ).sort( 'createdAt DESC' ).limit( 8 );
-                        
-            orders.map( async ( order ) => {
+          let orders = await ShoppingCart.find( { status: 'paid'/*, xeroRef: ''*/ },  ).populate( 'buyer' ).populate( 'items' ).sort( 'createdAt DESC' ).limit( 8 );
+          let ordersUpdated = 0;
+          await Promise.all( orders.map( async ( order ) => {
                 console.log( 'order', order );
                 if ( order.hasOwnProperty( 'buyer' ) ) {
                   if( order.buyer !== null ) {
@@ -135,6 +135,7 @@ module.exports = {
                                   let newInvoice = await xero.invoices.create( newInvoiceData );
                                   //console.log( 'newInvoice2', newInvoice );
                                   await ShoppingCart.update( { id: order.id }, { xeroRef: newInvoice.Invoices[0].InvoiceNumber } )
+                                  ordersUpdated += 1;
     
                                 } else {
                                   console.log( 'no invoice' );
@@ -156,10 +157,10 @@ module.exports = {
                 
             
                 
-            } )
+            } ) )
 
             
-            res.status( 200 ).json( { accessToken, invoices } );
+            res.status( 200 ).json( { 'ordersUpdated': ordersUpdated } );
             /*await Xero.create( {
                 xeroAuth: {
                     oauthToken,
