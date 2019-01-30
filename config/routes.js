@@ -420,11 +420,19 @@ module.exports.routes = {
     // COUNTRIES
     'PUT /api/countries/cityeta': 'Countries.updateCityEta',
 
+    // XERO Invoice services
+    'GET /xero/connect': 'Xero.connect',
+
+    //trimming
+    'GET /storeTrimming/store/:store': 'StoreTrimming.getStoreTrimming',
+
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝
   //payments
   'POST /payments/payfort': 'PaymentsController.getAuthorization',
+
+  'GET /xero/updateToken': 'Xero.updateXero',
  
   //  ╔╦╗╦╔═╗╔═╗  ╦═╗╔═╗╔╦╗╦╦═╗╔═╗╔═╗╔╦╗╔═╗
   //  ║║║║╚═╗║    ╠╦╝║╣  ║║║╠╦╝║╣ ║   ║ ╚═╗
