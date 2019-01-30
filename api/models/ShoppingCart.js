@@ -63,6 +63,15 @@ module.exports = {
       type: "number",
       required: false
     },
+    xeroRef: {
+      type: 'string',
+      defaultsTo: '',
+      required: false
+    },
+    xeroLink: {
+      type: 'string',
+      required: false
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
