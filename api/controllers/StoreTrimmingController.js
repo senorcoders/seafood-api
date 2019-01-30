@@ -14,6 +14,25 @@ module.exports = {
         } catch (error) {
             res.status( 400 ).json( error );
         }
+    },
+    getStoreTrimming : async ( req, res ) => {
+        try {
+            let storeID = req.param("store");
+
+            let storeTrim = await StoreTrimming.find( { store: storeID } ).populate('processingParts').sort( 'trimmingType ASC' );
+
+            let result = [];
+            await await Promise.all( storeTrim.map( async ( item ) => {
+                let itemType = await TrimmingType.find( { id: item.trimmingType } );
+                item.type = itemType;
+
+                result.push( item );
+            } ) )
+
+            res.status( 200 ).json( result );
+        } catch (error) {
+            res.status( 400 ).json( error );
+        }
     }
 
 };
