@@ -73,13 +73,11 @@ module.exports = {
                             console.log( 'newContact', newContact.Contacts[0]/*.ValidationErrors*/ );
                             contactID = newContact.Contacts[0].ContactID;
                             let updatedUser = await User.update( { id: order.buyer.id }, { contactID } ).fetch();
-                            // console.log( 'updatedUser', updatedUser );
+//                            console.log( 'updatedUser', updatedUser );
                             
                         } else {
                             contactID = order.buyer.contactID;
                         }
-                        // console.log( 'contactID', contactID );         
-                        // console.log('starting invoice');
                         let xeroRef = '';                        
                         if( !order.hasOwnProperty( 'xeroRef' ) ) {
                           //if ( order['xeroRef'] == undefined || order['xeroRef'] == null || order['xeroRef'] == '' || !order.hasOwnProperty( 'xeroRef' ) ) {
@@ -98,6 +96,10 @@ module.exports = {
                                     "AccountCode": "200",
                                     "DiscountRate": "0"
                                   } );
+                                  
+                                } ) );
+  //                              console.log( 'newInvoiceData.LineItems', lineItemsFish );                                
+                                //newInvoiceData['lineItems'] = lineItemsFish;
 
                                 let newInvoiceData = {
                                   "Type": "ACCREC",
@@ -130,11 +132,14 @@ module.exports = {
                             
                           //}
                         }
-
+                        
                   } // buyer is null?
+                               
                 }
             } ) )
-	        res.redirect('http://platform.seafoodsouq.com/manage-orders');
+
+	     res.redirect('http://platform.seafoodsouq.com/manage-orders');
+          
         } catch (error) {
             res.status( 400 ).json( error );    
         }
