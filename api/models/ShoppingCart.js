@@ -65,7 +65,6 @@ module.exports = {
     },
     xeroRef: {
       type: 'string',
-      defaultsTo: '',
       required: false
     },
     xeroLink: {
