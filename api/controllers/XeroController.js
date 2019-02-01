@@ -73,13 +73,13 @@ module.exports = {
                             console.log( 'newContact', newContact.Contacts[0]/*.ValidationErrors*/ );
                             contactID = newContact.Contacts[0].ContactID;
                             let updatedUser = await User.update( { id: order.buyer.id }, { contactID } ).fetch();
-//                            console.log( 'updatedUser', updatedUser );
+                            // console.log( 'updatedUser', updatedUser );
                             
                         } else {
                             contactID = order.buyer.contactID;
                         }
-  //                      console.log( 'contactID', contactID );         
-//			console.log('starting invoice');
+                        // console.log( 'contactID', contactID );         
+                        // console.log('starting invoice');
                         let xeroRef = '';                        
                         if( !order.hasOwnProperty( 'xeroRef' ) ) {
                           //if ( order['xeroRef'] == undefined || order['xeroRef'] == null || order['xeroRef'] == '' || !order.hasOwnProperty( 'xeroRef' ) ) {
@@ -98,18 +98,6 @@ module.exports = {
                                     "AccountCode": "200",
                                     "DiscountRate": "0"
                                   } );
-                                  /*  
-                                  //item.quantity.value,
-                                  //item.price.value,
-                                  Shipment 1 of 1 sold by <%= store.name %> <%= item.fish.name %> <%= (item.price.value* item.quantity.value).toFixed(2) %> AED                                
-                                  <% let shipping=item.shipping,otherTaxes=item.sfsMargin+item.customs+item.uaeTaxes; %>
-                                  <% let subtotal=shipping+otherTaxes+(item.price.value*item.quantity.value); %>
-                                  Shipping Fees <%= otherTaxes.toFixed(2) %> AED
-                                  Sub Total<%= subtotal.toFixed(2) %> AED
-                                  */
-                                } ) );
-  //                              console.log( 'newInvoiceData.LineItems', lineItemsFish );                                
-                                //newInvoiceData['lineItems'] = lineItemsFish;
 
                                 let newInvoiceData = {
                                   "Type": "ACCREC",
@@ -125,14 +113,14 @@ module.exports = {
                                 if( !isEmptyObject( order.items ) ) {
                                   let newInvoice = await xero.invoices.create( newInvoiceData );
 //                                  console.log( 'newInvoice2', newInvoice );
-				  if( newInvoice.Invoices[0].hasOwnProperty('InvoiceNumber') ) { 
-                                    await ShoppingCart.update( { id: order.id }, { xeroRef: newInvoice.Invoices[0].InvoiceNumber } )
-                                    ordersUpdated += 1;
-				  }else {
-					console.log( 'xero error', newInvoice.Invoices[0] ); 
-					//console.log( 'error', newInvoiceData );
-					//console.log( 'newContact', newContact );
-				  }
+                                    if( newInvoice.Invoices[0].hasOwnProperty('InvoiceNumber') ) { 
+                                                              await ShoppingCart.update( { id: order.id }, { xeroRef: newInvoice.Invoices[0].InvoiceNumber } )
+                                                              ordersUpdated += 1;
+                                    }else {
+                                    console.log( 'xero error', newInvoice.Invoices[0] ); 
+                                    //console.log( 'error', newInvoiceData );
+                                    //console.log( 'newContact', newContact );
+                                    }
     
                                 } else {
                                   console.log( 'no invoice' );
@@ -142,30 +130,11 @@ module.exports = {
                             
                           //}
                         }
-                        
-
-
 
                   } // buyer is null?
-                               
                 }
-
-                
-                
-            
-                
             } ) )
-
-            
-            //res.status( 200 ).json( { 'ordersUpdated': ordersUpdated } );
-	     res.redirect('http://platform.seafoodsouq.com/manage-orders');
-            /*await Xero.create( {
-                xeroAuth: {
-                    oauthToken,
-                    oauthVerifier,
-                    org
-                }
-            } )*/
+	        res.redirect('http://platform.seafoodsouq.com/manage-orders');
         } catch (error) {
             res.status( 400 ).json( error );    
         }
@@ -186,54 +155,3 @@ function isEmptyObject(obj) {
   }
   return true;
 }
-
-/*
-{
-  "Type": "ACCREC",
-  "Contact": { 
-    "ContactID": "eaa28f49-6028-4b6e-bb12-d8f6278073fc" 
-  },
-  "Date": "\/Date(1518685950940+0000)\/",
-  "DueDate": "\/Date(1518685950940+0000)\/",
-  "DateString": "2009-05-27T00:00:00",
-  "DueDateString": "2009-06-06T00:00:00",
-  "LineAmountTypes": "Exclusive",
-  "LineItems": [
-    {
-      "Description": "Consulting services as agreed (20% off standard rate)",
-      "Quantity": "10",
-      "UnitAmount": "100.00",
-      "AccountCode": "200",
-      "DiscountRate": "20"
-    }
-  ]
-}
-
-
-{
-  "Contacts": [
-    {
-      "Name": "24 locks",
-      "FirstName": "Ben",
-      "LastName": "Bowden",
-      "EmailAddress": "ben.bowden@24locks.com",
-      "ContactPersons": [
-        {
-          "FirstName": "John",
-          "LastName": "Smith",
-          "EmailAddress": "john.smith@24locks.com",
-          "IncludeInEmails": "true"
-        }
-      ]
-    }
-  ]
-}
-
-
-Shipment 1 of 1 sold by <%= store.name %> <%= item.fish.name %> <%= (item.price.value* item.quantity.value).toFixed(2) %> AED
-                                
-<% let shipping=item.shipping,otherTaxes=item.sfsMargin+item.customs+item.uaeTaxes; %>
-<% let subtotal=shipping+otherTaxes+(item.price.value*item.quantity.value); %>
-Shipping Fees <%= otherTaxes.toFixed(2) %> AED
-Sub Total<%= subtotal.toFixed(2) %> AED
-*/
