@@ -65,6 +65,7 @@ module.exports = {
                                     "FirstName": order.buyer.firstName,
                                     "LastName": order.buyer.LastName,
                                     "EmailAddress": order.buyer.email,
+                                    "Status": "PAID",
                                     "ContactPersons": [
                                       {
                                         "FirstName": order.buyer.firstName,
