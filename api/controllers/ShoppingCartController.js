@@ -407,9 +407,9 @@ module.exports = {
             let lastOrder = await ShoppingCart.find().sort('orderNumber DESC').limit(1);//.max('orderNumber');
             let max = 0;
             if(lastOrder.length > 0)
-                if( lastOrder[0].hasOwnProperty("orderNumber") ) 
-                    max = lastOrder[0].orderNumber + 1;
-
+            if( lastOrder[0].hasOwnProperty("orderNumber") ) 
+            max = lastOrder[0].orderNumber + 1;
+            
             let cart = await ShoppingCart.findOne({ id: req.param("id"), status: "pending" }).populate("buyer");
             if (cart === undefined) {
                 return res.status(400).send("not found");
@@ -423,7 +423,7 @@ module.exports = {
             }));
 
             
-
+            
             //Se le envia los datos de compras al vendedor
             //await require("./../../mailer").sendCartPaidBuyer(itemsShopping, cart.buyer.email);
             let updateStatusItem = await ItemShopping.update( { shoppingCart: cart.id  }, { status: '5c017ae247fb07027943a404' } )
@@ -445,16 +445,26 @@ module.exports = {
             let OrderNumber     = max;
             let OrderStatus     = "5c017ad347fb07027943a403"; //Pending Seller Confirmation
             //Se envia los correos a los dueños de las tiendas
+            let counter = 0;
             for (let st of itemsStore) {
+                counter +=1;
                 storeName.push(st[0].fish.store.name);
                 // shippingRate.push(await require('./ShippingRatesController').getShippingRateByCities( st[0].fish.city, st[0].quantity.value ));
                 let fullName = st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
-                let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName
-                //await require("./../../mailer").sendCartPaidSellerNotified(fullName, cart, st, OrderNumber,st[0].fish.store.owner.email)
-                await MailerService.sendCartPaidSellerNotified(fullName, cart, st, OrderNumber,st[0].fish.store.owner.email)
+                let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
+                let sellerAddress = `${st[0].fish.store.owner.dataExtra.Address}, ${st[0].fish.store.owner.dataExtra.City}, ${st[0].fish.store.owner.dataExtra.country}, ${st[0].fish.store.owner.dataExtra.zipCode}`;
+
+                let sellerInvoice = await PDFService.sellerPurchaseOrder( fullName, cart, st, OrderNumber, sellerAddress, counter );
+                await MailerService.sendCartPaidSellerNotified(fullName, cart, st, OrderNumber,st[0].fish.store.owner.email, sellerInvoice)
+                console.log( 'seller invoice', sellerInvoice );
             }
-            await MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName);
-            await MailerService.sendCartPaidAdminNotified(itemsShopping, cart,OrderNumber,storeName)
+                await MailerService.sendCartPaidAdminNotified(itemsShopping, cart,OrderNumber,storeName)
+            
+            let resultPDF = await PDFService.buyerInvoice( itemsShopping, cart,OrderNumber,storeName );
+            console.log(resultPDF);
+            
+            
+            await MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName, resultPDF);            
             // await require("./../../mailer").sendCartPaidBuyer(itemsShopping, cart,OrderNumber,storeName);
             //  await require("./../../mailer").sendCartPaidAdmin(itemsShopping, cart,OrderNumber,storeName);
             cart = await ShoppingCart.update({ id: req.param("id") }, { 
@@ -464,8 +474,8 @@ module.exports = {
                 orderStatus: OrderStatus
                 
             }).fetch();
-            await ItemShopping.update( { shoppingCart: req.param("id") } ).set( { status: '5c017ae247fb07027943a404' } );
-            res.json(cart);
+            await ItemShopping.update( { shoppingCart: req.param("id") } ).set( { status: '5c017ae247fb07027943a404' } );            
+            res.json( cart );
         }
         catch (e) {
             console.error(e);

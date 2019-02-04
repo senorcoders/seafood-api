@@ -1,0 +1,69 @@
+<html>
+    <head>
+        
+    </head>
+    <body>
+        <h1>Purchase Order</h1>
+        <label for="seller contact name">Seller Contact Name</label>
+        <%= seller_contact_name %>
+        <br>
+        <label for="">Seller Contact Postal Address</label>
+        <p>
+        <%= seller_contact_address %>
+        </p>
+
+        <br>
+        
+        <label for="">purchase_order_date</label>
+        <%= purchase_order_date %>
+
+        <label for="">delivery_order_date</label>
+        <%= delivery_order_date %>
+
+        <label for="">purchase_order_number invoice_number</label>
+        <%= invoice_number %>
+
+        <label for="">_order_number</label>
+        <%= order_number %>
+
+
+
+
+        <table>
+            <thead>
+                <tr>
+                    <td>Description</td>
+                    <td>SKU</td>
+                    <td>Quantity</td>
+                    <td>U/M</td>
+                    <td>Unit Price</td>
+                    <td>Amount AED</td>
+                </tr>
+            </thead>
+            <tbody>
+                <%- itemsLines %>
+            </tbody>
+        </table>
+
+        <table>
+            <tr>
+                <td>Subtotal</td>
+                <td><%= subtotal %></td>
+            </tr>
+            <tr>
+                <td>Total AED</td>
+                <td><%= total %></td>
+            </tr>
+        </table>
+
+        <p>
+                Delivery Details:
+                Seafood Souq General Trading LLC.
+                Warehouse 10,  Al Qous Industrial Area 3, 58 ST., Dubai, United Arab Emirates.
+                Telephone: +971 (04) 042683521
+                Attention: Omar AlHasan
+                Mobile Number: 00971 501650510
+                
+        </p>
+    </body>
+</html>

@@ -388,7 +388,7 @@ module.exports = {
             console.error
         )    
     },
-    sendCartPaidSellerNotified: ( sellerName,cart,items,orderNumber,emailAddress) => {
+    sendCartPaidSellerNotified: ( sellerName,cart,items,orderNumber,emailAddress, sellerInvoice) => {
         email.render( '../email_templates/cart_paid_seller_notified',
             {
                 sellerName:sellerName,
@@ -403,11 +403,17 @@ module.exports = {
                 to:         emailAddress,
                 subject:    `Order #${orderNumber} is Placed`,                    
                 html:       res, // html body
-                attachments: [{
-                    filename: 'logo.png',
-                    path: './assets/images/logo.png',
-                    cid: 'unique@kreata.ee' //same cid value as in the html img src
-                }]
+                attachments: [
+                    {
+                        filename: 'logo.png',
+                        path: './assets/images/logo.png',
+                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                    },
+                    {
+                        filename: sellerInvoice,
+                        path: `pdf_purchase_order/${sellerInvoice}`
+                    }
+                ]
             }, ( error, info ) => {
                 if (error) {
                     return console.log(error);
@@ -421,7 +427,7 @@ module.exports = {
             console.error
         )    
     },
-    sendCartPaidBuyerNotified: ( items,cart,orderNumber,stores) => {
+    sendCartPaidBuyerNotified: ( items,cart,orderNumber,stores, pdf_invoice) => {
     	let store,storeLng=stores.length;
 		    for(let [index,value] of stores.entries()){
 		        if(index==0){
@@ -454,11 +460,17 @@ module.exports = {
                 to:         cart.buyer.email,
                 subject:    `Order #${orderNumber} is Placed`,                    
                 html:       res, // html body
-                attachments: [{
-                    filename: 'logo.png',
-                    path: './assets/images/logo.png',
-                    cid: 'unique@kreata.ee' //same cid value as in the html img src
-                }]
+                attachments: [
+                    {
+                        filename: 'logo.png',
+                        path: './assets/images/logo.png',                    
+                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                    },
+                    {
+                        filename: `purchase-order-${orderNumber}.pdf`,
+                        path: `./pdf_invoices/${pdf_invoice}`
+                    }
+                ]
             }, ( error, info ) => {
                 if (error) {
                     return console.log(error);

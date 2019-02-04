@@ -136,3 +136,9 @@ lib-cov
 
 images/
 admin/
+
+################################################
+# for pdf invoices
+################################################
+pdf_invoices/*.pdf
+pdf_purchase_order/*.pdf
