@@ -92,7 +92,7 @@ module.exports = {
                                   {
                                     "Description": itemFish.name,
                                     "Quantity": item.quantity.value ,
-                                    "UnitAmount": ( ( item.price.value * item.quantity.value ) + item.sfsMargin + item.customs + item.uaeTaxes + item.shipping ) / item.quantity.value , 
+                                    "UnitAmount": ( ( ( item.price.value * item.quantity.value ) + item.sfsMargin + item.customs + item.uaeTaxes + item.shipping ) / item.quantity.value ).toFixed(2) , 
                                     "AccountCode": "200",
                                     "DiscountRate": "0"
                                   } );
