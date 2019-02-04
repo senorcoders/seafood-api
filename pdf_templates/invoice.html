@@ -194,7 +194,7 @@
               5%
             </td>
             <td class="col col-2 align-right">
-                <%= ( ( ( it.price.value * it.quantity.value ) + it.sfsMargin + it.customs + it.uaeTaxes + it.shipping ) / it.quantity.value ).toFixed(2)  %>
+                <%= ( ( ( it.price.value * it.quantity.value ) + it.sfsMargin + it.customs + it.uaeTaxes + it.shipping ) ).toFixed(2)  %>
             </td>
           </tr>
           <% } ); %>
