@@ -14,6 +14,11 @@ module.exports = {
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
     name: {
       type: 'string'
+    },
+
+    defaultProccessingParts: {
+      type: 'json',
+      required: false
     }
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
