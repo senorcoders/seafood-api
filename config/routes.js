@@ -407,6 +407,8 @@ module.exports.routes = {
    'GET /shippingRates/country/:country/cities/': 'ShippingRates.getCitiesWithShippings',
    'POST /shippingRates/cities': 'ShippingRates.getCitiesShippingRateByWeight',
 
+   'POST /shippingRates/bycity': 'ShippingRates.getShippingRateByCity',
+
    'GET /countries/cities': 'Countries.getAllCities',
 
    'POST /shipping/:id/upload/': 'Image.uploadShippingInformation',
