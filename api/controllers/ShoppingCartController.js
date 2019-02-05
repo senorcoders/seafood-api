@@ -481,6 +481,33 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
+    },
+    getOrderLogistic: async function (req, res) {
+        try {
+            let orders = await ShoppingCart.find().populate('buyer').populate('orderStatus').populate('items');
+
+            let ordersResponse = [];
+            await Promise.all( orders.map( async order => {
+
+                let items = [];
+                await Promise.all( order.items.map( async item => {
+
+                    let fishItem = await Fish.findOne( { id: item.fish } ).populate('store').populate('type').populate('status')
+                    item.fishItem = fishItem;
+                    items.push( item );
+
+                    console.log(item);
+                } ) )
+                order.items = items;
+                ordersResponse.push( order );
+            } ) )
+
+            res.status( 200 ).json( ordersResponse );
+
+        } catch (error) {
+            res.status(400).json(error);
+        }
+    
     }
 
 };

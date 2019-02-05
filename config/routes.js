@@ -275,6 +275,8 @@ module.exports.routes = {
   //test order
   'GET /api/cart/test': "ShoppingCartController.testOrder",
 
+  'GET /api/shoppingcart/orderlogistic': 'ShoppingCartController.getOrderLogistic',
+
   
   /***********
    * 
