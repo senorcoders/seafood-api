@@ -16,12 +16,15 @@ module.exports = {
             let uaeTaxes = await PricingCharges.find( { where: { type: 'uaeTaxes' } } ).sort( 'updatedAt DESC' ).limit(1);
 
             let handlingFees = await PricingCharges.find( { where: { type: 'handlingFees' } } ).sort( 'updatedAt DESC' ).limit(1);
+
+            let exchangeRates = await PricingCharges.find( { where: { type: 'exchangeRates' } } ).sort( 'updatedAt DESC' ).limit(1);
             
             let data = {
                 "customs": customs,
                 "lastMileCost": lastMileCost,
                 "uaeTaxes": uaeTaxes,
-                "handlingFees": handlingFees
+                "handlingFees": handlingFees,
+                "exchangeRates": exchangeRates
             }
             return data; 
 
@@ -40,12 +43,15 @@ module.exports = {
             let uaeTaxes = await PricingCharges.find( { where: { type: 'uaeTaxes' } } ).sort( 'updatedAt DESC' ).limit(1);
 
             let handlingFees = await PricingCharges.find( { where: { type: 'handlingFees' } } ).sort( 'updatedAt DESC' ).limit(1);
+
+            let exchangeRates = await PricingCharges.find( { where: { type: 'exchangeRates' } } ).sort( 'updatedAt DESC' ).limit(1);
             
             let data = {
                 "customs": customs,
                 "lastMileCost": lastMileCost,
                 "uaeTaxes": uaeTaxes,
-                "handlingFees": handlingFees
+                "handlingFees": handlingFees,
+                "exchangeRates": exchangeRates
             }
             
             res.status(200).json( data );
@@ -66,11 +72,14 @@ module.exports = {
 
             let handlingFees = await PricingCharges.find( { where: { type: 'handlingFees' } } ).sort( 'updatedAt DESC' );
             
+            let exchangeRates = await PricingCharges.find( { where: { type: 'exchangeRates' } } ).sort( 'updatedAt DESC' );
+            
             let data = {
                 "customs": customs,
                 "lastMileCost": lastMileCost,
                 "uaeTaxes": uaeTaxes,
-                "handlingFees": handlingFees
+                "handlingFees": handlingFees,
+                "exchangeRates": exchangeRates
             }
             
             res.status(200).json( data );
@@ -93,7 +102,9 @@ module.exports = {
 
             let uaeTaxes = await PricingCharges.find( { where: { type: 'uaeTaxes' } } ).sort( 'updatedAt DESC' ).limit(1);
 
-            let handlingFees = await PricingCharges.find( { where: { type: 'handlingFees' } } ).sort( 'updatedAt DESC' ).limit(1);                         
+            let handlingFees = await PricingCharges.find( { where: { type: 'handlingFees' } } ).sort( 'updatedAt DESC' ).limit(1);
+
+            let exchangeRates = await PricingCharges.find( { where: { type: 'exchangeRates' } } ).sort( 'updatedAt DESC' ).limit(1);                         
 
             let seller = await User.find( { where: { id: fish.store.owner } } ).limit(1)
             let firstMileCost = 0;
@@ -107,6 +118,7 @@ module.exports = {
                 "customs": customs[0].price,
                 "sfsMargin": fish.type.sfsMargin,
                 "handlingFees": handlingFees[0].price,
+                "exchangeRates": exchangeRates[0].price
             }
 
             res.status(200).json( data );
