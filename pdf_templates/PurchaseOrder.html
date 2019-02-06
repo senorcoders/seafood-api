@@ -33,14 +33,14 @@
           width: 100%;
         }
       }
-      .logo img{
+     /* .logo img{
         width: 100px;
-      }
+      }*/
       .align-right{
         text-align: right;
       }
       .paid{
-        font-size: 12px;
+        font-size: 10px;
         font-style: italic;
         letter-spacing: 2px;
         margin: 0
@@ -67,7 +67,7 @@
         width: 10%;
       }
       p{
-        font-size: 9px;
+        /*font-size: 9px;*/
         margin: 0;
         line-height: 1.5
       }
@@ -130,16 +130,16 @@
     </style>
   </head>
   <body>
-    <div class="logo">
-      <img src="http://platform.seafoodsouq.com/assets/Seafood_Souq_blue.png" alt="">
+    <div class="logo" style="padding-bottom: 20px;">
+      <img src="http://platform.seafoodsouq.com/assets/Seafood_Souq_blue.png" alt="" width="100">
     </div>
     <div class="row">
-      <div class="col col-5" style="padding-left: 15px;">
-          <h3>Purchase Order</h3>
+      <div class="col col-5" style="padding-left: 15px;font-family: 'Arial';font-size: 10px;">
+          <h3 style="font-size: 1.5em;">Purchase Order</h3>
         <p><%= seller_contact_name %><br>
           <%= seller_contact_address %></p>
       </div>
-      <div class="col col-25">
+      <div class="col col-25" style="font-family: 'Arial'; font-size: 10px;">
         <p style="margin-bottom: 10px"><b>Purchase Order Date</b><br>
           <%= purchase_order_date %></p>   
         <p style="margin-bottom: 10px"><b>Delivery Date</b><br>
@@ -153,7 +153,7 @@
         <p style="margin-bottom: 10px"><b>«Shipping Terms»</b><br>
         FOB, Delivery to Airport</p>
       </div>
-      <div class="col col-25">
+      <div class="col col-25" style="font-family: 'Arial';font-size: 10px;">
           <p style="margin-bottom: 30px"> Seafood Souq General Trading LLC.</p>
         <p>Warehouse 10,  Al Qous Industrial Area 3, 58 ST., Dubai, United Arab Emirates.</p>
         <p style="margin-bottom: 15px">P.O.Box: 282815</p>
@@ -162,7 +162,7 @@
         </p>
       </div>
     </div>
-    <div class="row header">
+    <div class="row header" style="font-family: 'Arial';font-size: 10px;margin-top: 40px;border-bottom: 2px solid black;padding-bottom: 5px;">
       <div class="col col-3">
         <p><b>Description</b></p>
       </div>
@@ -184,7 +184,7 @@
     </div>
 
     <% items.forEach(function(it,index){ %>
-    <div class="row content">
+    <div class="row content" style="font-family: 'Arial';font-size: 10px;">
       <div class="col col-3">
           <%= it.fish.name %>, <%= it.fish.treatment %>, <%= it.fish.raised %>, <%= it.fish.preparation %>
       </div>
@@ -195,7 +195,7 @@
       <div class="col col-1 align-right"><%= ( ( ( it.price.value * it.quantity.value ) + it.sfsMargin + it.customs + it.uaeTaxes + it.shipping ) ).toFixed(2)  %></div>
     </div>
     <% } ) %>
-    <div class="subtotal">
+    <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
       <div class="col col-5 padding-right">
         <span>Subtotal</span>
       </div>
@@ -203,7 +203,7 @@
         <span><%= subtotal %></span>
       </div>
     </div>
-    <div class="subtotal">
+    <div class="subtotal" style="font-family: 'Arial';font-size: 10px">
       <div class="col col-5 padding-right">
         <span class="border"><b>TOTAL USD</b></span>
       </div>
@@ -211,8 +211,8 @@
         <span class="border"><b><%= total %></b></span>
       </div>
     </div>
-    <div class="clear">
-      <h2 style="margin-bottom: 20px">Delivery Details:</h2>
+    <div class="clear" style="font-family: 'Arial'; font-size: 10px">
+      <h2 style="margin-bottom: 20px;font-size:1.5em">Delivery Details:</h2>
       <p>Seafood Souq General Trading LLC.</p>
       <p>Warehouse 10,  Al Qous Industrial Area 3, 58 ST., Dubai, United Arab Emirates.</p>
       <p>Telephone: +971 (04) 042683521</p>
