@@ -4,20 +4,20 @@ var Email = require('email-templates');
 const APP_NAME = sails.config.APP_NAME;
 const config = sails.config.mailer;
 const sender = config.auth.user;
-
+const emailSender = 'Seafoodsouq <do-not-reply@seafoodsouq.com>';
 const transporter = nodeMailer.createTransport({
     host:   config.host,
     port:   465,
-    secure: true, // true for 465, false for other ports
+    //secure: true, // true for 465, false for other ports
     auth:   config.auth,
     tls: {
-        rejectUnauthorized: false //for development
+        rejectUnauthorized: false
     }
 });
 
 const email = new Email({
     message: {
-        from: sender
+        from: emailSender,
     },
     transport: {
         jsonTransport: true
@@ -39,6 +39,25 @@ async function formatDates(d){
     };
 
 module.exports = {
+    testEmail: () => {
+        transporter.sendMail( { 
+            from:       'Seafoodsouq <do-not-reply@seafoodsouq.com>',
+            to:         'milton@senorcoders.com',
+            subject:    'testing new smtp',                    
+            html:       '<h1> seafood souq </h1>', // html body
+            attachments: [{
+                filename: 'logo.png',
+                path: './assets/images/logo.png',
+                cid: 'unique@kreata.ee' //same cid value as in the html img src
+            }]
+        }, ( error, info ) => {
+            if (error) {
+                return console.log(error);
+            }
+            console.log('Message sent: %s', info.messageId);
+            return 'Message sent: %s', info.messageId;
+        })
+    },
 	registerNewUser: ( user ) => {
         email.render( '../email_templates/register_new_user',
             {
@@ -49,7 +68,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         user.email,
                 subject:    'Your Account is Under Review',                    
                 html:       res, // html body
@@ -85,7 +104,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         'brian@senorcoders.com',
                 subject:    `New ${roleType} is pending confirmation`,                    
                 html:       res, // html body
@@ -115,7 +134,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         emailAddress,
                 subject:    'Welcome Onboard, Getting Started with Seafood Souq !',                    
                 html:       res, // html body
@@ -145,7 +164,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         emailAddress,
                 subject:    'Your Next Steps to Sell On Seafood Souq',                    
                 html:       res, // html body
@@ -177,7 +196,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         emailAddress,
                 subject:    'Update - Seafood Souq Account',                    
                 html:       res, // html body
@@ -208,7 +227,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         emailAddress,
                 subject:    'Password Recovery for Seafood Souq',                    
                 html:       res, // html body
@@ -241,7 +260,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         emailAddress,
                 subject:    'New Message of Contact in Seafood Souq',                    
                 html:       res, // html body
@@ -272,7 +291,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         'brian@senorcoders.com',
                 subject:    `Product #${product.seafood_sku} is awaiting Review`,                    
                 html:       res, // html body
@@ -303,7 +322,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         seller.email,
                 subject:    `Product #${product.seafood_sku} is Under Review `,                    
                 html:       res, // html body
@@ -335,7 +354,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         seller.email,
                 subject:    `Product #${product.seafood_sku} is awaiting Review`,                    
                 html:       res, // html body
@@ -366,7 +385,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         seller.email,
                 subject:    `Product #${product.seafood_sku} is awaiting Review`,                    
                 html:       res, // html body
@@ -399,7 +418,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         emailAddress,
                 subject:    `Order #${orderNumber} is Placed`,                    
                 html:       res, // html body
@@ -456,7 +475,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         cart.buyer.email,
                 subject:    `Order #${orderNumber} is Placed`,                    
                 html:       res, // html body
@@ -513,7 +532,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         'brian@senorcoders.com',
                 subject:    `Order #${orderNumber} is Placed`,                    
                 html:       res, // html body
@@ -548,7 +567,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         cart.buyer.email,
                 subject:    `Order #${cart.orderNumber} is Cancelled`,                    
                 html:       res, // html body
@@ -583,7 +602,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         store.owner.email,
                 subject:    `Order #${cart.orderNumber} is Cancelled`,                    
                 html:       res, // html body
@@ -617,7 +636,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         'brian@senorcoders.com',
                 subject:    `Order #${cart.orderNumber} is Cancelled`,                    
                 html:       res, // html body
@@ -652,7 +671,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         cart.buyer.email,
                 subject:    'Your Order has been cancelled !',                    
                 html:       res, // html body
@@ -687,7 +706,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         'brian@senorcoders.com',
                 subject:    `Order #${cart.orderNumber} is Cancelled`,                    
                 html:       res, // html body
@@ -722,7 +741,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         cart.buyer.email,
                 subject:    `Order #${cart.orderNumber} is being Shipped`,                    
                 html:       res, // html body
@@ -757,7 +776,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         cart.buyer.email,
                 subject:    `Order #${cart.orderNumber} has arrived in Dubai !`,                    
                 html:       res, // html body
@@ -792,7 +811,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         cart.buyer.email,
                 subject:    `Order #${cart.orderNumber} is Delivered !`,                    
                 html:       res, // html body
@@ -826,7 +845,7 @@ module.exports = {
         )
         .then( res=> {            
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         store.owner.email,
                 subject:    `Order #${cart.orderNumber} is Delivered !`,                    
                 html:       res, // html body
@@ -861,7 +880,7 @@ module.exports = {
         )
         .then(res=>{
             transporter.sendMail( { 
-                from:       sender,
+                from:       emailSender,
                 to:         'milton@senorcoders.com',
                 subject:    `ETA Warning`,                    
                 html:       res, // html body
