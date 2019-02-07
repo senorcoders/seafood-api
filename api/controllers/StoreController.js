@@ -330,7 +330,7 @@ module.exports = {
             res.status(200).json( ordersNotShipped );
     },
     getStoreOrderItems: async (req, res) =>{
-        let userID =  req.param("id");
+        let userID =  req.param("owner");
         let shoppingCartID = req.param('shoppingCartID');
 
         // get buyer information
@@ -341,20 +341,21 @@ module.exports = {
         
         if( store === undefined ) 
             return res.status(400).status("not found");
-
+        
+            console.log( store );
         let storeIds = []; 
         store.map( item => {
             storeIds.push( item.id );
         } )
-        //console.log(storeIds);
+        console.log(storeIds);
         let storeFishes = await Fish.find( { store: storeIds } );
 
         let storeFishesIds = [];
         storeFishes.map( item => {
             storeFishesIds.push(item.id);
         } )
-        console.log( 'shoppingCart: ', shoppingCartID );
-        console.log('fishes ids: ', storeFishesIds);
+        //console.log( 'shoppingCart: ', shoppingCartID );
+        //console.log('fishes ids: ', storeFishesIds);
         let items = await ItemShopping.find( 
             { 
                 where: 
