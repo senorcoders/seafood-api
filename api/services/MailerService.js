@@ -567,7 +567,8 @@ module.exports = {
                 cart:cart,
                 store:store,
                 item:item,
-                paidDateTime:paidDateTime
+                paidDateTime:paidDateTime,
+                url:URL
             }
         )
         .then( res=> {            
@@ -602,7 +603,8 @@ module.exports = {
                 cart:cart,
                 store:store,
                 item:item,
-                paidDateTime:paidDateTime
+                paidDateTime:paidDateTime,
+                url:URL
             }
         )
         .then( res=> {            
@@ -636,7 +638,8 @@ module.exports = {
                 cart:cart,
                 store:store,
                 item:item,
-                paidDateTime:paidDateTime
+                paidDateTime:paidDateTime,
+                url:URL
             }
         )
         .then( res=> {            
@@ -671,7 +674,8 @@ module.exports = {
                 cart:cart,
                 store:store,
                 item:item,
-                paidDateTime:paidDateTime
+                paidDateTime:paidDateTime,
+                url:URL
             }
         )
         .then( res=> {            
@@ -706,7 +710,8 @@ module.exports = {
                 cart:cart,
                 store:store,
                 item:item,
-                paidDateTime:paidDateTime
+                paidDateTime:paidDateTime,
+                url:URL
             }
         )
         .then( res=> {            
@@ -741,7 +746,8 @@ module.exports = {
                 cart:cart,
                 store:store,
                 item:item,
-                paidDateTime:paidDateTime
+                paidDateTime:paidDateTime,
+                url:URL
             }
         )
         .then( res=> {            
@@ -776,7 +782,8 @@ module.exports = {
                 cart:cart,
                 store:store,
                 item:item,
-                paidDateTime:paidDateTime
+                paidDateTime:paidDateTime,
+                url:URL
             }
         )
         .then( res=> {            
@@ -811,7 +818,8 @@ module.exports = {
                 cart:cart,
                 store:store,
                 item:item,
-                paidDateTime:paidDateTime
+                paidDateTime:paidDateTime,
+                url:URL
             }
         )
         .then( res=> {            
@@ -845,7 +853,8 @@ module.exports = {
                 cart:cart,
                 store:store,
                 item:item,
-                paidDateTime:paidDateTime
+                paidDateTime:paidDateTime,
+                url:URL
             }
         )
         .then( res=> {            
