@@ -905,9 +905,9 @@ module.exports = {
 
     getItemChargesByWeight: async ( id, weight, currentAdminCharges) => {
         let fish = await Fish.findOne( { where: { id: id } } ).populate( 'type' ).populate( 'store' );
-                let fishPrice = fish.price.value;
+                let fishPrice = Number( parseFloat( fish.price.value ) );
                 let owner = await User.findOne( { id: fish.store.owner } ) ;
-                let firstMileCost = owner.firstMileCost;
+                let firstMileCost = Number( parseFloat( owner.firstMileCost ) );
                 let firstMileFee = firstMileCost * weight * fishPrice;
     
                 shipping = await require( './ShippingRatesController' ).getShippingRateByCities( fish.city, weight );
@@ -924,7 +924,7 @@ module.exports = {
                 sfsMargin       = fish.type.sfsMargin;
                 
                 //calculate cost
-                let fishCost = fishPrice * weight; // A
+                let fishCost = (fishPrice * weight); // A
                 let shippingFee   = shipping * weight; //b1
                 let handlingFee   = handlingFees * weight; //b2 //are 3 AED/KG to get the shipment released from Customs.
                 let shippingCost  = firstMileFee + shippingFee + handlingFee + lastMileCost; //C = first mile cost + b1 + b2 + last mile cost

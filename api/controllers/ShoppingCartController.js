@@ -82,7 +82,7 @@ module.exports = {
                     store.items.map( item => {
                         item.shippingStore = item.quantity.value * store.shipping.shippingCost / store.totalWeight;
                         item.shipping = item.shippingStore;
-                        item.fishCharges.shippingCost.cost = item.shippingStore;
+                        //item.fishCharges.shippingCost.cost = item.shippingStore;
                     } )
                 } ) )
                 
@@ -98,14 +98,14 @@ module.exports = {
                     
                     let fishCountry = await Countries.findOne( { code: it.fish.country } );
                     console.log( 'fishCountry', fishCountry );
-		    min = new Date();
-		    if ( fishCountry == undefined ) {
-			it.adminNumberOfDaysForDelivery = 3;
- 			min.setDate( today.getDate() + 3 );
-		    }else {
-                        it.adminNumberOfDaysForDelivery = fishCountry.eta;
-		        min.setDate( today.getDate() + fishCountry.eta );
-		    }
+                    min = new Date();
+                    if ( fishCountry == undefined ) {
+                    it.adminNumberOfDaysForDelivery = 3;
+                    min.setDate( today.getDate() + 3 );
+                    }else {
+                                it.adminNumberOfDaysForDelivery = fishCountry.eta;
+                        min.setDate( today.getDate() + fishCountry.eta );
+                    }
                     //min = new Date();
                     //min.setDate( today.getDate() + fishCountry.eta );
                     it.minDeliveryDate = min;
@@ -120,7 +120,8 @@ module.exports = {
                         await Promise.all(store.items.map( async item => {
                             if( item.id == it.id ) {
                                 it.fishCharges.finalPrice = it.fishCharges.finalPrice - it.fishCharges.shippingCost.cost + item.shippingStore ;
-                                it.fishCharges.shippingCost.cost = item.shippingStore;
+                                //it.fishCharges.shippingCost.cost = item.shippingStore;
+                                //await ItemShopping.update({ id: it.id }, { fishCharges: it.fishCharges });
                                 console.log( 'shipping', item.shippingStore);
                                 it.shipping   =  item.shippingStore;
                             }
@@ -187,9 +188,9 @@ module.exports = {
                 totalShipping = Number(parseFloat(totalShipping).toFixed(2));
                 console.log('total SHipping', totalShipping);
                 totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
-                total = Number(parseFloat(total).toFixed(2));
-                if (total !== cart.total) { 
-                    await ShoppingCart.update({ id: cart.id }, { 
+                total = Number(parseFloat( totalOtherFees + totalShipping + totalUAETaxes ).toFixed(2));
+                //if (total !== cart.total) { 
+                  let newCart = await ShoppingCart.update({ id: cart.id }, { 
                         currentCharges: currentPricingCharges,
                         subTotal: subtotal,
                         shipping: totalShipping,
@@ -198,16 +199,16 @@ module.exports = {
                         total: total,
                         totalOtherFees: totalOtherFees,
                         uaeTaxes: totalUAETaxes,
-                    });
-                    cart.total = total;
-                    cart.customs = totalCustoms;
-                    cart.totalOtherFees = totalOtherFees;
-                    cart.totalUAETaxes = totalUAETaxes;
-                    cart.totalShipping = totalShipping;
-                    cart.shipping = totalShipping;
+                    }).fetch();
+                    newCart[0].total = total;
+                    newCart[0].customs = totalCustoms;
+                    newCart[0].totalOtherFees = totalOtherFees;
+                    newCart[0].totalUAETaxes = totalUAETaxes;
+                    newCart[0].totalShipping = totalShipping;
+                    newCart[0].shipping = totalShipping;
 
 
-                }
+                //}
 
                 return res.json(cart)
             };
