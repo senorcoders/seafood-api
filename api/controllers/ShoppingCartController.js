@@ -200,12 +200,12 @@ module.exports = {
                         totalOtherFees: totalOtherFees,
                         uaeTaxes: totalUAETaxes,
                     }).fetch();
-                    newCart[0].total = total;
-                    newCart[0].customs = totalCustoms;
-                    newCart[0].totalOtherFees = totalOtherFees;
-                    newCart[0].totalUAETaxes = totalUAETaxes;
-                    newCart[0].totalShipping = totalShipping;
-                    newCart[0].shipping = totalShipping;
+                    cart.total = total;
+                    cart.customs = totalCustoms;
+                    cart.totalOtherFees = totalOtherFees;
+                    cart.totalUAETaxes = totalUAETaxes;
+                    cart.totalShipping = totalShipping;
+                    cart.shipping = totalShipping;
 
 
                 //}
