@@ -66,6 +66,12 @@ module.exports = {
       type: "string",
       required: false
     },
+
+    acceptableSpoilageRate: {
+      type: 'number',
+      required: false,
+    },
+
     
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
@@ -91,6 +97,11 @@ module.exports = {
           description: $2 for pack
         }
       `
+    },
+
+    hsCode: {
+      type: 'string',
+      required: false,
     },
 
     imagePrimary: {
