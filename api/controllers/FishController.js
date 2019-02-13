@@ -792,10 +792,29 @@ module.exports = {
 
     getPendingProducts: async ( req, res ) => {
         try {
+            let countries = await Countries.find();
             let fishes = await Fish.find( { status: '5c0866e4a0eda00b94acbdc0' } ).populate( 'store' ).populate( 'type' );
             fishes = await Promise.all(fishes.map(async (it) => {
                 try {
                     let owner = await User.findOne( { id:  it.store.owner } )
+
+                    await countries.map( async country => {
+                        if( it.country == country.code ){
+                            it.countryName = country.name;
+                            console.log(country.name)
+
+                            await country.cities.map( city => {
+                                if( it.city == city.code ) {
+                                    it.cityName = city.name;
+                                    console.log(city);
+                                }
+                            })
+                        }
+                        if ( it.processingCountry == country.code ) {
+                            ut.processingCountryName = country.name;
+                        }
+                    } )
+
                     it.owner = {
                         id: owner.id,
                         email: owner.email,
