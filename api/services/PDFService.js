@@ -8,61 +8,74 @@ module.exports = {
         var compiled = await ejs.compile(fs.readFileSync(__dirname + '/../../pdf_templates/invoice.html', 'utf8'));
         console.log( 'cart', cart );
         //console.log( 'itemsShopping', itemsShopping );
-        let today = cart.paidDatetime;
-        var html = compiled(
+        //let today = cart.paidDatetime;
+        let today = new Date();
+        date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+        let paidDateTime= date;
+
+        var html = await compiled(
             { 
-                invoiceDueDate: today,
-                invoiceDate: today,
+                invoiceDueDate: paidDateTime,
+                invoiceDate: paidDateTime,
                 buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
                 buyerContactPostalAddress: `${cart.buyer.dataExtra.Address}, ${cart.buyer.dataExtra.City}, ${cart.buyer.dataExtra.country}, ${cart.buyer.dataExtra.zipCode}`,
-                contactAccountNumber : 'contactAccountNumber', 
+                contactAccountNumber : itemsShopping[0].fish.store['CorporateBankAccountNumber'], 
                 InvoiceNumber : 'InvoiceNumber',
-                purchase_order_date: cart.paidDatetime,
-                delivery_order_date: cart.paidDatetime,
-                invoice_number: cart.xeroRef,
-                orderNumber: cart.OrderNumber,
+                purchase_order_date: paidDateTime,
+                delivery_order_date: paidDateTime,
+                invoice_number: OrderNumber,
+                orderNumber: OrderNumber,
                 items: itemsShopping,
-                subtotal: cart.subtotal,
+                subTotal: cart.subTotal,
+                customHandlingFee: cart.totalOtherFees + cart.uaeTaxes,
+                shippingFees : cart.shipping,
                 total: cart.total
 
             }
         );
-        let pdf_name = `invoice-order-${OrderNumber}-${today}.pdf`;
+        let pdf_name = `invoice-order-${OrderNumber}.pdf`;
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, () => {
-            console.log('pdf done');
-        } );
+            console.log('pdf done', pdf_name);          
+            MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName, `invoice-order-${OrderNumber}.pdf`);            
+        } );        
 
         return pdf_name;
+
+        
     },
     sellerPurchaseOrder: async ( fullName, cart, itemsShopping, orderNumber, sellerAddress, counter ) => {
         var compiled = await ejs.compile(fs.readFileSync(__dirname + '/../../pdf_templates/PurchaseOrder.html', 'utf8'));
-        console.log( 'cart', cart );
+        //console.log( 'cart', cart );
         //console.log( 'itemsShopping', itemsShopping );
-        let today = cart.paidDatetime;
-        var html = compiled(
+        //let today = cart.paidDatetime;
+        var today = new Date();
+        date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+        let paidDateTime= date; //new Date().toISOString();
+        var html =  await compiled(
             { 
-                invoiceDueDate: today,
-                invoiceDate: today,
+                invoiceDueDate: paidDateTime,
+                invoiceDate: paidDateTime,
                 seller_contact_name: fullName,
                 seller_contact_address: sellerAddress,
-                purchase_order_date : cart.paidDatetime,        
-                ContactAccountNumber: 'ContactAccountNumber',
+                purchase_order_date : paidDateTime,        
+                contactAccountNumber: itemsShopping[0].fish.store['CorporateBankAccountNumber'],
                 invoice_number : 'invoice_number',
-                purchase_order_date: cart.paidDatetime,
-                delivery_order_date: cart.paidDatetime,
+                purchase_order_date: paidDateTime,
+                delivery_order_date: paidDateTime,
                 invoice_number: cart.xeroRef,
-                orderNumber: cart.OrderNumber,
+                orderNumber: orderNumber,
                 items: itemsShopping,
-                subtotal: cart.subtotal,
+                subTotal: itemsShopping.subTotal,
                 total: cart.total
 
             }
         );
-        let pdf_name = `purchase-order-${orderNumber}-${today}-${counter}.pdf`;
+        let pdf_name = `purchase-order-${orderNumber}-${paidDateTime}-${counter}.pdf`;
         await pdf.create(html).toFile(`./pdf_purchase_order/${pdf_name}`, () => {
-            console.log('pdf done');
-        } );
-
+            console.log('pdf done', pdf_name);
+            MailerService.sendCartPaidSellerNotified(fullName, cart, itemsShopping, orderNumber,itemsShopping[0].fish.store.owner.email, pdf_name);
+            
+        } )        
         return pdf_name;
     },
 	testPDF: () => {

@@ -91,7 +91,6 @@
         padding-right: 5px; 
       }
       .subtotal span{
-        border-bottom: 1px dashed gray;
         display: block;
         padding-bottom: 5px
       }
@@ -116,7 +115,7 @@
         padding: 10px 0;
       }
       .border-bottom{
-        border-bottom: 1px solid #8ebee8 !important;
+        border-bottom: 1px solid gray !important;
         padding: 10px 0;
       }
       th {
@@ -132,10 +131,10 @@
     <div class="logo">
       <img src="http://platform.seafoodsouq.com/assets/Seafood_Souq_blue.png" alt="">
     </div>
-    <div class="align-right"><h1 class="paid">PAID</h1></div>
-    <div class="row border-bottom">
+    <div class="align-right" style="font-size: 10px;font-family: arial"><h1 class="paid" style="font-size: 24px;">PAID</h1></div>
+    <div class="row" style="font-size: 10px;font-family: arial">
       <div class="col col-5">
-        <h3>TAX INVOICE</h3>
+        <h3 style="font-size: 20px">TAX INVOICE</h3>
         <p><%= buyerContactName %><br>
           <%= buyerContactPostalAddress %></p>
       </div>
@@ -144,8 +143,8 @@
         <%= invoiceDate %></p>
         <p style="margin-bottom: 10px"><b>Seafood Souq Tax Number</b> <br>
         <%= contactAccountNumber %></p>
-        <p style="margin-bottom: 10px"><b>Invoice Number</b> <br>
-        <%= InvoiceNumber %></p>
+        <!--<p style="margin-bottom: 10px"><b>Invoice Number</b> <br>
+        <%= InvoiceNumber %></p>-->
         <p><b>Order Number</b> <br>
         <%= orderNumber %></p>
       </div>
@@ -159,10 +158,10 @@
       </div>
     </div>
 
-    <div class="row header">
-      <table>
-        <thead style="border: #000 2px solid;">
-          <tr>
+    <div class="row header" style="font-size: 10px;font-family: arial">
+      <table style="border-collapse: collapse;">
+        <thead >
+          <tr style=" border-bottom: 1px solid black;">
             <th style="font-size: 11px;">Description</th>
             <th style="font-size: 11px;">Country of Origin</th>
             <th style="font-size: 11px;">Quantity</th>
@@ -174,12 +173,12 @@
         </thead>
         <tbody>
           <% items.forEach(function(it,index){ %>
-          <tr class="border" style="border: #000 1px solid;">
+          <tr style="border-bottom: gray 1px solid;">
             <td class="col col-3">
                 <%= it.fish.name %>, <%= it.fish.treatment %>, <%= it.fish.raised %>, <%= it.fish.preparation %>
             </td>
             <td class="col col-1">
-              <%= it.fish.countryCode %>
+              <%= it.fish.country %>
             </td>
             <td class="col col-1">
               <%= it.quantity.value %>
@@ -194,7 +193,7 @@
               5%
             </td>
             <td class="col col-2 align-right">
-                <%= ( ( ( it.price.value * it.quantity.value ) + it.sfsMargin + it.customs + it.uaeTaxes + it.shipping ) ).toFixed(2)  %>
+                <%= ( ( ( it.price.value * it.quantity.value )  ) ).toFixed(2)  %>
             </td>
           </tr>
           <% } ); %>
@@ -202,18 +201,34 @@
       </table>      
     </div>
     
-    <table style="float: right; width: 400px;" class="col-5 align-right">
+    <table style="float: right; width: 400px;font-size: 10px;font-family: arial" class="col-5 align-right">
       <tr class="subtotal">
         <td class="col-5 padding-right">
             <span>Subtotal</span>
         </td>
         <td class="col-5">
-            <span><%= subtotal %></span>    
+            <span><%= subTotal %></span>    
+        </td>
+      </tr>
+      <tr class="subtotal">
+        <td class="col col-5 padding-right">
+            <span class="no-border">Shipping Fees</span>
+        </td>
+        <td class="col col-5">
+            <span class="no-border"><%= shippingFees %></span>  
+        </td>
+      </tr>
+      <tr class="subtotal">
+        <td class="col col-5 padding-right">
+            <span class="no-border">Custom and Handling Fees</span>
+        </td>
+        <td class="col col-5">
+            <span class="no-border"><%= customHandlingFee %></span>  
         </td>
       </tr>
       <tr class="subtotal border-bottom">
         <td class="col col-5 padding-right">
-            <span class="no-border">Total «VAT »</span>
+            <span class="no-border">Total</span>
         </td>
         <td class="col col-5">
             <span class="no-border"><%= total %></span>  
@@ -221,13 +236,13 @@
       </tr>
     </table>
 
-    <div class="align-right clear">
-      <p><b>Amount Due</b> AED <b><%= total %></b></p>
+    <div class="align-right clear" style="font-size: 10px;font-family: arial">
+      <p><b>Grand Total AED <%= total %></b></p>
     </div>
     <div style="margin-top: 40px">
       <p><b>Due Date: <%= invoiceDueDate %></b></p>
     </div>
-    <div class="align-right">
+    <div class="align-right" style="font-size: 10px;font-family: arial">
       <p class="blue">Seefood Souq T&Cs</p>
       <p class="blue">Shipping and Returns Policy</p>
     </div>

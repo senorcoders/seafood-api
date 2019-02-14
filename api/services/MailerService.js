@@ -409,7 +409,7 @@ module.exports = {
             console.error
         )    
     },
-    sendCartPaidSellerNotified: ( sellerName,cart,items,orderNumber,emailAddress, sellerInvoice) => {
+    sendCartPaidSellerNotified: async ( sellerName,cart,items,orderNumber,emailAddress, sellerInvoice) => {
         email.render( '../email_templates/cart_paid_seller_notified',
             {
                 sellerName:sellerName,
@@ -422,7 +422,7 @@ module.exports = {
         .then( res=> {            
             transporter.sendMail( { 
                 from:       emailSender,
-                to:         emailAddress,
+                to:         'milton@senorcoders.com', //emailAddress,
                 subject:    `Order #${orderNumber} is Placed`,                    
                 html:       res, // html body
                 attachments: [
@@ -449,7 +449,7 @@ module.exports = {
             console.error
         )    
     },
-    sendCartPaidBuyerNotified: ( items,cart,orderNumber,stores, pdf_invoice) => {
+    sendCartPaidBuyerNotified: async ( items,cart,orderNumber,stores, pdf_invoice) => {
     	let store,storeLng=stores.length;
 		    for(let [index,value] of stores.entries()){
 		        if(index==0){
@@ -480,7 +480,7 @@ module.exports = {
         .then( res=> {            
             transporter.sendMail( { 
                 from:       emailSender,
-                to:         cart.buyer.email,
+                to:         'milton@senorcoders.com', //cart.buyer.email,
                 subject:    `Order #${orderNumber} is Placed`,                    
                 html:       res, // html body
                 attachments: [
@@ -490,8 +490,8 @@ module.exports = {
                         cid: 'unique@kreata.ee' //same cid value as in the html img src
                     },
                     {
-                        filename: `purchase-order-${orderNumber}.pdf`,
-                        path: `./pdf_invoices/${pdf_invoice}`
+                        filename: `seafood-invoice-${orderNumber}.pdf`,
+                        path: `pdf_invoices/${pdf_invoice}`
                     }
                 ]
             }, ( error, info ) => {
