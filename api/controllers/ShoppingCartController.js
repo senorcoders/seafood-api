@@ -23,7 +23,7 @@ module.exports = {
             let buyer = req.param("buyer");
             let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items");
             let currentAdminCharges = await require( './PricingChargesController' ).CurrentPricingCharges();
-            if (cart !== undefined ) {                
+            if (cart !== undefined ) {
                 let totalShipping  = 0;
                 let totalSFSMargin = 0;
                 let totalCustoms   = 0;
@@ -40,14 +40,14 @@ module.exports = {
                     item.fish = itemStore;
                     item.store = itemStore.store.id;
                     item.country = itemStore.country;
-                    item.city = itemStore.city;                    
+                    item.city = itemStore.city;
                     item.fishCharges     = fishCharges;
 
                     //order items by store and putting them into shippingItems
                     let storeIsThere=false
                     let storeIndex = 0;
                     shippingItems.map( ( shippingItem, index ) => {
-                        if( shippingItem.store == itemStore.store.id ){                        
+                        if( shippingItem.store == itemStore.store.id ){
                             storeIsThere = true;
                             storeIndex = index;
                         }
@@ -58,7 +58,7 @@ module.exports = {
                     }else{
                         shippingItems[ storeIndex ].items.push( item );
                     }
-                    
+
                 } ) )
 
 
@@ -71,13 +71,13 @@ module.exports = {
                         fishCharges  = await require('./FishController').getItemChargesByWeight(item.fish.id, item.quantity.value, currentAdminCharges)
                         firstMileFee = fishCharges.firstMileFee;
                         totalWeight += item.quantity.value;
-                        country = item.country;                        
+                        country = item.country;
                         city = item.city;
                     } ) )
-                    shippingRate = await require('./FishController').getShippingBySeller( firstMileFee, city, totalWeight ); 
+                    shippingRate = await require('./FishController').getShippingBySeller( firstMileFee, city, totalWeight );
                     store.totalWeight = totalWeight;
                     store.shipping = shippingRate; //{ firstMileFee, totalWeight: totalWeight, country: country, city: city };
-                    
+
                     // now we calculate how much belongs to each product in the seller
                     store.items.map( item => {
                         item.shippingStore = item.quantity.value * store.shipping.shippingCost / store.totalWeight;
@@ -85,36 +85,41 @@ module.exports = {
                         //item.fishCharges.shippingCost.cost = item.shippingStore;
                     } )
                 } ) )
-                
+
                 //return res.status(200).json( shippingItems );
-                
+
                 //return res.json( shippingItems );
                 let currentPricingCharges = currentAdminCharges;
                 let today = new Date();
-  
+
                 await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish.id }).populate("type").populate("store");
                     it.fishCharges  = await require('./FishController').getItemChargesByWeight(it.fish.id, it.quantity.value, currentPricingCharges)
-                    
+
                     let fishCountry = await Countries.findOne( { code: it.fish.country } );
                     console.log( 'fishCountry', fishCountry );
                     min = new Date();
                     if ( fishCountry == undefined ) {
                     it.adminNumberOfDaysForDelivery = 3;
                     min.setDate( today.getDate() + 3 );
-                    }else {
+                    } else if ( it.city == undefined || fishCountry.eta == undefined ) {
+                        it.adminNumberOfDaysForDelivery = 3;
+                        min.setDate( today.getDate() + 3 );
+                    } else {
                                 it.adminNumberOfDaysForDelivery = fishCountry.eta;
                         min.setDate( today.getDate() + fishCountry.eta );
                     }
+
+
                     //min = new Date();
                     //min.setDate( today.getDate() + fishCountry.eta );
                     it.minDeliveryDate = min;
                     //console.log('fishCharges', FishCharges);
                     //it.fishCharges = FishCharges;
-                    shippingRate = await require('./ShippingRatesController').getShippingRateByCities( it.fish.city, it.quantity.value ); 
+                    shippingRate = await require('./ShippingRatesController').getShippingRateByCities( it.fish.city, it.quantity.value );
                     it.owner = await User.findOne( { id: it.fish.store.owner } )
                     it.shippingCost = it.fishCharges.shippingCost.cost;
-                    
+
                     //now we calculate the shipping for each seller so we replace the shipping calc
                     await Promise.all( shippingItems.map( async store => {
                         await Promise.all(store.items.map( async item => {
@@ -136,22 +141,28 @@ module.exports = {
                     it.fishCharges.uaeTaxesFee = 0;
                     it.fishCharges.finalPrice = 0;*/
 
+                    //console.log( 'fish charges error', it.fishCharges );
+                    /*it.fishCharges.sfsMargin = 0;
+                    it.fishCharges.sfsMarginCost = 0;
+                    it.fishCharges.uaeTaxesFee = 0;
+                    it.fishCharges.finalPrice = 0;*/
+
                     totalShipping  += it.fishCharges.shippingCost.cost ;
                     //console.log( 'now shipping', totalShipping);
                     totalSFSMargin += it.fishCharges.sfsMarginCost;
                     totalCustoms   += it.fishCharges.customsFee;
                     totalUAETaxes  += it.fishCharges.uaeTaxesFee;
-                    
+
                     subtotal       += it.fishCharges.fishCost;
                     total          += it.fishCharges.finalPrice;
 
                     it.currentCharges = {
                         sfsMargin   : it.fishCharges.sfsMargin,
                         shipping    : it.fishCharges.shipping,
-                        customs     : it.fishCharges.customs                        
+                        customs     : it.fishCharges.customs
                     };
 
-                    
+
 
                     if(!it.fishCharges.sfsMarginCost || it.fishCharges.sfsMarginCost == "NaN"){
                         it.fishCharges.sfsMarginCost = 0;
@@ -165,32 +176,33 @@ module.exports = {
                         it.fishCharges.uaeTaxes = 0;
                     }
 
-                    
+
                     it.sfsMargin    = it.fishCharges.sfsMarginCost;
-                    it.customs      = it.fishCharges.customsFee; 
-                    it.uaeTaxes     = it.fishCharges.uaeTaxesFee;        
-                    
+                    it.customs      = it.fishCharges.customsFee;
+                    it.uaeTaxes     = it.fishCharges.uaeTaxesFee;
+
 
 
                     await ItemShopping.update({ id: it.id }, {
                         currentCharges: it.currentCharges,
-                        shipping:  it.shipping,
+                        shipping: it.fishCharges.shippingCost.cost,
+                        shippingStore:  it.shipping,
                         sfsMargin: it.sfsMargin,
                         customs:   it.customs,
                         uaeTaxes:  it.uaeTaxes
                     })
 
                     return it;
-                }));                
+                }));
                 
-                totalOtherFees = totalSFSMargin + totalCustoms;                             
+                totalOtherFees = totalSFSMargin + totalCustoms;
                 totalOtherFees = Number(parseFloat(totalOtherFees).toFixed(2));
                 totalShipping = Number(parseFloat(totalShipping).toFixed(2));
                 console.log('total SHipping', totalShipping);
                 totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
                 total = Number(parseFloat( subtotal + totalOtherFees + totalShipping + totalUAETaxes ).toFixed(2));
-                //if (total !== cart.total) { 
-                  let newCart = await ShoppingCart.update({ id: cart.id }, { 
+                //if (total !== cart.total) {
+                  let newCart = await ShoppingCart.update({ id: cart.id }, {
                         currentCharges: currentPricingCharges,
                         subTotal: subtotal,
                         shipping: totalShipping,
@@ -213,10 +225,10 @@ module.exports = {
                 return res.json(cart)
             };
             console.log( 'start' );
-      
+
             cart = await ShoppingCart.create(
-                { 
-                    buyer: buyer                                        
+                {
+                    buyer: buyer
                 }
                 ).fetch();
 
