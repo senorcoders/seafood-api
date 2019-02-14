@@ -497,7 +497,7 @@ module.exports = {
     },
     getOrderLogistic: async function (req, res) {
         try {
-            let orders = await ShoppingCart.find().populate('buyer').populate('orderStatus').populate('items');
+            let orders = await ShoppingCart.find().populate('buyer').populate('orderStatus').populate('items').sort('orderNumber DESC');
 
             let ordersResponse = [];
             await Promise.all( orders.map( async order => {

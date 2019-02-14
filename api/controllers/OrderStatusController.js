@@ -7,6 +7,16 @@
 
 module.exports = {
   
+    getLogisticOrderstatus: async (req, res) => {
+        try {
+            var ids = [ '5c017ae247fb07027943a404','5c017af047fb07027943a405','5c017b5a47fb07027943a40c','5c06f4bf7650a503f4b731fd','5c017b0e47fb07027943a406','5c017b1447fb07027943a407','5c017b2147fb07027943a408','5c017b3c47fb07027943a409' ];
+            let orderStatus = await OrderStatus.find( {id: ids} );
 
+            return res.json( orderStatus );
+        } catch (error) {
+            console.log(error);
+        }
+        
+    }
 };
 

@@ -430,6 +430,9 @@ module.exports.routes = {
     //trimming
     'GET /storeTrimming/store/:store': 'StoreTrimming.getStoreTrimming',
 
+    //Order Status
+    'GET /api/orderStatus/logistic': 'OrderStatus.getLogisticOrderstatus',
+
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝
