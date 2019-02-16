@@ -458,10 +458,10 @@ module.exports = {
             let OrderNumber     = max;
             let OrderStatus     = "5c017ad347fb07027943a403"; //Pending Seller Confirmation
             cartUpdated = await ShoppingCart.update({ id: req.param("id") }, { 
-                status: "pending", 
+                status: "paid", 
                 paidDateTime: paidDateTime ,
-                /*orderNumber: OrderNumber,
-                orderStatus: OrderStatus*/
+                orderNumber: OrderNumber,
+                orderStatus: OrderStatus
                 
             }).fetch();
             //Se envia los correos a los dueños de las tiendas
