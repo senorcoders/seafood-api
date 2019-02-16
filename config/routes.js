@@ -424,11 +424,18 @@ module.exports.routes = {
     // COUNTRIES
     'PUT /api/countries/cityeta': 'Countries.updateCityEta',
 
+    'PUT /api/countries/city': 'Countries.updateCity',
+
+    'PUT /api/countries/city/delete': 'Countries.deleteCity',
+
     // XERO Invoice services
     'GET /xero/connect': 'Xero.connect',
 
     //trimming
     'GET /storeTrimming/store/:store': 'StoreTrimming.getStoreTrimming',
+
+    //Order Status
+    'GET /api/orderStatus/logistic': 'OrderStatus.getLogisticOrderstatus',
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗

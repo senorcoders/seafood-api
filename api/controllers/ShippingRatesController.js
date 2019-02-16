@@ -135,7 +135,7 @@ module.exports = {
     },
     getShippingRateByCity: async( req, res )=> {
         try {
-            let city = req.body['city'];
+            let city = req.body['cities'];
             let weight = req.body['weight'];
     
             let cost = await module.exports.getShippingRateByCities( city , weight );
