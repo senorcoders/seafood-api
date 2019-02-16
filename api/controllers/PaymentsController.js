@@ -12,7 +12,7 @@ module.exports = {
     let data = {
         response: params,
         type: params.service_command ,
-        shoppingCart: params.merchant_reference
+        shoppingCart: params.shoppingCart
     };
 
     let payment = await Payments.create( data ); 
