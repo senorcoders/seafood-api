@@ -805,7 +805,7 @@ module.exports = {
 
                     let level2 = it.type;
                     
-                    let descriptor = it.descriptor;
+                    let descriptor = await FishType.findOne( { id: it.descriptor } );
                     
 
                     let level1 = await FishType.findOne( { id: level2.parent } );
