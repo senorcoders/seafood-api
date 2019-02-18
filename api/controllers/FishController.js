@@ -811,7 +811,7 @@ module.exports = {
                             })
                         }
                         if ( it.processingCountry == country.code ) {
-                            ut.processingCountryName = country.name;
+                            it.processingCountryName = country.name;
                         }
                     } )
 
