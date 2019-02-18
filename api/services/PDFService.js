@@ -1,9 +1,9 @@
 var fs = require('fs');
 var ejs = require('ejs');
 var pdf = require('html-pdf')
-
+var api_url = sails.config.API_URL;
 module.exports = {
-    buyerInvoice: async ( itemsShopping, cart,OrderNumber, storeName ) => {
+    buyerInvoice: async ( itemsShopping, cart,OrderNumber, storeName, uaeTaxes) => {
         console.log( 'dir name', __dirname );
         var compiled = await ejs.compile(fs.readFileSync(__dirname + '/../../pdf_templates/invoice.html', 'utf8'));
         console.log( 'cart', cart );
@@ -27,9 +27,12 @@ module.exports = {
                 orderNumber: OrderNumber,
                 items: itemsShopping,
                 subTotal: cart.subTotal,
-                customHandlingFee: cart.totalOtherFees + cart.uaeTaxes,
+                customHandlingFee: cart.totalOtherFees ,
+                uaeTaxesFee: cart.uaeTaxes,
                 shippingFees : cart.shipping,
-                total: cart.total
+                total: cart.total,
+                uaeTaxes: uaeTaxes,
+                api_url: api_url
 
             }
         );
@@ -43,30 +46,34 @@ module.exports = {
 
         
     },
-    sellerPurchaseOrder: async ( fullName, cart, itemsShopping, orderNumber, sellerAddress, counter ) => {
+    sellerPurchaseOrder: async ( fullName, cart, itemsShopping, orderNumber, sellerAddress, counter, currentExchangeRate ) => {
         var compiled = await ejs.compile(fs.readFileSync(__dirname + '/../../pdf_templates/PurchaseOrder.html', 'utf8'));
         //console.log( 'cart', cart );
         //console.log( 'itemsShopping', itemsShopping );
         //let today = cart.paidDatetime;
         var today = new Date();
+        var deliveryDate = new Date();
+        deliveryDate.setDate( deliveryDate.getDate() + 1 );
         date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+        date2 = deliveryDate.getFullYear()+'-'+(deliveryDate.getMonth()+1)+'-'+deliveryDate.getDate();
         let paidDateTime= date; //new Date().toISOString();
         var html =  await compiled(
             { 
-                invoiceDueDate: paidDateTime,
-                invoiceDate: paidDateTime,
+                invoiceDueDate: date2,
+                invoiceDate: date2,
                 seller_contact_name: fullName,
-                seller_contact_address: sellerAddress,
-                purchase_order_date : paidDateTime,        
+                seller_contact_address: sellerAddress,      
                 contactAccountNumber: itemsShopping[0].fish.store['CorporateBankAccountNumber'],
                 invoice_number : 'invoice_number',
                 purchase_order_date: paidDateTime,
-                delivery_order_date: paidDateTime,
+                delivery_order_date: date2,
                 invoice_number: cart.xeroRef,
                 orderNumber: orderNumber,
                 items: itemsShopping,
                 subTotal: itemsShopping.subTotal,
-                total: cart.total
+                total: cart.total,
+                currentExchangeRate: currentExchangeRate,
+                api_url: api_url
 
             }
         );

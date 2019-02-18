@@ -131,7 +131,7 @@
   </head>
   <body>
     <div class="logo" style="padding-bottom: 20px;">
-      <img src="http://platform.seafoodsouq.com/assets/Seafood_Souq_blue.png" alt="" width="100">
+      <img src="<%= api_url %>/seafood-black.png" alt="" width="100">
     </div>
     <div class="row">
       <div class="col col-5" style="padding-left: 15px;font-family: 'Arial';font-size: 10px;">
@@ -142,12 +142,12 @@
       <div class="col col-25" style="font-family: 'Arial'; font-size: 10px;">
         <p style="margin-bottom: 10px"><b>Purchase Order Date</b><br>
           <%= purchase_order_date %></p>   
-        <!--<p style="margin-bottom: 10px"><b>Delivery Date</b><br>
-          <%= delivery_order_date %></p>-->
+        <p style="margin-bottom: 10px"><b>Delivery Date</b><br>
+          <%= delivery_order_date %></p>
         <p style="margin-bottom: 10px"><b>Account Number</b><br>
         <%= contactAccountNumber %></p>
-        <!--<p style="margin-bottom: 10px"><b>Purchase Order Number<br></b>
-          <%= invoice_number %></p>-->
+        <p style="margin-bottom: 10px"><b>Purchase Order Number<br></b>
+          <%= invoice_number %></p>
         <p style="margin-bottom: 10px"><b>Order Number</b><br>
           <%= orderNumber %></p>
         <p style="margin-bottom: 10px"><b>Shipping Terms</b><br>
@@ -179,12 +179,10 @@
         <p><b>Unit Price</b></p>
       </div>
       <div class="col col-1 align-right">
-        <p><b>Amount AED</b></p>
+        <p><b>Amount USD</b></p>
       </div>
     </div>
     <%  subtotal = 0; %>
-    <%  shipping = 0 %>
-    <%  otherTaxes = 0 %>
     <%  total = 0; %>
     <% items.forEach(function(it,index){ %>
     <div class="row content" style="font-family: 'Arial';font-size: 10px;">
@@ -194,13 +192,12 @@
       <div class="col col-1"> <%= it.fish.seller_sku %></div>
       <div class="col col-1 align-right"><%= it.quantity.value %></div>
       <div class="col col-1 align-right">KG</div>
-      <div class="col col-2 align-right"><%= it.price.value %> </div>
-      <div class="col col-1 align-right"><%= ( it.price.value * it.quantity.value ).toFixed(2)  %></div>
+      <div class="col col-2 align-right"><%= (it.price.value / currentExchangeRate).toFixed(2) %> </div>
+      <div class="col col-1 align-right"><%= ( it.price.value * it.quantity.value / currentExchangeRate ).toFixed(2)  %></div>
     </div>
-    <%  subtotal = (subtotal + ( it.price.value * it.quantity.value ) ).toFixed(2);
-        otherTaxes = otherTaxes + it.uaeTaxes + it.sfsMargin + it.customs;
-        shipping = shipping + it.shipping ;
-        total = parseFloat(total) + parseFloat(subtotal)  + parseFloat(otherTaxes) +parseFloat(shipping);
+    <%  subtotal = (subtotal + ( it.price.value * it.quantity.value / currentExchangeRate ) ).toFixed(2);
+      
+        total = parseFloat(total) + parseFloat(subtotal) ;
       } ) %>
     <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
       <div class="col col-5 padding-right">
@@ -210,25 +207,9 @@
         <span><%= subtotal  %></span>
       </div>
     </div>
-    <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
-      <div class="col col-5 padding-right">
-        <span>Shipping Fees</span>
-      </div>
-      <div class="col col-5">
-        <span><%= ( shipping ).toFixed(2)  %></span>
-      </div>
-    </div>
-    <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
-      <div class="col col-5 padding-right">
-        <span>Custom and Handling Fees</span>
-      </div>
-      <div class="col col-5">
-        <span><%= otherTaxes  %></span>
-      </div>
-    </div>
     <div class="subtotal" style="font-family: 'Arial';font-size: 10px">
       <div class="col col-5 padding-right">
-        <span class="border"><b>TOTAL AED</b></span>
+        <span class="border"><b>TOTAL USD</b></span>
       </div>
       <div class="col col-5">
         <span class="border"><b><%= total %></b></span>
