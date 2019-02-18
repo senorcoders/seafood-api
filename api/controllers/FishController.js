@@ -832,24 +832,6 @@ module.exports = {
                         }
                     } )
 
-                    let fishID = req.param( 'fishID' );
-
-                    console.log( fishID );
-                    
-                    let fish = await Fish.findOne( { id: fishID } ).populate('type').populate('descriptor');
-
-                    console.log( fish );
-                    let level2 = fish.type;
-                    
-                    let descriptor = fish.descriptor;
-                    
-
-                    let level1 = await FishType.findOne( { id: level2.parent } );
-
-                    let level0 = await FishType.findOne( { id: level1.parent } );
-
-                    res.status( 200 ).json( { level0, level1, level2, descriptor } );
-
                     it.owner = {
                         id: owner.id,
                         email: owner.email,
