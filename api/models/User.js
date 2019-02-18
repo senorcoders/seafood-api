@@ -133,6 +133,11 @@ module.exports = {
       type: 'string'
     },
 
+    typeBusiness: {
+      type: 'string',
+      required: false
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
