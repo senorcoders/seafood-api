@@ -61,6 +61,8 @@ module.exports = {
         console.log('country', country);
         let cities = [];
         let cityExist = false;
+
+	if(country.cities !== undefined){
         await asyncForEach( country.cities, async ( city ) => {
             if ( cityName === city.name ){
                 city.mineta = mineta;
@@ -68,6 +70,7 @@ module.exports = {
             }
             cities.push( city )
         } )
+	}
         if ( !cityExist ) 
             cities.push(  {
                 "name" : cityName,
