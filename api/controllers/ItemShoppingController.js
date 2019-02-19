@@ -490,23 +490,26 @@ module.exports = {
             }      
             await Promise.all(items.map(async function(it){
                 it.store = await Store.findOne({ id: it.fish.store});
-                if(it.fish['country'] !== undefined ){
-                    if( it.fish.hasOwnProperty(country) ){
-                        fishCountry = await Countries.findOne( { code: it.fish.country } );
-                        it.country = {
-                            code: fishCountry.code,  
-                            name: fishCountry.name
-                        }
-    
-                        Promise.all(fishCountry.cities.map(async function(city){ 
-                            if( city.code === it.fish.city ){
-                                it.city = city;
+                if( it['fish'] !== undefined ){
+                    if(it.fish['country'] !== undefined ){
+                        if( it.fish.hasOwnProperty(country) ){
+                            fishCountry = await Countries.findOne( { code: it.fish.country } );
+                            it.country = {
+                                code: fishCountry.code,  
+                                name: fishCountry.name
                             }
-                            return city;
-                        } ) );    
+        
+                            Promise.all(fishCountry.cities.map(async function(city){ 
+                                if( city.code === it.fish.city ){
+                                    it.city = city;
+                                }
+                                return city;
+                            } ) );    
+                        }
+                        
                     }
-                    
                 }
+                
                 return it;
             }));                        
             res.status(200).json( items );
