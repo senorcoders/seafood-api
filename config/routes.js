@@ -439,6 +439,8 @@ module.exports.routes = {
     //Order Status
     'GET /api/orderStatus/logistic': 'OrderStatus.getLogisticOrderstatus',
 
+    'GET /api/orderStatus/payments': 'OrderStatus.getPaymentOrderstatus',
+
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝
