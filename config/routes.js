@@ -428,6 +428,8 @@ module.exports.routes = {
 
     'PUT /api/countries/city/delete': 'Countries.deleteCity',
 
+    'GET /api/countries/withCities': 'Countries.getCountriesWithCities',
+
     // XERO Invoice services
     'GET /xero/connect': 'Xero.connect',
 

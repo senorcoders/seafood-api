@@ -11,10 +11,14 @@ module.exports = {
         let countries = await Countries.find();
         let cities = [];
         let getCities = async () => {
-            await asyncForEach(countries, async (country) => {   
-                await asyncForEach(country.cities, async ( city ) => {
-                    cities.push( city );
-                } )
+            await asyncForEach(countries, async (country) => {
+                if( country['cities'] !== undefined ){
+                    if ( country.cities.length > 0 ){
+                        await asyncForEach(country.cities, async ( city ) => {
+                            cities.push( city );
+                        } )
+                    }
+                }
             });
             
             console.log('Done');
@@ -96,7 +100,28 @@ module.exports = {
 
     },
 
+    getCountriesWithCities: async ( req, res ) => {
+        try {
+            let countries = await Countries.find().sort('name ASC');
+            let countryWithCities = [];
+            countries.map( country => {
+                if( country['cities'] !== undefined ){
+                    if ( country.cities.length > 0 ){
+                        countryWithCities.push( country );
+                    }
+                }
+            } );
+            res.status(200).json(countryWithCities);
+
+        } catch (error) {
+            console.log( error );
+            res.status(400).json(error);
+        }
+    }
+
 };
+
+
 async function asyncForEach(array, callback) {
     for (let index = 0; index < array.length; index++) {
       await callback(array[index], index, array);
