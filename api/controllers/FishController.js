@@ -794,10 +794,27 @@ module.exports = {
         try {
             let countries = await Countries.find();
             let fishes = await Fish.find( { status: '5c0866e4a0eda00b94acbdc0' } ).populate( 'store' ).populate( 'type' );
+
+            
             fishes = await Promise.all(fishes.map(async (it) => {
                 try {
                     let owner = await User.findOne( { id:  it.store.owner } )
 
+
+                    let fishID = req.param( 'fishID' );
+
+                    let level2 = it.type;
+                    
+                    let descriptor = await FishType.findOne( { id: it.descriptor } );
+                    
+
+                    let level1 = await FishType.findOne( { id: level2.parent } );
+
+                    let level0 = await FishType.findOne( { id: level1.parent } );
+
+                    let parentsLevel = { level0, level1, level2, descriptor } ;
+                    it.parentsLevel = parentsLevel;
+                    
                     await countries.map( async country => {
                         if( it.country == country.code ){
                             it.countryName = country.name;
@@ -811,7 +828,7 @@ module.exports = {
                             })
                         }
                         if ( it.processingCountry == country.code ) {
-                            ut.processingCountryName = country.name;
+                            it.processingCountryName = country.name;
                         }
                     } )
 

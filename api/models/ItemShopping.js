@@ -133,6 +133,10 @@ module.exports = {
     status: {
       model: "OrderStatus",
       required: false
+    },
+    paymentStatus: {
+      model: "OrderStatus",
+      required: false
     }
 
   }

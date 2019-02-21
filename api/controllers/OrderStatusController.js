@@ -16,7 +16,16 @@ module.exports = {
         } catch (error) {
             console.log(error);
         }
-        
+    },
+    getPaymentOrderstatus: async ( req, res ) => {
+        try {
+            var ids = [ '5c017b4f47fb07027943a40b','5c017b6847fb07027943a40d','5c017b7047fb07027943a40e','5c017b4547fb07027943a40a' ];
+            let orderStatus = await OrderStatus.find( {id: ids} );
+
+            return res.json( orderStatus );
+        } catch (error) {
+            console.log(error);
+        }
     }
 };
 

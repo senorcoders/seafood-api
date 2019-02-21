@@ -416,6 +416,9 @@ module.exports = {
 
     updateShoppingCartPaid: async function (req, res) {
         try {
+            let exchangeRates = await PricingCharges.find( { where: { type: 'exchangeRates' } } ).sort( 'updatedAt DESC' ).limit(1);
+            let uaeTaxes = await PricingCharges.find( { where: { type: 'uaeTaxes' } } ).sort( 'updatedAt DESC' ).limit(1);
+
             let paidDateTime=new Date().toISOString();
             let lastOrder = await ShoppingCart.find().sort('orderNumber DESC').limit(1);//.max('orderNumber');
             let max = 0;
@@ -458,10 +461,10 @@ module.exports = {
             let OrderNumber     = max;
             let OrderStatus     = "5c017ad347fb07027943a403"; //Pending Seller Confirmation
             cartUpdated = await ShoppingCart.update({ id: req.param("id") }, { 
-                status: "pending", 
+                status: "paid", 
                 paidDateTime: paidDateTime ,
-                /*orderNumber: OrderNumber,
-                orderStatus: OrderStatus*/
+                orderNumber: OrderNumber,
+                orderStatus: OrderStatus
                 
             }).fetch();
             //Se envia los correos a los dueños de las tiendas
@@ -474,13 +477,13 @@ module.exports = {
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
                 let sellerAddress = st[0].fish.store['Address']; //`${st[0].fish.store.owner.dataExtra.Address}, ${st[0].fish.store.owner.dataExtra.City}, ${st[0].fish.store.owner.dataExtra.country}, ${st[0].fish.store.owner.dataExtra.zipCode}`;
 
-                let sellerInvoice = await PDFService.sellerPurchaseOrder( fullName, cart, st, OrderNumber, sellerAddress, counter );
+                let sellerInvoice = await PDFService.sellerPurchaseOrder( fullName, cart, st, OrderNumber, sellerAddress, counter, exchangeRates[0].price );
                 
                 console.log( 'seller invoice', sellerInvoice );
             }
-                //await MailerService.sendCartPaidAdminNotified(itemsShopping, cart,OrderNumber,storeName)
+                await MailerService.sendCartPaidAdminNotified(itemsShopping, cart,OrderNumber,storeName)
             
-                await PDFService.buyerInvoice( itemsShopping, cart,OrderNumber, storeName )
+                await PDFService.buyerInvoice( itemsShopping, cart,OrderNumber, storeName, uaeTaxes[0].price )
             
             //await MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName);            
 
@@ -497,7 +500,7 @@ module.exports = {
     },
     getOrderLogistic: async function (req, res) {
         try {
-            let orders = await ShoppingCart.find().populate('buyer').populate('orderStatus').populate('items').sort('orderNumber DESC');
+            let orders = await ShoppingCart.find( { orderNumber: { '!': null } } ).populate('buyer').populate('orderStatus').populate('items').sort('updatedAt DESC');
 
             let ordersResponse = [];
             await Promise.all( orders.map( async order => {

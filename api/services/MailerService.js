@@ -1,6 +1,6 @@
 var nodeMailer = require("nodemailer");
 var Email = require('email-templates');
-
+const ADMIN_EMAIL = 'osama@seafoodsouq.com';
 const APP_NAME = sails.config.APP_NAME;
 const config = sails.config.mailer;
 const sender = config.auth.user;
@@ -107,7 +107,7 @@ module.exports = {
         .then( res=> {            
             transporter.sendMail( { 
                 from:       emailSender,
-                to:         'brian@senorcoders.com',
+                to:         ADMIN_EMAIL,
                 subject:    `New ${roleType} is pending confirmation`,                    
                 html:       res, // html body
                 attachments: [{
@@ -294,7 +294,7 @@ module.exports = {
         .then( res=> {            
             transporter.sendMail( { 
                 from:       emailSender,
-                to:         'brian@senorcoders.com',
+                to:         ADMIN_EMAIL,
                 subject:    `Product #${product.seafood_sku} is awaiting Review`,                    
                 html:       res, // html body
                 attachments: [{
@@ -422,7 +422,7 @@ module.exports = {
         .then( res=> {            
             transporter.sendMail( { 
                 from:       emailSender,
-                to:         'milton@senorcoders.com', //emailAddress,
+                to:         emailAddress,
                 subject:    `Order #${orderNumber} is Placed`,                    
                 html:       res, // html body
                 attachments: [
@@ -480,7 +480,7 @@ module.exports = {
         .then( res=> {            
             transporter.sendMail( { 
                 from:       emailSender,
-                to:         'milton@senorcoders.com', //cart.buyer.email,
+                to:         cart.buyer.email,
                 subject:    `Order #${orderNumber} is Placed`,                    
                 html:       res, // html body
                 attachments: [
@@ -538,7 +538,7 @@ module.exports = {
         .then( res=> {            
             transporter.sendMail( { 
                 from:       emailSender,
-                to:         'brian@senorcoders.com',
+                to:         ADMIN_EMAIL,
                 subject:    `Order #${orderNumber} is Placed`,                    
                 html:       res, // html body
                 attachments: [{
@@ -645,7 +645,7 @@ module.exports = {
         .then( res=> {            
             transporter.sendMail( { 
                 from:       emailSender,
-                to:         'brian@senorcoders.com',
+                to:         ADMIN_EMAIL,
                 subject:    `Order #${cart.orderNumber} is Cancelled`,                    
                 html:       res, // html body
                 attachments: [{
@@ -717,7 +717,7 @@ module.exports = {
         .then( res=> {            
             transporter.sendMail( { 
                 from:       emailSender,
-                to:         'brian@senorcoders.com',
+                to:         ADMIN_EMAIL,
                 subject:    `Order #${cart.orderNumber} is Cancelled`,                    
                 html:       res, // html body
                 attachments: [{
@@ -895,7 +895,7 @@ module.exports = {
         .then(res=>{
             transporter.sendMail( { 
                 from:       emailSender,
-                to:         'milton@senorcoders.com',
+                to:         ADMIN_EMAIL,
                 subject:    `ETA Warning`,                    
                 html:       res, // html body
                 attachments: [{

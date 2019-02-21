@@ -8,15 +8,20 @@
 module.exports = {
   getAuthorization: async (req, res) => {
     let params = req.body;
-    console.log( params );
-    let data = {
-        response: params,
-        type: params.service_command ,
-        shoppingCart: params.merchant_reference
-    };
+    try {
+      console.log( params );
+      let data = {
+          response: params,
+          type: params.service_command ,
+          shoppingCart: params.shoppingCart
+      };
 
-    let payment = await Payments.create( data ); 
-    res.status(200).json( payment );
+      let payment = await Payments.create( data ); 
+      res.status(200).json( params );  
+    } catch (error) {
+      res.status(500).json( {error, params});
+    }
+    
 
   },
 
