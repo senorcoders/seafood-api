@@ -481,7 +481,7 @@ module.exports = {
                 
                 console.log( 'seller invoice', sellerInvoice );
             }
-                //await MailerService.sendCartPaidAdminNotified(itemsShopping, cart,OrderNumber,storeName)
+                await MailerService.sendCartPaidAdminNotified(itemsShopping, cart,OrderNumber,storeName)
             
                 await PDFService.buyerInvoice( itemsShopping, cart,OrderNumber, storeName, uaeTaxes[0].price )
             
