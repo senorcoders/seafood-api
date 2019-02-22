@@ -522,7 +522,7 @@ module.exports = {
     getBuyerCanceledDeliveredOrders: async ( req, res ) => {
         try {
             let user = req.param('buyer');
-            let buyerOrders = ShoppingCart.find( { buyer: user } );
+            let buyerOrders = await ShoppingCart.find( { buyer: user } );
 
             orderIds = [];
             buyerOrders.map( order => {
@@ -530,7 +530,7 @@ module.exports = {
             } )
 
             let where = {
-                id: orderIds,
+                shoppingCart: orderIds,
                 status: [ '5c06f4bf7650a503f4b731fd', '5c017b5a47fb07027943a40c', '5c017b3c47fb07027943a409' ]
             }
             let items = await ItemShopping.find( where ).populate( 'fish' ).populate( 'shoppingCart' ).populate( 'status' ).sort( 'createdAt DESC' ).limit( 1000 );
