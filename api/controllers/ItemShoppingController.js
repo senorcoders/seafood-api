@@ -220,21 +220,21 @@ module.exports = {
                     let sellerYear = sellerDateParts[2];
 
                     let sellerDate = new Date( sellerYear, sellerMonth, sellerDay );
-                    console.log( 'seller', sellerDate);
-                    console.log( 'buyer', buyerDate );  
+                    
+                    // only change status if seller date is less than buyer date
                     if( sellerDate > buyerDate ){
                         //sent email to the admin with an alert
                         console.log( 'sent email' );
                         await MailerService.sentAdminWarningETA(cart,store,item,name,req.body.sellerExpectedDeliveryDate);
+                        await ItemShopping.update({id}, { sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate , updateInfo: currentUpdateDates});
+                    } else {
+                        await ItemShopping.update({id}, { status: '5c017af047fb07027943a405', paymentStatus: '5c017b4547fb07027943a40a' , sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate , updateInfo: currentUpdateDates});
                     }
                     
-                    await ItemShopping.update({id}, { status: '5c017af047fb07027943a405', paymentStatus: '5c017b4547fb07027943a40a' , sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate , updateInfo: currentUpdateDates});
 
                 } else { // admin is updating
-                    await ItemShopping.update({id}, { status: '5c017af047fb07027943a405', updateInfo: currentUpdateDates});
-                }
-                
-                //                    
+                    await ItemShopping.update({id}, { status: '5c017af047fb07027943a405', paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates});
+                }                 
 
 
             }else if( status == '5c017b0e47fb07027943a406' ){ //admin marks the item as shipped
