@@ -524,6 +524,15 @@ module.exports = {
             res.status(400).json(error);
         }
     
+    },
+    sendPDF: async (req, res) => {
+        try {
+            let directory = req.params("directory");
+            let name = req.params("name");
+            this.PDFService.sendPDF( req, res, directory, name );
+        } catch (error) {
+            res.serverError( error );     
+        }
     }
 
 };

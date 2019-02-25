@@ -85,14 +85,15 @@ module.exports = {
             let pdf_updated = await ItemShopping.update( { id: itemsShopping.id } , { po_path: pdf_name } );
         } )        
         return pdf_name;
-    },
-	testPDF: () => {
-        console.log( 'dir name', __dirname );
-        var compiled = ejs.compile(fs.readFileSync(__dirname + '/../../pdf_templates/template.html', 'utf8'));
-        var html = compiled({ title : 'EJS-EJS ', text : 'Hello, World!' });
+    },	
+    sendPDF: async (req, res, pdf_directory, pdf_name) => {
+        let path = `./${pdf_directory}/${pdf_name}`;
 
-        pdf.create(html).toFile('./pdf_invoices/result.pdf',() => {
-            console.log('pdf done')
-        })
+        try {
+            res.sendFile( path );
+        } catch (error) {
+            res.serverError( error );
+        }
     }
+
 }

@@ -273,10 +273,9 @@ module.exports.routes = {
   'GET /api/orders/open/:buyer': "ShoppingCartController.getOpenOrders",
 
   //test order
-  'GET /api/cart/test': "ShoppingCartController.testOrder",
-
   'GET /api/shoppingcart/orderlogistic': 'ShoppingCartController.getOrderLogistic',
 
+  'GET /api/shoppingcart/PDF/:name/:directory': 'ShoppingCartController.sendPDF',
   
   /***********
    * 
@@ -318,8 +317,7 @@ module.exports.routes = {
   'GET /api/itemshopping/:buyer/order-number/:orderNumber': 'ItemShoppingController.getBuyerOrders',
   // get all orders by status and order number of buyer
   'GET /api/itemshopping/:buyer/status/:status/order-number/:orderNumber': 'ItemShoppingController.getBuyerOrders',
-
-
+  
   'PUT /api/itemsshopping/updateETA': 'ItemShoppingController.updateBuyerETA',
   /********
    * 
