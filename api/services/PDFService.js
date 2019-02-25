@@ -37,10 +37,11 @@ module.exports = {
             }
         );
         let pdf_name = `invoice-order-${OrderNumber}.pdf`;
-        await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, () => {
+        await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);          
             MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName, `invoice-order-${OrderNumber}.pdf`);
-            ShoppingCart.update( { id: cart.id } , { po_path: pdf_name } )
+            let pdf_updated_1 = await ShoppingCart.update( { id: cart.id } , { po_path: pdf_name } );
+console.log( pdf_updated_1 );
         } );        
 
         return pdf_name;
@@ -79,10 +80,12 @@ module.exports = {
             }
         );
         let pdf_name = `purchase-order-${orderNumber}-${paidDateTime}-${counter}.pdf`;
-        await pdf.create(html).toFile(`./pdf_purchase_order/${pdf_name}`, () => {
+        await pdf.create(html).toFile(`./pdf_purchase_order/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
             MailerService.sendCartPaidSellerNotified(fullName, cart, itemsShopping, orderNumber,itemsShopping[0].fish.store.owner.email, pdf_name);
-            itemsShopping.update( { id: itemsShopping.id } , { po_path: pdf_name } )
+            let pdf_updated = await ItemShopping.update( { id: itemsShopping.id } , { po_path: pdf_name } );
+console.log('pdf_udated', itemsShopping.id);
+console.log('pdf_updated_name', itemsShopping['id']);
         } )        
         return pdf_name;
     },
