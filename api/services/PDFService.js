@@ -41,7 +41,6 @@ module.exports = {
             console.log('pdf done', pdf_name);          
             MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName, `invoice-order-${OrderNumber}.pdf`);
             let pdf_updated_1 = await ShoppingCart.update( { id: cart.id } , { po_path: pdf_name } );
-console.log( pdf_updated_1 );
         } );        
 
         return pdf_name;
@@ -84,8 +83,6 @@ console.log( pdf_updated_1 );
             console.log('pdf done', pdf_name);
             MailerService.sendCartPaidSellerNotified(fullName, cart, itemsShopping, orderNumber,itemsShopping[0].fish.store.owner.email, pdf_name);
             let pdf_updated = await ItemShopping.update( { id: itemsShopping.id } , { po_path: pdf_name } );
-console.log('pdf_udated', itemsShopping.id);
-console.log('pdf_updated_name', itemsShopping['id']);
         } )        
         return pdf_name;
     },
