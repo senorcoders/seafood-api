@@ -87,10 +87,10 @@ module.exports = {
         return pdf_name;
     },	
     sendPDF: async (req, res, pdf_directory, pdf_name) => {
-        let path = `./${pdf_directory}/${pdf_name}`;
-
+	let path = `${sails.config.appPath}/${pdf_directory}/${pdf_name}`;	
         try {
             res.sendFile( path );
+	    console.log( path );
         } catch (error) {
             res.serverError( error );
         }
