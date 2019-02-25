@@ -39,7 +39,8 @@ module.exports = {
         let pdf_name = `invoice-order-${OrderNumber}.pdf`;
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, () => {
             console.log('pdf done', pdf_name);          
-            MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName, `invoice-order-${OrderNumber}.pdf`);            
+            MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName, `invoice-order-${OrderNumber}.pdf`);
+            ShoppingCart.update( { id: cart.id } , { po_path: pdf_name } )
         } );        
 
         return pdf_name;
@@ -81,7 +82,7 @@ module.exports = {
         await pdf.create(html).toFile(`./pdf_purchase_order/${pdf_name}`, () => {
             console.log('pdf done', pdf_name);
             MailerService.sendCartPaidSellerNotified(fullName, cart, itemsShopping, orderNumber,itemsShopping[0].fish.store.owner.email, pdf_name);
-            
+            itemsShopping.update( { id: itemsShopping.id } , { po_path: pdf_name } )
         } )        
         return pdf_name;
     },

@@ -72,6 +72,11 @@ module.exports = {
       required: false
     },
 
+    invoice_pdf: {
+      type: 'string',
+      required: false
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝

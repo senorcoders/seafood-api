@@ -111,6 +111,10 @@ module.exports = {
       type: 'number',
       required: false
     },
+    po_pdf: {
+      type: 'string',
+      required: false
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
