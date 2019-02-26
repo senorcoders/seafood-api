@@ -264,6 +264,8 @@ module.exports = {
                 }
             }else if( status == '5c017b2147fb07027943a408' ){ //out for delivery
                 await ItemShopping.update({id}, { status: '5c017b2147fb07027943a408', outForDeliveryAt: ts, updateInfo: currentUpdateDates })
+                //notify buyer about item out for delivery
+                await MailerService.orderOutForDelivery(name,cart,store,item);
             }else if( status == '5c017b3c47fb07027943a409' ){ //Delivered
                 let data=await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409' , deliveredAt: ts, updateInfo: currentUpdateDates}).fetch()
 
