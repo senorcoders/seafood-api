@@ -320,7 +320,7 @@ module.exports.routes = {
   
   'PUT /api/itemsshopping/updateETA': 'ItemShoppingController.updateBuyerETA',
 
-  'POST /api/itemshopping/:id/shipping-douments': 'ItemShopping.uploadShippingDocuments',
+  'POST /api/itemshopping/:id/shipping-documents': 'ItemShopping.uploadShippingDocuments',
   /********
    * 
    * FAVORITE FISH
