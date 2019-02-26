@@ -319,6 +319,8 @@ module.exports.routes = {
   'GET /api/itemshopping/:buyer/status/:status/order-number/:orderNumber': 'ItemShoppingController.getBuyerOrders',
   
   'PUT /api/itemsshopping/updateETA': 'ItemShoppingController.updateBuyerETA',
+
+  'POST /api/itemshopping/:id/shipping-douments': 'ItemShopping.uploadShippingDocuments',
   /********
    * 
    * FAVORITE FISH

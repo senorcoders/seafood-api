@@ -1,4 +1,6 @@
 const favoriteFsihCtrl = require("./FavoriteFishController");
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
     getWithAllData: async function(req, res){
@@ -676,6 +678,56 @@ module.exports = {
         } catch (error) {
             res.status(400).json( error );
         }
-    }
+    },
+    
+    uploadShippingDocuments: async (req, res) => {
+        try {
+            let itemShoppingID = req.param("id");
+            let itemShopping = await ItemShopping.find( {id: itemShoppingID } ).limit(1);
+            const dirname = `${sails.config.appPath}/shipping_documents/${itemShoppingID}/`;
+
+            /*if (itemShopping.shippingFiles.length !== 0) {
+                storage = storage[0];
+            }*/
+
+            req.file('shippingDocs').upload( {
+                dirname,
+                maxBytes: 10000000,
+                saveAs: function (stream, cb) {
+                    //console.log(stream);
+                    cb(null, stream.filename);
+                }
+            },  async (err, uploadedFiles) => {
+                if (err) {
+                    return res.serverError( err );
+                }
+
+                // If no files were uploaded, respond with an error.
+                if (uploadedFiles.length === 0){
+                    return res.badRequest('No file was uploaded');
+                }
+
+                // Get the base URL for our deployed application from our custom config
+                // (e.g. this might be "http://foobar.example.com:1339" or "https://example.com")
+                var baseUrl = sails.config.custom.baseUrl;
+
+                let shippingDocsUploaded = [];
+                for (let file of uploadedFiles) {
+                    if (file["status"] === "finished") {
+                        dir = "/shipping_documents/" + itemShoppingID + "/" +file.filename ;
+                        shippingDocsUploaded.push(dir);
+                    }
+                }
+
+                await ItemShopping.update( { id: itemShoppingID }, {
+                    shippingFiles: shippingDocsUploaded
+                } )
+                res.json( shippingDocsUploaded );
+
+            } )
+        } catch (error) {
+            res.serverError( error );
+        }
+    },
 };
 
