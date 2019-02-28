@@ -40,7 +40,7 @@ module.exports = {
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);          
             MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName, `invoice-order-${OrderNumber}.pdf`);
-            let pdf_updated_1 = await ShoppingCart.update( { id: cart.id } , { po_path: pdf_name } );
+            let pdf_updated_1 = await ShoppingCart.update( { id: cart.id } , { invoice_pdf: pdf_name } );
         } );        
 
         return pdf_name;

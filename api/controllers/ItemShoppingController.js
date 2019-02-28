@@ -1,4 +1,6 @@
 const favoriteFsihCtrl = require("./FavoriteFishController");
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
     getWithAllData: async function(req, res){
@@ -258,6 +260,8 @@ module.exports = {
                 await MailerService.orderArrived(name,cart,store,item)
             }else if( status == '5c017b2147fb07027943a408' ){ //out for delivery
                 await ItemShopping.update({id}, { status: '5c017b2147fb07027943a408', outForDeliveryAt: ts, updateInfo: currentUpdateDates })
+                //notify buyer about item out for delivery
+                await MailerService.orderOutForDelivery(name,cart,store,item);
             }else if( status == '5c017b3c47fb07027943a409' ){ //Delivered
                 let data=await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409' , deliveredAt: ts, updateInfo: currentUpdateDates}).fetch()
 
@@ -672,6 +676,54 @@ module.exports = {
         } catch (error) {
             res.status(400).json( error );
         }
-    }
+    },
+    
+    /**
+     * add shipping documents to an itemshopping
+     * parameter: 
+     *  -item ID
+     *  -Array of file uploads
+     */
+    uploadShippingDocuments: async (req, res) => {
+        try {
+            let itemShoppingID = req.param("id");
+            let itemShopping = await ItemShopping.find( {id: itemShoppingID } ).limit(1);
+            const dirname = `${sails.config.appPath}/shipping_documents/${itemShoppingID}/`;
+
+            req.file('shippingDocs').upload( {
+                dirname,
+                maxBytes: 10000000,
+                saveAs: function (stream, cb) {
+                    // keeping file name
+                    cb(null, stream.filename);
+                }
+            },  async (err, uploadedFiles) => {
+                if (err) {
+                    return res.serverError( err );
+                }
+
+                // If no files were uploaded, respond with an error.
+                if (uploadedFiles.length === 0){
+                    return res.badRequest('No file was uploaded');
+                }
+
+                let shippingDocsUploaded = [];
+                for (let file of uploadedFiles) {
+                    if (file["status"] === "finished") {
+                        dir = "/shipping_documents/" + itemShoppingID + "/" +file.filename ;
+                        shippingDocsUploaded.push(dir);
+                    }
+                }
+                // saving file paths in the itemshopping 
+                await ItemShopping.update( { id: itemShoppingID }, {
+                    shippingFiles: shippingDocsUploaded
+                } )
+                res.json( shippingDocsUploaded );
+
+            } )
+        } catch (error) {
+            res.serverError( error );
+        }
+    },
 };
 
