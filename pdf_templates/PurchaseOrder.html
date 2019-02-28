@@ -139,6 +139,7 @@
         <p><%= seller_contact_name %><br>
           <%= seller_contact_address %></p>
       </div>
+      <div class="col col-25" style="font-family: 'Arial';font-size: 10px;">&nbsp; </div>
       <div class="col col-25" style="font-family: 'Arial'; font-size: 10px;">
         <p style="margin-bottom: 10px"><b>Purchase Order Date</b><br>
           <%= purchase_order_date %></p>   
@@ -153,14 +154,14 @@
         <p style="margin-bottom: 10px"><b>Shipping Terms</b><br>
         FOB, Delivery to Airport</p>
       </div>
-      <div class="col col-25" style="font-family: 'Arial';font-size: 10px;">
+      <!--<div class="col col-25" style="font-family: 'Arial';font-size: 10px;">
           <p style="margin-bottom: 30px"> Seafood Souq General Trading LLC.</p>
-        <p>Warehouse 10,  Al Qous Industrial Area 3, 58 ST., Dubai, United Arab Emirates.</p>
+        <p>Warehouse 10,  Al Qou‌z Industrial Area 3, 58 ST., Dubai, United Arab Emirates.</p>
         <p style="margin-bottom: 15px">P.O.Box: 282815</p>
         <p>Telephone: <br>
-          +971 (04) 042683521
+          +971 (0) 42683521
         </p>
-      </div>
+      </div>-->
     </div>
     <div class="row header" style="font-family: 'Arial';font-size: 10px;margin-top: 40px;border-bottom: 2px solid black;padding-bottom: 5px;">
       <div class="col col-3">
@@ -187,7 +188,8 @@
     <% items.forEach(function(it,index){ %>
     <div class="row content" style="font-family: 'Arial';font-size: 10px;">
       <div class="col col-3">
-          <%= it.fish.name %>, <%= it.fish.treatment %>, <%= it.fish.raised %>, <%= it.fish.preparation %>
+          <%= it.fish.name %>, <%= it.fish.treatment %>, <%= it.fish.raised %>, <%= it.fish.preparation %> &nbsp;
+          <%= it.fish.wholeFishWeight %>
       </div>
       <div class="col col-1"> <%= it.fish.seller_sku %></div>
       <div class="col col-1 align-right"><%= it.quantity.value %></div>
@@ -216,12 +218,12 @@
       </div>
     </div>
     <div class="clear" style="font-family: 'Arial'; font-size: 10px">
-      <h2 style="margin-bottom: 20px;font-size:1.5em">Delivery Details:</h2>
+      <h2 style="margin-bottom: 20px;font-size:1.5em">Consignee Details:</h2>
       <p>Seafood Souq General Trading LLC.</p>
-      <p>Warehouse 10,  Al Qous Industrial Area 3, 58 ST., Dubai, United Arab Emirates.</p>
-      <p>Telephone: +971 (04) 042683521</p>
+      <p>Warehouse 10,  Al Qou‌z Industrial Area 3, 58 ST., Dubai, United Arab Emirates.</p>
+      <p>Telephone: +971 (0) 42683521</p>
       <p>Attention: Omar AlHasan</p>
-      <p>Mobile Number: 00971 501650510</p>
+      <p>Mobile Number: 00971 (0) 501650510</p>
     </div>
   </body>
 </html>
