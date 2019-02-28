@@ -86,9 +86,15 @@
       .col-75 {
         width: 75%;
       }
+      .col-90 {
+        width: 90%;
+      }
+      .padding-right{
+        padding-right: 5px; 
+      }
       .subtotal{
         float: right;
-        width: 30%;
+        width: 100%;
         text-align: right;
         clear: both;
         margin-bottom: 15px
@@ -97,8 +103,8 @@
         padding-right: 5px; 
       }
       .subtotal span{
-        display: block;
-        padding-bottom: 5px
+       display: block;
+        padding-bottom: 5px;
       }
       .no-border{
         border: none !important;
@@ -156,7 +162,7 @@
       </div>
       <div class="col col-25">
        <p style="margin-bottom: 10px"> Seafood Souq General Trading LLC.</p>
-       <p style="margin-bottom: 10px">Warehouse 10,  Al Qous Industrial Area 3, 58 ST., Dubai, United Arab Emirates.</p>
+       <p style="margin-bottom: 10px">Warehouse 10,  Al Qou‌z Industrial Area 3, 58 ST., Dubai, United Arab Emirates.</p>
        <p style="margin-bottom: 10px">P.O.Box: 282815</p>
        <p>Telephone: <br>
          +971 (04) 042683521
@@ -181,7 +187,7 @@
           <% items.forEach(function(it,index){ %>
           <tr style="border-bottom: gray 1px solid;">
             <td class="col col-3">
-                <%= it.fish.name %>, <%= it.fish.treatment %>, <%= it.fish.raised %>, <%= it.fish.preparation %>
+                <%= it.fish.name %>, <%= it.fish.treatment %>, <%= it.fish.raised %>, <%= it.fish.preparation %> &nbsp; <%= it.fish.wholeFishWeight %>
                 <br>
                 <%= it.fish.hsCode %>
             </td>
@@ -208,8 +214,40 @@
         </tbody>
       </table>      
     </div>
+    <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
+      <div class="col col-90 padding-right">
+        <span>Subtotal</span>
+      </div>
+      <div class="col col-1">
+        <span><%= subTotal  %></span>
+      </div>
+    </div>
+    <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
+      <div class="col col-90 padding-right">
+        <span>Shipping Fees</span>
+      </div>
+      <div class="col col-1">
+        <span><%= shippingFees %></span>
+      </div>
+    </div>
+    <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
+      <div class="col col-90 padding-right">
+        <span>Custom and Handling Fees</span>
+      </div>
+      <div class="col col-1">
+        <span><%= customHandlingFee %></span>
+      </div>
+    </div>
+    <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
+      <div class="col col-90 padding-right">
+        <span>Total Tax <%= uaeTaxes %>%</span>
+      </div>
+      <div class="col col-1">
+        <span><%= (uaeTaxesFee).toFixed(2) %></span>
+      </div>
+    </div>
     
-    <table style="float: right; width: 500px;font-size: 10px;font-family: arial" class="col-5 align-right">
+    <!--<table style="float: right; width: 500px;font-size: 10px;font-family: arial" class="col-5 align-right">
       <tr class="subtotal">
         <td class="col-9 padding-right">
             <span>Subtotal</span>
@@ -242,7 +280,7 @@
             <span class="no-border"><%= (uaeTaxesFee).toFixed(2) %></span>  
         </td>
       </tr>
-    </table>
+    </table>-->
 
     <div class="align-right clear" style="font-size: 10px;font-family: arial">
       <p><b>Grand Total AED <%= total %></b></p>

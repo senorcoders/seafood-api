@@ -19,7 +19,7 @@ module.exports = {
                 invoiceDate: paidDateTime,
                 buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
                 buyerContactPostalAddress: `${cart.buyer.dataExtra.Address}, ${cart.buyer.dataExtra.City}, ${cart.buyer.dataExtra.country}, ${cart.buyer.dataExtra.zipCode}`,
-                contactAccountNumber : itemsShopping[0].fish.store['CorporateBankAccountNumber'], 
+                contactAccountNumber : '100552524900003', 
                 InvoiceNumber : 'InvoiceNumber',
                 purchase_order_date: paidDateTime,
                 delivery_order_date: paidDateTime,
@@ -37,9 +37,10 @@ module.exports = {
             }
         );
         let pdf_name = `invoice-order-${OrderNumber}.pdf`;
-        await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, () => {
+        await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);          
-            MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName, `invoice-order-${OrderNumber}.pdf`);            
+            MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName, `invoice-order-${OrderNumber}.pdf`);
+            let pdf_updated_1 = await ShoppingCart.update( { id: cart.id } , { invoice_pdf: pdf_name } );
         } );        
 
         return pdf_name;
@@ -63,7 +64,7 @@ module.exports = {
                 invoiceDate: date2,
                 seller_contact_name: fullName,
                 seller_contact_address: sellerAddress,      
-                contactAccountNumber: itemsShopping[0].fish.store['CorporateBankAccountNumber'],
+                contactAccountNumber: '100552524900003',
                 invoice_number : 'invoice_number',
                 purchase_order_date: paidDateTime,
                 delivery_order_date: date2,
@@ -78,20 +79,21 @@ module.exports = {
             }
         );
         let pdf_name = `purchase-order-${orderNumber}-${paidDateTime}-${counter}.pdf`;
-        await pdf.create(html).toFile(`./pdf_purchase_order/${pdf_name}`, () => {
+        await pdf.create(html).toFile(`./pdf_purchase_order/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
             MailerService.sendCartPaidSellerNotified(fullName, cart, itemsShopping, orderNumber,itemsShopping[0].fish.store.owner.email, pdf_name);
-            
+            let pdf_updated = await ItemShopping.update( { id: itemsShopping.id } , { po_path: pdf_name } );
         } )        
         return pdf_name;
-    },
-	testPDF: () => {
-        console.log( 'dir name', __dirname );
-        var compiled = ejs.compile(fs.readFileSync(__dirname + '/../../pdf_templates/template.html', 'utf8'));
-        var html = compiled({ title : 'EJS-EJS ', text : 'Hello, World!' });
-
-        pdf.create(html).toFile('./pdf_invoices/result.pdf',() => {
-            console.log('pdf done')
-        })
+    },	
+    sendPDF: async (req, res, pdf_directory, pdf_name) => {
+	let path = `${sails.config.appPath}/${pdf_directory}/${pdf_name}`;	
+        try {
+            res.sendFile( path );
+	    console.log( path );
+        } catch (error) {
+            res.serverError( error );
+        }
     }
+
 }
