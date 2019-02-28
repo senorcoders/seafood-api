@@ -247,19 +247,15 @@ module.exports = {
                         updateInfo: currentUpdateDates
                     }
                 ).fetch();
-                if(data.length > 0){
-                	await MailerService.itemShipped(name,cart,store,item)
-                }
+                await MailerService.itemShipped(name,cart,store,item)                
             }else if( status == '5c017b1447fb07027943a407' ) {//admin marks the item as arrived
                 let data=await ItemShopping.update({id}, { 
                     status: '5c017b1447fb07027943a407',
                     arrivedAt: ts,
                     updateInfo: currentUpdateDates
-                }).fetch()
-                if(data.length > 0){
-                    //send email to buyer 
-                    await MailerService.orderArrived(name,cart,store,item)
-                }
+                }).fetch();
+                //send email to buyer 
+                await MailerService.orderArrived(name,cart,store,item)
             }else if( status == '5c017b2147fb07027943a408' ){ //out for delivery
                 await ItemShopping.update({id}, { status: '5c017b2147fb07027943a408', outForDeliveryAt: ts, updateInfo: currentUpdateDates })
             }else if( status == '5c017b3c47fb07027943a409' ){ //Delivered
