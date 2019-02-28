@@ -264,6 +264,8 @@ module.exports = {
                 }
             }else if( status == '5c017b2147fb07027943a408' ){ //out for delivery
                 await ItemShopping.update({id}, { status: '5c017b2147fb07027943a408', outForDeliveryAt: ts, updateInfo: currentUpdateDates })
+                //notify buyer about item out for delivery
+                await MailerService.orderOutForDelivery(name,cart,store,item);
             }else if( status == '5c017b3c47fb07027943a409' ){ //Delivered
                 let data=await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409' , deliveredAt: ts, updateInfo: currentUpdateDates}).fetch()
 
@@ -680,21 +682,23 @@ module.exports = {
         }
     },
     
+    /**
+     * add shipping documents to an itemshopping
+     * parameter: 
+     *  -item ID
+     *  -Array of file uploads
+     */
     uploadShippingDocuments: async (req, res) => {
         try {
             let itemShoppingID = req.param("id");
             let itemShopping = await ItemShopping.find( {id: itemShoppingID } ).limit(1);
             const dirname = `${sails.config.appPath}/shipping_documents/${itemShoppingID}/`;
 
-            /*if (itemShopping.shippingFiles.length !== 0) {
-                storage = storage[0];
-            }*/
-
             req.file('shippingDocs').upload( {
                 dirname,
                 maxBytes: 10000000,
                 saveAs: function (stream, cb) {
-                    //console.log(stream);
+                    // keeping file name
                     cb(null, stream.filename);
                 }
             },  async (err, uploadedFiles) => {
@@ -707,10 +711,6 @@ module.exports = {
                     return res.badRequest('No file was uploaded');
                 }
 
-                // Get the base URL for our deployed application from our custom config
-                // (e.g. this might be "http://foobar.example.com:1339" or "https://example.com")
-                var baseUrl = sails.config.custom.baseUrl;
-
                 let shippingDocsUploaded = [];
                 for (let file of uploadedFiles) {
                     if (file["status"] === "finished") {
@@ -718,7 +718,7 @@ module.exports = {
                         shippingDocsUploaded.push(dir);
                     }
                 }
-
+                // saving file paths in the itemshopping 
                 await ItemShopping.update( { id: itemShoppingID }, {
                     shippingFiles: shippingDocsUploaded
                 } )
