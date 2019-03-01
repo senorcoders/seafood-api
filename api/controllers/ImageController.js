@@ -207,7 +207,7 @@ module.exports = {
                             });
                         }
                     }
-
+w
                     if (itemShopping.hasOwnProperty("shippingFiles") && Object.prototype.toString.call(itemShopping.shippingFiles) === "[object Array]") {
                         for (let dir of dirs) {
                             if (itemShopping.shippingFiles.findIndex(function (i) { return i.src === dir.src }) === -1) {
@@ -917,7 +917,7 @@ module.exports = {
 
                     for (let file of uploadedFiles) {
                         // changin name to sku format
-                        let newName = stream.filename;
+                        let newName = file.filename;
                         newName = newName.replace(/\s+/g, '-').toLowerCase();  
                         await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + newName + "/" + id });
                     }
