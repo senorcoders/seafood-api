@@ -177,7 +177,7 @@ the account verification message.)`,
     }
     await MailerService.registerNewUser(newUserRecord);
     //await require("./../../../mailer").registerUserRevision(newUserRecord);
-    await MailerService.newUserNotification(newUserRecord.firstName, newUserRecord.lastName, newUserRecord.role, newUserRecord.email);
+    await MailerService.newUserNotification(newUserRecord.role);
     //await require("./../../../mailer").newUserNotification(newUserRecord.firstName, newUserRecord.lastName, newUserRecord.role, newUserRecord.email);
 
 
