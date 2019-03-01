@@ -1,4 +1,6 @@
 const favoriteFsihCtrl = require("./FavoriteFishController");
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
     getWithAllData: async function(req, res){
@@ -182,7 +184,9 @@ module.exports = {
             let currentUpdateDates = [];
             
             if( item.hasOwnProperty('updateInfo') ){
-                currentUpdateDates =  item.updateInfo;
+            	if(item.updateInfo!=null){
+            		currentUpdateDates =  item.updateInfo;
+            	}
             }
             let newStatus = await OrderStatus.findOne( { id: status } );
             let user = await User.findOne( { id: userID } );
@@ -201,7 +205,40 @@ module.exports = {
             let cart = await ShoppingCart.findOne({id: item.shoppingCart.id}).populate("buyer")
             let name=cart.buyer.firstName+' '+cart.buyer.lastName;
             if( status == '5c017af047fb07027943a405' ){//pending seller fulfillment
-                await ItemShopping.update({id}, { status: '5c017af047fb07027943a405', updateInfo: currentUpdateDates})
+
+                let buyerDateParts = item.buyerExpectedDeliveryDate.split('/');
+                let buyerMonth = buyerDateParts[0] - 1;
+                let buyerDay = buyerDateParts[1];
+                let buyerYear = buyerDateParts[2];
+
+                let buyerDate = new Date( buyerYear, buyerMonth, buyerDay );
+
+                //when admin update to pending fulfilment, admin not provide a expected delivery date
+                if( req.body.hasOwnProperty('sellerExpectedDeliveryDate') ){
+                    let sellerDateParts = req.body.sellerExpectedDeliveryDate.split('/');
+                    
+                    let sellerMonth = sellerDateParts[0] - 1;
+                    let sellerDay = sellerDateParts[1];
+                    let sellerYear = sellerDateParts[2];
+
+                    let sellerDate = new Date( sellerYear, sellerMonth, sellerDay );
+                    
+                    // only change status if seller date is less than buyer date
+                    if( sellerDate > buyerDate ){
+                        //sent email to the admin with an alert
+                        console.log( 'sent email' );
+                        await MailerService.sentAdminWarningETA(cart,store,item,name,req.body.sellerExpectedDeliveryDate);
+                        await ItemShopping.update({id}, { sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate , updateInfo: currentUpdateDates});
+                    } else {
+                        await ItemShopping.update({id}, { status: '5c017af047fb07027943a405', paymentStatus: '5c017b4547fb07027943a40a' , sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate , updateInfo: currentUpdateDates});
+                    }
+                    
+
+                } else { // admin is updating
+                    await ItemShopping.update({id}, { status: '5c017af047fb07027943a405', paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates});
+                }                 
+
+
             }else if( status == '5c017b0e47fb07027943a406' ){ //admin marks the item as shipped
                 
                 let data=await ItemShopping.update({id}, 
@@ -212,25 +249,21 @@ module.exports = {
                         updateInfo: currentUpdateDates
                     }
                 ).fetch();
-                if(data.length > 0){
-                	await MailerService.itemShipped(name,cart,store,item)
-                    //await require("./../../mailer").sendEmailItemRoad(name,cart,store,item);
-                }
+                await MailerService.itemShipped(name,cart,store,item)                
             }else if( status == '5c017b1447fb07027943a407' ) {//admin marks the item as arrived
                 let data=await ItemShopping.update({id}, { 
                     status: '5c017b1447fb07027943a407',
                     arrivedAt: ts,
                     updateInfo: currentUpdateDates
-                }).fetch()
-                if(data.length > 0){
-                    //send email to buyer 
-                    await MailerService.orderArrived(name,cart,store,item)
-                    // await require("./../../mailer").sendEmailOrderArrived(name,cart,store,item);
-                }
+                }).fetch();
+                //send email to buyer 
+                await MailerService.orderArrived(name,cart,store,item)
             }else if( status == '5c017b2147fb07027943a408' ){ //out for delivery
                 await ItemShopping.update({id}, { status: '5c017b2147fb07027943a408', outForDeliveryAt: ts, updateInfo: currentUpdateDates })
+                //notify buyer about item out for delivery
+                await MailerService.orderOutForDelivery(name,cart,store,item);
             }else if( status == '5c017b3c47fb07027943a409' ){ //Delivered
-                let data=await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409', deliveredAt: ts, updateInfo: currentUpdateDates}).fetch()
+                let data=await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409' , deliveredAt: ts, updateInfo: currentUpdateDates}).fetch()
 
                 //check if order is close
                 let orderItems = await ItemShopping.find( { where: { shoppingCart: item.shoppingCart.id } } );
@@ -252,34 +285,29 @@ module.exports = {
 
                 if(data.length > 0){
                     //send email to buyer 
-                    // await require("./../../mailer").sendEmailOrderDelivered(name,cart,store,item);
                     await MailerService.orderDeliveredBuyer(name,cart,store,item);
                     //send email to seller
                     await MailerService.orderArrivedSeller(cart,store,item);
-                    // await require("./../../mailer").sendEmailOrderDeliveredSeller(cart,store,item);
                 }
                 
 
             }else if( status == '5c017b4547fb07027943a40a' ){ //Pending Repayment
-                await ItemShopping.update({id}, { status: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates})
+                await ItemShopping.update({id}, { paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates})
             }else if( status == '5c017b4f47fb07027943a40b' ){ //Seller Repaid
                 let repayedRef = req.param("ref");
-                await ItemShopping.update({id}, { status: '5c017b4f47fb07027943a40b', repayedAt: ts, repayedRef: repayedRef, updateInfo: currentUpdateDates})
+                await ItemShopping.update({id}, { paymentStatus: '5c017b4f47fb07027943a40b', repayedAt: ts, repayedRef: repayedRef, updateInfo: currentUpdateDates})
             }else if( status == '5c017b5a47fb07027943a40c' ){ //Client Cancelled Order"
-                let data=await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c', cancelAt:ts}).fetch();
+                let data=await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c', paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates}).fetch();
                 if(data.length > 0){
                     //send email to buyer
                     await MailerService.buyerCancelledOrderBuyer(name,cart,store,item)
-                    // await require("./../../mailer").sendEmailOrderStatus(name,cart,store,item);
                     //send email to seller
                     await MailerService.buyerCancelledOrderSeller(cart,store,item)
-                    // await require("./../../mailer").sendEmailOrderStatusSeller(name,cart,store,item);
                     //send email to admin
                     await MailerService.buyerCancelledOrderAdmin(cart,store,item)
-                    // await require("./../../mailer").sendEmailOrderStatusAdmin(name,cart,store,item);
                 }
             }else if( status == '5c017b7047fb07027943a40e' ){ //Refunded
-                await ItemShopping.update({id}, { status: '5c017b7047fb07027943a40e', updateInfo: currentUpdateDates})
+                await ItemShopping.update({id}, { paymentStatus: '5c017b7047fb07027943a40e', updateInfo: currentUpdateDates})
 
                 let orderItems = await ItemShopping.find( { where: { shoppingCart: item.shoppingCart.id } } );
 
@@ -301,17 +329,17 @@ module.exports = {
 
 
             }else if( status == '5c06f4bf7650a503f4b731fd' ){ //Seller Cancelled Order
-                let data=await ItemShopping.update({id}, { status: '5c06f4bf7650a503f4b731fd', cancelAt: ts, updateInfo: currentUpdateDates}).fetch();
+                let data=await ItemShopping.update({id}, { status: '5c06f4bf7650a503f4b731fd', paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates}).fetch();
                 if(data.length > 0){
                     //send email to buyer
                     await MailerService.sellerCancelledOrderBuyer(name,cart,store,item);
-                    // await require("./../../mailer").orderCancelledBySellerBuyerNotified(name,cart,store,item);
                     //send email to admin
                     await MailerService.sellerCancelledOrderAdmin(name,cart,store,item);
-                    // await require("./../../mailer").orderCancelledBySellerAdminNotified(name,cart,store,item);
                 }
             }else if ( status == '5c13f453d827ce28632af048'){//pending fulfillment
-                let data=await ItemShopping.update({id}, { status: '5c13f453d827ce28632af048', cancelAt: ts, updateInfo: currentUpdateDates}).fetch();                
+                let data=await ItemShopping.update({id}, { status: '5c13f453d827ce28632af048', paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates}).fetch();                
+            }else if ( status == '5c017b6847fb07027943a40d'){//pending refund
+                let data=await ItemShopping.update({id}, { paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates}).fetch();                
             }else{
                 let data=await ItemShopping.update({id}, { status: status, updateInfo: currentUpdateDates}).fetch();                                
             }
@@ -365,27 +393,30 @@ module.exports = {
             let items = await ItemShopping.find(
                 { 
                     where: {
-                        status: '5c017b3c47fb07027943a409'
+                        paymentStatus: [ '5c017b4547fb07027943a40a', '5c017b4f47fb07027943a40b', '5c017b6847fb07027943a40d', '5c017b7047fb07027943a40e' ]
                     } 
                 }
-            ).populate("fish").populate("shoppingCart").populate("status").sort('createdAt DESC');
+            ).populate("fish").populate("shoppingCart").populate("status").populate('paymentStatus').sort('createdAt DESC');
             
             items = await Promise.all(items.map(async function(it){
-                it.store = await Store.findOne({ id: it.fish.store});
-                if(it.fish.country){
-                    fishCountry = await Countries.findOne( { code: it.fish.country } );
-                    it.country = {
-                        code: fishCountry.code,  
-                        name: fishCountry.name
-                    }
-
-                    Promise.all(fishCountry.cities.map(async function(city){ 
-                        if( city.code === it.fish.city ){
-                            it.city = city;
+                if( it['store'] !== undefined ){
+                    it.store = await Store.findOne({ id: it.fish.store});
+                    if(it.fish['country'] !== undefined){
+                        fishCountry = await Countries.findOne( { code: it.fish.country } );
+                        it.country = {
+                            code: fishCountry.code,  
+                            name: fishCountry.name
                         }
-                        return city;
-                    } ) );    
+    
+                        Promise.all(fishCountry.cities.map(async function(city){ 
+                            if( city.code === it.fish.city ){
+                                it.city = city;
+                            }
+                            return city;
+                        } ) );    
+                    }
                 }
+                
                 
 
                 return it;
@@ -455,24 +486,30 @@ module.exports = {
 
                     } 
                 }
-                ).populate("fish").populate("shoppingCart").populate("status").sort('createdAt DESC');
+                ).populate("fish").populate("shoppingCart").populate("status").populate('paymentStatus').sort('createdAt DESC');
             }      
             await Promise.all(items.map(async function(it){
                 it.store = await Store.findOne({ id: it.fish.store});
-                if(it.fish.country){
-                    fishCountry = await Countries.findOne( { code: it.fish.country } );
-                    it.country = {
-                        code: fishCountry.code,  
-                        name: fishCountry.name
-                    }
-
-                    Promise.all(fishCountry.cities.map(async function(city){ 
-                        if( city.code === it.fish.city ){
-                            it.city = city;
+                if( it['fish'] !== undefined ){
+                    if(it.fish['country'] !== undefined ){
+                        if( it.fish.hasOwnProperty(country) ){
+                            fishCountry = await Countries.findOne( { code: it.fish.country } );
+                            it.country = {
+                                code: fishCountry.code,  
+                                name: fishCountry.name
+                            }
+        
+                            Promise.all(fishCountry.cities.map(async function(city){ 
+                                if( city.code === it.fish.city ){
+                                    it.city = city;
+                                }
+                                return city;
+                            } ) );    
                         }
-                        return city;
-                    } ) );    
+                        
+                    }
                 }
+                
                 return it;
             }));                        
             res.status(200).json( items );
@@ -484,7 +521,16 @@ module.exports = {
     },
     getBuyerCanceledDeliveredOrders: async ( req, res ) => {
         try {
+            let user = req.param('buyer');
+            let buyerOrders = await ShoppingCart.find( { buyer: user } );
+
+            orderIds = [];
+            buyerOrders.map( order => {
+                orderIds.push( order.id );
+            } )
+
             let where = {
+                shoppingCart: orderIds,
                 status: [ '5c06f4bf7650a503f4b731fd', '5c017b5a47fb07027943a40c', '5c017b3c47fb07027943a409' ]
             }
             let items = await ItemShopping.find( where ).populate( 'fish' ).populate( 'shoppingCart' ).populate( 'status' ).sort( 'createdAt DESC' ).limit( 1000 );
@@ -537,7 +583,12 @@ module.exports = {
             let items = await ItemShopping.find( where ).populate( 'fish' ).populate( 'shoppingCart' ).populate( 'status' ).sort( 'createdAt DESC' ).limit( 100 );
 
             await Promise.all(items.map(async function(it){
-                it.store = await Store.findOne({ id: it.fish.store});               
+//		console.log( it.fish.store );
+		if( it.hasOwnProperty( 'fish' ) && it.fish !== undefined && it.fish !== null ){
+		  if( it.fish.hasOwnProperty('store') && it.fish.store !== null && it.fish.store !== undefined ){
+                	it.store = await Store.findOne({ id: it.fish.store});
+		  }
+		}
                 return it;
             }));      
             
@@ -612,6 +663,67 @@ module.exports = {
             console.error(error);
             res.serverError(error);
         }
-    }    
+    },
+    updateBuyerETA: async( req, res ) => {
+        try {
+            let etas = req.body.etas;
+            items = await Promise.all(etas.map(async function(eta){
+                await ItemShopping.update( { id: eta.id }, { buyerExpectedDeliveryDate: buyerExpectedDeliveryDate } );
+            } ) );
+
+            res.status(200).json(etas);
+
+        } catch (error) {
+            res.status(400).json( error );
+        }
+    },
+    
+    /**
+     * add shipping documents to an itemshopping
+     * parameter: 
+     *  -item ID
+     *  -Array of file uploads
+     */
+    uploadShippingDocuments: async (req, res) => {
+        try {
+            let itemShoppingID = req.param("id");
+            let itemShopping = await ItemShopping.find( {id: itemShoppingID } ).limit(1);
+            const dirname = `${sails.config.appPath}/shipping_documents/${itemShoppingID}/`;
+
+            req.file('shippingDocs').upload( {
+                dirname,
+                maxBytes: 10000000,
+                saveAs: function (stream, cb) {
+                    // keeping file name
+                    cb(null, stream.filename);
+                }
+            },  async (err, uploadedFiles) => {
+                if (err) {
+                    return res.serverError( err );
+                }
+
+                // If no files were uploaded, respond with an error.
+                if (uploadedFiles.length === 0){
+                    return res.badRequest('No file was uploaded');
+                }
+
+                let shippingDocsUploaded = [];
+                for (let file of uploadedFiles) {
+                    if (file["status"] === "finished") {
+                        dir = "/shipping_documents/" + itemShoppingID + "/" +file.filename ;
+                        shippingDocsUploaded.push(dir);
+                    }
+                }
+                // saving file paths in the itemshopping 
+                await ItemShopping.update( { id: itemShoppingID }, {
+                    shippingFiles: shippingDocsUploaded
+                } )
+                res.json( shippingDocsUploaded );
+
+            } )
+        } catch (error) {
+            res.serverError( error );
+        }
+    },
 };
 

@@ -23,7 +23,7 @@ module.exports = {
             let buyer = req.param("buyer");
             let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items");
             let currentAdminCharges = await require( './PricingChargesController' ).CurrentPricingCharges();
-            if (cart !== undefined ) {                
+            if (cart !== undefined ) {
                 let totalShipping  = 0;
                 let totalSFSMargin = 0;
                 let totalCustoms   = 0;
@@ -47,7 +47,7 @@ module.exports = {
                     let storeIsThere=false
                     let storeIndex = 0;
                     shippingItems.map( ( shippingItem, index ) => {
-                        if( shippingItem.store == itemStore.store.id ){                        
+                        if( shippingItem.store == itemStore.store.id ){
                             storeIsThere = true;
                             storeIndex = index;
                         }
@@ -58,7 +58,7 @@ module.exports = {
                     }else{
                         shippingItems[ storeIndex ].items.push( item );
                     }
-                    
+
                 } ) )
 
 
@@ -74,90 +74,135 @@ module.exports = {
                         country = item.country;
                         city = item.city;
                     } ) )
-                    shippingRate = await require('./FishController').getShippingBySeller( firstMileFee, city, totalWeight ); 
+                    shippingRate = await require('./FishController').getShippingBySeller( firstMileFee, city, totalWeight );
                     store.totalWeight = totalWeight;
                     store.shipping = shippingRate; //{ firstMileFee, totalWeight: totalWeight, country: country, city: city };
-                    
+
                     // now we calculate how much belongs to each product in the seller
                     store.items.map( item => {
                         item.shippingStore = item.quantity.value * store.shipping.shippingCost / store.totalWeight;
                         item.shipping = item.shippingStore;
-                        item.fishCharges.shippingCost.cost = item.shippingStore;
+                        //item.fishCharges.shippingCost.cost = item.shippingStore;
                     } )
                 } ) )
-                
+
                 //return res.status(200).json( shippingItems );
-                
+
                 //return res.json( shippingItems );
                 let currentPricingCharges = currentAdminCharges;
-                cart.items = await Promise.all(cart.items.map(async function (it) {
+                let today = new Date();
+
+                await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish.id }).populate("type").populate("store");
                     it.fishCharges  = await require('./FishController').getItemChargesByWeight(it.fish.id, it.quantity.value, currentPricingCharges)
+
+                    let fishCountry = await Countries.findOne( { code: it.fish.country } );
+                    console.log( 'fishCountry', fishCountry );
+                    min = new Date();
+                    if ( fishCountry == undefined ) {
+                    it.adminNumberOfDaysForDelivery = 3;
+                    min.setDate( today.getDate() + 3 );
+                    } else if ( it.city == undefined || fishCountry.eta == undefined ) {
+                        it.adminNumberOfDaysForDelivery = 3;
+                        min.setDate( today.getDate() + 3 );
+                    } else {
+                                it.adminNumberOfDaysForDelivery = fishCountry.eta;
+                        min.setDate( today.getDate() + fishCountry.eta );
+                    }
+
+
+                    //min = new Date();
+                    //min.setDate( today.getDate() + fishCountry.eta );
+                    it.minDeliveryDate = min;
                     //console.log('fishCharges', FishCharges);
                     //it.fishCharges = FishCharges;
-                    shippingRate = await require('./ShippingRatesController').getShippingRateByCities( it.fish.city, it.quantity.value ); 
+                    shippingRate = await require('./ShippingRatesController').getShippingRateByCities( it.fish.city, it.quantity.value );
                     it.owner = await User.findOne( { id: it.fish.store.owner } )
                     it.shippingCost = it.fishCharges.shippingCost.cost;
-                    
+
                     //now we calculate the shipping for each seller so we replace the shipping calc
                     await Promise.all( shippingItems.map( async store => {
                         await Promise.all(store.items.map( async item => {
                             if( item.id == it.id ) {
                                 it.fishCharges.finalPrice = it.fishCharges.finalPrice - it.fishCharges.shippingCost.cost + item.shippingStore ;
-                                it.fishCharges.shippingCost.cost = item.shippingStore;
+                                //it.fishCharges.shippingCost.cost = item.shippingStore;
+                                //await ItemShopping.update({ id: it.id }, { fishCharges: it.fishCharges });
                                 console.log( 'shipping', item.shippingStore);
                                 it.shipping   =  item.shippingStore;
                             }
-                        } ) )
+                            return item;
+                        } ) );
+                        return store;
                     } ) )
 
+                    //console.log( 'fish charges error', it.fishCharges );
+                    /*it.fishCharges.sfsMargin = 0;
+                    it.fishCharges.sfsMarginCost = 0;
+                    it.fishCharges.uaeTaxesFee = 0;
+                    it.fishCharges.finalPrice = 0;*/
+
+                    //console.log( 'fish charges error', it.fishCharges );
+                    /*it.fishCharges.sfsMargin = 0;
+                    it.fishCharges.sfsMarginCost = 0;
+                    it.fishCharges.uaeTaxesFee = 0;
+                    it.fishCharges.finalPrice = 0;*/
+
                     totalShipping  += it.fishCharges.shippingCost.cost ;
-                    console.log( 'now shipping', totalShipping);
+                    //console.log( 'now shipping', totalShipping);
                     totalSFSMargin += it.fishCharges.sfsMarginCost;
                     totalCustoms   += it.fishCharges.customsFee;
                     totalUAETaxes  += it.fishCharges.uaeTaxesFee;
-                    
+
                     subtotal       += it.fishCharges.fishCost;
                     total          += it.fishCharges.finalPrice;
 
                     it.currentCharges = {
                         sfsMargin   : it.fishCharges.sfsMargin,
                         shipping    : it.fishCharges.shipping,
-                        customs     : it.fishCharges.customs                        
+                        customs     : it.fishCharges.customs
                     };
+
+
+
                     if(!it.fishCharges.sfsMarginCost || it.fishCharges.sfsMarginCost == "NaN"){
                         it.fishCharges.sfsMarginCost = 0;
                     }
                     if(!it.fishCharges.uaeTaxesFee || it.fishCharges.uaeTaxesFee == "NaN"){
                         it.fishCharges.uaeTaxes = 0;
+                        it.fishCharges.uaeTaxesFee = 0;
                     }
 
-                    
+                    if( !it.fishCharges.uaeTaxes || it.fishCharges.uaeTaxes == "NaN" ) {
+                        it.fishCharges.uaeTaxes = 0;
+                    }
+
+
                     it.sfsMargin    = it.fishCharges.sfsMarginCost;
-                    it.customs      = it.fishCharges.customsFee; 
-                    it.uaeTaxes     = it.fishCharges.uaeTaxesFee;        
-                    
+                    it.customs      = it.fishCharges.customsFee;
+                    it.uaeTaxes     = it.fishCharges.uaeTaxesFee;
+
 
 
                     await ItemShopping.update({ id: it.id }, {
                         currentCharges: it.currentCharges,
-                        shipping:  it.shipping,
+                        shipping: it.fishCharges.shippingCost.cost,
+                        shippingStore:  it.shipping,
                         sfsMargin: it.sfsMargin,
                         customs:   it.customs,
                         uaeTaxes:  it.uaeTaxes
                     })
 
                     return it;
-                }));                
+                }));
                 
-                totalOtherFees = totalSFSMargin + totalCustoms;                             
+                totalOtherFees = totalSFSMargin + totalCustoms;
                 totalOtherFees = Number(parseFloat(totalOtherFees).toFixed(2));
                 totalShipping = Number(parseFloat(totalShipping).toFixed(2));
                 console.log('total SHipping', totalShipping);
                 totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
-                total = Number(parseFloat(total).toFixed(2));
-                if (total !== cart.total) { 
-                    await ShoppingCart.update({ id: cart.id }, { 
+                total = Number(parseFloat( subtotal + totalOtherFees + totalShipping + totalUAETaxes ).toFixed(2));
+                //if (total !== cart.total) {
+                  let newCart = await ShoppingCart.update({ id: cart.id }, {
                         currentCharges: currentPricingCharges,
                         subTotal: subtotal,
                         shipping: totalShipping,
@@ -166,7 +211,7 @@ module.exports = {
                         total: total,
                         totalOtherFees: totalOtherFees,
                         uaeTaxes: totalUAETaxes,
-                    });
+                    }).fetch();
                     cart.total = total;
                     cart.customs = totalCustoms;
                     cart.totalOtherFees = totalOtherFees;
@@ -175,15 +220,15 @@ module.exports = {
                     cart.shipping = totalShipping;
 
 
-                }
+                //}
 
                 return res.json(cart)
             };
             console.log( 'start' );
-      
+
             cart = await ShoppingCart.create(
-                { 
-                    buyer: buyer                                        
+                {
+                    buyer: buyer
                 }
                 ).fetch();
 
@@ -198,7 +243,7 @@ module.exports = {
     getOpenOrders: async( req, res ) => {
         try {
             let buyer = req.param("buyer");
-            let orders = await ShoppingCart.find({ orderStatus: "5c017ad347fb07027943a403", buyer }).populate("items").populate('orderStatus');
+            let orders = await ShoppingCart.find({ orderStatus: "5c017ad347fb07027943a403", buyer }).populate("items").populate('orderStatus').sort( 'createdAt DESC' );
 
             res.status( 200 ).json( orders );
 
@@ -371,13 +416,16 @@ module.exports = {
 
     updateShoppingCartPaid: async function (req, res) {
         try {
+            let exchangeRates = await PricingCharges.find( { where: { type: 'exchangeRates' } } ).sort( 'updatedAt DESC' ).limit(1);
+            let uaeTaxes = await PricingCharges.find( { where: { type: 'uaeTaxes' } } ).sort( 'updatedAt DESC' ).limit(1);
+
             let paidDateTime=new Date().toISOString();
             let lastOrder = await ShoppingCart.find().sort('orderNumber DESC').limit(1);//.max('orderNumber');
             let max = 0;
             if(lastOrder.length > 0)
-                if( lastOrder[0].hasOwnProperty("orderNumber") ) 
-                    max = lastOrder[0].orderNumber + 1;
-
+            if( lastOrder[0].hasOwnProperty("orderNumber") ) 
+            max = lastOrder[0].orderNumber + 1;
+            
             let cart = await ShoppingCart.findOne({ id: req.param("id"), status: "pending" }).populate("buyer");
             if (cart === undefined) {
                 return res.status(400).send("not found");
@@ -391,7 +439,7 @@ module.exports = {
             }));
 
             
-
+            
             //Se le envia los datos de compras al vendedor
             //await require("./../../mailer").sendCartPaidBuyer(itemsShopping, cart.buyer.email);
             let updateStatusItem = await ItemShopping.update( { shoppingCart: cart.id  }, { status: '5c017ae247fb07027943a404' } )
@@ -412,32 +460,78 @@ module.exports = {
             let storeName=[];
             let OrderNumber     = max;
             let OrderStatus     = "5c017ad347fb07027943a403"; //Pending Seller Confirmation
-            //Se envia los correos a los dueños de las tiendas
-            for (let st of itemsStore) {
-                storeName.push(st[0].fish.store.name);
-                // shippingRate.push(await require('./ShippingRatesController').getShippingRateByCities( st[0].fish.city, st[0].quantity.value ));
-                let fullName = st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
-                let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName
-                //await require("./../../mailer").sendCartPaidSellerNotified(fullName, cart, st, OrderNumber,st[0].fish.store.owner.email)
-                await MailerService.sendCartPaidSellerNotified(fullName, cart, st, OrderNumber,st[0].fish.store.owner.email)
-            }
-            await MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName);
-            await MailerService.sendCartPaidAdminNotified(itemsShopping, cart,OrderNumber,storeName)
-            // await require("./../../mailer").sendCartPaidBuyer(itemsShopping, cart,OrderNumber,storeName);
-            //  await require("./../../mailer").sendCartPaidAdmin(itemsShopping, cart,OrderNumber,storeName);
-            cart = await ShoppingCart.update({ id: req.param("id") }, { 
+            cartUpdated = await ShoppingCart.update({ id: req.param("id") }, { 
                 status: "paid", 
                 paidDateTime: paidDateTime ,
                 orderNumber: OrderNumber,
                 orderStatus: OrderStatus
                 
             }).fetch();
-            await ItemShopping.update( { shoppingCart: req.param("id") } ).set( { status: '5c017ae247fb07027943a404' } );
-            res.json(cart);
+            //Se envia los correos a los dueños de las tiendas
+            let counter = 0;        
+            for (let st of itemsStore) {
+                counter +=1;
+                storeName.push(st[0].fish.store['name']);
+                // shippingRate.push(await require('./ShippingRatesController').getShippingRateByCities( st[0].fish.city, st[0].quantity.value ));
+                let fullName = st[0].fish.store['name'];//st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
+                let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
+                let sellerAddress = st[0].fish.store['Address']; //`${st[0].fish.store.owner.dataExtra.Address}, ${st[0].fish.store.owner.dataExtra.City}, ${st[0].fish.store.owner.dataExtra.country}, ${st[0].fish.store.owner.dataExtra.zipCode}`;
+
+                let sellerInvoice = await PDFService.sellerPurchaseOrder( fullName, cart, st, OrderNumber, sellerAddress, counter, exchangeRates[0].price );
+                
+                console.log( 'seller invoice', sellerInvoice );
+            }
+                await MailerService.sendCartPaidAdminNotified(itemsShopping, cart,OrderNumber,storeName)
+            
+                await PDFService.buyerInvoice( itemsShopping, cart,OrderNumber, storeName, uaeTaxes[0].price )
+            
+            //await MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName);            
+
+            // await require("./../../mailer").sendCartPaidBuyer(itemsShopping, cart,OrderNumber,storeName);
+            //  await require("./../../mailer").sendCartPaidAdmin(itemsShopping, cart,OrderNumber,storeName);
+            
+            await ItemShopping.update( { shoppingCart: req.param("id") } ).set( { status: '5c017ae247fb07027943a404' } );            
+            res.json( cartUpdated );
         }
         catch (e) {
             console.error(e);
             res.serverError(e);
+        }
+    },
+    getOrderLogistic: async function (req, res) {
+        try {
+            let orders = await ShoppingCart.find( { orderNumber: { '!': null } } ).populate('buyer').populate('orderStatus').populate('items').sort('updatedAt DESC');
+
+            let ordersResponse = [];
+            await Promise.all( orders.map( async order => {
+
+                let items = [];
+                await Promise.all( order.items.map( async item => {
+
+                    let fishItem = await Fish.findOne( { id: item.fish } ).populate('store').populate('type').populate('status')
+                    item.fishItem = fishItem;
+                    items.push( item );
+
+                    console.log(item);
+                } ) )
+                order.items = items;
+                ordersResponse.push( order );
+            } ) )
+
+            res.status( 200 ).json( ordersResponse );
+
+        } catch (error) {
+            res.status(400).json(error);
+        }
+    
+    },
+    sendPDF: async (req, res) => {
+        try {
+            let directory = req.param("directory");
+            let name = req.param("name");
+            PDFService.sendPDF( req, res, directory, name );
+        } catch (error) {
+            res.serverError( error );     
         }
     }
 

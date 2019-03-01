@@ -27,7 +27,7 @@ module.exports = {
         try {
             let start = Number(req.params.page);
             --start;
-            let productos = await Fish.find( {status: '5c0866f9a0eda00b94acbdc2'} ).populate("type").populate("store").paginate({ page: start, limit: req.params.limit });
+            let productos = await Fish.find( {status: '5c0866f9a0eda00b94acbdc2'} ).populate("type").populate("store").populate('status').paginate({ page: start, limit: req.params.limit });
             productos = await Promise.all(productos.map(async function (m) {
                 if (m.store === null)
                     return m;
@@ -212,43 +212,52 @@ module.exports = {
                 return res.status(400).send("fish not found!");
             }
 
-            let namefile, dirname;
-            if (fish.hasOwnProperty("imagePrimary") && fish.imagePrimary !== "" && fish.imagePrimary !== null) {
-                namefile = fish.imagePrimary.split("/");
-                namefile = namefile[namefile.length - 2];
-                console.log(IMAGES, fish.id, namefile);
-                dirname = path.join(IMAGES, "primary", fish.id, namefile);
-                console.log(dirname);
-                if (fs.existsSync(dirname)) {
-                    console.log("exits primary");
-                    fs.unlinkSync(dirname);
-                    //dirname = path.join(IMAGES, "primary", fish.id);
-                    //fs.unlinkSync(dirname);
-                }
-            }
+            //check if had records in the carts
+            let hasRecords = await ItemShopping.find( { fish: id } );
 
-            if (fish.hasOwnProperty("images") && fish.iamges !== null && Object.prototype.toString.call(fish.images) === "[object Array]") {
-                for (let file of fish.images) {
-
-                    namefile = file.filename;
-                    dirname = path.join(IMAGES, fish.id, namefile);
+            if( hasRecords.length > 0 ) { 
+                // we can't deleted from the database so we are going to update the status of the fish
+                let updatedFish = await Fish.update( { id: id }, { status: '5c45f7a382295a06e36cb304' } );
+                res.status( 200 ).json( updatedFish );
+            } else {
+                let namefile, dirname;
+                if (fish.hasOwnProperty("imagePrimary") && fish.imagePrimary !== "" && fish.imagePrimary !== null) {
+                    namefile = fish.imagePrimary.split("/");
+                    namefile = namefile[namefile.length - 2];
+                    console.log(IMAGES, fish.id, namefile);
+                    dirname = path.join(IMAGES, "primary", fish.id, namefile);
                     console.log(dirname);
                     if (fs.existsSync(dirname)) {
-                        console.log("exists");
+                        console.log("exits primary");
                         fs.unlinkSync(dirname);
+                        //dirname = path.join(IMAGES, "primary", fish.id);
+                        //fs.unlinkSync(dirname);
                     }
                 }
 
-                //dirname = path.join(IMAGES, fish.id);
-                //if (fs.existsSync(dirname)) {
-                //    console.log("exists");
-                //    fs.unlinkSync(dirname);
-                //}
+                if (fish.hasOwnProperty("images") && fish.iamges !== null && Object.prototype.toString.call(fish.images) === "[object Array]") {
+                    for (let file of fish.images) {
+
+                        namefile = file.filename;
+                        dirname = path.join(IMAGES, fish.id, namefile);
+                        console.log(dirname);
+                        if (fs.existsSync(dirname)) {
+                            console.log("exists");
+                            fs.unlinkSync(dirname);
+                        }
+                    }
+
+                    //dirname = path.join(IMAGES, fish.id);
+                    //if (fs.existsSync(dirname)) {
+                    //    console.log("exists");
+                    //    fs.unlinkSync(dirname);
+                    //}
+                }
+
+                await Fish.destroy({ id });
+                res.json(fish);
             }
 
-            await Fish.destroy({ id });
-
-            res.json(fish);
 
         }
         catch (e) {
@@ -783,10 +792,46 @@ module.exports = {
 
     getPendingProducts: async ( req, res ) => {
         try {
+            let countries = await Countries.find();
             let fishes = await Fish.find( { status: '5c0866e4a0eda00b94acbdc0' } ).populate( 'store' ).populate( 'type' );
+
+            
             fishes = await Promise.all(fishes.map(async (it) => {
                 try {
                     let owner = await User.findOne( { id:  it.store.owner } )
+
+
+                    let fishID = req.param( 'fishID' );
+
+                    let level2 = it.type;
+                    
+                    let descriptor = await FishType.findOne( { id: it.descriptor } );
+                    
+
+                    let level1 = await FishType.findOne( { id: level2.parent } );
+
+                    let level0 = await FishType.findOne( { id: level1.parent } );
+
+                    let parentsLevel = { level0, level1, level2, descriptor } ;
+                    it.parentsLevel = parentsLevel;
+                    
+                    await countries.map( async country => {
+                        if( it.country == country.code ){
+                            it.countryName = country.name;
+                            console.log(country.name)
+
+                            await country.cities.map( city => {
+                                if( it.city == city.code ) {
+                                    it.cityName = city.name;
+                                    console.log(city);
+                                }
+                            })
+                        }
+                        if ( it.processingCountry == country.code ) {
+                            it.processingCountryName = country.name;
+                        }
+                    } )
+
                     it.owner = {
                         id: owner.id,
                         email: owner.email,
@@ -896,15 +941,18 @@ module.exports = {
 
     getItemChargesByWeight: async ( id, weight, currentAdminCharges) => {
         let fish = await Fish.findOne( { where: { id: id } } ).populate( 'type' ).populate( 'store' );
-                let fishPrice = fish.price.value;
+                let fishPrice = Number( parseFloat( fish.price.value ) );
                 let owner = await User.findOne( { id: fish.store.owner } ) ;
-                let firstMileCost = owner.firstMileCost;
+                let firstMileCost = Number( parseFloat( owner.firstMileCost ) );
                 let firstMileFee = firstMileCost * weight * fishPrice;
     
                 shipping = await require( './ShippingRatesController' ).getShippingRateByCities( fish.city, weight );
                 //shippingCost = shipping * weight;
                 
-                //currentAdminCharges = await require( './PricingChargesController' ).CurrentPricingCharges();
+                if( currentAdminCharges === undefined ){
+                    currentAdminCharges = await require( './PricingChargesController' ).CurrentPricingCharges();
+                }
+
                 customs         = currentAdminCharges.customs[0].price;  
                 uaeTaxes        = currentAdminCharges.uaeTaxes[0].price; //Taxes in the UAE are 5% on the final price paid by the buyer (not by item)
                 handlingFees    = currentAdminCharges.handlingFees[0].price;
@@ -912,7 +960,7 @@ module.exports = {
                 sfsMargin       = fish.type.sfsMargin;
                 
                 //calculate cost
-                let fishCost = fishPrice * weight; // A
+                let fishCost = (fishPrice * weight); // A
                 let shippingFee   = shipping * weight; //b1
                 let handlingFee   = handlingFees * weight; //b2 //are 3 AED/KG to get the shipment released from Customs.
                 let shippingCost  = firstMileFee + shippingFee + handlingFee + lastMileCost; //C = first mile cost + b1 + b2 + last mile cost

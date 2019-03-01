@@ -12,6 +12,7 @@
     "axios": "^0.18.0",
     "email-templates": "^5.0.2",
     "express": "^3.0.6",
+    "html-pdf": "^2.2.0",
     "jsonwebtoken": "^8.2.2",
     "mmmagic": "^0.5.0",
     "moment": "^2.22.2",
@@ -25,6 +26,7 @@
     "sails-hook-sockets": "^1.4.0",
     "sails-mongo": "^1.0.0",
     "sharp": "^0.20.2",
+    "xero-node": "^3.0.16",
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {

@@ -99,6 +99,22 @@ module.exports = {
       type: 'string',
       required: false
     },
+    buyerExpectedDeliveryDate: {
+      type: 'string',
+      required: false
+    },
+    sellerExpectedDeliveryDate: {
+      type: 'string',
+      required: false
+    },
+    adminNumberOfDaysForDelivery: {
+      type: 'number',
+      required: false
+    },
+    po_pdf: {
+      type: 'string',
+      required: false
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
@@ -119,6 +135,10 @@ module.exports = {
     },
 
     status: {
+      model: "OrderStatus",
+      required: false
+    },
+    paymentStatus: {
       model: "OrderStatus",
       required: false
     }

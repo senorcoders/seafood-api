@@ -273,8 +273,9 @@ module.exports.routes = {
   'GET /api/orders/open/:buyer': "ShoppingCartController.getOpenOrders",
 
   //test order
-  'GET /api/cart/test': "ShoppingCartController.testOrder",
+  'GET /api/shoppingcart/orderlogistic': 'ShoppingCartController.getOrderLogistic',
 
+  'GET /api/shoppingcart/PDF/:name/:directory': 'ShoppingCartController.sendPDF',
   
   /***********
    * 
@@ -316,7 +317,10 @@ module.exports.routes = {
   'GET /api/itemshopping/:buyer/order-number/:orderNumber': 'ItemShoppingController.getBuyerOrders',
   // get all orders by status and order number of buyer
   'GET /api/itemshopping/:buyer/status/:status/order-number/:orderNumber': 'ItemShoppingController.getBuyerOrders',
+  
+  'PUT /api/itemsshopping/updateETA': 'ItemShoppingController.updateBuyerETA',
 
+  'POST /api/itemshopping/:id/shipping-documents': 'ItemShopping.uploadShippingDocuments',
   /********
    * 
    * FAVORITE FISH
@@ -405,6 +409,8 @@ module.exports.routes = {
    'GET /shippingRates/country/:country/cities/': 'ShippingRates.getCitiesWithShippings',
    'POST /shippingRates/cities': 'ShippingRates.getCitiesShippingRateByWeight',
 
+   'POST /shippingRates/bycity': 'ShippingRates.getShippingRateByCity',
+
    'GET /countries/cities': 'Countries.getAllCities',
 
    'POST /shipping/:id/upload/': 'Image.uploadShippingInformation',
@@ -415,11 +421,33 @@ module.exports.routes = {
 
    'GET /pricingCharges/fish/:id': 'PricingCharges.getFishPricingCharges',
 
+    // COUNTRIES
+    'PUT /api/countries/cityeta': 'Countries.updateCityEta',
+
+    'PUT /api/countries/city': 'Countries.updateCity',
+
+    'PUT /api/countries/city/delete': 'Countries.deleteCity',
+
+    'GET /api/countries/withCities': 'Countries.getCountriesWithCities',
+
+    // XERO Invoice services
+    'GET /xero/connect': 'Xero.connect',
+
+    //trimming
+    'GET /storeTrimming/store/:store': 'StoreTrimming.getStoreTrimming',
+
+    //Order Status
+    'GET /api/orderStatus/logistic': 'OrderStatus.getLogisticOrderstatus',
+
+    'GET /api/orderStatus/payments': 'OrderStatus.getPaymentOrderstatus',
+
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝
   //payments
   'POST /payments/payfort': 'PaymentsController.getAuthorization',
+
+  'GET /xero/updateToken': 'Xero.updateXero',
  
   //  ╔╦╗╦╔═╗╔═╗  ╦═╗╔═╗╔╦╗╦╦═╗╔═╗╔═╗╔╦╗╔═╗
   //  ║║║║╚═╗║    ╠╦╝║╣  ║║║╠╦╝║╣ ║   ║ ╚═╗

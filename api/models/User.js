@@ -113,6 +113,31 @@ module.exports = {
     firstMileCost: {
       type: "number"
     },
+    
+    contactID: {
+      type: 'string',
+      required: false,
+      description: 'id for xero'
+    },
+
+    bankName: {
+      type: 'string',
+      required: false
+    },
+
+    bankBranch: {
+      type: 'string',
+    },
+
+    bankAddress: {
+      type: 'string'
+    },
+
+    typeBusiness: {
+      type: 'string',
+      required: false
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝

@@ -63,6 +63,19 @@ module.exports = {
       type: "number",
       required: false
     },
+    xeroRef: {
+      type: 'string',
+      required: false
+    },
+    xeroLink: {
+      type: 'string',
+      required: false
+    },
+
+    invoice_pdf: {
+      type: 'string',
+      required: false
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗

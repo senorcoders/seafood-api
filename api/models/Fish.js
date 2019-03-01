@@ -12,9 +12,14 @@ module.exports = {
       required: true
     },
 
+    brandName: {
+      type: "string",
+      required: false
+    },
+
     description: {
       type: "string",
-      required: true
+      required: false
     },
 
     country: {
@@ -56,6 +61,17 @@ module.exports = {
       type: "string",
       required: false
     },
+
+    wholeFishWeight: {
+      type: "string",
+      required: false
+    },
+
+    acceptableSpoilageRate: {
+      type: 'number',
+      required: false,
+    },
+
     
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
@@ -81,6 +97,11 @@ module.exports = {
           description: $2 for pack
         }
       `
+    },
+
+    hsCode: {
+      type: 'string',
+      required: false,
     },
 
     imagePrimary: {

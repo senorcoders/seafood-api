@@ -181,9 +181,11 @@ module.exports = {
 
                 req.file("images").upload({
                     dirname,
-                    maxBytes: 5000000,
+                    maxBytes: 7000000,
                     saveAs: function (stream, cb) {
                         ////console.log(stream);
+                        let newName = stream.filename;
+                        newName = newName.replace(/\s+/g, '-').toLowerCase();  
                         cb(null, stream.filename);
                     }
                 }, async function (err, uploadedFiles) {
@@ -196,14 +198,16 @@ module.exports = {
 
                     let dirs = [];
                     for (let file of uploadedFiles) {
+                        let newName = file.filename;
+                        newName = newName.replace(/\s+/g, '-').toLowerCase();  
                         if (file.type.includes("image/") && file["status"] === "finished") {
                             dirs.push({
                                 filename: file.filename,
-                                src: "/api/ItemShopping/images/" + file.filename + "/" + ItemShoppingID
+                                src: "/api/ItemShopping/images/" + newName + "/" + ItemShoppingID
                             });
                         }
                     }
-
+w
                     if (itemShopping.hasOwnProperty("shippingFiles") && Object.prototype.toString.call(itemShopping.shippingFiles) === "[object Array]") {
                         for (let dir of dirs) {
                             if (itemShopping.shippingFiles.findIndex(function (i) { return i.src === dir.src }) === -1) {
@@ -250,27 +254,33 @@ module.exports = {
         ////console.log(req);
         req.file("images").upload({
             dirname,
-            maxBytes: 20000000,
+            maxBytes: 70000000,
             saveAs: function (stream, cb) {
-                //console.log(stream);
-                cb(null, stream.filename);
+                // changin name to sku format
+                let newName = stream.filename;
+                newName = newName.replace(/\s+/g, '-').toLowerCase();            
+                cb(null, newName);
             }
         }, async function (err, uploadedFiles) {
             if (err) return res.send(500, err);
 
             let dirs = [];
             for (let file of uploadedFiles) {
+                // changin name to sku format
+                let newName = file.filename;
+                newName = newName.replace(/\s+/g, '-').toLowerCase();
+
                 if (file.type.includes("image/") && file["status"] === "finished") {
                     dirs.push({
-                        filename: file.filename,
-                        src: "/api/images" + "/" + file.filename + "/" + req.params.id
+                        filename: newName,
+                        src: "/api/images" + "/" + newName + "/" + req.params.id
                     });
                 }
             }
 
             if (fish.hasOwnProperty("images") && Object.prototype.toString.call(fish.images) === "[object Array]") {
                 for (let dir of dirs) {
-                    if (fish.images.findIndex(function (i) { return i.src === dir.src || i.filename === dir.filename }) === -1) {
+                    if (fish.images.findIndex(function (i) { return i.src === dir.src || i.filename.replace(/\s+/g, '-').toLowerCase() === dir.filename.replace(/\s+/g, '-').toLowerCase() }) === -1) {
                         fish.images.push(dir);
                     }
                 }
@@ -811,16 +821,21 @@ module.exports = {
             req.file("image")
                 .upload({
                     dirname,
-                    maxBytes: 5000000,
+                    maxBytes: 70000000,
                     saveAs: function (stream, cb) {
-                        //console.log(stream);
-                        cb(null, stream.filename);
+                        // changin name to sku format
+                        let newName = stream.filename;
+                        newName = newName.replace(/\s+/g, '-').toLowerCase();  
+                        cb(null, newName);
                     }
                 }, async (err, uploadedFiles) => {
 
                     let valid = false;
                     for (let file of uploadedFiles) {
-                        await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + file.filename + "/" + id });
+                        let newName = file.filename;
+                        // changin name to sku format
+                        newName = newName.replace(/\s+/g, '-').toLowerCase();  
+                        await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + newName + "/" + id });
                         valid = true;
                     }
 
@@ -889,16 +904,22 @@ module.exports = {
             req.file("image")
                 .upload({
                     dirname,
-                    maxBytes: 5000000,
+                    maxBytes: 70000000,
                     saveAs: function (stream, cb) {
                         //console.log(stream);
-                        cb(null, stream.filename);
+                        // changin name to sku format
+                        let newName = stream.filename;
+                        newName = newName.replace(/\s+/g, '-').toLowerCase();  
+                        cb(null, newName);
                     }
                 }, async (err, uploadedFiles) => {
                     if (err) { return res.serverError(err); }
 
                     for (let file of uploadedFiles) {
-                        await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + file.filename + "/" + id });
+                        // changin name to sku format
+                        let newName = file.filename;
+                        newName = newName.replace(/\s+/g, '-').toLowerCase();  
+                        await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + newName + "/" + id });
                     }
 
                     res.json({ msg: "success" });

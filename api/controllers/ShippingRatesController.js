@@ -133,6 +133,20 @@ module.exports = {
             res.serverError(e);
         }
     },
+    getShippingRateByCity: async( req, res )=> {
+        try {
+            let city = req.body['cities'];
+            let weight = req.body['weight'];
+    
+            let cost = await module.exports.getShippingRateByCities( city , weight );
+    
+            res.status( 200 ).json( cost );
+        
+        } catch (error) {
+            res.status( 400 ).json( error );
+        }
+        
+    },
     getCountriesShippingRateByWeight: async(req, res) => {
         try{
             let countries = JSON.parse( req.body['countries'] );

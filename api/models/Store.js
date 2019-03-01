@@ -51,6 +51,46 @@ module.exports = {
       type: "string",
       required: false
     },
+    companyType : {
+      type: "string",
+      required: false
+    },
+    Address : {
+      type: "string",
+      required: false
+    },
+    City : {
+      type: "string",
+      required: false
+    },
+    ContactNumber : {
+      type: "string",
+      required: false
+    },
+    CorporateBankAccountNumber : {
+      type: "string",
+      required: false
+    },
+    CurrencyofTrade : {
+      type: "string",
+      required: false
+    },
+    FoodSafetyCertificacteNumber : {
+      type: "string",
+      required: false
+    },
+    ProductInterestedSelling : {
+      type: "string",
+      required: false
+    },
+    TradeBrandName : {
+      type: "string",
+      required: false
+    },
+    TradeLicenseNumber : {
+      type: "string",
+      required: false
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗

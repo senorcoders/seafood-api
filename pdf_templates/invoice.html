@@ -1,0 +1,296 @@
+<html>
+  <head>
+    <meta charset="utf8">
+    <title>PDF</title>
+    <style>
+      html, body {
+        margin: 0 auto;
+        padding: 0;
+        font-family: 'Arial';
+        background: white;
+        -webkit-print-color-adjust: exact;
+        box-sizing: border-box;        
+        width: 100%;        
+      }
+      html{
+        background: rgb(241,241,241);
+      }
+      body {
+        padding: 20px;
+      }
+      h1,h2,h3,h4,h5{
+        margin: 0
+      }      
+      .logo img{
+        width: 100px;
+      }
+      .align-right{
+        text-align: right;
+      }
+      .paid{
+        font-size: 24px;
+        font-style: italic;
+        letter-spacing: 2px;
+        margin: 0
+      }
+      .row{
+        display: inline-block;
+        margin-bottom: 15px;
+        flex-direction: column;
+        width: 100%;
+      }
+      .col{
+        word-break: break-word;
+        float: left;
+        width: 33.33%;
+        box-sizing: border-box;
+      }
+      .col-3{
+        widows: 30%;
+      }
+      .col-2{
+        width: 20%;
+      }
+      .col-1{
+        width: 10%;
+      }
+      p{
+        font-size: 9px;
+        margin: 0;
+        line-height: 1.5
+      }
+      .header{
+        margin-top: 25px;        
+        /*border-bottom: 2px solid black;*/
+        padding-bottom: 5px;
+      }
+      .content .col, .subtotal{
+        padding: 0 5px;
+        font-size: 10px;
+        line-height: 1.5;
+      }
+      .content{
+        margin-bottom: 10px;
+        border-bottom: 1px solid #c3c3c3;
+        padding-bottom: 5px;
+      }
+      .col-9{
+        width: 9%;
+      }
+      .col-5{
+        width: 50%;
+      }
+      .col-25{
+        width: 25%;
+      }
+      .col-75 {
+        width: 75%;
+      }
+      .col-90 {
+        width: 90%;
+      }
+      .padding-right{
+        padding-right: 5px; 
+      }
+      .subtotal{
+        float: right;
+        width: 100%;
+        text-align: right;
+        clear: both;
+        margin-bottom: 15px
+      }
+      .padding-right{
+        padding-right: 5px; 
+      }
+      .subtotal span{
+       display: block;
+        padding-bottom: 5px;
+      }
+      .no-border{
+        border: none !important;
+      }
+      .clear{
+        clear: both;
+      }
+      .clear p{
+        line-height: 2
+      }
+      .blue{
+        color: #8ebee8;
+        text-decoration: underline;
+        font-style: oblique;
+        margin-bottom: 10px;
+      }
+      .border{
+        border-top: 1px solid #8ebee8;
+        border-bottom: 1px solid #8ebee8 !important;
+        padding: 10px 0;
+      }
+      .border-bottom{
+        border-bottom: 1px solid gray !important;
+        padding: 10px 0;
+      }
+      th {
+        font-size:11px;
+        text-align: left;
+      }
+      td {
+        font-size: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="logo">
+      <img src="<%= api_url %>/seafood-black.png" alt="">
+    </div>
+    <div class="align-right" style="font-size: 10px;font-family: arial"><h1 class="paid" style="font-size: 24px;">PAID</h1></div>
+    <div class="row" style="font-size: 10px;font-family: arial">
+      <div class="col col-5">
+        <h3 style="font-size: 20px">TAX INVOICE</h3>
+        <p><%= buyerContactName %><br>
+          <%= buyerContactPostalAddress %></p>
+      </div>
+      <div class="col col-25">
+        <p style="margin-bottom: 10px"><b>Invoice Date</b><br>
+        <%= invoiceDate %></p>
+        <p style="margin-bottom: 10px"><b>Seafood Souq Tax Number</b> <br>
+        <%= contactAccountNumber %></p>
+        <p style="margin-bottom: 10px"><b>Invoice Number</b> <br>
+        <%= InvoiceNumber %></p>
+        <p><b>Order Number</b> <br>
+        <%= orderNumber %></p>
+      </div>
+      <div class="col col-25">
+       <p style="margin-bottom: 10px"> Seafood Souq General Trading LLC.</p>
+       <p style="margin-bottom: 10px">Warehouse 10,  Al Qou‌z Industrial Area 3, 58 ST., Dubai, United Arab Emirates.</p>
+       <p style="margin-bottom: 10px">P.O.Box: 282815</p>
+       <p>Telephone: <br>
+         +971 (04) 042683521
+       </p>
+      </div>
+    </div>
+
+    <div class="row header" style="font-size: 10px;font-family: arial">
+      <table style="border-collapse: collapse;">
+        <thead >
+          <tr style=" border-bottom: 1px solid black;">
+            <th style="font-size: 11px;">Description</th>
+            <th style="font-size: 11px;">Country of Origin</th>
+            <th style="font-size: 11px;">Quantity</th>
+            <th style="font-size: 11px;">U/M</th>
+            <th style="font-size: 11px;">Unit Price</th>
+            <th style="font-size: 11px;">Tax Rate</th>
+            <th style="font-size: 11px;">Amount AED</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% items.forEach(function(it,index){ %>
+          <tr style="border-bottom: gray 1px solid;">
+            <td class="col col-3">
+                <%= it.fish.name %>, <%= it.fish.treatment %>, <%= it.fish.raised %>, <%= it.fish.preparation %> &nbsp; <%= it.fish.wholeFishWeight %>
+                <br>
+                <%= it.fish.hsCode %>
+            </td>
+            <td class="col col-1">
+              <%= it.fish.country %>
+            </td>
+            <td class="col col-1">
+              <%= it.quantity.value %>
+            </td>
+            <td class="col col-1">
+              KG
+            </td>
+            <td class="col col-1">
+                <%= it.price.value %>
+            </td>
+            <td class="col col-1">
+              5%
+            </td>
+            <td class="col col-2 align-right">
+                <%= ( ( ( it.price.value * it.quantity.value )  ) ).toFixed(2)  %>
+            </td>
+          </tr>
+          <% } ); %>
+        </tbody>
+      </table>      
+    </div>
+    <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
+      <div class="col col-90 padding-right">
+        <span>Subtotal</span>
+      </div>
+      <div class="col col-1">
+        <span><%= subTotal  %></span>
+      </div>
+    </div>
+    <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
+      <div class="col col-90 padding-right">
+        <span>Shipping Fees</span>
+      </div>
+      <div class="col col-1">
+        <span><%= shippingFees %></span>
+      </div>
+    </div>
+    <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
+      <div class="col col-90 padding-right">
+        <span>Custom and Handling Fees</span>
+      </div>
+      <div class="col col-1">
+        <span><%= customHandlingFee %></span>
+      </div>
+    </div>
+    <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
+      <div class="col col-90 padding-right">
+        <span>Total Tax <%= uaeTaxes %>%</span>
+      </div>
+      <div class="col col-1">
+        <span><%= (uaeTaxesFee).toFixed(2) %></span>
+      </div>
+    </div>
+    
+    <!--<table style="float: right; width: 500px;font-size: 10px;font-family: arial" class="col-5 align-right">
+      <tr class="subtotal">
+        <td class="col-9 padding-right">
+            <span>Subtotal</span>
+        </td>
+        <td class="col-1" >
+            <span><%= subTotal %></span>    
+        </td>
+      </tr>
+      <tr class="subtotal">
+        <td class="col col-9  align-right">
+            <span class="no-border">Shipping Fees</span>
+        </td>
+        <td class="col col-1">
+            <span class="no-border"><%= shippingFees %></span>  
+        </td>
+      </tr>
+      <tr class="subtotal">
+        <td class="col col-9  align-right">
+            <span class="no-border">Custom and Handling Fees</span>
+        </td>
+        <td class="col col-1">
+            <span class="no-border"><%= customHandlingFee %></span>  
+        </td>
+      </tr>
+      <tr class="subtotal">
+        <td class="col col-9  align-right">
+            <span class="no-border">Total Tax <%= uaeTaxes %>%</span>
+        </td>
+        <td class="col col-1">
+            <span class="no-border"><%= (uaeTaxesFee).toFixed(2) %></span>  
+        </td>
+      </tr>
+    </table>-->
+
+    <div class="align-right clear" style="font-size: 10px;font-family: arial">
+      <p><b>Grand Total AED <%= total %></b></p>
+    </div>
+    <div style="margin-top: 40px">
+      <p><b>Due Date: <%= invoiceDueDate %></b></p>
+    </div>
+    <div class="align-right" style="font-size: 10px;font-family: arial">
+      <p class="blue">Seefood Souq T&Cs</p>
+      <p class="blue">Shipping and Returns Policy</p>
+    </div>
+  </body>
+</html>
