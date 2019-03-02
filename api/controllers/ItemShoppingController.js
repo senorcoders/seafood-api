@@ -708,10 +708,17 @@ module.exports = {
                 }
 
                 let shippingDocsUploaded = [];
+		if ( itemShopping !== undefined ) { 
+		   if ( itemShopping[0].shippingFiles !== undefined && itemShopping[0].shippingFiles !== null ) {
+			shippingDocsUploaded = itemShopping[0].shippingFiles;
+		   }
+		}
                 for (let file of uploadedFiles) {
                     if (file["status"] === "finished") {
                         dir = "/shipping_documents/" + itemShoppingID + "/" +file.filename ;
-                        shippingDocsUploaded.push(dir);
+			if( !shippingDocsUploaded.includes(dir) ) {
+                          shippingDocsUploaded.push(dir);
+			}
                     }
                 }
                 // saving file paths in the itemshopping 
