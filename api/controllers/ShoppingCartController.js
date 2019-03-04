@@ -505,7 +505,7 @@ module.exports = {
             var _shopping = db.collection(ShoppingCart.tableName);
 
             let orders = await new Promise((resolve, reject) => {
-                _shopping.find({ orderNumber: { $ne: null } }, { _id: 1, orderNumber: 1 })
+                _shopping.find({ $and : [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }] }, { _id: 1, orderNumber: 1 })
                     .sort({ orderNumber: -1 })
                     // PARA EL FUTURO, PAGINATION
                     // .skip(Number(req.param("skip")))
