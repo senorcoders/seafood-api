@@ -1089,7 +1089,22 @@ w
         }
 
     },
-
+    getShippingFiles: async (req, res) => {
+        try {
+            let name = req.param("name");
+            console.log(name);
+            let id = req.param("id");
+            console.log(id);
+            console.log(sails.config.appPath);
+            let path = `${sails.config.appPath}/shipping_documents/${id}/${name}`;	
+            console.log(path);
+            res.sendFile( path );
+	        console.log( path );
+        
+        } catch (error) {
+            res.serverError( error );     
+        }
+    }
     
 }
 
