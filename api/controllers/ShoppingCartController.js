@@ -531,7 +531,7 @@ module.exports = {
                     });
             });
 
-            res.status(200).json(ordersResponse);
+            res.status(200).json(orders);
 
         } catch (error) {
             res.status(400).json(error);
