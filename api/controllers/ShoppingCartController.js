@@ -499,9 +499,8 @@ module.exports = {
         }
     },
     getOrderLogistic: async function (req, res) {
-        try {
-            let orders = await ShoppingCart.find( { orderNumber: { '!': null } } ).populate('buyer').populate('orderStatus').populate('items').sort('updatedAt DESC');
-
+        try { 
+            let orders = await ShoppingCart.find( { orderNumber: { '!=': null } } ).populate('buyer').populate('orderStatus').populate('items').sort('orderNumber DESC');
             let ordersResponse = [];
             await Promise.all( orders.map( async order => {
 
@@ -512,7 +511,6 @@ module.exports = {
                     item.fishItem = fishItem;
                     items.push( item );
 
-                    console.log(item);
                 } ) )
                 order.items = items;
                 ordersResponse.push( order );
