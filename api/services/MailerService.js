@@ -451,7 +451,7 @@ module.exports = {
     },
     sendCartPaidBuyerNotified: async (items, cart, orderNumber, stores, pdf_invoice, invoiceNumber) => {
         let store, storeLng = stores.length;
-        /*for (let [index, value] of stores.entries()) {
+        for (let [index, value] of stores.entries()) {
             if (index == 0) {
                 if (storeLng > 1) {
                     store = value + ' and ';
@@ -466,7 +466,7 @@ module.exports = {
                     store += value + ' and '
                 }
             }
-        }*/
+        }
         email.render('../email_templates/cart_paid_buyer_notified',
             {
                 name: cart.buyer.firstName + ' ' + cart.buyer.lastName,
@@ -490,7 +490,7 @@ module.exports = {
                             cid: 'seafoodsouq_logo' //same cid value as in the html img src
                         },
                         {
-                            filename: `seafood-invoice-${invoiceNumber}.pdf`,
+                            filename: `seafood-invoice-${orderNumber}.pdf`,
                             path: `pdf_invoices/${pdf_invoice}`
                         }
                     ]

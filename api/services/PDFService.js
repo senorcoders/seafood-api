@@ -23,14 +23,14 @@ module.exports = {
                 InvoiceNumber : 'InvoiceNumber',
                 purchase_order_date: paidDateTime,
                 delivery_order_date: paidDateTime,
-                invoice_number: itemsShopping.orderInvoice,
+                invoice_number: OrderNumber,
                 orderNumber: OrderNumber,
                 items: itemsShopping,
-                subTotal: (itemsShopping.quantity.value * itemsShopping.price.value).toFixed(2),
-                customHandlingFee: ( itemsShopping.sfsMargin + itemsShopping.customs ).toFixed(2) ,
-                uaeTaxesFee: itemsShopping.uaeTaxes,
-                shippingFees : itemsShopping.shipping,
-                total: ( (itemsShopping.quantity.value * itemsShopping.price.value) + itemsShopping.uaeTaxes + itemsShopping.sfsMargin + itemsShopping.customs +  itemsShopping.shipping ).toFixed(2),
+                subTotal: cart.subTotal,
+                customHandlingFee: cart.totalOtherFees ,
+                uaeTaxesFee: cart.uaeTaxes,
+                shippingFees : cart.shipping,
+                total: cart.total,
                 uaeTaxes: uaeTaxes,
                 api_url: api_url
 
@@ -68,7 +68,8 @@ module.exports = {
                 invoice_number : 'invoice_number',
                 purchase_order_date: paidDateTime,
                 delivery_order_date: date2,
-                invoice_number: cart.xeroRef,
+                invoice_number: itemsShopping.orderInvoice,
+                purchase_number: itemsShopping.purchaseOrder,
                 orderNumber: orderNumber,
                 items: itemsShopping,
                 subTotal: itemsShopping.subTotal,
@@ -81,7 +82,7 @@ module.exports = {
         let pdf_name = `purchase-order-${orderNumber}-${paidDateTime}-${counter}.pdf`;
         await pdf.create(html).toFile(`./pdf_purchase_order/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
-            MailerService.sendCartPaidSellerNotified(fullName, cart, itemsShopping, orderNumber,itemsShopping[0].fish.store.owner.email, pdf_name);
+            MailerService.sendCartPaidSellerNotified(fullName, cart, itemsShopping, orderNumber,itemsShopping.fish.store.owner.email, pdf_name);
             let pdf_updated = await ItemShopping.update( { id: itemsShopping.id } , { po_path: pdf_name } );
         } )        
         return pdf_name;
