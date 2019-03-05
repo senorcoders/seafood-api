@@ -394,7 +394,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'seafoodsouq_logo' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -429,7 +429,7 @@ module.exports = {
                         {
                             filename: 'logo.png',
                             path: './assets/images/logo.png',
-                            cid: 'unique@kreata.ee' //same cid value as in the html img src
+                            cid: 'seafoodsouq_logo' //same cid value as in the html img src
                         },
                         {
                             filename: sellerInvoice,
@@ -449,9 +449,9 @@ module.exports = {
                 console.error
             )
     },
-    sendCartPaidBuyerNotified: async (items, cart, orderNumber, stores, pdf_invoice) => {
+    sendCartPaidBuyerNotified: async (items, cart, orderNumber, stores, pdf_invoice, invoiceNumber) => {
         let store, storeLng = stores.length;
-        for (let [index, value] of stores.entries()) {
+        /*for (let [index, value] of stores.entries()) {
             if (index == 0) {
                 if (storeLng > 1) {
                     store = value + ' and ';
@@ -466,14 +466,14 @@ module.exports = {
                     store += value + ' and '
                 }
             }
-        }
+        }*/
         email.render('../email_templates/cart_paid_buyer_notified',
             {
                 name: cart.buyer.firstName + ' ' + cart.buyer.lastName,
                 cart: cart,
                 items: items,
                 orderNumber: orderNumber,
-                store: store,
+                store: stores,
                 url: URL
             }
         )
@@ -487,10 +487,10 @@ module.exports = {
                         {
                             filename: 'logo.png',
                             path: './assets/images/logo.png',
-                            cid: 'unique@kreata.ee' //same cid value as in the html img src
+                            cid: 'seafoodsouq_logo' //same cid value as in the html img src
                         },
                         {
-                            filename: `seafood-invoice-${orderNumber}.pdf`,
+                            filename: `seafood-invoice-${invoiceNumber}.pdf`,
                             path: `pdf_invoices/${pdf_invoice}`
                         }
                     ]

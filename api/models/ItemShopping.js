@@ -82,7 +82,7 @@ module.exports = {
     deliveredAt:{
       type: 'number',
       required: false
-    },
+    },    
     cancelAt: {
       type: 'number',
       required: false
@@ -114,6 +114,10 @@ module.exports = {
     po_pdf: {
       type: 'string',
       required: false
+    },
+    orderInvoice: {
+      type: 'number',
+      required: false,
     },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗

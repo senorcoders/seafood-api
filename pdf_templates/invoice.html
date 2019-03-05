@@ -156,7 +156,7 @@
         <p style="margin-bottom: 10px"><b>Seafood Souq Tax Number</b> <br>
         <%= contactAccountNumber %></p>
         <p style="margin-bottom: 10px"><b>Invoice Number</b> <br>
-        <%= InvoiceNumber %></p>
+        <%= items.orderInvoice %></p>
         <p><b>Order Number</b> <br>
         <%= orderNumber %></p>
       </div>
@@ -184,33 +184,33 @@
           </tr>
         </thead>
         <tbody>
-          <% items.forEach(function(it,index){ %>
+          <% /*items.forEach(function(it,index){*/ %>
           <tr style="border-bottom: gray 1px solid;">
             <td class="col col-3">
-                <%= it.fish.name %>, <%= it.fish.treatment %>, <%= it.fish.raised %>, <%= it.fish.preparation %> &nbsp; <%= it.fish.wholeFishWeight %>
+                <%= items.fish.name %>, <%= items.fish.treatment %>, <%= items.fish.raised %>, <%= items.fish.preparation %> &nbsp; <%= items.fish.wholeFishWeight %>
                 <br>
-                <%= it.fish.hsCode %>
+                <%= items.fish.hsCode %>
             </td>
             <td class="col col-1">
-              <%= it.fish.country %>
+              <%= items.fish.country %>
             </td>
             <td class="col col-1">
-              <%= it.quantity.value %>
+              <%= items.quantity.value %>
             </td>
             <td class="col col-1">
               KG
             </td>
             <td class="col col-1">
-                <%= it.price.value %>
+                <%= items.price.value %>
             </td>
             <td class="col col-1">
               5%
             </td>
             <td class="col col-2 align-right">
-                <%= ( ( ( it.price.value * it.quantity.value )  ) ).toFixed(2)  %>
+                <%= ( ( ( items.price.value * items.quantity.value )  ) ).toFixed(2)  %>
             </td>
           </tr>
-          <% } ); %>
+          <% /*} );*/ %>
         </tbody>
       </table>      
     </div>
@@ -227,7 +227,7 @@
         <span>Shipping Fees</span>
       </div>
       <div class="col col-1">
-        <span><%= shippingFees %></span>
+        <span><%= items.shipping %></span>
       </div>
     </div>
     <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
@@ -235,7 +235,7 @@
         <span>Custom and Handling Fees</span>
       </div>
       <div class="col col-1">
-        <span><%= customHandlingFee %></span>
+        <span><%= ( items.customs + items.sfsMargin) %></span>
       </div>
     </div>
     <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
@@ -243,7 +243,7 @@
         <span>Total Tax <%= uaeTaxes %>%</span>
       </div>
       <div class="col col-1">
-        <span><%= (uaeTaxesFee).toFixed(2) %></span>
+        <span><%= (items.uaeTaxes).toFixed(2) %></span>
       </div>
     </div>
     

@@ -23,23 +23,23 @@ module.exports = {
                 InvoiceNumber : 'InvoiceNumber',
                 purchase_order_date: paidDateTime,
                 delivery_order_date: paidDateTime,
-                invoice_number: OrderNumber,
+                invoice_number: itemsShopping.orderInvoice,
                 orderNumber: OrderNumber,
                 items: itemsShopping,
-                subTotal: cart.subTotal,
-                customHandlingFee: cart.totalOtherFees ,
-                uaeTaxesFee: cart.uaeTaxes,
-                shippingFees : cart.shipping,
-                total: cart.total,
+                subTotal: (itemsShopping.quantity.value * itemsShopping.price.value).toFixed(2),
+                customHandlingFee: ( itemsShopping.sfsMargin + itemsShopping.customs ).toFixed(2) ,
+                uaeTaxesFee: itemsShopping.uaeTaxes,
+                shippingFees : itemsShopping.shipping,
+                total: ( (itemsShopping.quantity.value * itemsShopping.price.value) + itemsShopping.uaeTaxes + itemsShopping.sfsMargin + itemsShopping.customs +  itemsShopping.shipping ).toFixed(2),
                 uaeTaxes: uaeTaxes,
                 api_url: api_url
 
             }
         );
-        let pdf_name = `invoice-order-${OrderNumber}.pdf`;
+        let pdf_name = `invoice-order-${itemsShopping.orderInvoice}.pdf`;
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);          
-            MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName, `invoice-order-${OrderNumber}.pdf`);
+            MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName, `invoice-order-${itemsShopping.orderInvoice}.pdf`, itemsShopping.orderInvoice);
             let pdf_updated_1 = await ShoppingCart.update( { id: cart.id } , { invoice_pdf: pdf_name } );
         } );        
 
@@ -87,7 +87,7 @@ module.exports = {
         return pdf_name;
     },	
     sendPDF: async (req, res, pdf_directory, pdf_name) => {
-	let path = `${sails.config.appPath}/${pdf_directory}/${pdf_name}`;	
+	    let path = `${sails.config.appPath}/${pdf_directory}/${pdf_name}`;	
         try {
             res.sendFile( path );
 	    console.log( path );
