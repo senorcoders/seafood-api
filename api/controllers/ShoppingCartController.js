@@ -429,26 +429,32 @@ module.exports = {
             let OrderNumber     = max;
             let storeName=[];
 
-            //get last invoice in db
-            let lastInvoice = await ItemShopping.find().sort('orderInvoice DESC').limit(1);//.max('orderNumber');
-            let maxInvoice = 0;
-            if(lastInvoice.length > 0)
-            if( lastInvoice[0].hasOwnProperty("orderInvoice") ) 
-                maxInvoice = lastInvoice[0].orderInvoice;
+            // invoice is the same as Order number
+            let invoiceNumber = OrderNumber;
+            // last purchase order is a separate counter for the items
+            let lastPurchaseOrder = await ItemShopping.find().sort('purchaseOrder DESC').limit(1);//.max('orderNumber');
+            let maxPurchaseOrder = 0;
+            if(lastPurchaseOrder.length > 0)
+            if( lastPurchaseOrder[0].hasOwnProperty("purchaseOrder") ) 
+                maxPurchaseOrder = lastPurchaseOrder[0].purchaseOrder;
             
-            let cart = await ShoppingCart.findOne({ id: req.param("id"), /*status: "pending"*/ }).populate("buyer");
+            let cart = await ShoppingCart.findOne({ id: req.param("id") }).populate("buyer");
             if (cart === undefined) {
                 return res.status(400).send("not found");
             }
 
             let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id }).populate("fish");
-            //generate invoice number for each item
-            itemsShopping = await Promise.all(itemsShopping.map(async function (it) {
-                maxInvoice = maxInvoice + 1;
-                await ItemShopping.update( { id: it.id } ).set( { status: '5c017ae247fb07027943a404', orderInvoice: maxInvoice } );
-                it.fish.store = await Store.findOne({ id: it.fish.store }).populate("owner");
-                await PDFService.buyerInvoice( it, cart,OrderNumber, it.fish.store['name'], uaeTaxes[0].price )
+            //generate purchase order number for each item
+            await Promise.all(itemsShopping.map(async function (it) {
+                it.fish.store = await Store.findOne({ id: it.fish.store }).populate("owner");                
+                maxPurchaseOrder = maxPurchaseOrder + 1;
+                await ItemShopping.update( { id: it.id } ).set( { status: '5c017ae247fb07027943a404', orderInvoice: invoiceNumber, purchaseOrder: maxPurchaseOrder } );                
                 
+                let fullName = it.fish.store['name'];
+                let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
+                let sellerAddress = it.fish.store['Address'];
+
+                let sellerInvoice = await PDFService.sellerPurchaseOrder( fullName, cart, it, OrderNumber, sellerAddress, maxPurchaseOrder, exchangeRates[0].price );
                 return it;
             }));
 
@@ -484,13 +490,13 @@ module.exports = {
                 let fullName = st[0].fish.store['name'];//st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
                 let sellerAddress = st[0].fish.store['Address']; //`${st[0].fish.store.owner.dataExtra.Address}, ${st[0].fish.store.owner.dataExtra.City}, ${st[0].fish.store.owner.dataExtra.country}, ${st[0].fish.store.owner.dataExtra.zipCode}`;                
-                let sellerInvoice = await PDFService.sellerPurchaseOrder( fullName, cart, st, OrderNumber, sellerAddress, counter, exchangeRates[0].price );
+                //let sellerInvoice = await PDFService.sellerPurchaseOrder( fullName, cart, st, OrderNumber, sellerAddress, counter, exchangeRates[0].price );
                 
                 //console.log( 'seller invoice', sellerInvoice );
             }
                 await MailerService.sendCartPaidAdminNotified(itemsShopping, cart,OrderNumber,storeName)
             
-                //await PDFService.buyerInvoice( itemsShopping, cart,OrderNumber, storeName, uaeTaxes[0].price )
+                await PDFService.buyerInvoice( itemsShopping, cart,OrderNumber, storeName, uaeTaxes[0].price )
             
             //await MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName);            
 

@@ -119,6 +119,10 @@ module.exports = {
       type: 'number',
       required: false,
     },
+    purchaseOrder: {
+      type: "number",
+      required: false
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
