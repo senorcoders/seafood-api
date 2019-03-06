@@ -1,6 +1,7 @@
 var nodeMailer = require("nodemailer");
 var Email = require('email-templates');
-const ADMIN_EMAIL = 'osama@seafoodsouq.com, omar@seafoodsouq.com';
+// const ADMIN_EMAIL = 'osama@seafoodsouq.com, omar@seafoodsouq.com';
+const ADMIN_EMAIL = 'osmany@seafoodsouq.com';
 const APP_NAME = sails.config.APP_NAME;
 const config = sails.config.mailer;
 const sender = config.auth.user;
@@ -132,6 +133,38 @@ module.exports = {
         email.render('../email_templates/approved_account',
             {
                 name: name
+            }
+        )
+            .then(res => {
+                transporter.sendMail({
+                    from: emailSender,
+                    to: emailAddress,
+                    subject: 'Welcome Onboard, Getting Started with Seafood Souq !',
+                    html: res, // html body
+                    attachments: [{
+                        filename: 'logo.png',
+                        path: './assets/images/logo.png',
+                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                    }]
+                }, (error, info) => {
+                    if (error) {
+                        return console.log(error);
+                    }
+                    console.log('Message sent: %s', info.messageId);
+                    return 'Message sent: %s', info.messageId;
+                })
+
+            })
+            .catch(
+                console.error
+            )
+    },
+    sendApprovedBuyerEmail: (id, emailAddress, code, name) => {
+        email.render('../email_templates/approved_account_buyer',
+            {
+                name: name,
+                id,
+                code
             }
         )
             .then(res => {
