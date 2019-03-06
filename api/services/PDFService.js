@@ -36,10 +36,10 @@ module.exports = {
 
             }
         );
-        let pdf_name = `invoice-order-${itemsShopping.orderInvoice}.pdf`;
+        let pdf_name = `invoice-order-${OrderNumber}.pdf`;
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);          
-            MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName, `invoice-order-${itemsShopping.orderInvoice}.pdf`, itemsShopping.orderInvoice);
+            MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName, `invoice-order-${OrderNumber}.pdf`, OrderNumber);
             let pdf_updated_1 = await ShoppingCart.update( { id: cart.id } , { invoice_pdf: pdf_name } );
         } );        
 
@@ -69,7 +69,7 @@ module.exports = {
                 purchase_order_date: paidDateTime,
                 delivery_order_date: date2,
                 invoice_number: itemsShopping.orderInvoice,
-                purchase_number: itemsShopping.purchaseOrder,
+                purchase_number: counter,
                 orderNumber: orderNumber,
                 items: itemsShopping,
                 subTotal: itemsShopping.subTotal,

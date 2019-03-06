@@ -445,16 +445,15 @@ module.exports = {
 
             let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id }).populate("fish");
             //generate purchase order number for each item
-            await Promise.all(itemsShopping.map(async function (it) {
+            await Promise.all(itemsShopping.map(async function (it, index) {
                 it.fish.store = await Store.findOne({ id: it.fish.store }).populate("owner");                
-                maxPurchaseOrder = maxPurchaseOrder + 1;
-                await ItemShopping.update( { id: it.id } ).set( { status: '5c017ae247fb07027943a404', orderInvoice: invoiceNumber, purchaseOrder: maxPurchaseOrder } );                
+                await ItemShopping.update( { id: it.id } ).set( { status: '5c017ae247fb07027943a404', orderInvoice: invoiceNumber, purchaseOrder:  (maxPurchaseOrder + 1 + index) } );                
                 
                 let fullName = it.fish.store['name'];
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
                 let sellerAddress = it.fish.store['Address'];
 
-                let sellerInvoice = await PDFService.sellerPurchaseOrder( fullName, cart, it, OrderNumber, sellerAddress, maxPurchaseOrder, exchangeRates[0].price );
+                let sellerInvoice = await PDFService.sellerPurchaseOrder( fullName, cart, it, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + index), exchangeRates[0].price );
                 return it;
             }));
 
