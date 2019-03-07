@@ -221,12 +221,13 @@ module.exports = {
                 console.error
             )
     },
-    sendRejectedEmail: (emailAddress, role, name, denialMessage) => {
+    sendRejectedEmail: (emailAddress, role, name, denialMessage, emailContact) => {
         email.render('../email_templates/rejected_seller',
             {
                 name: name,
                 message: denialMessage,
-                roleType: role
+                roleType: role,
+                emailContact
             }
         )
             .then(res => {
