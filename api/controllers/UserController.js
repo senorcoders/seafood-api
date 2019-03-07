@@ -206,7 +206,7 @@ module.exports = {
                     // await require("./../../mailer").sendCode(user[0].id, user[0].email, user[0].code, name);
                     // await MailerService.sendApprovedEmail(user[0].id, user[0].email, user[0].code, name);                     
                     if (user[0].role == 1) {
-                        let result = await MailerService.sendApprovedSellerEmail(user[0].email, name);
+                        await MailerService.sendApprovedSellerEmail(user[0].email, name);
                     } else {
                         await MailerService.sendApprovedBuyerEmail(user[0].id, user[0].email, user[0].code, name);
                     }
