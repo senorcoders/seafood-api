@@ -51,7 +51,7 @@ module.exports = {
             attachments: [{
                 filename: 'logo.png',
                 path: './assets/images/logo.png',
-                cid: 'unique@kreata.ee' //same cid value as in the html img src
+                cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
             }]
         }, (error, info) => {
             if (error) {
@@ -78,7 +78,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -114,7 +114,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -144,7 +144,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -176,7 +176,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -206,7 +206,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -238,7 +238,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -269,7 +269,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -302,7 +302,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -333,7 +333,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -364,7 +364,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -396,7 +396,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -577,7 +577,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -613,7 +613,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -649,7 +649,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -684,7 +684,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -720,7 +720,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -756,7 +756,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -792,7 +792,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -828,7 +828,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -864,7 +864,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -935,7 +935,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -970,7 +970,7 @@ module.exports = {
                     attachments: [{
                         filename: 'logo.png',
                         path: './assets/images/logo.png',
-                        cid: 'unique@kreata.ee' //same cid value as in the html img src
+                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
                     }]
                 }, (error, info) => {
                     if (error) {
