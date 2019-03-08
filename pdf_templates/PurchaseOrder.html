@@ -197,7 +197,7 @@
       <div class="col col-2 align-right"><%= (items.price.value / currentExchangeRate).toFixed(2) %> </div>
       <div class="col col-1 align-right"><%= ( items.price.value * items.quantity.value / currentExchangeRate ).toFixed(2)  %></div>
     </div>
-    <%  subtotal = (subtotal + ( items.price.value * items.quantity.value / currentExchangeRate ) ).toFixed(2);
+    <%  subtotal = ( items.price.value * items.quantity.value / currentExchangeRate ) ;
       
         total = parseFloat(total) + parseFloat(subtotal) ;
       /*} )*/ %>
@@ -206,7 +206,7 @@
         <span>Subtotal</span>
       </div>
       <div class="col col-5">
-        <span><%= subtotal  %></span>
+        <span><%= total  %></span>
       </div>
     </div>
     <div class="subtotal" style="font-family: 'Arial';font-size: 10px">
