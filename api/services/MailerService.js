@@ -1,7 +1,6 @@
 var nodeMailer = require("nodemailer");
 var Email = require('email-templates');
-// const ADMIN_EMAIL = 'osama@seafoodsouq.com, omar@seafoodsouq.com';
-const ADMIN_EMAIL = 'osmany@seafoodsouq.com';
+const ADMIN_EMAIL = 'osama@seafoodsouq.com, omar@seafoodsouq.com';
 const APP_NAME = sails.config.APP_NAME;
 const config = sails.config.mailer;
 const sender = config.auth.user;
@@ -221,12 +220,13 @@ module.exports = {
                 console.error
             )
     },
-    sendRejectedEmail: (emailAddress, role, name, denialMessage) => {
+    sendRejectedEmail: (emailAddress, role, name, denialMessage, emailContact) => {
         email.render('../email_templates/rejected_seller',
             {
                 name: name,
                 message: denialMessage,
-                roleType: role
+                roleType: role,
+                emailContact
             }
         )
             .then(res => {
