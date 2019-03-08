@@ -415,29 +415,29 @@ module.exports = {
 
     updateShoppingCartPaid: async function (req, res) {
         try {
-            let exchangeRates = await PricingCharges.find( { where: { type: 'exchangeRates' } } ).sort( 'updatedAt DESC' ).limit(1);
-            let uaeTaxes = await PricingCharges.find( { where: { type: 'uaeTaxes' } } ).sort( 'updatedAt DESC' ).limit(1);
+            let exchangeRates = await PricingCharges.find({ where: { type: 'exchangeRates' } }).sort('updatedAt DESC').limit(1);
+            let uaeTaxes = await PricingCharges.find({ where: { type: 'uaeTaxes' } }).sort('updatedAt DESC').limit(1);
 
-            let paidDateTime=new Date().toISOString();
+            let paidDateTime = new Date().toISOString();
 
             //get last order number in db
             let lastOrder = await ShoppingCart.find().sort('orderNumber DESC').limit(1);//.max('orderNumber');
             let max = 0;
-            if(lastOrder.length > 0)
-            if( lastOrder[0].hasOwnProperty("orderNumber") ) 
-            max = lastOrder[0].orderNumber + 1;
-            let OrderNumber     = max;
-            let storeName=[];
+            if (lastOrder.length > 0)
+                if (lastOrder[0].hasOwnProperty("orderNumber"))
+                    max = lastOrder[0].orderNumber + 1;
+            let OrderNumber = max;
+            let storeName = [];
 
             // invoice is the same as Order number
             let invoiceNumber = OrderNumber;
             // last purchase order is a separate counter for the items
             let lastPurchaseOrder = await ItemShopping.find().sort('purchaseOrder DESC').limit(1);//.max('orderNumber');
             let maxPurchaseOrder = 0;
-            if(lastPurchaseOrder.length > 0)
-            if( lastPurchaseOrder[0].hasOwnProperty("purchaseOrder") ) 
-                maxPurchaseOrder = lastPurchaseOrder[0].purchaseOrder;
-            
+            if (lastPurchaseOrder.length > 0)
+                if (lastPurchaseOrder[0].hasOwnProperty("purchaseOrder"))
+                    maxPurchaseOrder = lastPurchaseOrder[0].purchaseOrder;
+
             let cart = await ShoppingCart.findOne({ id: req.param("id") }).populate("buyer");
             if (cart === undefined) {
                 return res.status(400).send("not found");
@@ -446,20 +446,20 @@ module.exports = {
             let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id }).populate("fish");
             //generate purchase order number for each item
             await Promise.all(itemsShopping.map(async function (it, index) {
-                it.fish.store = await Store.findOne({ id: it.fish.store }).populate("owner");                
-                await ItemShopping.update( { id: it.id } ).set( { status: '5c017ae247fb07027943a404', orderInvoice: invoiceNumber, purchaseOrder:  (maxPurchaseOrder + 1 + index) } );                
-                
+                it.fish.store = await Store.findOne({ id: it.fish.store }).populate("owner");
+                await ItemShopping.update({ id: it.id }).set({ status: '5c017ae247fb07027943a404', orderInvoice: invoiceNumber, purchaseOrder: (maxPurchaseOrder + 1 + index) });
+
                 let fullName = it.fish.store['name'];
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
                 let sellerAddress = it.fish.store['Address'];
 
-                let sellerInvoice = await PDFService.sellerPurchaseOrder( fullName, cart, it, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + index), exchangeRates[0].price );
+                let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, it, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + index), exchangeRates[0].price);
                 return it;
             }));
 
             //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
             let itemsStore = [];
-            for (let item of itemsShopping) {                
+            for (let item of itemsShopping) {
 
                 let index = itemsStore.findIndex(function (it) {
                     return it[0].fish.store.id === item.fish.store.id;
@@ -471,35 +471,35 @@ module.exports = {
                     itemsStore[index].push(item);
                 }
             }
-            
-            let OrderStatus     = "5c017ad347fb07027943a403"; //Pending Seller Confirmation
-            cartUpdated = await ShoppingCart.update({ id: req.param("id") }, { 
-                status: "paid", 
-                paidDateTime: paidDateTime ,
+
+            let OrderStatus = "5c017ad347fb07027943a403"; //Pending Seller Confirmation
+            cartUpdated = await ShoppingCart.update({ id: req.param("id") }, {
+                status: "paid",
+                paidDateTime: paidDateTime,
                 orderNumber: OrderNumber,
                 orderStatus: OrderStatus
-                
+
             }).fetch();
             //Se envia los correos a los dueños de las tiendas
-            let counter = 0;        
+            let counter = 0;
             for (let st of itemsStore) {
-                counter +=1;
+                counter += 1;
                 storeName.push(st[0].fish.store['name']);
                 // shippingRate.push(await require('./ShippingRatesController').getShippingRateByCities( st[0].fish.city, st[0].quantity.value ));
                 let fullName = st[0].fish.store['name'];//st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
                 let sellerAddress = st[0].fish.store['Address']; //`${st[0].fish.store.owner.dataExtra.Address}, ${st[0].fish.store.owner.dataExtra.City}, ${st[0].fish.store.owner.dataExtra.country}, ${st[0].fish.store.owner.dataExtra.zipCode}`;                
                 //let sellerInvoice = await PDFService.sellerPurchaseOrder( fullName, cart, st, OrderNumber, sellerAddress, counter, exchangeRates[0].price );
-                
+
                 //console.log( 'seller invoice', sellerInvoice );
             }
-                await MailerService.sendCartPaidAdminNotified(itemsShopping, cart,OrderNumber,storeName)
-            
-                await PDFService.buyerInvoice( itemsShopping, cart,OrderNumber, storeName, uaeTaxes[0].price )
-            
+            await MailerService.sendCartPaidAdminNotified(itemsShopping, cart, OrderNumber, storeName)
+
+            await PDFService.buyerInvoice(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price)
+
             //await MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName);            
 
-                res.json( cartUpdated );
+            res.json(cartUpdated);
         }
         catch (e) {
             console.error(e);
@@ -513,7 +513,7 @@ module.exports = {
             var _shopping = db.collection(ShoppingCart.tableName);
 
             let orders = await new Promise((resolve, reject) => {
-                _shopping.find({ $and : [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }] }, { _id: 1, orderNumber: 1 })
+                _shopping.find({ $and: [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }] }, { _id: 1, orderNumber: 1 })
                     .sort({ orderNumber: -1 })
                     // PARA EL FUTURO, PAGINATION
                     // .skip(Number(req.param("skip")))
