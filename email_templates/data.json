@@ -1,9 +1,15 @@
 {
     "name": "Osmany Jirón",
+<<<<<<< HEAD
     "sellerName": "Osmany Jirón",
     "cart": {
         "createdAt": 1551999635903,
         "updatedAt": 1552087644907,
+=======
+    "cart": {
+        "createdAt": 1551999635903,
+        "updatedAt": 1552078181521,
+>>>>>>> e0b401bf20746d34d18c52178a01e31504b2e32a
         "id": "5c81a293c6686d34b4777f14",
         "uaeTaxes": 0,
         "handlingFees": 0,
@@ -63,11 +69,19 @@
             ]
         },
         "status": "paid",
+<<<<<<< HEAD
         "paidDateTime": "2019-03-08T23:27:10.410Z",
         "orderNumber": 141,
         "xeroRef": "",
         "xeroLink": "",
         "invoice_pdf": "invoice-order-141.pdf",
+=======
+        "paidDateTime": "2019-03-08T20:49:34.555Z",
+        "orderNumber": 126,
+        "xeroRef": "",
+        "xeroLink": "",
+        "invoice_pdf": "invoice-order-126.pdf",
+>>>>>>> e0b401bf20746d34d18c52178a01e31504b2e32a
         "buyer": {
             "createdAt": 1551819357178,
             "updatedAt": 1551998384855,
@@ -104,9 +118,15 @@
     "items": [
         {
             "shippingStore": 82951,
+<<<<<<< HEAD
             "po_path": "purchase-order-141-2019-3-8-104.pdf",
             "createdAt": 1551999696583,
             "updatedAt": 1552087644392,
+=======
+            "po_path": "purchase-order-126-2019-3-8-74.pdf",
+            "createdAt": 1551999696583,
+            "updatedAt": 1552078180489,
+>>>>>>> e0b401bf20746d34d18c52178a01e31504b2e32a
             "id": "5c81a2d0c6686d34b4777f15",
             "quantity": {
                 "type": "kg",
@@ -142,8 +162,13 @@
             "sellerExpectedDeliveryDate": "",
             "adminNumberOfDaysForDelivery": 0,
             "po_pdf": "",
+<<<<<<< HEAD
             "orderInvoice": 141,
             "purchaseOrder": 104,
+=======
+            "orderInvoice": 126,
+            "purchaseOrder": 74,
+>>>>>>> e0b401bf20746d34d18c52178a01e31504b2e32a
             "fish": {
                 "createdAt": 1542299468804,
                 "updatedAt": 1544123307878,
@@ -228,9 +253,15 @@
         },
         {
             "shippingStore": 0,
+<<<<<<< HEAD
             "po_path": "purchase-order-141-2019-3-8-105.pdf",
             "createdAt": 1552059592675,
             "updatedAt": 1552087644583,
+=======
+            "po_path": "purchase-order-126-2019-3-8-75.pdf",
+            "createdAt": 1552059592675,
+            "updatedAt": 1552078180465,
+>>>>>>> e0b401bf20746d34d18c52178a01e31504b2e32a
             "id": "5c828cc8dd7909180805ff14",
             "quantity": {
                 "type": "kg",
@@ -266,8 +297,13 @@
             "sellerExpectedDeliveryDate": "",
             "adminNumberOfDaysForDelivery": 0,
             "po_pdf": "",
+<<<<<<< HEAD
             "orderInvoice": 141,
             "purchaseOrder": 105,
+=======
+            "orderInvoice": 126,
+            "purchaseOrder": 75,
+>>>>>>> e0b401bf20746d34d18c52178a01e31504b2e32a
             "fish": {
                 "createdAt": 1552001023422,
                 "updatedAt": 1552001488108,
@@ -384,6 +420,7 @@
             "paymentStatus": null
         }
     ],
+<<<<<<< HEAD
     "orderNumber": 142,
     "paidDateTime": "8/3/2019",
     "grandTotal": 94772.05,
@@ -400,4 +437,13 @@
         }
     ],
     "sellers": "Kharron Reid and Osmany Seller"
+=======
+    "orderNumber": 127,
+    "store": [
+        "California Seafood",
+        "studiosO"
+    ],
+    "grandTotal": 94772.05,
+    "paidDateTime": "8/3/2019"
+>>>>>>> e0b401bf20746d34d18c52178a01e31504b2e32a
 }
