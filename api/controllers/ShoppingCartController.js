@@ -186,7 +186,7 @@ module.exports = {
                         currentCharges: it.currentCharges,
                         shipping: it.fishCharges.shippingCost.cost,
                         shippingStore: it.shipping,
-                        sfsMargin: it.sfsMargin,
+                        sfsMargin: isNaN(it.sfsMargin) === true ? 0 : it.sfsMargin,
                         customs: it.customs,
                         uaeTaxes: it.uaeTaxes
                     })
@@ -200,7 +200,12 @@ module.exports = {
                 console.log('total SHipping', totalShipping);
                 totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
                 total = Number(parseFloat(subtotal + totalOtherFees + totalShipping + totalUAETaxes).toFixed(2));
-                //if (total !== cart.total) {
+
+                totalSFSMargin = isNaN(totalSFSMargin) === true ? 0 : totalSFSMargin;
+                total = isNaN(total) === true ? 0 : total;
+                totalOtherFees = isNaN(totalOtherFees) === true ? 0 : totalOtherFees;
+                totalUAETaxes = isNaN(totalUAETaxes) === true ? 0 : totalUAETaxes
+
                 let newCart = await ShoppingCart.update({ id: cart.id }, {
                     currentCharges: currentPricingCharges,
                     subTotal: subtotal,
@@ -340,7 +345,7 @@ module.exports = {
             }
 
             total = Number(parseFloat(total).toFixed(2));
-
+            total = isNaN(total) === true ? 0 : total;
             await ShoppingCart.update({ id: cart.id }, { total: total });
 
             cart.total = total;
