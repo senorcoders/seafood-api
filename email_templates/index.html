@@ -1,0 +1,42 @@
+<html>
+
+<head></head>
+
+<body>
+    <div id="render" style="padding-top: 30px;position: absolute; top: 0; left: 0; width: 60%; margin-left: 20%; height: 100%;">
+
+    </div>
+    <script src="ejs/jquery.min.js"></script>
+    <script src="ejs/ejs.min.js"></script>
+    <script type="text/javascript">
+        let getFile = function (fileName) {
+            return new Promise((resolve, reject) => {
+                try {
+                    $.ajax({
+                        url: `./${fileName}`,
+                        method: "GET",
+                        data: {},
+                        success: resolve,
+                        dataType: "text"
+                    });
+                }
+                catch (e) {
+                    console.error(e);
+                }
+            });
+        }
+
+        async function insertHTML(text) {
+            //Indicamos el template que queremos probar
+            let template = await getFile('cart_paid_buyer_notified.ejs'),
+            //Cargamos este archivo que tiene los datos de prueba, es texto con json stringify -- JSON.stringify();
+            data = await getFile('data.json');
+            data = JSON.parse(data);
+            let html = ejs.render(template, data);
+            $("#render").html(html);
+        }
+        insertHTML();
+    </script>
+</body>
+
+</html>

@@ -500,6 +500,25 @@ module.exports = {
                 }
             }
         }
+        let grandTotal = 0, imagesPrimary = [], i = 0;
+        for (let it of items) {
+            grandTotal += Number(parseFloat(Number(it.quantity.value) * Number(it.price.value)).toFixed(2));
+            grandTotal += Number(it.shipping);
+            grandTotal += Number(it.uaeTaxes);
+            grandTotal += Number(it.customs);
+            grandTotal += Number(it.sfsMargin);
+            if (it.fish.imagePrimary && it.fish.imagePrimary !== '') {
+                imagesPrimary.push({
+                    filename: `primary${i}.jpg`,
+                    path: `./images/primary/${it.fish.imagePrimary.split("/").pop()}/${it.fish.imagePrimary.split("/").slice(-2)[0]}`,
+                    cid: `item${i}@seafood.com`
+                });
+            }
+            i += 1;
+        }
+        grandTotal = Number((grandTotal).toFixed(2));
+        let date = new Date(cart.paidDateTime);
+        let paidDateTime = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
         email.render('../email_templates/cart_paid_buyer_notified',
             {
                 name: cart.buyer.firstName + ' ' + cart.buyer.lastName,
@@ -507,7 +526,9 @@ module.exports = {
                 items: items,
                 orderNumber: orderNumber,
                 store: stores,
-                url: URL
+                url: URL,
+                grandTotal,
+                paidDateTime
             }
         )
             .then(res => {
@@ -526,7 +547,7 @@ module.exports = {
                             filename: `seafood-invoice-${orderNumber}.pdf`,
                             path: `pdf_invoices/${pdf_invoice}`
                         }
-                    ]
+                    ].concat(imagesPrimary)
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
