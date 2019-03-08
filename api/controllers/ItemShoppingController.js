@@ -176,7 +176,7 @@ module.exports = {
             let userEmail = req.body.userEmail;
             let userID = req.body.userID;
             var ts = Math.round((new Date()).getTime() / 1000);
-
+            let data = ''; //
             let item = await ItemShopping.findOne({id}).populate("shoppingCart").populate("fish");
             if( item === undefined ){
                 res.status(400).send("not found");
