@@ -228,20 +228,20 @@ module.exports = {
                         //sent email to the admin with an alert
                         console.log( 'sent email' );
                         await MailerService.sentAdminWarningETA(cart,store,item,name,req.body.sellerExpectedDeliveryDate);
-                        await ItemShopping.update({id}, { sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate , updateInfo: currentUpdateDates});
+                        data = await ItemShopping.update({id}, { sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate , updateInfo: currentUpdateDates}).fetch();
                     } else {
-                        await ItemShopping.update({id}, { status: '5c017af047fb07027943a405', paymentStatus: '5c017b4547fb07027943a40a' , sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate , updateInfo: currentUpdateDates});
+                        data = await ItemShopping.update({id}, { status: '5c017af047fb07027943a405', paymentStatus: '5c017b4547fb07027943a40a' , sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate , updateInfo: currentUpdateDates}).fetch();
                     }
                     
 
                 } else { // admin is updating
-                    await ItemShopping.update({id}, { status: '5c017af047fb07027943a405', paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates});
+                    await ItemShopping.update({id}, { status: '5c017af047fb07027943a405', paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates}).fetch();
                 }                 
 
 
             }else if( status == '5c017b0e47fb07027943a406' ){ //admin marks the item as shipped
                 
-                let data=await ItemShopping.update({id}, 
+                data = await ItemShopping.update({id}, 
                     { 
                         shippingStatus:"shipped", 
                         status: '5c017b0e47fb07027943a406',
@@ -251,7 +251,7 @@ module.exports = {
                 ).fetch();
                 await MailerService.itemShipped(name,cart,store,item)                
             }else if( status == '5c017b1447fb07027943a407' ) {//admin marks the item as arrived
-                let data=await ItemShopping.update({id}, { 
+                data = await ItemShopping.update({id}, { 
                     status: '5c017b1447fb07027943a407',
                     arrivedAt: ts,
                     updateInfo: currentUpdateDates
@@ -259,11 +259,11 @@ module.exports = {
                 //send email to buyer 
                 await MailerService.orderArrived(name,cart,store,item)
             }else if( status == '5c017b2147fb07027943a408' ){ //out for delivery
-                await ItemShopping.update({id}, { status: '5c017b2147fb07027943a408', outForDeliveryAt: ts, updateInfo: currentUpdateDates })
+                data = await ItemShopping.update({id}, { status: '5c017b2147fb07027943a408', outForDeliveryAt: ts, updateInfo: currentUpdateDates }).fetch()
                 //notify buyer about item out for delivery
                 await MailerService.orderOutForDelivery(name,cart,store,item);
             }else if( status == '5c017b3c47fb07027943a409' ){ //Delivered
-                let data=await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409' , deliveredAt: ts, updateInfo: currentUpdateDates}).fetch()
+                data = await ItemShopping.update({id}, { status: '5c017b3c47fb07027943a409' , deliveredAt: ts, updateInfo: currentUpdateDates}).fetch()
 
                 //check if order is close
                 let orderItems = await ItemShopping.find( { where: { shoppingCart: item.shoppingCart.id } } );
@@ -292,12 +292,12 @@ module.exports = {
                 
 
             }else if( status == '5c017b4547fb07027943a40a' ){ //Pending Repayment
-                await ItemShopping.update({id}, { paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates})
+                data = await ItemShopping.update({id}, { paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates}).fetch()
             }else if( status == '5c017b4f47fb07027943a40b' ){ //Seller Repaid
                 let repayedRef = req.param("ref");
-                await ItemShopping.update({id}, { paymentStatus: '5c017b4f47fb07027943a40b', repayedAt: ts, repayedRef: repayedRef, updateInfo: currentUpdateDates})
+                data = await ItemShopping.update({id}, { paymentStatus: '5c017b4f47fb07027943a40b', repayedAt: ts, repayedRef: repayedRef, updateInfo: currentUpdateDates}).fetch()
             }else if( status == '5c017b5a47fb07027943a40c' ){ //Client Cancelled Order"
-                let data=await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c', paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates}).fetch();
+                data=await ItemShopping.update({id}, { status: '5c017b5a47fb07027943a40c', paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates}).fetch();
                 if(data.length > 0){
                     //send email to buyer
                     await MailerService.buyerCancelledOrderBuyer(name,cart,store,item)
@@ -307,7 +307,7 @@ module.exports = {
                     await MailerService.buyerCancelledOrderAdmin(cart,store,item)
                 }
             }else if( status == '5c017b7047fb07027943a40e' ){ //Refunded
-                await ItemShopping.update({id}, { paymentStatus: '5c017b7047fb07027943a40e', updateInfo: currentUpdateDates})
+                data= await ItemShopping.update({id}, { paymentStatus: '5c017b7047fb07027943a40e', updateInfo: currentUpdateDates}).fetch()
 
                 let orderItems = await ItemShopping.find( { where: { shoppingCart: item.shoppingCart.id } } );
 
@@ -329,7 +329,7 @@ module.exports = {
 
 
             }else if( status == '5c06f4bf7650a503f4b731fd' ){ //Seller Cancelled Order
-                let data=await ItemShopping.update({id}, { status: '5c06f4bf7650a503f4b731fd', paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates}).fetch();
+                data = await ItemShopping.update({id}, { status: '5c06f4bf7650a503f4b731fd', paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates}).fetch();
                 if(data.length > 0){
                     //send email to buyer
                     await MailerService.sellerCancelledOrderBuyer(name,cart,store,item);
@@ -337,13 +337,13 @@ module.exports = {
                     await MailerService.sellerCancelledOrderAdmin(name,cart,store,item);
                 }
             }else if ( status == '5c13f453d827ce28632af048'){//pending fulfillment
-                let data=await ItemShopping.update({id}, { status: '5c13f453d827ce28632af048', paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates}).fetch();                
+                data = await ItemShopping.update({id}, { status: '5c13f453d827ce28632af048', paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates}).fetch();                
             }else if ( status == '5c017b6847fb07027943a40d'){//pending refund
-                let data=await ItemShopping.update({id}, { paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates}).fetch();                
+                data = await ItemShopping.update({id}, { paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates}).fetch();                
             }else{
-                let data=await ItemShopping.update({id}, { status: status, updateInfo: currentUpdateDates}).fetch();                                
+                data = await ItemShopping.update({id}, { status: status, updateInfo: currentUpdateDates}).fetch();                                
             }
-            res.status(200).json( { "message": "status updated" } );
+            res.status(200).json( { "message": "status updated", item: data } );
 
 
 
