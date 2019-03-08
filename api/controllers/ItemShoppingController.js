@@ -343,6 +343,7 @@ module.exports = {
             }else{
                 data = await ItemShopping.update({id}, { status: status, updateInfo: currentUpdateDates}).fetch();                                
             }
+            data = await ItemShopping.find({id}).populate('status');
             res.status(200).json( { "message": "status updated", item: data } );
 
 
