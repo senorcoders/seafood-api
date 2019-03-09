@@ -1,6 +1,6 @@
 var nodeMailer = require("nodemailer");
 var Email = require('email-templates');
-const ADMIN_EMAIL = 'milton@seafoodsouq.com';//'kharron@seafoodsouq.com, osama@seafoodsouq.com, omar@seafoodsouq.com';
+const ADMIN_EMAIL = 'kharron@seafoodsouq.com, osama@seafoodsouq.com, omar@seafoodsouq.com';
 const APP_NAME = sails.config.APP_NAME;
 const config = sails.config.mailer;
 const sender = config.auth.user;
@@ -40,26 +40,7 @@ async function formatDates(d) {
     return dates
 };
 
-module.exports = {
-    testEmail: () => {
-        transporter.sendMail({
-            from: 'Seafoodsouq <do-not-reply@seafoodsouq.com>',
-            to: 'milton@senorcoders.com',
-            subject: 'testing new smtp',
-            html: '<h1> seafood souq </h1>', // html body
-            attachments: [{
-                filename: 'logo.png',
-                path: './assets/images/logo.png',
-                cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-            }]
-        }, (error, info) => {
-            if (error) {
-                return console.log(error);
-            }
-            console.log('Message sent: %s', info.messageId);
-            return 'Message sent: %s', info.messageId;
-        })
-    },
+module.exports = {    
     registerNewUser: (user) => {
         email.render('../email_templates/register_new_user',
             {
