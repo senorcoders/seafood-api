@@ -103,14 +103,138 @@
     },
     "items": [
         {
-            "shippingStore": 6,
-            "po_path": "purchase-order-146-2019-3-11-111.pdf",
-            "createdAt": 1552326854286,
-            "updatedAt": 1552326927379,
-            "id": "5c86a0c606c8e325a4fa2be0",
+            "shippingStore": 82951,
+            "po_path": "purchase-order-141-2019-3-8-104.pdf",
+            "createdAt": 1551999696583,
+            "updatedAt": 1552087644392,
+            "id": "5c81a2d0c6686d34b4777f15",
             "quantity": {
                 "type": "kg",
-                "value": 1
+                "value": 466
+            },
+            "price": {
+                "type": "AED(USD)",
+                "value": 23
+            },
+            "shippingFiles": null,
+            "shippingStatus": "pending",
+            "trackingID": "",
+            "trackingFile": "",
+            "currentCharges": {
+                "sfsMargin": 0,
+                "shipping": 60,
+                "customs": 5
+            },
+            "shipping": 82951,
+            "handling": 0,
+            "sfsMargin": 0,
+            "customs": 535.9,
+            "uaeTaxes": 0,
+            "shippedAt": 0,
+            "arrivedAt": 0,
+            "outForDeliveryAt": 0,
+            "deliveredAt": 0,
+            "cancelAt": 0,
+            "repayedAt": 0,
+            "updateInfo": null,
+            "repayedRef": "",
+            "buyerExpectedDeliveryDate": "3/27/2019",
+            "sellerExpectedDeliveryDate": "",
+            "adminNumberOfDaysForDelivery": 0,
+            "po_pdf": "",
+            "orderInvoice": 141,
+            "purchaseOrder": 104,
+            "fish": {
+                "createdAt": 1542299468804,
+                "updatedAt": 1544123307878,
+                "id": "5bed9f4cebd50d00a327f2c1",
+                "name": "test seafood sku",
+                "description": "asdnasldnl",
+                "country": "NI",
+                "quality": "good",
+                "minimumOrder": 233,
+                "raised": "organically",
+                "preparation": "whole",
+                "treatment": "smoked",
+                "weight": {
+                    "type": "kg",
+                    "value": 5
+                },
+                "price": {
+                    "type": "$",
+                    "value": 23,
+                    "description": "23 for pack"
+                },
+                "imagePrimary": "/api/images/primary/kjan.jpg/5bed9f4cebd50d00a327f2c1",
+                "images": [
+                    {
+                        "filename": "images.jpeg",
+                        "src": "/api/images/images.jpeg/5bed9f4cebd50d00a327f2c1"
+                    },
+                    {
+                        "filename": "scall.jpg",
+                        "src": "/api/images/scall.jpg/5bed9f4cebd50d00a327f2c1"
+                    }
+                ],
+                "seller_sku": "NI-SCA",
+                "seafood_sku": "CAL-MOL-SCA-NIC-02",
+                "store": {
+                    "type": "Seafood Company",
+                    "email": "seller@senorcoders.com",
+                    "zipCode": "92054",
+                    "productType": "Seafood",
+                    "createdAt": 1534954733483,
+                    "updatedAt": 1541178101040,
+                    "id": "5b7d8ced8bff151ce99623da",
+                    "logo": "/api/store/images/logo/logo-md.png/5b7d8ced8bff151ce99623da",
+                    "name": "California Seafood",
+                    "heroImage": "",
+                    "description": "California Store",
+                    "location": "United States",
+                    "Address": "1422 Moreno St.",
+                    "City": "Oceanside",
+                    "CorporateBankAccountNumber": "123123123",
+                    "galeryImages": null,
+                    "owner": {
+                        "createdAt": 1534954732358,
+                        "updatedAt": 1543495916854,
+                        "id": "5b7d8cec8bff151ce99623d9",
+                        "email": "seller@senorcoders.com",
+                        "firstName": "Kharron",
+                        "lastName": "Reid",
+                        "code": "6368",
+                        "verified": false,
+                        "password": "$2a$10$Muu5TjQwS0Ps7Hq1SVGhheEDW4mrzOCggtRiIayczDHAuAJgTOBYy",
+                        "role": 1,
+                        "dataExtra": {
+                            "designation": "test Designation",
+                            "tel": "98237429",
+                            "fullBakingInfo": "142982472 Acct: #29739274",
+                            "sfsAgreementForm": true,
+                            "ifLocal": "",
+                            "uploadTradeLicense": "/api/images/license/download (23).jpeg/5b7d8cec8bff151ce99623d9"
+                        },
+                        "verfication": false,
+                        "status": "accepted",
+                        "firstMileCost": 5
+                    }
+                },
+                "type": "5bda368578b3140ef5d31fb6",
+                "status": "5c0866f9a0eda00b94acbdc2"
+            },
+            "shoppingCart": "5c81a293c6686d34b4777f14",
+            "status": "5c017ae247fb07027943a404",
+            "paymentStatus": null
+        },
+        {
+            "shippingStore": 0,
+            "po_path": "purchase-order-141-2019-3-8-105.pdf",
+            "createdAt": 1552059592675,
+            "updatedAt": 1552087644583,
+            "id": "5c828cc8dd7909180805ff14",
+            "quantity": {
+                "type": "kg",
+                "value": 4
             },
             "price": {
                 "type": "AED(USD)",
@@ -274,5 +398,11 @@
         }
     ],
     "buyerName": "Osmany Jirón",
-    "sellerExpectedDeliveryDate": "3/20/2019"
+    "sellerExpectedDeliveryDate": "3/20/2019",
+    "store": [
+        "California Seafood",
+        "studiosO"
+    ],
+    "grandTotal": 94772.05,
+    "paidDateTime": "8/3/2019"
 }
