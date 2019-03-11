@@ -28,7 +28,7 @@
 
         async function insertHTML(text) {
             //Indicamos el template que queremos probar
-            let template = await getFile('cart_paid_admin_notified.ejs'),
+            let template = await getFile('admin_warning_ETA.ejs'),
             //Cargamos este archivo que tiene los datos de prueba, es texto con json stringify -- JSON.stringify();
             data = await getFile('data.json');
             data = JSON.parse(data);

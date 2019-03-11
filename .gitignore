@@ -142,3 +142,9 @@ admin/
 ################################################
 pdf_invoices/*.pdf
 pdf_purchase_order/*.pdf
+
+################################################
+# for server test emails templates
+################################################
+email_templates/index.html
+email_templates/data.json

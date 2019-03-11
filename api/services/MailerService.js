@@ -597,8 +597,8 @@ module.exports = {
             let space = (i + 1) === _stores.length ? '' : (i + 1) === (_stores.length - 1) ? ' and ' : ', ';
             sellers += _stores[i].owner.firstName + " " + _stores[i].owner.lastName + space;
         }
-        if(_stores.length === 1){
-            sellers = _stores[i].owner.firstName + " " + _stores[i].owner.lastName;
+        if (_stores.length === 1) {
+            sellers = _stores[0].owner.firstName + " " + _stores[0].owner.lastName;
         }
         data.sellers = sellers;
         console.log(JSON.stringify(data));
@@ -988,15 +988,13 @@ module.exports = {
             )
     },
     sentAdminWarningETA: async (cart, store, item, buyer, sellerExpectedDeliveryDate) => {
+        let data = getdataOrderPlace("", cart, [item], item.orderInvoice, "sentAdminWarningETA");
         email.render('../email_templates/admin_warning_ETA',
-            {
-                cart: cart,
-                store: store,
-                item: item,
+            _.extend(data, {
                 sellerName: store.owner.firstName + ' ' + store.owner.lastName,
                 buyerName: buyer,
                 sellerExpectedDeliveryDate: sellerExpectedDeliveryDate
-            }
+            })
         )
             .then(res => {
                 transporter.sendMail({
