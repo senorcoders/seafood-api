@@ -79,26 +79,7 @@ async function formatDates(d) {
     return dates
 };
 
-module.exports = {
-    testEmail: () => {
-        transporter.sendMail({
-            from: 'Seafoodsouq <do-not-reply@seafoodsouq.com>',
-            to: 'milton@senorcoders.com',
-            subject: 'testing new smtp',
-            html: '<h1> seafood souq </h1>', // html body
-            attachments: [{
-                filename: 'logo.png',
-                path: './assets/images/logo.png',
-                cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-            }]
-        }, (error, info) => {
-            if (error) {
-                return console.log(error);
-            }
-            console.log('Message sent: %s', info.messageId);
-            return 'Message sent: %s', info.messageId;
-        })
-    },
+module.exports = {    
     registerNewUser: (user) => {
         email.render('../email_templates/register_new_user',
             {
@@ -482,10 +463,25 @@ module.exports = {
             )
     },
     sendCartPaidSellerNotified: async (sellerName, cart, items, orderNumber, emailAddress, sellerInvoice) => {
+
+      let buyerExpectedDeliveryDate = item.buyerExpectedDeliveryDate.split("/");
+        let buyerDate = new Date( buyerExpectedDeliveryDate[2], buyerExpectedDeliveryDate[0], buyerExpectedDeliveryDate[1] );
+        items.buyerExpectedDeliveryDate = await sails.helpers.formatDate(buyerDate);
         items = Object.prototype.toString.call(items) === '[object Object]' ? [items] : items;
         console.log(Object.prototype.toString.call(items), "sendCartPaidSellerNotified");
         let data = getdataOrderPlace(sellerName, cart, items, orderNumber, "sendCartPaidSellerNotified");
         email.render('../email_templates/cart_paid_seller_notified', data)
+
+
+        email.render('../email_templates/cart_paid_seller_notified',
+            {
+                sellerName: sellerName,
+                cart: cart,
+                items: items,
+                orderNumber: orderNumber,
+                url: URL
+            }
+        )
             .then(res => {
                 transporter.sendMail({
                     from: emailSender,
@@ -809,21 +805,25 @@ module.exports = {
             )
     },
     itemShipped: async (name, cart, store, item) => {
-        let paidDateTime = await formatDates(cart.paidDateTime);
+        
+        let paidDateTime = new Date(cart.paidDateTime);
+        let sellerExpectedDeliveryDate = item.sellerExpectedDeliveryDate.split("/");
+        let sellerDate = new Date( sellerExpectedDeliveryDate[2], sellerExpectedDeliveryDate[0], sellerExpectedDeliveryDate[1] );
+        item.sellerExpectedDeliveryDate = await sails.helpers.formatDate(sellerDate);
+        cart.paidDateTime = await sails.helpers.formatDate(paidDateTime);
         email.render('../email_templates/itemShipped',
             {
                 name: name,
                 cart: cart,
                 store: store,
                 item: item,
-                paidDateTime: paidDateTime,
                 url: URL
             }
         )
             .then(res => {
                 transporter.sendMail({
                     from: emailSender,
-                    to: cart.buyer.email,
+                    to:  cart.buyer.email,
                     subject: `Order #${cart.orderNumber} is being Shipped`,
                     html: res, // html body
                     attachments: [{
@@ -844,8 +844,12 @@ module.exports = {
                 console.error
             )
     },
-    orderArrived: async (name, cart, store, item) => {
-        let paidDateTime = await formatDates(cart.paidDateTime);
+    orderArrived: async (name, cart, store, item) => {        
+        let paidDateTime = new Date(cart.paidDateTime);
+        let sellerExpectedDeliveryDate = item.sellerExpectedDeliveryDate.split("/");
+        let sellerDate = new Date( sellerExpectedDeliveryDate[2], sellerExpectedDeliveryDate[0], sellerExpectedDeliveryDate[1] );
+        item.sellerExpectedDeliveryDate = await sails.helpers.formatDate(sellerDate);
+        cart.paidDateTime = await sails.helpers.formatDate(paidDateTime);
         email.render('../email_templates/order_arrived',
             {
                 name: name,
