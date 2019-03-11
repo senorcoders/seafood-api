@@ -29,7 +29,8 @@ module.exports = {
     getXUser: async (req, res) => {
         try {
             let id = req.param("id");
-            let store = await Store.find().where({ owner: id });
+            console.log({ owner: id });
+            let store = await Store.find({ owner: id });
             if (store === undefined) {
                 return res.status(400).send('not found');
             }
