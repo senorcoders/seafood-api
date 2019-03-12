@@ -457,6 +457,4 @@ module.exports.routes = {
   '/terms': '/legal/terms',
   '/logout': '/api/v1/account/logout',
   
-  //Para obtener el logo
-  "GET /api/logo": "ImageController.getImageLogo"
 };

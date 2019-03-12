@@ -1,4 +1,5 @@
 const random = require("randomatic");
+
 module.exports = {
     verificationCode: async (req, res) => {
 
@@ -245,6 +246,5 @@ module.exports = {
             res.serverError(e);
         }
     },
-
 };
 

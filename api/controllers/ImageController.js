@@ -1116,36 +1116,6 @@ w
             res.serverError( error );     
         }
     },
-
-    /*********
-     * 
-     * Para obtener el logo
-     */
-    getImageLogo: async function (req, res) {
-
-        try {
-            let directory = path.join(sails.config.appPath, 'assets/images/logo.png');
-            console.log(directory);
-
-            if (!fs.existsSync(directory)) {
-                throw new Error("file not exist");
-            }
-
-            // read binary data
-            var data = fs.readFileSync(directory);
-
-            // convert binary data to base64 encoded string
-            let content = await getMimeFile(directory);
-            res.contentType(content);
-            res.send(data);
-
-        }
-        catch (e) {
-            //console.log(e);
-            res.serverError(e);
-        }
-
-    },
     
 }
 
