@@ -22,7 +22,7 @@ module.exports.custom = {
   * > but it can also be used for user-uploaded images, webhooks, etc.      *
   *                                                                         *
   **************************************************************************/
-  baseUrl: `${env === 'local' ? `http://localhost:${require("./local").port}` : env === 'develoment' ? 'http://dev.seafoodsouq.com' : ''}`,
+  baseUrl: `${env === 'local' ? `http://localhost:${require("./local").port}` : env === 'develoment' ? 'http://devapi.seafoodsouq.com' : ''}`,
 
   /**************************************************************************
   *                                                                         *
