@@ -7,7 +7,7 @@ const sender = config.auth.user;
 const emailSender = 'Seafoodsouq <do-not-reply@seafoodsouq.com>';
 
 //El url base del api, segun su enviroment
-const URL = sails.config.custom.baseUrl, logoSrc = URL.includes("localhost") ? 'http://devapi.seafoodsouq.com/images/logo.png' : URL + "/images/logo.png";
+const URL = sails.config.custom.baseUrl, logoSrc = URL.includes("localhost") ? 'http://devapi.seafoodsouq.com/images/logo_email.png' : URL + "/images/logo_email.png";
 //El json default que se usa en los correos como emails y logos
 const DEFAULT = {
     logoSrc,
