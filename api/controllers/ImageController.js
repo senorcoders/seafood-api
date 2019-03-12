@@ -74,6 +74,16 @@ const singleImagesUpload = async function (imageBody, model, id, name) {
 
 }
 
+function getMimeFile(dirname){
+    return new Promise(function (resolve, reject) {
+        var magic = new Magic(mmm.MAGIC_MIME_TYPE);
+        magic.detectFile(dirname, function (err, result) {
+            if (err) { return reject(err); };
+            console.log(result);
+            resolve(result);
+        });
+    });
+}
 
 module.exports = {
 
@@ -1089,6 +1099,7 @@ w
         }
 
     },
+
     getShippingFiles: async (req, res) => {
         try {
             let name = req.param("name");
@@ -1104,7 +1115,7 @@ w
         } catch (error) {
             res.serverError( error );     
         }
-    }
+    },
     
 }
 

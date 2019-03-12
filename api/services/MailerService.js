@@ -1,12 +1,47 @@
 var nodeMailer = require("nodemailer");
 var Email = require('email-templates');
-const ADMIN_EMAIL = 'kharron@seafoodsouq.com, osama@seafoodsouq.com, omar@seafoodsouq.com';
+const ADMIN_EMAIL = 'jos.ojiron@gmail.com';
 const APP_NAME = sails.config.APP_NAME;
 const config = sails.config.mailer;
 const sender = config.auth.user;
 const emailSender = 'Seafoodsouq <do-not-reply@seafoodsouq.com>';
-const URL = sails.config.linkImagesEmail;
-console.log(URL)
+
+//El url base del api, segun su enviroment
+const URL = sails.config.custom.baseUrl, logoSrc = URL.includes("localhost") ? 'http://devapi.seafoodsouq.com/images/logo_email.png' : URL + "/images/logo_email.png";
+//El json default que se usa en los correos como emails y logos
+const DEFAULT = {
+    logoSrc,
+    emailSeller: "sellers@seafoodsouq.com",
+    emailInfo: 'info@seafoodsouq.com',
+    FAQLink: 'http://platform.seafoodsouq.com/login',
+    url: URL
+};
+console.log(DEFAULT);
+//Para asignar variables globales en los datas de los mailers
+function applyExtend(data) {
+    return _.extend(data, DEFAULT);
+}
+// var loadBase64Image = function (url, callback) {
+//     // Required 'request' module
+//     var request = require('request');
+
+//     // Make request to our image url
+//     return new Promise((resolve, reject)=>{
+//         request({url: url, encoding: null}, function (err, res, body) {
+//             if (!err && res.statusCode == 200) {
+//                 // So as encoding set to null then request body became Buffer object
+//                 var base64prefix = 'data:' + res.headers['content-type'] + ';base64,'
+//                     , image = body.toString('base64');
+//                 if (typeof callback == 'function') {
+//                     callback(image, base64prefix);
+//                 }
+//             } else {
+//                 throw new Error('Can not download image');
+//             }
+//         });
+//     }));
+// };
+
 const transporter = nodeMailer.createTransport({
     host: config.host,
     port: 465,
@@ -19,7 +54,7 @@ const transporter = nodeMailer.createTransport({
 
 function getdataOrderPlace(sellerName, cart, items, orderNumber, type) {
     try {
-        let grandTotal = 0, imagesPrimary = [], i = 0;
+        let grandTotal = 0;
         for (let it of items) {
             grandTotal += Number(parseFloat(Number(it.quantity.value) * Number(it.price.value)).toFixed(2));
             grandTotal += Number(it.shipping);
@@ -27,13 +62,8 @@ function getdataOrderPlace(sellerName, cart, items, orderNumber, type) {
             grandTotal += Number(it.customs);
             grandTotal += Number(it.sfsMargin);
             if (it.fish.imagePrimary && it.fish.imagePrimary !== '') {
-                imagesPrimary.push({
-                    filename: `primary${i}.jpg`,
-                    path: `./images/primary/${it.fish.imagePrimary.split("/").pop()}/${it.fish.imagePrimary.split("/").slice(-2)[0]}`,
-                    cid: `item${i}@seafood.com`
-                });
+                it.fish.imagePrimary = URL + it.fish.imagePrimary;
             }
-            i += 1;
         }
         grandTotal = Number((grandTotal).toFixed(2));
         let date = new Date(cart.paidDateTime);
@@ -47,8 +77,7 @@ function getdataOrderPlace(sellerName, cart, items, orderNumber, type) {
             orderNumber: orderNumber,
             url: URL,
             paidDateTime,
-            grandTotal,
-            imagesPrimary
+            grandTotal
         };
     }
     catch (e) {
@@ -69,6 +98,7 @@ const email = new Email({
         }
     }
 });
+
 async function formatDates(d) {
     let date = new Date(d)
     let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -79,14 +109,14 @@ async function formatDates(d) {
     return dates
 };
 
-module.exports = {    
+module.exports = {
     registerNewUser: (user) => {
         email.render('../email_templates/register_new_user',
-            {
+            applyExtend({
                 name: user.firstName + ' ' + user.lastName,
                 id: user.id,
                 code: user.code
-            }
+            })
         )
             .then(res => {
                 transporter.sendMail({
@@ -94,11 +124,6 @@ module.exports = {
                     to: user.email,
                     subject: 'Your Account is Under Review',
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -120,9 +145,9 @@ module.exports = {
             roleType = "Seller"
         } else { roleType = "Buyer" }
         email.render('../email_templates/new_user_admin_notification',
-            {
+            applyExtend({
                 role: roleType
-            }
+            })
         )
             .then(res => {
                 transporter.sendMail({
@@ -130,11 +155,6 @@ module.exports = {
                     to: ADMIN_EMAIL,
                     subject: `New ${roleType} is pending confirmation`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -150,9 +170,9 @@ module.exports = {
     },
     sendApprovedEmail: (id, emailAddress, code, name) => {
         email.render('../email_templates/approved_account',
-            {
+            applyExtend({
                 name: name
-            }
+            })
         )
             .then(res => {
                 transporter.sendMail({
@@ -160,11 +180,6 @@ module.exports = {
                     to: emailAddress,
                     subject: 'Welcome Onboard, Getting Started with Seafood Souq !',
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -180,11 +195,11 @@ module.exports = {
     },
     sendApprovedBuyerEmail: (id, emailAddress, code, name) => {
         email.render('../email_templates/approved_account_buyer',
-            {
+            applyExtend({
                 name: name,
                 id,
                 code
-            }
+            })
         )
             .then(res => {
                 transporter.sendMail({
@@ -192,11 +207,6 @@ module.exports = {
                     to: emailAddress,
                     subject: 'Welcome Onboard, Getting Started with Seafood Souq !',
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -212,9 +222,9 @@ module.exports = {
     },
     sendApprovedSellerEmail: (emailAddress, name) => {
         email.render('../email_templates/approved_seller',
-            {
+            applyExtend({
                 name: name
-            }
+            })
         )
             .then(res => {
                 transporter.sendMail({
@@ -222,11 +232,6 @@ module.exports = {
                     to: emailAddress,
                     subject: 'Your Next Steps to Sell On Seafood Souq',
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -242,12 +247,12 @@ module.exports = {
     },
     sendRejectedEmail: (emailAddress, role, name, denialMessage, emailContact) => {
         email.render('../email_templates/rejected_seller',
-            {
+            applyExtend({
                 name: name,
                 message: denialMessage,
                 roleType: role,
                 emailContact
-            }
+            })
         )
             .then(res => {
                 transporter.sendMail({
@@ -255,11 +260,6 @@ module.exports = {
                     to: emailAddress,
                     subject: 'Update - Seafood Souq Account',
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -275,10 +275,10 @@ module.exports = {
     },
     sendEmailForgotPassword: (emailAddress, code, name) => {
         email.render('../email_templates/forgot_password',
-            {
+            applyExtend({
                 code: code,
                 name: name
-            }
+            })
         )
             .then(res => {
                 transporter.sendMail({
@@ -286,11 +286,6 @@ module.exports = {
                     to: emailAddress,
                     subject: 'Password Recovery for Seafood Souq',
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -306,12 +301,12 @@ module.exports = {
     },
     sendDataFormContactToSeller: (emailAddress, nameSeller, nameBuyer, emailBuyer, message) => {
         email.render('../email_templates/contact_message',
-            {
+            applyExtend({
                 nameBuyer: nameBuyer,
                 nameSeller: nameSeller,
                 message: message,
                 emailBuyer: emailBuyer
-            }
+            })
         )
             .then(res => {
                 transporter.sendMail({
@@ -319,11 +314,6 @@ module.exports = {
                     to: emailAddress,
                     subject: 'New Message of Contact in Seafood Souq',
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -339,10 +329,10 @@ module.exports = {
     },
     newProductAddedAdminNotified: (product, seller) => {
         email.render('../email_templates/new_product_awaiting_review',
-            {
+            applyExtend({
                 name: seller.firstName + ' ' + seller.lastName,
                 product: product
-            }
+            })
         )
             .then(res => {
                 transporter.sendMail({
@@ -350,11 +340,6 @@ module.exports = {
                     to: ADMIN_EMAIL,
                     subject: `Product #${product.seafood_sku} is awaiting Review`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -370,10 +355,10 @@ module.exports = {
     },
     newProductAddedSellerNotified: (product, seller) => {
         email.render('../email_templates/new_product_seller_notified',
-            {
+            applyExtend({
                 name: seller.firstName + ' ' + seller.lastName,
                 product: product
-            }
+            })
         )
             .then(res => {
                 transporter.sendMail({
@@ -381,11 +366,6 @@ module.exports = {
                     to: seller.email,
                     subject: `Product #${product.seafood_sku} is Under Review `,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -401,11 +381,11 @@ module.exports = {
     },
     newProductRejected: (seller, product, SFSAdminFeedback) => {
         email.render('../email_templates/new_product_rejected',
-            {
+            applyExtend({
                 name: seller.firstName + ' ' + seller.lastName,
                 product: product,
                 SFSAdminFeedback: SFSAdminFeedback
-            }
+            })
         )
             .then(res => {
                 transporter.sendMail({
@@ -413,11 +393,6 @@ module.exports = {
                     to: seller.email,
                     subject: `Product #${product.seafood_sku} is awaiting Review`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -433,10 +408,10 @@ module.exports = {
     },
     newProductAccepted: (seller, product) => {
         email.render('../email_templates/new_product_accepted',
-            {
+            applyExtend({
                 name: seller.firstName + ' ' + seller.lastName,
                 product: product
-            }
+            })
         )
             .then(res => {
                 transporter.sendMail({
@@ -444,11 +419,6 @@ module.exports = {
                     to: seller.email,
                     subject: `Product #${product.seafood_sku} is awaiting Review`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'seafoodsouq_logo' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -464,8 +434,8 @@ module.exports = {
     },
     sendCartPaidSellerNotified: async (sellerName, cart, items, orderNumber, emailAddress, sellerInvoice) => {
 
-      let buyerExpectedDeliveryDate = item.buyerExpectedDeliveryDate.split("/");
-        let buyerDate = new Date( buyerExpectedDeliveryDate[2], buyerExpectedDeliveryDate[0], buyerExpectedDeliveryDate[1] );
+        let buyerExpectedDeliveryDate = item.buyerExpectedDeliveryDate.split("/");
+        let buyerDate = new Date(buyerExpectedDeliveryDate[2], buyerExpectedDeliveryDate[0], buyerExpectedDeliveryDate[1]);
         items.buyerExpectedDeliveryDate = await sails.helpers.formatDate(buyerDate);
         items = Object.prototype.toString.call(items) === '[object Object]' ? [items] : items;
         console.log(Object.prototype.toString.call(items), "sendCartPaidSellerNotified");
@@ -474,13 +444,13 @@ module.exports = {
 
 
         email.render('../email_templates/cart_paid_seller_notified',
-            {
+            applyExtend({
                 sellerName: sellerName,
                 cart: cart,
                 items: items,
                 orderNumber: orderNumber,
                 url: URL
-            }
+            })
         )
             .then(res => {
                 transporter.sendMail({
@@ -489,11 +459,6 @@ module.exports = {
                     subject: `Order #${orderNumber} is Placed`,
                     html: res, // html body
                     attachments: [
-                        {
-                            filename: 'logo.png',
-                            path: './assets/images/logo.png',
-                            cid: 'seafoodsouq_logo' //same cid value as in the html img src
-                        },
                         {
                             filename: sellerInvoice,
                             path: `pdf_purchase_order/${sellerInvoice}`
@@ -532,7 +497,7 @@ module.exports = {
         }
         let data = getdataOrderPlace("", cart, items, orderNumber, "sendCartPaidBuyerNotified")
         email.render('../email_templates/cart_paid_buyer_notified',
-            data
+            applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -541,11 +506,6 @@ module.exports = {
                     subject: `Order #${orderNumber} is Placed`,
                     html: res, // html body
                     attachments: [
-                        {
-                            filename: 'logo.png',
-                            path: './assets/images/logo.png',
-                            cid: 'seafoodsouq_logo' //same cid value as in the html img src
-                        },
                         {
                             filename: `seafood-invoice-${orderNumber}.pdf`,
                             path: `pdf_invoices/${pdf_invoice}`
@@ -599,7 +559,7 @@ module.exports = {
         data.sellers = sellers;
         console.log(JSON.stringify(data));
         email.render('../email_templates/cart_paid_admin_notified',
-            data
+            applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -607,11 +567,6 @@ module.exports = {
                     to: ADMIN_EMAIL,
                     subject: `Order #${orderNumber} is Placed`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }].concat(data.imagesPrimary)
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -805,10 +760,10 @@ module.exports = {
             )
     },
     itemShipped: async (name, cart, store, item) => {
-        
+
         let paidDateTime = new Date(cart.paidDateTime);
         let sellerExpectedDeliveryDate = item.sellerExpectedDeliveryDate.split("/");
-        let sellerDate = new Date( sellerExpectedDeliveryDate[2], sellerExpectedDeliveryDate[0], sellerExpectedDeliveryDate[1] );
+        let sellerDate = new Date(sellerExpectedDeliveryDate[2], sellerExpectedDeliveryDate[0], sellerExpectedDeliveryDate[1]);
         item.sellerExpectedDeliveryDate = await sails.helpers.formatDate(sellerDate);
         cart.paidDateTime = await sails.helpers.formatDate(paidDateTime);
         email.render('../email_templates/itemShipped',
@@ -823,7 +778,7 @@ module.exports = {
             .then(res => {
                 transporter.sendMail({
                     from: emailSender,
-                    to:  cart.buyer.email,
+                    to: cart.buyer.email,
                     subject: `Order #${cart.orderNumber} is being Shipped`,
                     html: res, // html body
                     attachments: [{
@@ -844,10 +799,10 @@ module.exports = {
                 console.error
             )
     },
-    orderArrived: async (name, cart, store, item) => {        
+    orderArrived: async (name, cart, store, item) => {
         let paidDateTime = new Date(cart.paidDateTime);
         let sellerExpectedDeliveryDate = item.sellerExpectedDeliveryDate.split("/");
-        let sellerDate = new Date( sellerExpectedDeliveryDate[2], sellerExpectedDeliveryDate[0], sellerExpectedDeliveryDate[1] );
+        let sellerDate = new Date(sellerExpectedDeliveryDate[2], sellerExpectedDeliveryDate[0], sellerExpectedDeliveryDate[1]);
         item.sellerExpectedDeliveryDate = await sails.helpers.formatDate(sellerDate);
         cart.paidDateTime = await sails.helpers.formatDate(paidDateTime);
         email.render('../email_templates/order_arrived',

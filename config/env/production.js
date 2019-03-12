@@ -46,33 +46,7 @@ module.exports = {
     *    (See https://sailsjs.com/config/datastores for help.)                 *
     *                                                                          *
     ***************************************************************************/
-    default: {
-      // adapter: 'sails-mysql',
-      // url: 'mysql://user:password@host:port/database',
-      //--------------------------------------------------------------------------
-      //  /\   To avoid checking it in to version control, you might opt to set
-      //  ||   sensitive credentials like `url` using an environment variable.
-      //
-      //  For example:
-      //  ```
-      //  sails_datastores__default__url=mysql://admin:myc00lpAssw2D@db.example.com:3306/my_prod_db
-      //  ```
-      //--------------------------------------------------------------------------
-
-      /****************************************************************************
-      *                                                                           *
-      * More adapter-specific options                                             *
-      *                                                                           *
-      * > For example, for some hosted PostgreSQL providers (like Heroku), the    *
-      * > extra `ssl: true` option is mandatory and must be provided.             *
-      *                                                                           *
-      * More info:                                                                *
-      * https://sailsjs.com/config/datastores                                     *
-      *                                                                           *
-      ****************************************************************************/
-      // ssl: true,
-
-    },
+    default: require("../datastores").datastores.default,
 
   },
 
@@ -118,7 +92,8 @@ module.exports = {
   *                                                                         *
   ***************************************************************************/
   blueprints: {
-    shortcuts: false,
+    rest: true,
+    shortcuts: true,
   },
 
 
@@ -148,11 +123,11 @@ module.exports = {
     *                                                                          *
     ***************************************************************************/
     cors: {
-      // allowOrigins: [
-      //   'https://example.com',
-      // ]
+      allRoutes: true,
+      allowOrigins: '*',
+      allowCredentials: false,
     },
-
+    csrf: false
   },
 
 
@@ -224,7 +199,7 @@ module.exports = {
       // secure: true,
       maxAge: 24 * 60 * 60 * 1000,  // 24 hours
     },
-
+    secret: '7de04e87a0497c9cc7045e80cb8fa52b',
   },
 
 
@@ -250,10 +225,7 @@ module.exports = {
     * > Be sure to use the right protocol!  ("http://" vs. "https://")         *
     *                                                                          *
     ***************************************************************************/
-    // onlyAllowOrigins: [
-    //   'https://example.com',
-    //   'https://staging.example.com',
-    // ],
+    onlyAllowOrigins: ['http://platform.seafoodsouq.com'],
 
 
     /***************************************************************************
@@ -323,6 +295,11 @@ module.exports = {
     *                                                                          *
     ***************************************************************************/
     // trustProxy: true,
+    bodyParser: /*require('express').bodyParser()*/ (function _configureBodyParser() {
+      var skipper = require('skipper');
+      var middlewareFn = skipper({ strict: true, maxTimeToBuffer: 100000, });
+      return middlewareFn;
+    })(),
 
   },
 
@@ -371,7 +348,7 @@ module.exports = {
   *                                                                         *
   ***************************************************************************/
   custom: {
-    baseUrl: 'https://example.com',
+    baseUrl: 'http://13.232.66.55:80',
     internalEmailAddress: 'support@example.com',
 
     // mailgunDomain: 'mg.example.com',

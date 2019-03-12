@@ -7,7 +7,7 @@
  * For more information on custom configuration, visit:
  * https://sailsjs.com/config/custom
  */
-
+const env = process.env.NODE_ENV;
 module.exports.custom = {
 
   /**************************************************************************
@@ -22,15 +22,15 @@ module.exports.custom = {
   * > but it can also be used for user-uploaded images, webhooks, etc.      *
   *                                                                         *
   **************************************************************************/
-  baseUrl: 'http://localhost:7000',
+  baseUrl: `${env === 'local' ? `http://localhost:${require("./local").port}` : env === 'develoment' ? 'http://dev.seafoodsouq.com' : ''}`,
 
   /**************************************************************************
   *                                                                         *
   * The TTL (time-to-live) for various sorts of tokens before they expire.  *
   *                                                                         *
   **************************************************************************/
-  passwordResetTokenTTL: 24*60*60*1000,// 24 hours
-  emailProofTokenTTL:    24*60*60*1000,// 24 hours
+  passwordResetTokenTTL: 24 * 60 * 60 * 1000,// 24 hours
+  emailProofTokenTTL: 24 * 60 * 60 * 1000,// 24 hours
 
   /**************************************************************************
   *                                                                         *
@@ -38,7 +38,7 @@ module.exports.custom = {
   * if "Remember Me" was checked while logging in.                          *
   *                                                                         *
   **************************************************************************/
-  rememberMeCookieMaxAge: 30*24*60*60*1000, // 30 days
+  rememberMeCookieMaxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
 
   /**************************************************************************
   *                                                                         *
