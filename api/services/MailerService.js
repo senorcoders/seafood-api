@@ -5,8 +5,7 @@ const APP_NAME = sails.config.APP_NAME;
 const config = sails.config.mailer;
 const sender = config.auth.user;
 const emailSender = 'Seafoodsouq <do-not-reply@seafoodsouq.com>';
-const URL = sails.config.linkImagesEmail;
-console.log(URL)
+const URL = sails.config.custom.baseUrl;
 const transporter = nodeMailer.createTransport({
     host: config.host,
     port: 465,
