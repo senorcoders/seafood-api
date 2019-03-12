@@ -1,6 +1,6 @@
 var nodeMailer = require("nodemailer");
 var Email = require('email-templates');
-const ADMIN_EMAIL = 'jos.ojiron@gmail.com';
+const ADMIN_EMAIL = 'osama@seafoodsouq.com, kharron@seafoodsouq.com, osmany@seafoodsouq.com';
 const APP_NAME = sails.config.APP_NAME;
 const config = sails.config.mailer;
 const sender = config.auth.user;
