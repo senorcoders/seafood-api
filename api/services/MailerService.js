@@ -1,6 +1,7 @@
 var nodeMailer = require("nodemailer");
 var Email = require('email-templates');
-const ADMIN_EMAIL = 'osama@seafoodsouq.com, kharron@seafoodsouq.com, osmany@seafoodsouq.com';
+// const ADMIN_EMAIL = 'osama@seafoodsouq.com, kharron@seafoodsouq.com, osmany@seafoodsouq.com';
+const ADMIN_EMAIL = 'osama@seafoodsouq.com, kharron@seafoodsouq.com';
 const APP_NAME = sails.config.APP_NAME;
 const config = sails.config.mailer;
 const sender = config.auth.user;
@@ -14,7 +15,8 @@ const DEFAULT = {
     emailSeller: "sellers@seafoodsouq.com",
     emailInfo: 'info@seafoodsouq.com',
     FAQLink: 'http://platform.seafoodsouq.com/login',
-    url: URL
+    url: URL,
+    contactUs: 'http://platform.seafoodsouq.com/login',
 };
 console.log(DEFAULT);
 //Para asignar variables globales en los datas de los mailers
@@ -435,25 +437,16 @@ module.exports = {
                 console.error
             )
     },
-    sendCartPaidSellerNotified: async (sellerName, cart, items, orderNumber, emailAddress, sellerInvoice) => {
+    sendCartPaidSellerNotified: async (sellerName, cart, items, orderNumber, emailAddress, sellerInvoice, buyerETA) => {
 
-        let buyerExpectedDeliveryDate = item.buyerExpectedDeliveryDate.split("/");
+        let buyerExpectedDeliveryDate = items.buyerExpectedDeliveryDate.split("/");
         let buyerDate = new Date(buyerExpectedDeliveryDate[2], buyerExpectedDeliveryDate[0], buyerExpectedDeliveryDate[1]);
         items.buyerExpectedDeliveryDate = await sails.helpers.formatDate(buyerDate);
         items = Object.prototype.toString.call(items) === '[object Object]' ? [items] : items;
-        console.log(Object.prototype.toString.call(items), "sendCartPaidSellerNotified");
         let data = getdataOrderPlace(sellerName, cart, items, orderNumber, "sendCartPaidSellerNotified");
-        email.render('../email_templates/cart_paid_seller_notified', data)
-
-
+        data.buyerETA = buyerETA;
         email.render('../email_templates/cart_paid_seller_notified',
-            applyExtend({
-                sellerName: sellerName,
-                cart: cart,
-                items: items,
-                orderNumber: orderNumber,
-                url: URL
-            })
+            applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -466,7 +459,7 @@ module.exports = {
                             filename: sellerInvoice,
                             path: `pdf_purchase_order/${sellerInvoice}`
                         }
-                    ].concat(data.imagesPrimary)
+                    ]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -498,7 +491,7 @@ module.exports = {
                 }
             }
         }
-        let data = getdataOrderPlace("", cart, items, orderNumber, "sendCartPaidBuyerNotified")
+        let data = getdataOrderPlace(cart.buyer.firstName+ " "+ cart.buyer.lastName , cart, items, orderNumber, "sendCartPaidBuyerNotified")
         email.render('../email_templates/cart_paid_buyer_notified',
             applyExtend(data)
         )
@@ -513,7 +506,7 @@ module.exports = {
                             filename: `seafood-invoice-${orderNumber}.pdf`,
                             path: `pdf_invoices/${pdf_invoice}`
                         }
-                    ].concat(data.imagesPrimary)
+                    ]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -560,7 +553,6 @@ module.exports = {
             sellers = _stores[0].owner.firstName + " " + _stores[0].owner.lastName;
         }
         data.sellers = sellers;
-        console.log(JSON.stringify(data));
         email.render('../email_templates/cart_paid_admin_notified',
             applyExtend(data)
         )

@@ -47,7 +47,7 @@ module.exports = {
 
         
     },
-    sellerPurchaseOrder: async ( fullName, cart, itemsShopping, orderNumber, sellerAddress, counter, currentExchangeRate ) => {
+    sellerPurchaseOrder: async ( fullName, cart, itemsShopping, orderNumber, sellerAddress, counter, currentExchangeRate, buyerETA) => {
         var compiled = await ejs.compile(fs.readFileSync(__dirname + '/../../pdf_templates/PurchaseOrder.html', 'utf8'));
         //console.log( 'cart', cart );
         //console.log( 'itemsShopping', itemsShopping );
@@ -82,7 +82,7 @@ module.exports = {
         let pdf_name = `purchase-order-${orderNumber}-${paidDateTime}-${counter}.pdf`;
         await pdf.create(html).toFile(`./pdf_purchase_order/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
-            MailerService.sendCartPaidSellerNotified(fullName, cart, itemsShopping, orderNumber,itemsShopping.fish.store.owner.email, pdf_name);
+            MailerService.sendCartPaidSellerNotified(fullName, cart, itemsShopping, orderNumber,itemsShopping.fish.store.owner.email, pdf_name, buyerETA);
             let pdf_updated = await ItemShopping.update( { id: itemsShopping.id } , { po_path: pdf_name } );
         } )        
         return pdf_name;
