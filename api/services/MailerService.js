@@ -1,7 +1,7 @@
 var nodeMailer = require("nodemailer");
 var Email = require('email-templates');
-// const ADMIN_EMAIL = 'osama@seafoodsouq.com, kharron@seafoodsouq.com, osmany@seafoodsouq.com';
-const ADMIN_EMAIL = 'osama@seafoodsouq.com, kharron@seafoodsouq.com';
+const ADMIN_EMAIL = 'osama@seafoodsouq.com, kharron@seafoodsouq.com, osmany@seafoodsouq.com';
+// const ADMIN_EMAIL = 'osama@seafoodsouq.com, kharron@seafoodsouq.com';
 const APP_NAME = sails.config.APP_NAME;
 const config = sails.config.mailer;
 const sender = config.auth.user;
@@ -71,10 +71,26 @@ function getdataOrderPlace(sellerName, cart, items, orderNumber, type) {
         let date = new Date(cart.paidDateTime);
         let paidDateTime = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
 
+        //Para obtener los sellers
+        let _stores = [];
+        for (let it of items) {
+            let ind = _stores.findIndex(i => { return i.id === it.fish.store.id; });
+            if (ind === -1) _stores.push(it.fish.store);
+        }
+        let sellers = "";
+        for (let i = 0; i < _stores.length; i++) {
+            let space = (i + 1) === _stores.length ? '' : (i + 1) === (_stores.length - 1) ? ' and ' : ', ';
+            sellers += _stores[i].owner.firstName + " " + _stores[i].owner.lastName + space;
+        }
+        if (_stores.length === 1) {
+            sellers = _stores[0].owner.firstName + " " + _stores[0].owner.lastName;
+        }
+
         return {
             name: sellerName,
             sellerName: sellerName,
             cart: cart,
+            sellers,
             items: items,
             orderNumber: orderNumber,
             url: URL,
@@ -203,7 +219,7 @@ module.exports = {
             applyExtend({
                 name: name,
                 id,
-                code 
+                code
             })
         )
             .then(res => {
@@ -491,7 +507,7 @@ module.exports = {
                 }
             }
         }
-        let data = getdataOrderPlace(cart.buyer.firstName+ " "+ cart.buyer.lastName , cart, items, orderNumber, "sendCartPaidBuyerNotified")
+        let data = getdataOrderPlace(cart.buyer.firstName + " " + cart.buyer.lastName, cart, items, orderNumber, "sendCartPaidBuyerNotified")
         email.render('../email_templates/cart_paid_buyer_notified',
             applyExtend(data)
         )
@@ -539,20 +555,6 @@ module.exports = {
             }
         }
         let data = getdataOrderPlace(cart.buyer.firstName + ' ' + cart.buyer.lastName, cart, items, orderNumber, "sendCartPaidAdminNotified");
-        let _stores = [];
-        for (let it of items) {
-            let ind = _stores.findIndex(i => { return i.id === it.fish.store.id; });
-            if (ind === -1) _stores.push(it.fish.store);
-        }
-        let sellers = "";
-        for (let i = 0; i < _stores.length; i++) {
-            let space = (i + 1) === _stores.length ? '' : (i + 1) === (_stores.length - 1) ? ' and ' : ', ';
-            sellers += _stores[i].owner.firstName + " " + _stores[i].owner.lastName + space;
-        }
-        if (_stores.length === 1) {
-            sellers = _stores[0].owner.firstName + " " + _stores[0].owner.lastName;
-        }
-        data.sellers = sellers;
         email.render('../email_templates/cart_paid_admin_notified',
             applyExtend(data)
         )
