@@ -172,7 +172,9 @@ module.exports = {
                         shippingStore: it.shipping,
                         sfsMargin: isNaN(it.sfsMargin) === true ? 0 : it.sfsMargin,
                         customs: it.customs,
-                        uaeTaxes: it.uaeTaxes
+                        uaeTaxes: it.uaeTaxes,
+                        subtotal: (it.quantity.value * it.price.value).toFixed(2),
+                        total: ( it.quantity.value * it.price.value ) + it.shipping + it.sfsMargin + it.customs + it.uaeTaxes
                     })
 
                     return it;
