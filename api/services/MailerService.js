@@ -169,6 +169,9 @@ module.exports = {
             )
     },
     sendApprovedEmail: (id, emailAddress, code, name) => {
+        console.log(applyExtend({
+            name: name
+        }));
         email.render('../email_templates/approved_account',
             applyExtend({
                 name: name
