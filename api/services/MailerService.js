@@ -169,6 +169,9 @@ module.exports = {
             )
     },
     sendApprovedEmail: (id, emailAddress, code, name) => {
+        console.log(applyExtend({
+            name: name
+        }));
         email.render('../email_templates/approved_account',
             applyExtend({
                 name: name
@@ -198,7 +201,7 @@ module.exports = {
             applyExtend({
                 name: name,
                 id,
-                code
+                code 
             })
         )
             .then(res => {
@@ -246,7 +249,7 @@ module.exports = {
             )
     },
     sendRejectedEmail: (emailAddress, role, name, denialMessage, emailContact) => {
-        email.render('../email_templates/rejected_seller',
+        email.render('../email_templates/rejected_user',
             applyExtend({
                 name: name,
                 message: denialMessage,
