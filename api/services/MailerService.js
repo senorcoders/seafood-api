@@ -198,7 +198,7 @@ module.exports = {
             applyExtend({
                 name: name,
                 id,
-                code
+                code 
             })
         )
             .then(res => {
