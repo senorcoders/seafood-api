@@ -454,11 +454,11 @@ module.exports = {
                 it.fish.store = await Store.findOne({ id: it.fish.store }).populate("owner");
                 await ItemShopping.update({ id: it.id }).set({ status: '5c017ae247fb07027943a404', orderInvoice: invoiceNumber, purchaseOrder: (maxPurchaseOrder + 1 + index) });
 
-                let fullName = it.fish.store['name'];
+                let fullName = it.fish.store.owner.firstName+ " "+ it.fish.store.owner.lastName;
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
                 let sellerAddress = it.fish.store['Address'];
 
-                let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, it, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + index), exchangeRates[0].price);
+                let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, it, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + index), exchangeRates[0].price, it.buyerExpectedDeliveryDate);
                 return it;
             }));
 
