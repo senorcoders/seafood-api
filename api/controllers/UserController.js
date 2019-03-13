@@ -218,8 +218,8 @@ module.exports = {
                 user = await User.update({ id }, { status, denialMessage, denialType }).fetch();
                 let name = user[0].firstName + " " + user[0].lastName;
                 //await require("./../../mailer").sendDenialMessage(user[0].id, user[0].email, denialMessage);
-                let rolName = user[0].role === 1 ?  'Buyer' : 'Seller';
-                let emailContact = user[0].role === 1 ?  'info@seafoodsouq.com' : 'sellers@seafoodsouq.com';
+                let rolName = user[0].role === 2 ?  'Buyer' : 'Seller';
+                let emailContact = user[0].role === 2 ?  'info@seafoodsouq.com' : 'sellers@seafoodsouq.com';
                 await MailerService.sendRejectedEmail(user[0].email, rolName, name, denialMessage, emailContact);
             }
             res.json({ msg: "success" });
