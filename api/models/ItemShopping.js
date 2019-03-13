@@ -130,7 +130,7 @@ module.exports = {
     total: {
       type: "number",
       required: false
-    }
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
