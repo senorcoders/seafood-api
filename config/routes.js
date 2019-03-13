@@ -10,11 +10,10 @@
 
 module.exports.routes = {
 
-
-  //  ╦ ╦╔═╗╔╗ ╔═╗╔═╗╔═╗╔═╗╔═╗
+   //  ╦ ╦╔═╗╔╗ ╔═╗╔═╗╔═╗╔═╗╔═╗
   //  ║║║║╣ ╠╩╗╠═╝╠═╣║ ╦║╣ ╚═╗
   //  ╚╩╝╚═╝╚═╝╩  ╩ ╩╚═╝╚═╝╚═╝
-  'GET /': { action: 'view-homepage-or-redirect' },
+  //'GET /': { action: 'view-homepage-or-redirect' },
   'GET /welcome': { action: 'dashboard/view-welcome' },
 
   'GET /faq': { view: 'pages/faq' },
@@ -323,6 +322,7 @@ module.exports.routes = {
   'POST /api/itemshopping/:id/shipping-documents': 'ItemShopping.uploadShippingDocuments',
 
   'GET /api/itemshopping/:id/shipping-documents/:name': 'Image.getShippingFiles',
+  
   /********
    * 
    * FAVORITE FISH
