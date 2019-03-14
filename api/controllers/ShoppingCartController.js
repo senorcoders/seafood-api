@@ -188,6 +188,7 @@ module.exports = {
                 total = Number(parseFloat(subtotal + totalOtherFees + totalShipping + totalUAETaxes).toFixed(2));
 
                 totalSFSMargin = isNaN(totalSFSMargin) === true ? 0 : totalSFSMargin;
+                subtotal = isNaN(subtotal) === true ? 0 : subtotal;
                 total = isNaN(total) === true ? 0 : total;
                 totalOtherFees = isNaN(totalOtherFees) === true ? 0 : totalOtherFees;
                 totalUAETaxes = isNaN(totalUAETaxes) === true ? 0 : totalUAETaxes
