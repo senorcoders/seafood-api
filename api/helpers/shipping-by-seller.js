@@ -36,15 +36,15 @@ module.exports = {
 
 
   fn: async function (inputs, exits) {
-    shipping = await sails.helpers.shippingByCity( city, weight ); 
+    shipping = await sails.helpers.shippingByCity( inputs.city, inputs.weight ); 
 
     //calculate cost       
-    let shippingFee   = shipping * weight; //b1
-    let handlingFee   = currentAdminCharges.handlingFees * weight; //b2 //are 3 AED/KG to get the shipment released from Customs.
-    let shippingCost  = firstMileFee + shippingFee + handlingFee + currentAdminCharges.lastMileCost; //C = first mile cost + b1 + b2 + last mile cost
+    let shippingFee   = shipping * inputs.weight; //b1
+    let handlingFee   = inputs.currentAdminCharges.handlingFees * inputs.weight; //b2 //are 3 AED/KG to get the shipment released from Customs.
+    let shippingCost  = inputs.firstMileFee + shippingFee + handlingFee + inputs.currentAdminCharges.lastMileCost; //C = first mile cost + b1 + b2 + last mile cost
         
     // All done.
-    return exits.success( { firstMileFee, shippingFee, handlingFee, shippingCost } );
+    return exits.success( { firstMileFee: inputs.firstMileFee, shippingFee, handlingFee, shippingCost } );
 
   }
 
