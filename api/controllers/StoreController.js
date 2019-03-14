@@ -62,7 +62,7 @@ module.exports = {
         try {
             let id = req.param("id");
             let store = await Store.findOne({ id });
-            store.fishs = await Fish.find({ store: store.id }).populate("type")
+            store.fishs = await Fish.find({ store: store.id }).populate("type").populate("status")
 
             res.json(store);
         }
