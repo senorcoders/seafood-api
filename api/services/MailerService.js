@@ -22,26 +22,6 @@ console.log(DEFAULT);
 function applyExtend(data) {
     return _.extend(data, DEFAULT);
 }
-// var loadBase64Image = function (url, callback) {
-//     // Required 'request' module
-//     var request = require('request');
-
-//     // Make request to our image url
-//     return new Promise((resolve, reject)=>{
-//         request({url: url, encoding: null}, function (err, res, body) {
-//             if (!err && res.statusCode == 200) {
-//                 // So as encoding set to null then request body became Buffer object
-//                 var base64prefix = 'data:' + res.headers['content-type'] + ';base64,'
-//                     , image = body.toString('base64');
-//                 if (typeof callback == 'function') {
-//                     callback(image, base64prefix);
-//                 }
-//             } else {
-//                 throw new Error('Can not download image');
-//             }
-//         });
-//     }));
-// };
 
 const transporter = nodeMailer.createTransport({
     host: config.host,
@@ -55,6 +35,9 @@ const transporter = nodeMailer.createTransport({
 
 function getdataOrderPlace(sellerName, cart, items, orderNumber, type) {
     try {
+        //Perder la referencia de la variable
+        items = JSON.parse( JSON.stringify(items) ); 
+        //Para obtener el total y parsiar la fecha de pago
         let grandTotal = 0;
         for (let it of items) {
             grandTotal += Number(parseFloat(Number(it.quantity.value) * Number(it.price.value)).toFixed(2));
@@ -62,13 +45,19 @@ function getdataOrderPlace(sellerName, cart, items, orderNumber, type) {
             grandTotal += Number(it.uaeTaxes);
             grandTotal += Number(it.customs);
             grandTotal += Number(it.sfsMargin);
-            if (it.fish.imagePrimary && it.fish.imagePrimary !== '') {
-                it.fish.imagePrimary = URL + it.fish.imagePrimary;
-            }
         }
         grandTotal = Number((grandTotal).toFixed(2));
         let date = new Date(cart.paidDateTime);
         let paidDateTime = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
+
+        //Para completar el src de image primary
+        for(let i=0; i<items.length; i++){
+            let it = items[i];
+            if (it.fish.imagePrimary && it.fish.imagePrimary !== '') {
+                it.fish.imagePrimary = URL + it.fish.imagePrimary;
+            }
+            items[i] = it;
+        }
 
         //Para obtener los sellers
         let _stores = [];
@@ -84,7 +73,7 @@ function getdataOrderPlace(sellerName, cart, items, orderNumber, type) {
         if (_stores.length === 1) {
             sellers = _stores[0].owner.firstName + " " + _stores[0].owner.lastName;
         }
-
+        console.log(type, items, "\n\n");
         return {
             name: sellerName,
             sellerName: sellerName,
