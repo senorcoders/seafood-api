@@ -306,16 +306,25 @@ module.exports = {
                     price: req.param("price"),
                     shippingStatus: req.param("shippingStatus")
                 };
-            // check if this item is already in this cart
+
+                // check if this item is already in this cart
             let alredyInCart = await ItemShopping.find({
                 shoppingCart: id,
                 fish: item.fish
             });
             let itemShopping;
             if (alredyInCart !== undefined && alredyInCart[0] !== undefined) {
-                let item_id = alredyInCart[0].id;
-                item.quantity.value += alredyInCart[0].quantity.value;
-                itemShopping = await ItemShopping.update({ id: item_id }, item);
+                let fishInfo = await Fish.findOne( { id: req.param("fish") } );
+                if ( fishInfo.maximumOrder < (item.quantity.value + alredyInCart[0].quantity.value) ) {
+                    return res.status(400).json( { message: "Maximum order limit reached" } )
+                    
+                } else if ( fishInfo.maximumOrder < (item.quantity.value + alredyInCart[0].quantity.value) ){
+                    return res.status(400).json( { message: "Minimum order limit reached" } )                    
+                } else {
+                    let item_id = alredyInCart[0].id;
+                    item.quantity.value += alredyInCart[0].quantity.value;
+                    itemShopping = await ItemShopping.update({ id: item_id }, item);                    
+                }
                 //return res.status(200).send( item );
             } else {
                 itemShopping = await ItemShopping.create(item);
