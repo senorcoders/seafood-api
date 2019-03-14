@@ -1,0 +1,96 @@
+<style>
+    #table-order {
+        border: 2px solid black;
+    }
+
+    #table-order td {
+        border-top: 1px solid black;
+        vertical-align: top !important;
+        font-weight: bold;
+    }
+</style>
+<table id="table-order" width="100%" cellpadding="5px" cellspacing="0" style="min-width:100%;">
+    <tr>
+        <td style="border-top-width: 0 !important;">Order Details</td>
+        <td style="border-top-width: 0 !important;">Date</td>
+        <td style="border-top-width: 0 !important;"><%=paidDateTime %></td>
+        <td colspan="2" style="border-top-width: 0 !important;">Order N° <%=orderNumber %></td>
+    </tr>
+    <tr>
+        <td>Description</td>
+        <td>Origin</td>
+        <td>Processing</td>
+        <td>Qty (KG)</td>
+        <td>Total (AED)</td>
+    </tr>
+    <% items.forEach(function(it,index){ %>
+    <tr>
+        <td colspan="4">
+            <span style="font-size: 12px; ">Shipment <%= (index+1)%> of <%=items.length %>, Seller: <span
+                    style="background-color: #f16060;"><%=it.fish.store.name %></span></span>
+        </td>
+        <td style="font-size: 14px;">
+            ETA: -
+        </td>
+    </tr>
+    <tr>
+        <td style="border-top-width: 0 !important;">
+            <table>
+                <tr>
+                    <td width="80px" height="80px" style="border-top-width: 0 !important;">
+                        <% if(it.fish.imagePrimary && it.fish.imagePrimary!=''){ %>
+                        <img style="width: 100%; height: 100%; object-fit: contain;" src="<%=it.fish.imagePrimary %>" alt="">
+                        <% } %>
+                    </td>
+                    <td style="border-top-width: 0 !important; vertical-align: top;">
+                        <%=it.fish.name %>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td style="border-top-width: 0 !important;">
+            <%=it.fish.country %>
+        </td>
+        <td style="border-top-width: 0 !important;">
+            <%=it.fish.processingCountry %>
+            <span style="display: block; padding:5px; padding-right: 0px; width: 100%; font-size: 12px;">Shipping
+                fees</span>
+            <span style="display: block; padding:5px; padding-right: 0px; width: 100%; font-size: 12px;">VAT</span>
+            <span style="display: block; padding:5px; padding-right: 0px; width: 100%; font-size: 12px;">Customs</span>
+            <span style="display: block; padding:5px; padding-right: 0px; width: 100%; font-size: 12px;">Charges</span>
+        </td>
+        <td style="border-top-width: 0 !important;">
+            <%=it.quantity.value %>
+        </td>
+        <td style="border-top-width: 0 !important;">
+            <span
+                style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
+                <%=parseFloat(Number(it.quantity.value)* Number(it.price.value)).toFixed(2) %>
+            </span>
+            <span
+                style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
+                <%=it.shipping %>
+            </span>
+            <span
+                style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
+                <%=it.uaeTaxes %>
+            </span>
+            <span
+                style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
+                <%=it.customs %>
+            </span>
+            <span
+                style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
+                <%=it.sfsMargin %>
+            </span>
+        </td>
+    </tr>
+    <% }) %>
+    <tr>
+        <td colspan="3"></td>
+        <td>Grand Total (AED)</td>
+        <td>
+            <%=grandTotal %>
+        </td>
+    </tr>
+</table>

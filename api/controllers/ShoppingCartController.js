@@ -19,9 +19,10 @@ module.exports = {
 
     createCart: async function (req, res) {
         try {
+            let today = new Date();
             let buyer = req.param("buyer");
             let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items");
-            let currentAdminCharges = await require('./PricingChargesController').CurrentPricingCharges();
+            let currentAdminCharges = await sails.helpers.currentCharges();;
             if (cart !== undefined) {
                 let totalShipping = 0;
                 let totalSFSMargin = 0;
@@ -35,7 +36,7 @@ module.exports = {
                 shippingItems = [];
                 await Promise.all(cart.items.map(async item => {
                     let itemStore = await Fish.findOne({ id: item.fish }).populate('store');
-                    let fishCharges = await require('./FishController').getItemChargesByWeight(item.fish, item.quantity.value, currentAdminCharges)
+                    let fishCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges)
                     item.fish = itemStore;
                     item.store = itemStore.store.id;
                     item.country = itemStore.country;
@@ -66,34 +67,32 @@ module.exports = {
                     let country = '';
                     let city = '';
                     let firstMileFee = 0;
+                    let itemID = 0; //this is an item id just for know the order and then the helper could calculate the shipping fee
                     await Promise.all(store.items.map(async item => {
-                        fishCharges = await require('./FishController').getItemChargesByWeight(item.fish.id, item.quantity.value, currentAdminCharges)
-                        firstMileFee = fishCharges.firstMileFee;
+                        fishCharges = item.fishCharges //await sails.helpers.fishPricing( item.fish.id, item.quantity.value, currentAdminCharges );
+                        firstMileFee += fishCharges.firstMileFee;
                         totalWeight += item.quantity.value;
                         country = item.country;
                         city = item.city;
+                        
                     }))
-                    shippingRate = await require('./FishController').getShippingBySeller(firstMileFee, city, totalWeight);
+                    shippingRate = await sails.helpers.shippingBySeller(firstMileFee, city, totalWeight, currentAdminCharges);
+                    
+                    // here we calculate the shipping for all the items of one store in one Order
                     store.totalWeight = totalWeight;
                     store.shipping = shippingRate; //{ firstMileFee, totalWeight: totalWeight, country: country, city: city };
 
                     // now we calculate how much belongs to each product in the seller
                     store.items.map(item => {
                         item.shippingStore = item.quantity.value * store.shipping.shippingCost / store.totalWeight;
-                        item.shipping = item.shippingStore;
-                        //item.fishCharges.shippingCost.cost = item.shippingStore;
+                        item.shipping = item.shippingStore;                    
                     })
-                }))
+                }))                            
 
-                //return res.status(200).json( shippingItems );
-
-                //return res.json( shippingItems );
-                let currentPricingCharges = currentAdminCharges;
-                let today = new Date();
-
+                //setting min dalivery date for each item
                 await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish.id }).populate("type").populate("store");
-                    it.fishCharges = await require('./FishController').getItemChargesByWeight(it.fish.id, it.quantity.value, currentPricingCharges)
+                    it.fishCharges = it.fishCharges;// await sails.helpers.fishPricing(it.fish.id, it.quantity.value, currentAdminCharges)
 
                     let fishCountry = await Countries.findOne({ code: it.fish.country });
                     console.log('fishCountry', fishCountry);
@@ -109,13 +108,9 @@ module.exports = {
                         min.setDate(today.getDate() + fishCountry.eta);
                     }
 
-
-                    //min = new Date();
-                    //min.setDate( today.getDate() + fishCountry.eta );
                     it.minDeliveryDate = min;
-                    //console.log('fishCharges', FishCharges);
-                    //it.fishCharges = FishCharges;
-                    shippingRate = await require('./ShippingRatesController').getShippingRateByCities(it.fish.city, it.quantity.value);
+                    
+                    shippingRate = await sails.helpers.shippingByCity(it.fish.city, it.quantity.value);
                     it.owner = await User.findOne({ id: it.fish.store.owner })
                     it.shippingCost = it.fishCharges.shippingCost.cost;
 
@@ -134,17 +129,6 @@ module.exports = {
                         return store;
                     }))
 
-                    //console.log( 'fish charges error', it.fishCharges );
-                    /*it.fishCharges.sfsMargin = 0;
-                    it.fishCharges.sfsMarginCost = 0;
-                    it.fishCharges.uaeTaxesFee = 0;
-                    it.fishCharges.finalPrice = 0;*/
-
-                    //console.log( 'fish charges error', it.fishCharges );
-                    /*it.fishCharges.sfsMargin = 0;
-                    it.fishCharges.sfsMarginCost = 0;
-                    it.fishCharges.uaeTaxesFee = 0;
-                    it.fishCharges.finalPrice = 0;*/
 
                     totalShipping += it.fishCharges.shippingCost.cost;
                     //console.log( 'now shipping', totalShipping);
@@ -162,7 +146,7 @@ module.exports = {
                     };
 
 
-
+                    /// validate is Admin has not set pricing charges
                     if (!it.fishCharges.sfsMarginCost || it.fishCharges.sfsMarginCost == "NaN") {
                         it.fishCharges.sfsMarginCost = 0;
                     }
@@ -186,9 +170,11 @@ module.exports = {
                         currentCharges: it.currentCharges,
                         shipping: it.fishCharges.shippingCost.cost,
                         shippingStore: it.shipping,
-                        sfsMargin: it.sfsMargin,
+                        sfsMargin: isNaN(it.sfsMargin) === true ? 0 : it.sfsMargin,
                         customs: it.customs,
-                        uaeTaxes: it.uaeTaxes
+                        uaeTaxes: it.uaeTaxes,
+                        subtotal: (it.quantity.value * it.price.value).toFixed(2),
+                        total: ( it.quantity.value * it.price.value ) + it.shipping + it.sfsMargin + it.customs + it.uaeTaxes
                     })
 
                     return it;
@@ -200,9 +186,14 @@ module.exports = {
                 console.log('total SHipping', totalShipping);
                 totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
                 total = Number(parseFloat(subtotal + totalOtherFees + totalShipping + totalUAETaxes).toFixed(2));
-                //if (total !== cart.total) {
+
+                totalSFSMargin = isNaN(totalSFSMargin) === true ? 0 : totalSFSMargin;
+                total = isNaN(total) === true ? 0 : total;
+                totalOtherFees = isNaN(totalOtherFees) === true ? 0 : totalOtherFees;
+                totalUAETaxes = isNaN(totalUAETaxes) === true ? 0 : totalUAETaxes
+
                 let newCart = await ShoppingCart.update({ id: cart.id }, {
-                    currentCharges: currentPricingCharges,
+                    currentCharges: currentAdminCharges,
                     subTotal: subtotal,
                     shipping: totalShipping,
                     sfsMargin: totalSFSMargin,
@@ -304,6 +295,8 @@ module.exports = {
 
     addItem: async (req, res) => {
         try {
+            let currentAdminCharges = await sails.helpers.currentCharges();
+
             let id = req.param("id"),
                 item = {
                     shoppingCart: id,
@@ -333,14 +326,13 @@ module.exports = {
             let cart = await ShoppingCart.findOne({ id }).populate("items");
 
             let total = 0;
-            for (var it of cart.items) {
-                //total += Number(it.price.value * it.quantity.value);
-                itemCharges = await require('./FishController').getItemChargesByWeight(it.fish, it.quantity.value);
+            for (var it of cart.items) {                
+                itemCharges = await sails.helpers.fishPricing( it.fish, it.quantity.value, currentAdminCharges );                
                 total += itemCharges['finalPrice'];
             }
 
             total = Number(parseFloat(total).toFixed(2));
-
+            total = isNaN(total) === true ? 0 : total;
             await ShoppingCart.update({ id: cart.id }, { total: total });
 
             cart.total = total;
@@ -449,11 +441,11 @@ module.exports = {
                 it.fish.store = await Store.findOne({ id: it.fish.store }).populate("owner");
                 await ItemShopping.update({ id: it.id }).set({ status: '5c017ae247fb07027943a404', orderInvoice: invoiceNumber, purchaseOrder: (maxPurchaseOrder + 1 + index) });
 
-                let fullName = it.fish.store['name'];
+                let fullName = it.fish.store.owner.firstName+ " "+ it.fish.store.owner.lastName;
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
                 let sellerAddress = it.fish.store['Address'];
 
-                let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, it, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + index), exchangeRates[0].price);
+                let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, it, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + index), exchangeRates[0].price, it.buyerExpectedDeliveryDate);
                 return it;
             }));
 

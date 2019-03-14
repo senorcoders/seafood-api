@@ -123,6 +123,14 @@ module.exports = {
       type: "number",
       required: false
     },
+    subtotal: {
+      type: "number",
+      required: false
+    },
+    total: {
+      type: "number",
+      required: false
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
