@@ -1,6 +1,6 @@
 var nodeMailer = require("nodemailer");
 var Email = require('email-templates');
-const ADMIN_EMAIL = 'kharron@seafoodsouq.com';
+const ADMIN_EMAIL = 'kharron@seafoodsouq.com, osmany@seafoodsouq.com';
 const APP_NAME = sails.config.APP_NAME;
 const config = sails.config.mailer;
 const sender = config.auth.user;
@@ -72,9 +72,10 @@ function getdataOrderPlace(sellerName, cart, items, orderNumber, type) {
                 sellers += _stores[i].owner.firstName + " " + _stores[i].owner.lastName + space;
         }
         if (_stores.length === 1) {
+            if (_stores[0].isDefined("owner") === true && _stores[0].owner.typeObject() === "object")
             sellers = _stores[0].owner.firstName + " " + _stores[0].owner.lastName;
         }
-        console.log(type, items, "\n\n");
+        // console.log(type, items, "\n\n");
         return {
             name: sellerName,
             sellerName: sellerName,
@@ -934,24 +935,18 @@ module.exports = {
     },
     sentAdminWarningETA: async (cart, store, item, buyer, sellerExpectedDeliveryDate) => {
         let data = getdataOrderPlace("", cart, [item], item.orderInvoice, "sentAdminWarningETA");
+        data.sellerName = store.owner.firstName + ' ' + store.owner.lastName;
+        data.buyerName = buyer;
+        data.sellerExpectedDeliveryDate = sellerExpectedDeliveryDate;
         email.render('../email_templates/admin_warning_ETA',
-            _.extend(data, {
-                sellerName: store.owner.firstName + ' ' + store.owner.lastName,
-                buyerName: buyer,
-                sellerExpectedDeliveryDate: sellerExpectedDeliveryDate
-            })
+            applyExtend(data)
         )
             .then(res => {
-                transporter.sendMail({
+                transporter.sendMail({ 
                     from: emailSender,
                     to: ADMIN_EMAIL,
                     subject: `ETA Warning`,
-                    html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
+                    html: res
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);

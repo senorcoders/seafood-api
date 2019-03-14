@@ -165,15 +165,14 @@ module.exports = {
                     it.uaeTaxes = it.fishCharges.uaeTaxesFee;
 
 
-
                     await ItemShopping.update({ id: it.id }, {
                         currentCharges: it.currentCharges,
-                        shipping: it.fishCharges.shippingCost.cost,
+                        shipping: isNaN(it.fishCharges.shippingCost.cost)==true ? 0 : it.fishCharges.shippingCost.cost,
                         shippingStore: it.shipping,
                         sfsMargin: isNaN(it.sfsMargin) === true ? 0 : it.sfsMargin,
                         customs: it.customs,
                         uaeTaxes: it.uaeTaxes,
-                        subtotal: (it.quantity.value * it.price.value).toFixed(2),
+                        subtotal: Number((it.quantity.value * it.price.value).toFixed(2)),
                         total: ( it.quantity.value * it.price.value ) + it.shipping + it.sfsMargin + it.customs + it.uaeTaxes
                     })
 
