@@ -72,7 +72,8 @@ function getdataOrderPlace(sellerName, cart, items, orderNumber, type) {
                 sellers += _stores[i].owner.firstName + " " + _stores[i].owner.lastName + space;
         }
         if (_stores.length === 1) {
-            sellers = _stores[0].owner.firstName + " " + _stores[0].owner.lastName;
+            if (_stores[0].isDefined("owner") === true && _stores[0].owner.typeObject() === "object")
+                sellers = _stores[0].owner.firstName + " " + _stores[0].owner.lastName;
         }
         console.log(type, items, "\n\n");
         return {
@@ -567,16 +568,12 @@ module.exports = {
             )
     },
     buyerCancelledOrderBuyer: async (name, cart, store, item) => {
+        item = item.typeObject() === 'object' ? [item] : item;
         let paidDateTime = await formatDates(cart.paidDateTime);
+        let data = getdataOrderPlace(name, cart, item, cart.orderNumber, "sendCartPaidAdminNotified");
+        data.paidDateTime = paidDateTime;
         email.render('../email_templates/buyer_cancelled_order',
-            {
-                name: name,
-                cart: cart,
-                store: store,
-                item: item,
-                paidDateTime: paidDateTime,
-                url: URL
-            }
+            applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -584,11 +581,6 @@ module.exports = {
                     to: cart.buyer.email,
                     subject: `Order #${cart.orderNumber} is Cancelled`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -604,15 +596,11 @@ module.exports = {
     },
     buyerCancelledOrderSeller: async (cart, store, item) => {
         let paidDateTime = await formatDates(cart.paidDateTime);
+        item = item.typeObject() === 'object' ? [item] : item;
+        let data = getdataOrderPlace(store.owner.firstName + ' ' + store.owner.lastName, cart, item, cart.orderNumber, "sendCartPaidAdminNotified");
+        data.paidDateTime = paidDateTime;
         email.render('../email_templates/buyer_cancelled_order_seller',
-            {
-                name: store.owner.firstName + ' ' + store.owner.lastName,
-                cart: cart,
-                store: store,
-                item: item,
-                paidDateTime: paidDateTime,
-                url: URL
-            }
+            applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -620,11 +608,6 @@ module.exports = {
                     to: store.owner.email,
                     subject: `Order #${cart.orderNumber} is Cancelled`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -640,14 +623,11 @@ module.exports = {
     },
     buyerCancelledOrderAdmin: async (cart, store, item) => {
         let paidDateTime = await formatDates(cart.paidDateTime);
+        item = item.typeObject() === 'object' ? [item] : item;
+        let data = getdataOrderPlace("", cart, item, cart.orderNumber, "sendCartPaidAdminNotified");
+        data.paidDateTime = paidDateTime;
         email.render('../email_templates/buyer_cancelled_order_admin',
-            {
-                cart: cart,
-                store: store,
-                item: item,
-                paidDateTime: paidDateTime,
-                url: URL
-            }
+            applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -655,11 +635,6 @@ module.exports = {
                     to: ADMIN_EMAIL,
                     subject: `Order #${cart.orderNumber} is Cancelled`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
