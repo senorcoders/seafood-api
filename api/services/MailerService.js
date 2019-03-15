@@ -598,7 +598,7 @@ module.exports = {
     buyerCancelledOrderSeller: async (cart, store, item) => {
         let paidDateTime = await formatDates(cart.paidDateTime);
         item = item.typeObject() === 'object' ? [item] : item;
-        let data = getdataOrderPlace(store.owner.firstName + ' ' + store.owner.lastName, cart, item, cart.orderNumber, "buyerCancelledOrderBuyer");
+        let data = getdataOrderPlace(store.owner.firstName + ' ' + store.owner.lastName, cart, item, cart.orderNumber, "buyerCancelledOrderSeller");
         data.paidDateTime = paidDateTime;
         email.render('../email_templates/buyer_cancelled_order_seller',
             applyExtend(data)
@@ -625,7 +625,7 @@ module.exports = {
     buyerCancelledOrderAdmin: async (cart, store, item) => {
         let paidDateTime = await formatDates(cart.paidDateTime);
         item = item.typeObject() === 'object' ? [item] : item;
-        let data = getdataOrderPlace("", cart, item, cart.orderNumber, "buyerCancelledOrderBuyer");
+        let data = getdataOrderPlace("", cart, item, cart.orderNumber, "buyerCancelledOrderAdmin");
         data.paidDateTime = paidDateTime;
         data.store = store;
         email.render('../email_templates/buyer_cancelled_order_admin',
