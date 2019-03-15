@@ -32,6 +32,7 @@ module.exports = {
     console.log( req.param('command') );
     var mydata = {
       "command": req.param('command'),
+      "device_fingerprint": req.param('device_fingerprint'),
       "access_code": req.param('access_code'),
       "merchant_identifier": req.param('merchant_identifier'),
       "merchant_reference": req.param('merchant_reference'),

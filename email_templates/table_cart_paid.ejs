@@ -11,7 +11,11 @@
 </style>
 <table id="table-order" width="100%" cellpadding="5px" cellspacing="0" style="min-width:100%;">
     <tr>
+        <% if(general.cancelled==true) { %>
+        <td style="border-top-width: 0 !important; color: red;">Cancelled order details</td>
+        <% }else{ %>
         <td style="border-top-width: 0 !important;">Order Details</td>
+        <% } %>
         <td style="border-top-width: 0 !important;">Date</td>
         <td style="border-top-width: 0 !important;"><%=paidDateTime %></td>
         <td colspan="2" style="border-top-width: 0 !important;">Order N° <%=orderNumber %></td>
