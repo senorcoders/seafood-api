@@ -33,65 +33,7 @@ const transporter = nodeMailer.createTransport({
     }
 });
 
-function getdataOrderPlace(sellerName, cart, items, orderNumber, type) {
-    try {
-        //Perder la referencia de la variable
-        items = JSON.parse(JSON.stringify(items));
-        //Para obtener el total y parsiar la fecha de pago
-        let grandTotal = 0;
-        for (let it of items) {
-            grandTotal += Number(parseFloat(Number(it.quantity.value) * Number(it.price.value)).toFixed(2));
-            grandTotal += Number(it.shipping);
-            grandTotal += Number(it.uaeTaxes);
-            grandTotal += Number(it.customs);
-            grandTotal += Number(it.sfsMargin);
-        }
-        grandTotal = Number((grandTotal).toFixed(2));
-        let date = new Date(cart.paidDateTime);
-        let paidDateTime = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
 
-        //Para completar el src de image primary
-        for (let i = 0; i < items.length; i++) {
-            let it = items[i];
-            if (it.fish.imagePrimary && it.fish.imagePrimary !== '') {
-                it.fish.imagePrimary = URL + it.fish.imagePrimary;
-            }
-            items[i] = it;
-        }
-
-        //Para obtener los sellers
-        let _stores = [];
-        for (let it of items) {
-            let ind = _stores.findIndex(i => { return i.id === it.fish.store.id; });
-            if (ind === -1) _stores.push(it.fish.store);
-        }
-        let sellers = "";
-        for (let i = 0; i < _stores.length; i++) {
-            let space = (i + 1) === _stores.length ? '' : (i + 1) === (_stores.length - 1) ? ' and ' : ', ';
-            if (_stores[i].isDefined("owner") === true && _stores[i].owner.typeObject() === "object")
-                sellers += _stores[i].owner.firstName + " " + _stores[i].owner.lastName + space;
-        }
-        if (_stores.length === 1) {
-            if (_stores[0].isDefined("owner") === true && _stores[0].owner.typeObject() === "object")
-            sellers = _stores[0].owner.firstName + " " + _stores[0].owner.lastName;
-        }
-        // console.log(type, items, "\n\n");
-        return {
-            name: sellerName,
-            sellerName: sellerName,
-            cart: cart,
-            sellers,
-            items: items,
-            orderNumber: orderNumber,
-            url: URL,
-            paidDateTime,
-            grandTotal
-        };
-    }
-    catch (e) {
-        console.error(e);
-    }
-}
 
 const email = new Email({
     message: {
@@ -449,7 +391,14 @@ module.exports = {
         let buyerDate = new Date(buyerExpectedDeliveryDate[2], buyerExpectedDeliveryDate[0], buyerExpectedDeliveryDate[1]);
         items.buyerExpectedDeliveryDate = await sails.helpers.formatDate(buyerDate);
         items = Object.prototype.toString.call(items) === '[object Object]' ? [items] : items;
-        let data = getdataOrderPlace(sellerName, cart, items, orderNumber, "sendCartPaidSellerNotified");
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName,
+            cart,
+            items,
+            orderNumber,
+            type: "sendCartPaidSellerNotified"
+        });
         data.buyerETA = buyerETA;
         email.render('../email_templates/cart_paid_seller_notified',
             applyExtend(data)
@@ -497,7 +446,14 @@ module.exports = {
                 }
             }
         }
-        let data = getdataOrderPlace(cart.buyer.firstName + " " + cart.buyer.lastName, cart, items, orderNumber, "sendCartPaidBuyerNotified")
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: cart.buyer.firstName + " " + cart.buyer.lastName,
+            cart,
+            items,
+            orderNumber,
+            type: "sendCartPaidBuyerNotified"
+        });
         email.render('../email_templates/cart_paid_buyer_notified',
             applyExtend(data)
         )
@@ -526,7 +482,7 @@ module.exports = {
                 console.error
             )
     },
-    sendCartPaidAdminNotified: (items, cart, orderNumber, stores) => {
+    sendCartPaidAdminNotified: async (items, cart, orderNumber, stores) => {
         let store, storeLng = stores.length;
         for (let [index, value] of stores.entries()) {
             if (index == 0) {
@@ -544,7 +500,14 @@ module.exports = {
                 }
             }
         }
-        let data = getdataOrderPlace(cart.buyer.firstName + ' ' + cart.buyer.lastName, cart, items, orderNumber, "sendCartPaidAdminNotified");
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: cart.buyer.firstName + " " + cart.buyer.lastName,
+            cart,
+            items,
+            orderNumber,
+            type: "sendCartPaidAdminNotified"
+        });
         email.render('../email_templates/cart_paid_admin_notified',
             applyExtend(data)
         )
@@ -570,7 +533,14 @@ module.exports = {
     buyerCancelledOrderBuyer: async (name, cart, store, item) => {
         item = item.typeObject() === 'object' ? [item] : item;
         let paidDateTime = await formatDates(cart.paidDateTime);
-        let data = getdataOrderPlace(name, cart, item, cart.orderNumber, "buyerCancelledOrderBuyer");
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: name,
+            cart,
+            items: item,
+            orderNumber: cart.orderNumber,
+            type: "buyerCancelledOrderBuyer"
+        });
         data.paidDateTime = paidDateTime;
         data.store = store
         email.render('../email_templates/buyer_cancelled_order',
@@ -598,7 +568,14 @@ module.exports = {
     buyerCancelledOrderSeller: async (cart, store, item) => {
         let paidDateTime = await formatDates(cart.paidDateTime);
         item = item.typeObject() === 'object' ? [item] : item;
-        let data = getdataOrderPlace(store.owner.firstName + ' ' + store.owner.lastName, cart, item, cart.orderNumber, "buyerCancelledOrderSeller");
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: store.owner.firstName + ' ' + store.owner.lastName,
+            cart,
+            items: item,
+            orderNumber: cart.orderNumber,
+            type: "buyerCancelledOrderSeller"
+        });
         data.paidDateTime = paidDateTime;
         email.render('../email_templates/buyer_cancelled_order_seller',
             applyExtend(data)
@@ -625,7 +602,14 @@ module.exports = {
     buyerCancelledOrderAdmin: async (cart, store, item) => {
         let paidDateTime = await formatDates(cart.paidDateTime);
         item = item.typeObject() === 'object' ? [item] : item;
-        let data = getdataOrderPlace("", cart, item, cart.orderNumber, "buyerCancelledOrderAdmin");
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: "",
+            cart,
+            items: item,
+            orderNumber: cart.orderNumber,
+            type: "buyerCancelledOrderAdmin"
+        });
         data.paidDateTime = paidDateTime;
         data.store = store;
         email.render('../email_templates/buyer_cancelled_order_admin',
@@ -910,7 +894,14 @@ module.exports = {
             )
     },
     sentAdminWarningETA: async (cart, store, item, buyer, sellerExpectedDeliveryDate) => {
-        let data = getdataOrderPlace("", cart, [item], item.orderInvoice, "sentAdminWarningETA");
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: "",
+            cart,
+            items: [item],
+            orderNumber: item.orderInvoice,
+            type: "sentAdminWarningETA"
+        });
         data.sellerName = store.owner.firstName + ' ' + store.owner.lastName;
         data.buyerName = buyer;
         data.sellerExpectedDeliveryDate = sellerExpectedDeliveryDate;
@@ -918,7 +909,7 @@ module.exports = {
             applyExtend(data)
         )
             .then(res => {
-                transporter.sendMail({ 
+                transporter.sendMail({
                     from: emailSender,
                     to: ADMIN_EMAIL,
                     subject: `ETA Warning`,
