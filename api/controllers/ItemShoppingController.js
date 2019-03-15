@@ -334,7 +334,7 @@ module.exports = {
                     //send email to buyer
                     await MailerService.sellerCancelledOrderBuyer(name, cart, store, item);
                     //send email to admin
-                    await MailerService.sellerCancelledOrderAdmin(name, cart, store, item);
+                    // await MailerService.sellerCancelledOrderAdmin(name, cart, store, item);
                 }
             } else if (status == '5c13f453d827ce28632af048') {//pending fulfillment
                 data = await ItemShopping.update({ id }, { status: '5c13f453d827ce28632af048', paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates }).fetch();

@@ -634,15 +634,19 @@ module.exports = {
     },
     sellerCancelledOrderBuyer: async (name, cart, store, item) => {
         let paidDateTime = await formatDates(cart.paidDateTime);
+        item = item.typeObject() === 'object' ? [item] : item;
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: name,
+            cart,
+            items: item,
+            orderNumber: cart.orderNumber,
+            type: "buyerCancelledOrderAdmin"
+        });
+        data.paidDateTime = paidDateTime;
+        data.store = store;
         email.render('../email_templates/seller_cancelled_order_buyer',
-            {
-                name: name,
-                cart: cart,
-                store: store,
-                item: item,
-                paidDateTime: paidDateTime,
-                url: URL
-            }
+            applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -650,11 +654,6 @@ module.exports = {
                     to: cart.buyer.email,
                     subject: 'Your Order has been cancelled !',
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
