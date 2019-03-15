@@ -568,16 +568,13 @@ module.exports = {
             )
     },
     buyerCancelledOrderBuyer: async (name, cart, store, item) => {
+        item = item.typeObject() === 'object' ? [item] : item;
         let paidDateTime = await formatDates(cart.paidDateTime);
+        let data = getdataOrderPlace(name, cart, item, cart.orderNumber, "buyerCancelledOrderBuyer");
+        data.paidDateTime = paidDateTime;
+        data.store = store
         email.render('../email_templates/buyer_cancelled_order',
-            {
-                name: name,
-                cart: cart,
-                store: store,
-                item: item,
-                paidDateTime: paidDateTime,
-                url: URL
-            }
+            applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -585,11 +582,6 @@ module.exports = {
                     to: cart.buyer.email,
                     subject: `Order #${cart.orderNumber} is Cancelled`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -605,15 +597,11 @@ module.exports = {
     },
     buyerCancelledOrderSeller: async (cart, store, item) => {
         let paidDateTime = await formatDates(cart.paidDateTime);
+        item = item.typeObject() === 'object' ? [item] : item;
+        let data = getdataOrderPlace(store.owner.firstName + ' ' + store.owner.lastName, cart, item, cart.orderNumber, "buyerCancelledOrderBuyer");
+        data.paidDateTime = paidDateTime;
         email.render('../email_templates/buyer_cancelled_order_seller',
-            {
-                name: store.owner.firstName + ' ' + store.owner.lastName,
-                cart: cart,
-                store: store,
-                item: item,
-                paidDateTime: paidDateTime,
-                url: URL
-            }
+            applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -621,11 +609,6 @@ module.exports = {
                     to: store.owner.email,
                     subject: `Order #${cart.orderNumber} is Cancelled`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -641,14 +624,12 @@ module.exports = {
     },
     buyerCancelledOrderAdmin: async (cart, store, item) => {
         let paidDateTime = await formatDates(cart.paidDateTime);
+        item = item.typeObject() === 'object' ? [item] : item;
+        let data = getdataOrderPlace("", cart, item, cart.orderNumber, "buyerCancelledOrderBuyer");
+        data.paidDateTime = paidDateTime;
+        data.store = store;
         email.render('../email_templates/buyer_cancelled_order_admin',
-            {
-                cart: cart,
-                store: store,
-                item: item,
-                paidDateTime: paidDateTime,
-                url: URL
-            }
+            applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -656,11 +637,6 @@ module.exports = {
                     to: ADMIN_EMAIL,
                     subject: `Order #${cart.orderNumber} is Cancelled`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);

@@ -302,9 +302,9 @@ module.exports = {
                     //send email to buyer
                     await MailerService.buyerCancelledOrderBuyer(name, cart, store, item)
                     //send email to seller
-                    await MailerService.buyerCancelledOrderSeller(cart, store, item)
+                    // await MailerService.buyerCancelledOrderSeller(cart, store, item)
                     //send email to admin
-                    await MailerService.buyerCancelledOrderAdmin(cart, store, item)
+                    // await MailerService.buyerCancelledOrderAdmin(cart, store, item)
                 }
             } else if (status == '5c017b7047fb07027943a40e') { //Refunded
                 data = await ItemShopping.update({ id }, { paymentStatus: '5c017b7047fb07027943a40e', updateInfo: currentUpdateDates }).fetch()
