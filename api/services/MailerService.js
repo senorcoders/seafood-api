@@ -33,8 +33,6 @@ const transporter = nodeMailer.createTransport({
     }
 });
 
-
-
 const email = new Email({
     message: {
         from: emailSender,
