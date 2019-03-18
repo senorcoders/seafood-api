@@ -333,8 +333,12 @@ module.exports = {
                 if (data.length > 0) {
                     //send email to buyer
                     await MailerService.sellerCancelledOrderBuyer(name, cart, store, item);
+                    //send email to buyer
+                    //Obtenemos el store con el owner
+                    let _store = await Store.findOne({ id: item.fish.store }).populate("owner")
+                    await MailerService.sellerCancelledOrderSeller(_store.owner.firstName+ " "+ _store.owner.lastName, _store.owner.email, cart, store, item);
                     //send email to admin
-                    // await MailerService.sellerCancelledOrderAdmin(name, cart, store, item);
+                    await MailerService.sellerCancelledOrderAdmin(name, _store.owner.firstName+ " "+ _store.owner.lastName, cart, store, item);
                 }
             } else if (status == '5c13f453d827ce28632af048') {//pending fulfillment
                 data = await ItemShopping.update({ id }, { status: '5c13f453d827ce28632af048', paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates }).fetch();
