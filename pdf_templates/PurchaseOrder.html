@@ -200,8 +200,8 @@
     <%  subtotal = ( items.price.value * items.quantity.value / currentExchangeRate, 10 ) ;
       
         total = parseFloat(total) + parseFloat(subtotal) ;
-        subtotal = parseFloat(subtotal, 10).toFixed(2);
-        total = parseFloat(total, 10).toFixed(2);
+        subtotal = parseFloat(subtotal).toFixed(2);
+        total = parseFloat(total).toFixed(2);
       /*} )*/ %>
     <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
       <div class="col col-5 padding-right">
