@@ -1,21 +1,24 @@
 var nodeMailer = require("nodemailer");
 var Email = require('email-templates');
-const ADMIN_EMAIL = 'kharron@seafoodsouq.com, osmany@seafoodsouq.com';
+const ADMIN_EMAIL = sails.config.custom.adminEmails;
+console.log( 'custom', sails.config.custom.adminEmails );
 const APP_NAME = sails.config.APP_NAME;
 const config = sails.config.mailer;
 const sender = config.auth.user;
 const emailSender = 'Seafoodsouq <do-not-reply@seafoodsouq.com>';
 
 //El url base del api, segun su enviroment
-const URL = sails.config.custom.baseUrl, logoSrc = URL.includes("localhost") ? 'http://devapi.seafoodsouq.com/images/logo_email.png' : URL + "/images/logo_email.png";
+const URL = sails.config.custom.baseUrl, 
+logoSrc = URL + "/images/logo_email.png";
+console.log( logoSrc );
 //El json default que se usa en los correos como emails y logos
 const DEFAULT = {
     logoSrc,
     emailSeller: "sellers@seafoodsouq.com",
     emailInfo: 'info@seafoodsouq.com',
-    FAQLink: 'http://platform.seafoodsouq.com/login',
+    FAQLink: URL + '/login',
     url: URL,
-    contactUs: 'http://platform.seafoodsouq.com/login',
+    contactUs: URL + '/login',
 };
 console.log(DEFAULT);
 //Para asignar variables globales en los datas de los mailers
@@ -740,19 +743,30 @@ module.exports = {
     },
     itemShipped: async (name, cart, store, item) => {
 
-        let paidDateTime = new Date(cart.paidDateTime);
+        
         let sellerExpectedDeliveryDate = item.sellerExpectedDeliveryDate.split("/");
         let sellerDate = new Date(sellerExpectedDeliveryDate[2], sellerExpectedDeliveryDate[0], sellerExpectedDeliveryDate[1]);
-        item.sellerExpectedDeliveryDate = await sails.helpers.formatDate(sellerDate);
+        sellerExpectedDeliveryDate = await sails.helpers.formatDate(sellerDate);
+        
+        let paidDateTime = new Date(cart.paidDateTime);
         cart.paidDateTime = await sails.helpers.formatDate(paidDateTime);
+        console.log(cart.paidDateTime);
+        paidDateTime = await formatDates(cart.paidDateTime);
+
+        item = item.typeObject() === 'object' ? [item] : item;
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: name,
+            cart,
+            items: item,
+            orderNumber: cart.orderNumber,
+            type: "itemShipped"
+        });
+        data.paidDateTime = paidDateTime;
+        data.store = store;
+        data.sellerExpectedDeliveryDate = sellerExpectedDeliveryDate;
         email.render('../email_templates/itemShipped',
-            {
-                name: name,
-                cart: cart,
-                store: store,
-                item: item,
-                url: URL
-            }
+            applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -760,11 +774,6 @@ module.exports = {
                     to: cart.buyer.email,
                     subject: `Order #${cart.orderNumber} is being Shipped`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);

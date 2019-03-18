@@ -7,7 +7,6 @@
  * For more information on custom configuration, visit:
  * https://sailsjs.com/config/custom
  */
-const env = process.env.NODE_ENV;
 module.exports.custom = {
 
   /**************************************************************************
@@ -22,8 +21,8 @@ module.exports.custom = {
   * > but it can also be used for user-uploaded images, webhooks, etc.      *
   *                                                                         *
   **************************************************************************/
-  baseUrl: `${env === 'local' ? `http://localhost:${require("./local").port}` : env === 'develoment' ? 'http://devapi.seafoodsouq.com' : ''}`,
-
+  baseUrl: `http://localhost:${require("./local").port}`,
+  adminEmails: 'kharron@seafoodsouq.com',
   /**************************************************************************
   *                                                                         *
   * The TTL (time-to-live) for various sorts of tokens before they expire.  *
