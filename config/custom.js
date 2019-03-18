@@ -22,7 +22,7 @@ module.exports.custom = {
   *                                                                         *
   **************************************************************************/
   baseUrl: `http://localhost:${require("./local").port}`,
-  adminEmails: 'kharron@seafoodsouq.com',
+  adminEmails: 'kharron@seafoodsouq.com, osmany@seafoodsouq.com',
   /**************************************************************************
   *                                                                         *
   * The TTL (time-to-live) for various sorts of tokens before they expire.  *
