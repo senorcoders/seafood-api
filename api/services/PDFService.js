@@ -26,11 +26,11 @@ module.exports = {
                 invoice_number: OrderNumber,
                 orderNumber: OrderNumber,
                 items: itemsShopping,
-                subTotal: cart.subTotal,
+                subTotal: parseFloat(cart.subTotal, 10).toFixed(2),
                 customHandlingFee: cart.totalOtherFees ,
                 uaeTaxesFee: cart.uaeTaxes,
                 shippingFees : cart.shipping,
-                total: cart.total,
+                total: parseFloat(cart.total).toFixed(2),
                 uaeTaxes: uaeTaxes,
                 api_url: api_url
 
