@@ -72,8 +72,8 @@ module.exports = {
                 purchase_number: counter,
                 orderNumber: orderNumber,
                 items: itemsShopping,
-                subTotal: itemsShopping.subTotal,
-                total: cart.total,
+                subTotal: parseFloat(itemsShopping.subTotal, 10).toFixed(2),
+                total: parseFloat(cart.total, 10).toFixed(2),
                 currentExchangeRate: currentExchangeRate,
                 api_url: api_url
 
