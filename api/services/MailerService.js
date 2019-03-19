@@ -791,17 +791,21 @@ module.exports = {
         let paidDateTime = new Date(cart.paidDateTime);
         let sellerExpectedDeliveryDate = item.sellerExpectedDeliveryDate.split("/");
         let sellerDate = new Date(sellerExpectedDeliveryDate[2], sellerExpectedDeliveryDate[0], sellerExpectedDeliveryDate[1]);
-        item.sellerExpectedDeliveryDate = await sails.helpers.formatDate(sellerDate);
-        cart.paidDateTime = await sails.helpers.formatDate(paidDateTime);
+        
+        item = item.typeObject() === 'object' ? [item] : item;
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: name,
+            cart,
+            items: item,
+            orderNumber: cart.orderNumber,
+            type: "orderArrived"
+        });
+        data.sellerExpectedDeliveryDate = await sails.helpers.formatDate(sellerDate);
+        data.paidDateTime = await sails.helpers.formatDate(paidDateTime);
+        data.store = store;
         email.render('../email_templates/order_arrived',
-            {
-                name: name,
-                cart: cart,
-                store: store,
-                item: item,
-                paidDateTime: paidDateTime,
-                url: URL
-            }
+            applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -809,11 +813,6 @@ module.exports = {
                     to: cart.buyer.email,
                     subject: `Order #${cart.orderNumber} has arrived in Dubai !`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -829,15 +828,19 @@ module.exports = {
     },
     orderDeliveredBuyer: async (name, cart, store, item) => {
         let paidDateTime = await formatDates(cart.paidDateTime);
+        item = item.typeObject() === 'object' ? [item] : item;
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: name,
+            cart,
+            items: item,
+            orderNumber: cart.orderNumber,
+            type: "orderDeliveredBuyer"
+        });
+        data.store = store;
+        data.paidDateTime = paidDateTime;
         email.render('../email_templates/order_delivered_buyer',
-            {
-                name: name,
-                cart: cart,
-                store: store,
-                item: item,
-                paidDateTime: paidDateTime,
-                url: URL
-            }
+            applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -845,11 +848,6 @@ module.exports = {
                     to: cart.buyer.email,
                     subject: `Order #${cart.orderNumber} is Delivered !`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -865,15 +863,18 @@ module.exports = {
     },
     orderOutForDelivery: async (name, cart, store, item) => {
         let paidDateTime = await formatDates(cart.paidDateTime);
+        item = item.typeObject() === 'object' ? [item] : item;
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: name,
+            cart,
+            items: item,
+            orderNumber: cart.orderNumber,
+            type: "orderOutForDelivery"
+        });
+        data.store = store;
         email.render('../email_templates/order_out_for_delivery_buyer',
-            {
-                name: name,
-                cart: cart,
-                store: store,
-                item: item,
-                paidDateTime: paidDateTime,
-                url: URL
-            }
+            applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -881,11 +882,6 @@ module.exports = {
                     to: cart.buyer.email,
                     subject: `Order #${cart.orderNumber} is out for Delivery!`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'seafood_logo' //same cid value as in the html img src
-                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -899,16 +895,21 @@ module.exports = {
                 console.error
             )
     },
-    orderArrivedSeller: async (cart, store, item) => {
+    orderArrivedSeller: async (name, cart, store, item) => {
         let paidDateTime = await formatDates(cart.paidDateTime);
+        item = item.typeObject() === 'object' ? [item] : item;
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: name,
+            cart,
+            items: item,
+            orderNumber: cart.orderNumber,
+            type: "orderArrivedSeller"
+        });
+        data.store = store;
+        data.paidDateTime = paidDateTime;
         email.render('../email_templates/order_delivered_seller',
-            {
-                cart: cart,
-                store: store,
-                item: item,
-                paidDateTime: paidDateTime,
-                url: URL
-            }
+            applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -916,11 +917,41 @@ module.exports = {
                     to: store.owner.email,
                     subject: `Order #${cart.orderNumber} is Delivered !`,
                     html: res, // html body
-                    attachments: [{
-                        filename: 'logo.png',
-                        path: './assets/images/logo.png',
-                        cid: 'logo@seafoodsouq.com' //same cid value as in the html img src
-                    }]
+                }, (error, info) => {
+                    if (error) {
+                        return console.log(error);
+                    }
+                    console.log('Message sent: %s', info.messageId);
+                    return 'Message sent: %s', info.messageId;
+                })
+
+            })
+            .catch(
+                console.error
+            )
+    },
+    buyerRefund: async (name, cart, store, item) => {
+        let paidDateTime = await formatDates(cart.paidDateTime);
+        item = item.typeObject() === 'object' ? [item] : item;
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: name,
+            cart,
+            items: item,
+            orderNumber: cart.orderNumber,
+            type: "orderArrivedSeller"
+        });
+        data.store = store;
+        data.paidDateTime = paidDateTime;
+        email.render('../email_templates/refund_buyer',
+            applyExtend(data)
+        )
+            .then(res => {
+                transporter.sendMail({
+                    from: emailSender,
+                    to: cart.buyer.email,
+                    subject: `Refund #${cart.orderNumber} completed !`,
+                    html: res, // html body
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
