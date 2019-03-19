@@ -12,7 +12,7 @@ module.exports = {
       required: true
     },
 
-    brandName: {
+    brandname: {
       type: "string",
       required: false
     },
@@ -29,17 +29,18 @@ module.exports = {
 
     processingCountry: {
       type: "string",
-      required: false
+      required: true
     },
 
     city: {
-      type: "string"
+      type: "string",
+      required: true
     },
 
     quality: {
       type: 'string',
       maxLength: 200,
-      required: true
+      required: false
     },
 
     minimumOrder:{
@@ -49,17 +50,17 @@ module.exports = {
 
     raised: {
       type: "string",
-      required: false
+      required: true
     },
 
     preparation: {
       type: "string", 
-      required: false
+      required: true
     },
 
     treatment: {
       type: "string",
-      required: false
+      required: true
     },
 
     wholeFishWeight: {
@@ -67,10 +68,6 @@ module.exports = {
       required: false
     },
 
-    acceptableSpoilageRate: {
-      type: 'number',
-      required: false,
-    },
 
     
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
@@ -78,7 +75,7 @@ module.exports = {
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
     weight: {
       type: 'json',
-      required: true,
+      required: false,
       example: `
         weight: {
           type: "pounds",
@@ -122,6 +119,7 @@ module.exports = {
     seafood_sku: {
       type: 'string',
       maxLength: 200,
+      required: true,
     },
     SFSAdminFeedback:{
       type:'string'
@@ -136,14 +134,14 @@ module.exports = {
     },
     mortalityRate: {
       type: 'number',
-      required: false
+      required: true
     },
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
     store: {
       model: "store",
-      required: false
+      required: true
     },
 
     type: {
@@ -164,7 +162,7 @@ module.exports = {
 
     status: {
       model: "FishStatus",
-      required: false
+      required: true
     }
 
   },
