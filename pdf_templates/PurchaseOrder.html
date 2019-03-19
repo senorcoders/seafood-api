@@ -145,14 +145,14 @@
           <%= purchase_order_date %></p>   
         <p style="margin-bottom: 10px"><b>Delivery Date</b><br>
           <%= delivery_order_date %></p>
-        <p style="margin-bottom: 10px"><b>Account Number</b><br>
+        <p style="margin-bottom: 10px"><b>Seafood Souq Tax Number</b><br>
         <%= contactAccountNumber %></p>
         <p style="margin-bottom: 10px"><b>Purchase Order Number<br></b>
           <%= purchase_number %></p>
-        <p style="margin-bottom: 10px"><b>Order Number</b><br>
+        <p style="margin-bottom: 10px"><b>SFS Order Number</b><br>
           <%= orderNumber %></p>
         <p style="margin-bottom: 10px"><b>Shipping Terms</b><br>
-        FOB, Delivery to Airport</p>
+        FOB, Delivery to <%= port_of_loading %>  Airport</p>
       </div>
       <!--<div class="col col-25" style="font-family: 'Arial';font-size: 10px;">
           <p style="margin-bottom: 30px"> Seafood Souq General Trading LLC.</p>
@@ -200,6 +200,8 @@
     <%  subtotal = ( items.price.value * items.quantity.value / currentExchangeRate ) ;
       
         total = parseFloat(total) + parseFloat(subtotal) ;
+        subtotal = parseFloat(subtotal).toFixed(2);
+        total = parseFloat(total).toFixed(2);
       /*} )*/ %>
     <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
       <div class="col col-5 padding-right">

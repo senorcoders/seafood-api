@@ -11,7 +11,7 @@
  * > But note that NODE_ENV should still be "production" when lifting
  * > your app in the staging environment.  In other words:
  * > ```
- * >     NODE_ENV=production sails_environment=staging node app
+ * >     NODE_ENV=development sails_environment=staging node app
  * > ```
  *
  * If you're unsure or want advice, stop by:
@@ -30,8 +30,8 @@ module.exports = Object.assign({}, {
  
 
   custom: Object.assign({},  {
-    adminEmails: 'kharron@seafoodsouq.com, osama@seafoodsouq.com',
-    baseUrl: 'http://stagingapi.seafoodsouq.com',
+    adminEmails: 'milton@seafoodsouq.com, kharron@seafoodsouq.com, osmany@seafoodsouq.com',
+    baseUrl: 'http://devapi.seafoodsouq.com',
     //--------------------------------------------------------------------------
     // /\  Hard-code the base URL where your staging environment is hosted.
     // ||  (or use system env var: `sails_custom__baseUrl`)

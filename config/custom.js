@@ -7,7 +7,6 @@
  * For more information on custom configuration, visit:
  * https://sailsjs.com/config/custom
  */
-const env = process.env.NODE_ENV;
 module.exports.custom = {
 
   /**************************************************************************
@@ -22,7 +21,9 @@ module.exports.custom = {
   * > but it can also be used for user-uploaded images, webhooks, etc.      *
   *                                                                         *
   **************************************************************************/
-  baseUrl: 'http://13.232.66.55',
+
+  baseUrl: `http://localhost:${require("./local").port}`,
+  adminEmails: 'kharron@seafoodsouq.com, osmany@seafoodsouq.com',
 
   /**************************************************************************
   *                                                                         *

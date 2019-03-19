@@ -40,10 +40,10 @@
     "sails-hook-grunt": "^3.0.2"
   },
   "scripts": {
-    "start": "cross-env NODE_ENV=production node app.js",
-    "staging": "cross-env NODE_ENV=staging node app.js --port=8080",
-    "dev": "cross-env NODE_ENV=develoment node app.js --port=8000",
-    "local": "cross-env NODE_ENV=local node app.js",
+    "start": "NODE_ENV=development sails_environment=production node node app.js",
+    "staging": "NODE_ENV=development sails_environment=staging node app.js --port=8080",
+    "dev": "NODE_ENV=development sails_environment=development node app.js --port=8000",
+    "local": "node app.js",
     "start:dev": "forever start --uid 'seafood' -a --watchDirectory ./api -w app.js --minUptime 1000 --spinSleepTime 1000 app.js",
     "stop:dev": "forever stop 'seafood' ",
     "test": "npm run lint && npm run custom-tests && echo 'Done.'",
