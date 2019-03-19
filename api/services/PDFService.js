@@ -12,7 +12,6 @@ module.exports = {
         let today = new Date();
         date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
         let paidDateTime= date;
-
         var html = await compiled(
             { 
                 invoiceDueDate: paidDateTime,
@@ -26,14 +25,13 @@ module.exports = {
                 invoice_number: OrderNumber,
                 orderNumber: OrderNumber,
                 items: itemsShopping,
-                subTotal: cart.subTotal,
+                subTotal: parseFloat(cart.subTotal, 10).toFixed(2),
                 customHandlingFee: cart.totalOtherFees ,
                 uaeTaxesFee: cart.uaeTaxes,
                 shippingFees : cart.shipping,
-                total: cart.total,
+                total: parseFloat(cart.total).toFixed(2),
                 uaeTaxes: uaeTaxes,
                 api_url: api_url
-
             }
         );
         let pdf_name = `invoice-order-${OrderNumber}.pdf`;
@@ -57,6 +55,8 @@ module.exports = {
         deliveryDate.setDate( deliveryDate.getDate() + 1 );
         date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
         date2 = deliveryDate.getFullYear()+'-'+(deliveryDate.getMonth()+1)+'-'+deliveryDate.getDate();
+	let portOfLoading = await sails.helpers.portOfLoadingByCode( itemsShopping.fish.processingCountry, itemsShopping.fish.city );
+	console.log( portOfLoading );
         let paidDateTime= date; //new Date().toISOString();
         var html =  await compiled(
             { 
@@ -72,10 +72,11 @@ module.exports = {
                 purchase_number: counter,
                 orderNumber: orderNumber,
                 items: itemsShopping,
-                subTotal: itemsShopping.subTotal,
-                total: cart.total,
+                subTotal: parseFloat(itemsShopping.subTotal, 10).toFixed(2),
+                total: parseFloat(cart.total, 10).toFixed(2),
                 currentExchangeRate: currentExchangeRate,
-                api_url: api_url
+                api_url: api_url,
+		port_of_loading: portOfLoading.name
 
             }
         );
