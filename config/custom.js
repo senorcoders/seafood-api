@@ -21,7 +21,7 @@ module.exports.custom = {
   * > but it can also be used for user-uploaded images, webhooks, etc.      *
   *                                                                         *
   **************************************************************************/
-
+  
   baseUrl: `http://localhost:${require("./local").port}`,
   adminEmails: 'kharron@seafoodsouq.com, osmany@seafoodsouq.com',
 
