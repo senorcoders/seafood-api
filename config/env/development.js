@@ -30,7 +30,7 @@ module.exports = Object.assign({}, {
  
 
   custom: Object.assign({},  {
-    adminEmails: 'kharron@seafoodsouq.com, osmany@seafoodsouq.com',
+    adminEmails: 'milton@seafoodsouq.com, kharron@seafoodsouq.com, osmany@seafoodsouq.com',
     baseUrl: 'http://devapi.seafoodsouq.com',
     //--------------------------------------------------------------------------
     // /\  Hard-code the base URL where your staging environment is hosted.
