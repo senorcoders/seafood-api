@@ -204,39 +204,45 @@ module.exports = {
             let store = await Store.findOne({ id: item.fish.store }).populate("owner")
             let cart = await ShoppingCart.findOne({ id: item.shoppingCart.id }).populate("buyer")
             let name = cart.buyer.firstName + ' ' + cart.buyer.lastName;
-            if (status == '5c017af047fb07027943a405') {//pending seller fulfillment
+            if (status == '5c017af047fb07027943a405') {//update to pending seller fulfillment
 
-                let buyerDateParts = item.buyerExpectedDeliveryDate.split('/');
-                let buyerMonth = buyerDateParts[0] - 1;
-                let buyerDay = buyerDateParts[1];
-                let buyerYear = buyerDateParts[2];
+                //checking if item still pending seller confirmation
+                if ( item.status == '5c017ae247fb07027943a404' ) {
+                    let buyerDateParts = item.buyerExpectedDeliveryDate.split('/');
+                    let buyerMonth = buyerDateParts[0] - 1;
+                    let buyerDay = buyerDateParts[1];
+                    let buyerYear = buyerDateParts[2];
 
-                let buyerDate = new Date(buyerYear, buyerMonth, buyerDay);
+                    let buyerDate = new Date(buyerYear, buyerMonth, buyerDay);
 
-                //when admin update to pending fulfilment, admin not provide a expected delivery date
-                if (req.body.hasOwnProperty('sellerExpectedDeliveryDate')) {
-                    let sellerDateParts = req.body.sellerExpectedDeliveryDate.split('/');
+                    //when admin update to pending fulfilment, admin not provide a expected delivery date
+                    if (req.body.hasOwnProperty('sellerExpectedDeliveryDate')) {
+                        let sellerDateParts = req.body.sellerExpectedDeliveryDate.split('/');
 
-                    let sellerMonth = sellerDateParts[0] - 1;
-                    let sellerDay = sellerDateParts[1];
-                    let sellerYear = sellerDateParts[2];
+                        let sellerMonth = sellerDateParts[0] - 1;
+                        let sellerDay = sellerDateParts[1];
+                        let sellerYear = sellerDateParts[2];
 
-                    let sellerDate = new Date(sellerYear, sellerMonth, sellerDay);
+                        let sellerDate = new Date(sellerYear, sellerMonth, sellerDay);
 
-                    // only change status if seller date is less than buyer date
-                    if (sellerDate > buyerDate) {
-                        //sent email to the admin with an alert
-                        console.log('sent email');
-                        await MailerService.sentAdminWarningETA(cart, store, item, name, req.body.sellerExpectedDeliveryDate);
-                        data = await ItemShopping.update({ id }, { sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate, updateInfo: currentUpdateDates }).fetch();
-                    } else {
-                        data = await ItemShopping.update({ id }, { status: '5c017af047fb07027943a405', paymentStatus: '5c017b4547fb07027943a40a', sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate, updateInfo: currentUpdateDates }).fetch();
+                        // only change status if seller date is less than buyer date
+                        if (sellerDate > buyerDate) {
+                            //sent email to the admin with an alert
+                            console.log('sent email');
+                            await MailerService.sentAdminWarningETA(cart, store, item, name, req.body.sellerExpectedDeliveryDate);
+                            data = await ItemShopping.update({ id }, { sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate, updateInfo: currentUpdateDates }).fetch();
+                        } else {
+                            data = await ItemShopping.update({ id }, { status: '5c017af047fb07027943a405', paymentStatus: '5c017b4547fb07027943a40a', sellerExpectedDeliveryDate: req.body.sellerExpectedDeliveryDate, updateInfo: currentUpdateDates }).fetch();
+                        }
+
+
+                    } else { // admin is updating
+                        await ItemShopping.update({ id }, { status: '5c017af047fb07027943a405', paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates }).fetch();
                     }
-
-
-                } else { // admin is updating
-                    await ItemShopping.update({ id }, { status: '5c017af047fb07027943a405', paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates }).fetch();
+                } else {
+                    return res.status( 400 ).json( { message: "This items is not longer available for confirm.", item } );
                 }
+                
 
 
             } else if (status == '5c017b0e47fb07027943a406') { //admin marks the item as shipped
@@ -297,15 +303,20 @@ module.exports = {
                 let repayedRef = req.param("ref");
                 data = await ItemShopping.update({ id }, { paymentStatus: '5c017b4f47fb07027943a40b', repayedAt: ts, repayedRef: repayedRef, updateInfo: currentUpdateDates }).fetch()
             } else if (status == '5c017b5a47fb07027943a40c') { //Client Cancelled Order"
-                data = await ItemShopping.update({ id }, { status: '5c017b5a47fb07027943a40c', paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates }).fetch();
-                if (data.length > 0) {
-                    //send email to buyer
-                    await MailerService.buyerCancelledOrderBuyer(name, cart, store, item);
-                    //send email to seller
-                    await MailerService.buyerCancelledOrderSeller(cart, store, item);
-                    //send email to admin
-                    await MailerService.buyerCancelledOrderAdmin(cart, store, item);
+                if (  [ '5c017ae247fb07027943a404', '5c017af047fb07027943a405' ].includes(  item.status ) ){
+                    data = await ItemShopping.update({ id }, { status: '5c017b5a47fb07027943a40c', paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates }).fetch();
+                    if (data.length > 0) {
+                        //send email to buyer
+                        await MailerService.buyerCancelledOrderBuyer(name, cart, store, item);
+                        //send email to seller
+                        await MailerService.buyerCancelledOrderSeller(cart, store, item);
+                        //send email to admin
+                        await MailerService.buyerCancelledOrderAdmin(cart, store, item);
+                    }
+                } else {
+                    return res.status( 400 ).json( { message: "This items is not longer available for cancel", item } );
                 }
+                
             } else if (status == '5c017b7047fb07027943a40e') { //Refunded
                 data = await ItemShopping.update({ id }, { paymentStatus: '5c017b7047fb07027943a40e', updateInfo: currentUpdateDates }).fetch()
 
