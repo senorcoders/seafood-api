@@ -261,6 +261,7 @@ module.exports = {
             } else if (status == '5c017b2147fb07027943a408') { //out for delivery
                 data = await ItemShopping.update({ id }, { status: '5c017b2147fb07027943a408', outForDeliveryAt: ts, updateInfo: currentUpdateDates }).fetch()
                 //notify buyer about item out for delivery
+                item.fish.store = store;
                 await MailerService.orderOutForDelivery(name, cart, store, item);
             } else if (status == '5c017b3c47fb07027943a409') { //Delivered
                 data = await ItemShopping.update({ id }, { status: '5c017b3c47fb07027943a409', deliveredAt: ts, updateInfo: currentUpdateDates }).fetch()
@@ -284,10 +285,12 @@ module.exports = {
                 }
 
                 if (data.length > 0) {
+                    item.fish.store = store;
                     //send email to buyer 
                     await MailerService.orderDeliveredBuyer(name, cart, store, item);
                     //send email to seller
-                    await MailerService.orderArrivedSeller(cart, store, item);
+                    let _name = store.owner.firstName+ " "+ store.owner.lastName;
+                    await MailerService.orderArrivedSeller(_name, cart, store, item);
                 }
 
 
@@ -320,11 +323,13 @@ module.exports = {
                     }
                 })
                 // all items are delivered or refunded, so let's update the order status
+
                 if (isClose) {
                     await ShoppingCart.update({ id: item.shoppingCart.id }, {
                         orderStatus: '5c40b364970dc99bb06bed6a',
                         status: 'closed'
                     })
+                    await MailerService.buyerRefund(name, cart, store, item);
                 }
 
 
@@ -336,9 +341,9 @@ module.exports = {
                     //send email to buyer
                     //Obtenemos el store con el owner
                     let _store = await Store.findOne({ id: item.fish.store }).populate("owner")
-                    await MailerService.sellerCancelledOrderSeller(_store.owner.firstName+ " "+ _store.owner.lastName, _store.owner.email, cart, store, item);
+                    await MailerService.sellerCancelledOrderSeller(_store.owner.firstName + " " + _store.owner.lastName, _store.owner.email, cart, store, item);
                     //send email to admin
-                    await MailerService.sellerCancelledOrderAdmin(name, _store.owner.firstName+ " "+ _store.owner.lastName, cart, store, item);
+                    await MailerService.sellerCancelledOrderAdmin(name, _store.owner.firstName + " " + _store.owner.lastName, cart, store, item);
                 }
             } else if (status == '5c13f453d827ce28632af048') {//pending fulfillment
                 data = await ItemShopping.update({ id }, { status: '5c13f453d827ce28632af048', paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates }).fetch();
