@@ -199,7 +199,35 @@ module.exports = {
                 console.error
             )
     },
-    sendRejectedEmail: (emailAddress, role, name, denialMessage, emailContact) => {
+    sendRejectedEmail_Type1: (emailAddress, role, name, denialMessage, emailContact) => {
+        email.render('../email_templates/rejected_user1',
+            applyExtend({
+                name: name,
+                message: denialMessage,
+                roleType: role,
+                emailContact
+            })
+        )
+            .then(res => {
+                transporter.sendMail({
+                    from: emailSender,
+                    to: emailAddress,
+                    subject: 'Update - Seafood Souq Account',
+                    html: res, // html body
+                }, (error, info) => {
+                    if (error) {
+                        return console.log(error);
+                    }
+                    console.log('Message sent: %s', info.messageId);
+                    return 'Message sent: %s', info.messageId;
+                })
+
+            })
+            .catch(
+                console.error
+            )
+    },
+    sendRejectedEmail_Type2: (emailAddress, role, name, denialMessage, emailContact) => {
         email.render('../email_templates/rejected_user',
             applyExtend({
                 name: name,

@@ -220,7 +220,11 @@ module.exports = {
                 //await require("./../../mailer").sendDenialMessage(user[0].id, user[0].email, denialMessage);
                 let rolName = user[0].role === 2 ?  'Buyer' : 'Seller';
                 let emailContact = user[0].role === 2 ?  'info@seafoodsouq.com' : 'sellers@seafoodsouq.com';
-                await MailerService.sendRejectedEmail(user[0].email, rolName, name, denialMessage, emailContact);
+                if(Number(denialType)===2){
+                    await MailerService.sendRejectedEmail_Type2(user[0].email, rolName, name, denialMessage, emailContact);
+                }else{
+                    await MailerService.sendRejectedEmail_Type1(user[0].email, rolName, name, denialMessage, emailContact);
+                }
             }
             res.json({ msg: "success" });
         }
