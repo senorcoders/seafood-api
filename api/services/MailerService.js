@@ -939,7 +939,7 @@ module.exports = {
             cart,
             items: item,
             orderNumber: cart.orderNumber,
-            type: "orderArrivedSeller"
+            type: "buyerRefund"
         });
         data.store = store;
         data.paidDateTime = paidDateTime;
@@ -995,5 +995,40 @@ module.exports = {
                 })
             })
 
+    },
+    orderSellerPaid: async (name, cart, store, item) => {
+        let paidDateTime = await formatDates(cart.paidDateTime);
+        item = item.typeObject() === 'object' ? [item] : item;
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: name,
+            cart,
+            items: item,
+            orderNumber: cart.orderNumber,
+            type: "orderSellerPaid"
+        });
+        data.store = store;
+        data.paidDateTime = paidDateTime;
+        email.render('../email_templates/order_seller_paid',
+            applyExtend(data)
+        )
+            .then(res => {
+                transporter.sendMail({
+                    from: emailSender,
+                    to: store.owner.email,
+                    subject: `Order #${cart.orderNumber} payment initiated !`,
+                    html: res, // html body
+                }, (error, info) => {
+                    if (error) {
+                        return console.log(error);
+                    }
+                    console.log('Message sent: %s', info.messageId);
+                    return 'Message sent: %s', info.messageId;
+                })
+
+            })
+            .catch(
+                console.error
+            )
     },
 }

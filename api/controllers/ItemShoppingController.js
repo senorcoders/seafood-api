@@ -305,6 +305,9 @@ module.exports = {
             } else if (status == '5c017b4f47fb07027943a40b') { //Seller Repaid
                 let repayedRef = req.param("ref");
                 data = await ItemShopping.update({ id }, { paymentStatus: '5c017b4f47fb07027943a40b', repayedAt: ts, repayedRef: repayedRef, updateInfo: currentUpdateDates }).fetch()
+                //send email to seller
+                let _name = store.owner.firstName+ " "+ store.owner.lastName;
+                await MailerService.orderSellerPaid(_name, cart, store, item);
             } else if (status == '5c017b5a47fb07027943a40c') { //Client Cancelled Order"
                 if (  [ '5c017ae247fb07027943a404', '5c017af047fb07027943a405' ].includes(  item.status ) ){
                     data = await ItemShopping.update({ id }, { status: '5c017b5a47fb07027943a40c', paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates }).fetch();
