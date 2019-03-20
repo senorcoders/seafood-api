@@ -203,6 +203,7 @@ module.exports = {
                     uaeTaxes: totalUAETaxes,
                 }).fetch();
                 cart.total = total;
+		cart.subTotal = subtotal;
                 cart.customs = totalCustoms;
                 cart.totalOtherFees = totalOtherFees;
                 cart.totalUAETaxes = totalUAETaxes;
