@@ -26,6 +26,10 @@ function applyExtend(data) {
     return _.extend(data, DEFAULT);
 }
 
+//Para asignar un formato de las fechas de pago global en las ordenes
+//format desing to style of moment -> https://momentjs.com/docs/#/parsing/string-format/
+const formatPaidDate = "DD/MM/YYYY";
+
 const transporter = nodeMailer.createTransport({
     host: config.host,
     port: 465,
@@ -561,7 +565,6 @@ module.exports = {
     },
     buyerCancelledOrderBuyer: async (name, cart, store, item) => {
         item = item.typeObject() === 'object' ? [item] : item;
-        let paidDateTime = await formatDates(cart.paidDateTime);
         let data = await sails.helpers.getDataOrder.with({
             URL,
             sellerName: name,
@@ -570,7 +573,6 @@ module.exports = {
             orderNumber: cart.orderNumber,
             type: "buyerCancelledOrderBuyer"
         });
-        data.paidDateTime = paidDateTime;
         data.store = store
         email.render('../email_templates/buyer_cancelled_order',
             applyExtend(data)
@@ -595,7 +597,6 @@ module.exports = {
             )
     },
     buyerCancelledOrderSeller: async (cart, store, item) => {
-        let paidDateTime = await formatDates(cart.paidDateTime);
         item = item.typeObject() === 'object' ? [item] : item;
         let data = await sails.helpers.getDataOrder.with({
             URL,
@@ -605,7 +606,6 @@ module.exports = {
             orderNumber: cart.orderNumber,
             type: "buyerCancelledOrderSeller"
         });
-        data.paidDateTime = paidDateTime;
         email.render('../email_templates/buyer_cancelled_order_seller',
             applyExtend(data)
         )
@@ -629,7 +629,6 @@ module.exports = {
             )
     },
     buyerCancelledOrderAdmin: async (cart, store, item) => {
-        let paidDateTime = await formatDates(cart.paidDateTime);
         item = item.typeObject() === 'object' ? [item] : item;
         let data = await sails.helpers.getDataOrder.with({
             URL,
@@ -639,7 +638,6 @@ module.exports = {
             orderNumber: cart.orderNumber,
             type: "buyerCancelledOrderAdmin"
         });
-        data.paidDateTime = paidDateTime;
         data.store = store;
         email.render('../email_templates/buyer_cancelled_order_admin',
             applyExtend(data)
@@ -664,7 +662,6 @@ module.exports = {
             )
     },
     sellerCancelledOrderBuyer: async (name, cart, store, item) => {
-        let paidDateTime = await formatDates(cart.paidDateTime);
         item = item.typeObject() === 'object' ? [item] : item;
         let data = await sails.helpers.getDataOrder.with({
             URL,
@@ -674,7 +671,6 @@ module.exports = {
             orderNumber: cart.orderNumber,
             type: "buyerCancelledOrderAdmin"
         });
-        data.paidDateTime = paidDateTime;
         data.store = store;
         email.render('../email_templates/seller_cancelled_order_buyer',
             applyExtend(data)
@@ -699,7 +695,6 @@ module.exports = {
             )
     },
     sellerCancelledOrderSeller: async (name, emailSeller, cart, store, item) => {
-        let paidDateTime = await formatDates(cart.paidDateTime);
         item = item.typeObject() === 'object' ? [item] : item;
         let data = await sails.helpers.getDataOrder.with({
             URL,
@@ -709,7 +704,6 @@ module.exports = {
             orderNumber: cart.orderNumber,
             type: "sellerCancelledOrderSeller"
         });
-        data.paidDateTime = paidDateTime;
         data.store = store;
         email.render('../email_templates/seller_cancelled_order_seller',
             applyExtend(data)
@@ -734,7 +728,6 @@ module.exports = {
             )
     },
     sellerCancelledOrderAdmin: async (name, nameSeller, cart, store, item) => {
-        let paidDateTime = await formatDates(cart.paidDateTime);
         item = item.typeObject() === 'object' ? [item] : item;
         let data = await sails.helpers.getDataOrder.with({
             URL,
@@ -744,7 +737,6 @@ module.exports = {
             orderNumber: cart.orderNumber,
             type: "sellerCancelledOrderAdmin"
         });
-        data.paidDateTime = paidDateTime;
         data.store = store;
         data.nameSeller = nameSeller;
         email.render('../email_templates/seller_cancelled_order_admin',
@@ -775,11 +767,6 @@ module.exports = {
         let sellerExpectedDeliveryDate = item.sellerExpectedDeliveryDate.split("/");
         let sellerDate = new Date(sellerExpectedDeliveryDate[2], sellerExpectedDeliveryDate[0], sellerExpectedDeliveryDate[1]);
         sellerExpectedDeliveryDate = await sails.helpers.formatDate(sellerDate);
-        
-        let paidDateTime = new Date(cart.paidDateTime);
-        cart.paidDateTime = await sails.helpers.formatDate(paidDateTime);
-        console.log(cart.paidDateTime);
-        paidDateTime = await formatDates(cart.paidDateTime);
 
         item = item.typeObject() === 'object' ? [item] : item;
         let data = await sails.helpers.getDataOrder.with({
@@ -790,7 +777,6 @@ module.exports = {
             orderNumber: cart.orderNumber,
             type: "itemShipped"
         });
-        data.paidDateTime = paidDateTime;
         data.store = store;
         data.sellerExpectedDeliveryDate = sellerExpectedDeliveryDate;
         email.render('../email_templates/itemShipped',
@@ -830,7 +816,6 @@ module.exports = {
             type: "orderArrived"
         });
         data.sellerExpectedDeliveryDate = await sails.helpers.formatDate(sellerDate);
-        data.paidDateTime = await sails.helpers.formatDate(paidDateTime);
         data.store = store;
         email.render('../email_templates/order_arrived',
             applyExtend(data)
@@ -855,7 +840,6 @@ module.exports = {
             )
     },
     orderDeliveredBuyer: async (name, cart, store, item) => {
-        let paidDateTime = await formatDates(cart.paidDateTime);
         item = item.typeObject() === 'object' ? [item] : item;
         let data = await sails.helpers.getDataOrder.with({
             URL,
@@ -866,7 +850,6 @@ module.exports = {
             type: "orderDeliveredBuyer"
         });
         data.store = store;
-        data.paidDateTime = paidDateTime;
         email.render('../email_templates/order_delivered_buyer',
             applyExtend(data)
         )
@@ -890,7 +873,6 @@ module.exports = {
             )
     },
     orderOutForDelivery: async (name, cart, store, item) => {
-        let paidDateTime = await formatDates(cart.paidDateTime);
         item = item.typeObject() === 'object' ? [item] : item;
         let data = await sails.helpers.getDataOrder.with({
             URL,
@@ -924,7 +906,6 @@ module.exports = {
             )
     },
     orderArrivedSeller: async (name, cart, store, item) => {
-        let paidDateTime = await formatDates(cart.paidDateTime);
         item = item.typeObject() === 'object' ? [item] : item;
         let data = await sails.helpers.getDataOrder.with({
             URL,
@@ -935,7 +916,6 @@ module.exports = {
             type: "orderArrivedSeller"
         });
         data.store = store;
-        data.paidDateTime = paidDateTime;
         email.render('../email_templates/order_delivered_seller',
             applyExtend(data)
         )
@@ -959,7 +939,6 @@ module.exports = {
             )
     },
     buyerRefund: async (name, cart, store, item) => {
-        let paidDateTime = await formatDates(cart.paidDateTime);
         item = item.typeObject() === 'object' ? [item] : item;
         let data = await sails.helpers.getDataOrder.with({
             URL,
@@ -970,7 +949,6 @@ module.exports = {
             type: "buyerRefund"
         });
         data.store = store;
-        data.paidDateTime = paidDateTime;
         email.render('../email_templates/refund_buyer',
             applyExtend(data)
         )
@@ -1025,7 +1003,6 @@ module.exports = {
 
     },
     orderSellerPaid: async (name, cart, store, item) => {
-        let paidDateTime = await formatDates(cart.paidDateTime);
         item = item.typeObject() === 'object' ? [item] : item;
         let data = await sails.helpers.getDataOrder.with({
             URL,
@@ -1036,7 +1013,6 @@ module.exports = {
             type: "orderSellerPaid"
         });
         data.store = store;
-        data.paidDateTime = paidDateTime;
         email.render('../email_templates/order_seller_paid',
             applyExtend(data)
         )

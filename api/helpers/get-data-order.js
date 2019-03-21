@@ -28,7 +28,7 @@ module.exports = {
       type: "string",
       required: true
     },
-    URL:{
+    URL: {
       type: "string",
       required: true
     }
@@ -37,14 +37,14 @@ module.exports = {
 
   exits: {
 
-    outputType:{
+    outputType: {
       result: "ref"
     }
 
   },
 
 
-  fn: function (inputs, exits) {
+  fn: async function (inputs, exits) {
     let sellerName = inputs.sellerName,
       cart = inputs.cart,
       items = inputs.items,
@@ -67,9 +67,15 @@ module.exports = {
         grandTotal += Number(it.sfsMargin);
       }
       grandTotal = Number((grandTotal).toFixed(2));
-      let date = new Date(cart.paidDateTime);
-      let paidDateTime = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
-
+      
+      let paidDateTime = "";
+      if(cart.isDefined("paidDateTime") && cart.paidDateTime !== ''){
+        paidDateTime = await sails.helpers.formatDate.with({
+          date: new Date(cart.paidDateTime),
+          format: "DD/MM/YYYY"
+        });
+      }
+      
       //Para completar el src de image primary
       for (let i = 0; i < items.length; i++) {
         let it = items[i];

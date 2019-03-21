@@ -482,6 +482,8 @@ module.exports = {
                 orderStatus: OrderStatus
 
             }).fetch();
+            //Agregamos el paidDate al cart
+            cart.paidDateTime = paidDateTime;
             //Se envia los correos a los dueños de las tiendas
             let counter = 0;
             for (let st of itemsStore) {
