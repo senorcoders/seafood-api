@@ -402,23 +402,7 @@
                             </div>
                         </div>
                     </div>
-                    <div style="background-color:transparent;">
-                        <div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;"
-                            class="block-grid ">
-                            <div
-                                style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;">
-                                <!--[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width: 500px;"><tr class="layout-full-width" style="background-color:transparent;"><![endif]-->
-                                <!--[if (mso)|(IE)]><td align="center" width="500" style=" width:500px; padding-right: 0px; padding-left: 0px; padding-top:0px; padding-bottom:0px; border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent;" valign="top"><![endif]-->
-                                <div class="col num12"
-                                    style="min-width: 320px;max-width: 500px;display: table-cell;vertical-align: top;">
-                                    <div style="background-color: transparent; width: 100% !important;">
-                                        <%- include('./table_cart_paid', {items, grandTotal, paidDateTime, orderNumber, general: { cancelled: true } }) %>
-                                    </div>
-                                </div>
-                                <!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]-->
-                            </div>
-                        </div>
-                    </div>
+                    <%- include('./table_cart_paid', {items, grandTotal, paidDateTime, orderNumber, general: { cancelled: true } }) %>
                     <div style="background-color:transparent;">
                         <div style="Margin: 0 auto;min-width: 320px;max-width: 500px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;"
                             class="block-grid ">
