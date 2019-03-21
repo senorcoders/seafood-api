@@ -16,7 +16,7 @@ const DEFAULT = {
     logoSrc,
     emailSeller: "sellers@seafoodsouq.com",
     emailInfo: 'info@seafoodsouq.com',
-    FAQLink: URL + '/login',
+    FAQLink: 'https://platform.seafoodsouq.com',
     url: URL,
     contactUs: URL + '/login',
 };
