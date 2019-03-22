@@ -1,5 +1,4 @@
-const random = require("randomatic");
-
+const random = require("randomatic"), webappUrl = sails.config.custom.webappUr
 module.exports = {
     verificationCode: async (req, res) => {
 
@@ -11,7 +10,7 @@ module.exports = {
 
             if (us.code === code) {
                 us = await User.update({ id }, { verification: true }).fetch();
-                res.redirect('https://seafood.senorcoders.com/verification' + "/" + id + "/" + code);
+                res.redirect(webappUrl+ '/verification/' + id + "/" + code);
             } else {
                 res.json({ message: "code invalid" });
             }
