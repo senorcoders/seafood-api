@@ -1,6 +1,6 @@
 var nodeMailer = require("nodemailer");
 var Email = require('email-templates');
-const ADMIN_EMAIL = sails.config.custom.adminEmails;
+const ADMIN_EMAIL = sails.config.custom.adminEmails, webappUrl = sails.config.custom.webappUrl;
 console.log( 'custom', sails.config.custom.adminEmails );
 const APP_NAME = sails.config.APP_NAME;
 const config = sails.config.mailer;
@@ -10,24 +10,25 @@ const emailSender = 'Seafoodsouq <do-not-reply@seafoodsouq.com>';
 //El url base del api, segun su enviroment
 const URL = sails.config.custom.baseUrl, 
 logoSrc = URL + "/images/logo_email.png";
-console.log( logoSrc );
+
 //El json default que se usa en los correos como emails y logos
 const DEFAULT = {
     logoSrc,
     emailSeller: "sellers@seafoodsouq.com",
     emailInfo: 'info@seafoodsouq.com',
-    FAQLink: 'https://platform.seafoodsouq.com',
+    FAQLink: `${webappUrl}`,
     url: URL,
     contactUs: URL + '/login',
 };
-console.log(DEFAULT);
+
 //Para asignar variables globales en los datas de los mailers
-function applyExtend(data) {
-    return _.extend(data, DEFAULT);
+async function applyExtend(data) {
+    let _data = _.extend(data, DEFAULT);
+    return await sails.helpers.propMap(_data);
 }
 
 //Para asignar un formato de las fechas de pago global en las ordenes
-//format desing to style of moment -> https://momentjs.com/docs/#/parsing/string-format/
+//format to style of moment -> https://momentjs.com/docs/#/parsing/string-format/
 const formatPaidDate = "DD/MM/YYYY";
 
 const transporter = nodeMailer.createTransport({
@@ -65,9 +66,9 @@ async function formatDates(d) {
 };
 
 module.exports = {
-    registerNewUser: (user) => {
+    registerNewUser: async (user) => {
         email.render('../email_templates/register_new_user',
-            applyExtend({
+            await applyExtend({
                 name: user.firstName + ' ' + user.lastName,
                 id: user.id,
                 code: user.code
@@ -92,7 +93,7 @@ module.exports = {
                 console.error
             )
     },
-    newUserNotification: (role) => {
+    newUserNotification: async (role) => {
         let roleType;
         if (role == 0) {
             roleType = "Admin"
@@ -100,7 +101,7 @@ module.exports = {
             roleType = "Seller"
         } else { roleType = "Buyer" }
         email.render('../email_templates/new_user_admin_notification',
-            applyExtend({
+            await applyExtend({
                 role: roleType
             })
         )
@@ -123,12 +124,10 @@ module.exports = {
                 console.error
             )
     },
-    sendApprovedEmail: (id, emailAddress, code, name) => {
-        console.log(applyExtend({
-            name: name
-        }));
+    sendApprovedEmail: async (id, emailAddress, code, name) => {
+        
         email.render('../email_templates/approved_account',
-            applyExtend({
+            await applyExtend({
                 name: name
             })
         )
@@ -151,9 +150,9 @@ module.exports = {
                 console.error
             )
     },
-    sendApprovedBuyerEmail: (id, emailAddress, code, name) => {
+    sendApprovedBuyerEmail: async (id, emailAddress, code, name) => {
         email.render('../email_templates/approved_account_buyer',
-            applyExtend({
+            await applyExtend({
                 name: name,
                 id,
                 code
@@ -178,9 +177,9 @@ module.exports = {
                 console.error
             )
     },
-    sendApprovedSellerEmail: (emailAddress, name) => {
+    sendApprovedSellerEmail: async (emailAddress, name) => {
         email.render('../email_templates/approved_seller',
-            applyExtend({
+            await applyExtend({
                 name: name
             })
         )
@@ -203,9 +202,9 @@ module.exports = {
                 console.error
             )
     },
-    sendRejectedEmail_Type1: (emailAddress, role, name, denialMessage, emailContact) => {
+    sendRejectedEmail_Type1: async (emailAddress, role, name, denialMessage, emailContact) => {
         email.render('../email_templates/rejected_user1',
-            applyExtend({
+            await applyExtend({
                 name: name,
                 message: denialMessage,
                 roleType: role,
@@ -231,9 +230,9 @@ module.exports = {
                 console.error
             )
     },
-    sendRejectedEmail_Type2: (emailAddress, role, name, denialMessage, emailContact) => {
+    sendRejectedEmail_Type2: async (emailAddress, role, name, denialMessage, emailContact) => {
         email.render('../email_templates/rejected_user',
-            applyExtend({
+            await applyExtend({
                 name: name,
                 message: denialMessage,
                 roleType: role,
@@ -259,9 +258,9 @@ module.exports = {
                 console.error
             )
     },
-    sendEmailForgotPassword: (emailAddress, code, name) => {
+    sendEmailForgotPassword: async (emailAddress, code, name) => {
         email.render('../email_templates/forgot_password',
-            applyExtend({
+            await applyExtend({
                 code: code,
                 name: name
             })
@@ -285,9 +284,9 @@ module.exports = {
                 console.error
             )
     },
-    sendDataFormContactToSeller: (emailAddress, nameSeller, nameBuyer, emailBuyer, message) => {
+    sendDataFormContactToSeller: async (emailAddress, nameSeller, nameBuyer, emailBuyer, message) => {
         email.render('../email_templates/contact_message',
-            applyExtend({
+            await applyExtend({
                 nameBuyer: nameBuyer,
                 nameSeller: nameSeller,
                 message: message,
@@ -313,9 +312,9 @@ module.exports = {
                 console.error
             )
     },
-    newProductAddedAdminNotified: (product, seller) => {
+    newProductAddedAdminNotified: async (product, seller) => {
         email.render('../email_templates/new_product_awaiting_review',
-            applyExtend({
+            await applyExtend({
                 name: seller.firstName + ' ' + seller.lastName,
                 product: product
             })
@@ -339,9 +338,9 @@ module.exports = {
                 console.error
             )
     },
-    newProductAddedSellerNotified: (product, seller) => {
+    newProductAddedSellerNotified: async (product, seller) => {
         email.render('../email_templates/new_product_seller_notified',
-            applyExtend({
+            await applyExtend({
                 name: seller.firstName + ' ' + seller.lastName,
                 product: product
             })
@@ -365,9 +364,9 @@ module.exports = {
                 console.error
             )
     },
-    newProductRejected: (seller, product, SFSAdminFeedback) => {
+    newProductRejected: async (seller, product, SFSAdminFeedback) => {
         email.render('../email_templates/new_product_rejected',
-            applyExtend({
+            await applyExtend({
                 name: seller.firstName + ' ' + seller.lastName,
                 product: product,
                 SFSAdminFeedback: SFSAdminFeedback
@@ -392,9 +391,9 @@ module.exports = {
                 console.error
             )
     },
-    newProductAccepted: (seller, product) => {
+    newProductAccepted: async (seller, product) => {
         email.render('../email_templates/new_product_accepted',
-            applyExtend({
+            await applyExtend({
                 name: seller.firstName + ' ' + seller.lastName,
                 product: product
             })
@@ -434,7 +433,7 @@ module.exports = {
         });
         data.buyerETA = buyerETA;
         email.render('../email_templates/cart_paid_seller_notified',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -488,7 +487,7 @@ module.exports = {
             type: "sendCartPaidBuyerNotified"
         });
         email.render('../email_templates/cart_paid_buyer_notified',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -542,7 +541,7 @@ module.exports = {
             type: "sendCartPaidAdminNotified"
         });
         email.render('../email_templates/cart_paid_admin_notified',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -575,7 +574,7 @@ module.exports = {
         });
         data.store = store
         email.render('../email_templates/buyer_cancelled_order',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -607,7 +606,7 @@ module.exports = {
             type: "buyerCancelledOrderSeller"
         });
         email.render('../email_templates/buyer_cancelled_order_seller',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -640,7 +639,7 @@ module.exports = {
         });
         data.store = store;
         email.render('../email_templates/buyer_cancelled_order_admin',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -673,7 +672,7 @@ module.exports = {
         });
         data.store = store;
         email.render('../email_templates/seller_cancelled_order_buyer',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -706,7 +705,7 @@ module.exports = {
         });
         data.store = store;
         email.render('../email_templates/seller_cancelled_order_seller',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -740,7 +739,7 @@ module.exports = {
         data.store = store;
         data.nameSeller = nameSeller;
         email.render('../email_templates/seller_cancelled_order_admin',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -780,7 +779,7 @@ module.exports = {
         data.store = store;
         data.sellerExpectedDeliveryDate = sellerExpectedDeliveryDate;
         email.render('../email_templates/itemShipped',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -818,7 +817,7 @@ module.exports = {
         data.sellerExpectedDeliveryDate = await sails.helpers.formatDate(sellerDate);
         data.store = store;
         email.render('../email_templates/order_arrived',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -851,7 +850,7 @@ module.exports = {
         });
         data.store = store;
         email.render('../email_templates/order_delivered_buyer',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -884,7 +883,7 @@ module.exports = {
         });
         data.store = store;
         email.render('../email_templates/order_out_for_delivery_buyer',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -917,7 +916,7 @@ module.exports = {
         });
         data.store = store;
         email.render('../email_templates/order_delivered_seller',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -950,7 +949,7 @@ module.exports = {
         });
         data.store = store;
         email.render('../email_templates/refund_buyer',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -984,7 +983,7 @@ module.exports = {
         data.buyerName = buyer;
         data.sellerExpectedDeliveryDate = sellerExpectedDeliveryDate;
         email.render('../email_templates/admin_warning_ETA',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({
@@ -1014,7 +1013,7 @@ module.exports = {
         });
         data.store = store;
         email.render('../email_templates/order_seller_paid',
-            applyExtend(data)
+            await applyExtend(data)
         )
             .then(res => {
                 transporter.sendMail({

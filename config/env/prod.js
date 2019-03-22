@@ -32,6 +32,7 @@ module.exports = Object.assign({}, {
   custom: Object.assign({},  {
     adminEmails: 'kharron@seafoodsouq.com, osama@seafoodsouq.com, omar@seafoodsouq.com',
     baseUrl: 'http://13.232.66.55',
+    webappUrl: 'https://platform.seafoodsouq.com',
     //--------------------------------------------------------------------------
     // /\  Hard-code the base URL where your staging environment is hosted.
     // ||  (or use system env var: `sails_custom__baseUrl`)
