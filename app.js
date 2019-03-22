@@ -53,3 +53,17 @@ try {
 
 // Start server
 sails.lift(rc('sails'));
+
+/**
+ * 
+ * console.log is disable en enviroment prod y staging
+ * 
+ */
+if (
+  sails.config.environment === "prod" ||
+  sails.config.environment === "staging"
+) {
+
+  console.log = function () { };
+
+}
