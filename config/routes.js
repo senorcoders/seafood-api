@@ -56,6 +56,8 @@ module.exports.routes = {
    * USER 
    * 
    */
+   // check if email exist
+  'GET /api/user/email/:email/': 'UserController.emailExist',
 
   //Para verificar el codigo
   'GET /verification/:id/:code': "UserController.verificationCode",

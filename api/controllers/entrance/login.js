@@ -5,7 +5,12 @@ const token = async (user) => {
 
   return new Promise((resolve, reject) => {
 
-    jwt.sign(user, secret, { expiresIn: 31536000 }, function (err, token) {
+    jwt.sign(
+      {
+        email: user.email,
+        firstName: user.firstName,
+        password: user.password
+      }, secret, { expiresIn: 6336000 }, function (err, token) {
       if (err) {
         console.log(err);
         return reject(err);

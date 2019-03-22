@@ -10,7 +10,7 @@
 
 module.exports.policies = {
 
-  // '*': 'is-logged-in',
+  '*': 'is-logged-in',
 
   // Bypass the `is-logged-in` policy for:
   'user/verificationCode': true,
@@ -29,9 +29,20 @@ module.exports.policies = {
   ImageController: {
     getImage: true,
     getImagesCategory: true,
-    getImagesLicense: true
+    getImagesLicense: true,
+    getImagePrimary: true,
   },
-  FeaturedProductsController: {
+  UserController: {
+    emailExist: true,
+    verificationCode: true,
+    resetEmail: true,
+    updatePassword: true,
+  },
+  StoreController: {
+    save: true,
+    update: true
+  },
+/*  FeaturedProductsController: {
     "*": true
   },
   FeaturedSellerController: {
@@ -43,10 +54,12 @@ module.exports.policies = {
   FishTypeMenu: {
     "*": true
   },
-
+*/
+  'countries/find': true,
   'entrance/*': true,
   'account/logout': true,
   'view-homepage-or-redirect': true,
   'deliver-contact-form-message': true,
+  '/api/login': true,
 
 };

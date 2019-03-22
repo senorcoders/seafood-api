@@ -250,5 +250,19 @@ module.exports = {
             res.serverError(e);
         }
     },
+   
+    emailExist: async (req, res) => {
+        try {
+            let email = req.param("email");
+            let user = await User.findOne({ email });
+            if (user === undefined) {
+                res.status(200).json( { message: false }  );
+            } else {
+                res.status(200).json( { message: true } );
+            }      
+        } catch (error) {
+            
+        }
+    },
 };
 
