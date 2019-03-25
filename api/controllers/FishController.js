@@ -514,16 +514,16 @@ module.exports = {
                 condWhere.where['country'] = country;
 
             if( maximumOrder !== '0' )
-                condWhere.where['maximumOrder'] = { '<=': maximumOrder };
+                condWhere.where['maximumOrder'] = { '<=': parseFloat(maximumOrder) };
 
             if( minimumOrder !== '0' )
-                condWhere.where['minimumOrder'] = { '>=': minimumOrder };
+                condWhere.where['minimumOrder'] = { '>=': parseFloat(minimumOrder) };
             
             if( cooming_soon !== '0' ){
                 condWhere.where['cooming_soon'] = cooming_soon;
             }
 
-            console.log( 'category', category );
+            console.log( 'before cats', condWhere );
             if( descriptor !== '0' ){
                 condWhere.where['descriptor'] = descriptor;
             } else if ( subspecies !== '0' ){
@@ -541,9 +541,9 @@ module.exports = {
                     console.log( 'level2', level2 );
 
 
-                    return categoryChilds;
+                    return descriptorChilds;
                 } ) );
-                condWhere.where['descriptor'] = descriptorChilds;
+                //condWhere.where['descriptor'] = descriptorChilds;
                 condWhere.where['type'] = subspecies;
             } else if ( subcategory !== '0' ) {
                 
@@ -577,7 +577,7 @@ module.exports = {
                 });
                 console.log( 'level1', level1 );
                 
-                Promise.all( level1.map( async value1 => {
+                await Promise.all( level1.map( async value1 => {
                     categoryChilds.push( value1.id );
 
                     level2 = await FishType.find( { parent: value1.id } );
