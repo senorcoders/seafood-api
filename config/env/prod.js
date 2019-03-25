@@ -30,7 +30,7 @@ module.exports = Object.assign({}, {
  
 
   custom: Object.assign({},  {
-    adminEmails: 'kharron@seafoodsouq.com, osama@seafoodsouq.com, omar@seafoodsouq.com',
+    adminEmails: 'kharron@seafoodsouq.com, osama@seafoodsouq.com, omar@seafoodsouq.com, j5u4a0q3u5e8d1i8@seafoodsouq.slack.com',
     baseUrl: 'http://13.232.66.55',
     webappUrl: 'https://platform.seafoodsouq.com',
     //--------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 var fs = require('fs');
 var ejs = require('ejs');
 var pdf = require('html-pdf')
-var api_url = sails.config.API_URL;
+var api_url = sails.config.custom.baseUrl;
 
 //Esta propiedada wholeFishWeight, no es definida
 //en algunos productos por eso necesito definirla.
@@ -22,7 +22,6 @@ const verifiedWholeFishWeight = function (items) {
 
     return items;
 };
-
 
 module.exports = {
     buyerInvoice: async (itemsShopping, cart, OrderNumber, storeName, uaeTaxes) => {
