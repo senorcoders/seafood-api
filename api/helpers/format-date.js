@@ -14,7 +14,8 @@ module.exports = {
     },
     format:{
       type: "string",
-      required: false
+      required: false,
+      description: `format to style of moment -> https://momentjs.com/docs/#/parsing/string-format/`
     }
   },
 

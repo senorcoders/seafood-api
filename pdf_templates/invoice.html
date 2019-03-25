@@ -231,7 +231,7 @@
         <span>Shipping Fees</span>
       </div>
       <div class="col col-1">
-        <span><%= shippingFees %></span>
+        <span><%= parseFloat(shippingFees, 10).toFixed(2) %></span>
       </div>
     </div>
     <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">

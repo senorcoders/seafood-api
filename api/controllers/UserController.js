@@ -1,5 +1,4 @@
-const random = require("randomatic");
-
+const random = require("randomatic"), webappUrl = sails.config.custom.webappUr
 module.exports = {
     verificationCode: async (req, res) => {
 
@@ -11,7 +10,7 @@ module.exports = {
 
             if (us.code === code) {
                 us = await User.update({ id }, { verification: true }).fetch();
-                res.redirect('https://seafood.senorcoders.com/verification' + "/" + id + "/" + code);
+                res.redirect(webappUrl+ '/verification/' + id + "/" + code);
             } else {
                 res.json({ message: "code invalid" });
             }
@@ -248,6 +247,20 @@ module.exports = {
         catch (e) {
             console.error(e);
             res.serverError(e);
+        }
+    },
+   
+    emailExist: async (req, res) => {
+        try {
+            let email = req.param("email");
+            let user = await User.findOne({ email });
+            if (user === undefined) {
+                res.status(200).json( { message: false }  );
+            } else {
+                res.status(200).json( { message: true } );
+            }      
+        } catch (error) {
+            
         }
     },
 };

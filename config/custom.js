@@ -23,6 +23,7 @@ module.exports.custom = {
   **************************************************************************/
   
   baseUrl: `http://localhost:${require("./local").port}`,
+  webappUrl: 'http://localhost:1337',
   adminEmails: 'kharron@seafoodsouq.com, osmany@seafoodsouq.com',
 
   /**************************************************************************
