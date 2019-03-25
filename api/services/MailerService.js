@@ -24,12 +24,13 @@ const DEFAULT = {
 //Para asignar variables globales en los datas de los mailers
 async function applyExtend(data) {
     let _data = _.extend(data, DEFAULT);
+    console.log(_data.items[0]);
     return await sails.helpers.propMap(_data);
 }
 
 //Para asignar un formato de las fechas de pago global en las ordenes
 //format to style of moment -> https://momentjs.com/docs/#/parsing/string-format/
-const formatPaidDate = "DD/MM/YYYY";
+// const formatPaidDate = "DD/MM/YYYY";
 
 const transporter = nodeMailer.createTransport({
     host: config.host,
