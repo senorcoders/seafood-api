@@ -72,7 +72,11 @@
                                                         </td>
                                                         <td
                                                             style="border-top-width: 0 !important; vertical-align: top;">
-                                                            <%=it.fish.name %>
+                                                            <% if(it.fish.wholeFishWeight!==undefined&&it.fish.wholeFishWeight!==null&&it.fish.wholeFishWeight!==''){ %>
+                                                                <%=it.fish.name %>, Whole Fish Weight <%=it.fish.wholeFishWeight %>
+                                                            <% }else{ %>
+                                                                <%=it.fish.name %>
+                                                            <% } %>
                                                         </td>
                                                     </tr>
                                                 </table>

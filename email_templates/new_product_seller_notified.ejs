@@ -400,8 +400,12 @@
                                                                 </b><%= product.name %><br><b>seller SKU:
                                                                 </b><%= product.seller_sku %><br><b>SKU:
                                                                 </b><%= product.seafood_sku %><br><b>Description:
-                                                                </b><%= product.description %><br><b>Quality:
-                                                                </b><%= product.quality %><br><b>Country:
+                                                                </b><%= product.description %><br>
+                                                                <b>Quality: </b><%= product.quality %><br>
+                                                                <% if(product.wholeFishWeight!==undefined&&product.wholeFishWeight!==null&&product.wholeFishWeight!==''){ %>
+                                                                    <b>Whole Fish Weight: </b><%=product.wholeFishWeight %><br> 
+                                                                <% } %>
+                                                                <b>Country:
                                                                 </b><%= product.country %><br><b>City:
                                                                 </b><%= product.city %><br><b>Price:
                                                                 </b><%= product.price.value %><br><b>Minimum Order:

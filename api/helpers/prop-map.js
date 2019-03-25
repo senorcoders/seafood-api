@@ -4,7 +4,7 @@ const propMap = function (obj) {
     if(prop===null||prop===undefined) return prop;
     if (prop.typeObject() === 'array' || prop.typeObject() === 'object') {
       prop = propMap(prop);
-    } else if (isNaN(prop) === false) {
+    } else if (isNaN(prop) === false && prop !== "") {
       prop = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2 }).format(prop);
     }
     return prop;
