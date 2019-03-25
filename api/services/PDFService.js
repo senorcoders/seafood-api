@@ -1,7 +1,7 @@
 var fs = require('fs');
 var ejs = require('ejs');
 var pdf = require('html-pdf')
-var api_url = sails.config.API_URL;
+var api_url = sails.config.custom.baseUrl;
 module.exports = {
     buyerInvoice: async ( itemsShopping, cart,OrderNumber, storeName, uaeTaxes) => {
         console.log( 'dir name', __dirname );
