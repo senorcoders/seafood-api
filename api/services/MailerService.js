@@ -24,7 +24,7 @@ const DEFAULT = {
 //Para asignar variables globales en los datas de los mailers
 async function applyExtend(data) {
     let _data = _.extend(data, DEFAULT);
-    console.log(_data.items[0]);
+    //console.log(_data.items[0]);
     return await sails.helpers.propMap(_data);
 }
 
