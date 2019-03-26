@@ -31,16 +31,23 @@ module.exports.policies = {
     getImagesCategory: true,
     getImagesLicense: true,
     getImagePrimary: true,
+    getLogoAndHeroStore: true,
+    getImagesStore: true,
+    getShippingFiles: true,
   },
   UserController: {
     emailExist: true,
     verificationCode: true,
     resetEmail: true,
     updatePassword: true,
+    resetEmail: true,
   },
   StoreController: {
     save: true,
     update: true
+  },
+  ShoppingCartController: {
+    sendPDF: true,
   },
 /*  FeaturedProductsController: {
     "*": true
