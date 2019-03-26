@@ -46,6 +46,9 @@ module.exports.policies = {
     save: true,
     update: true
   },
+  ShoppingCartController: {
+    sendPDF: true,
+  },
 /*  FeaturedProductsController: {
     "*": true
   },
