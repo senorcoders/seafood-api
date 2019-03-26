@@ -32,7 +32,8 @@ module.exports = {
         //console.log( 'itemsShopping', itemsShopping );
         //let today = cart.paidDatetime;
         let today = new Date();
-        date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+        // date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	date = today.getDate()+'/'+(today.getMonth()+1)+'/'+today.getFullYear();
         let paidDateTime = date;
         var html = await compiled(
             {
@@ -76,8 +77,10 @@ module.exports = {
         var today = new Date();
         var deliveryDate = new Date();
         deliveryDate.setDate(deliveryDate.getDate() + 1);
-        date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-        date2 = deliveryDate.getFullYear() + '-' + (deliveryDate.getMonth() + 1) + '-' + deliveryDate.getDate();
+        // date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	date = today.getDate()+'/'+(today.getMonth()+1)+'/'+today.getFullYear();
+        // date2 = deliveryDate.getFullYear() + '-' + (deliveryDate.getMonth() + 1) + '-' + deliveryDate.getDate();
+	date2 = deliveryDate.getDate() + '/' + (deliveryDate.getMonth()+1) + '/' + deliveryDate.getFullYear();
         let portOfLoading = await sails.helpers.portOfLoadingByCode(itemsShopping.fish.processingCountry, itemsShopping.fish.city);
         console.log(portOfLoading);
         let paidDateTime = date; //new Date().toISOString();
