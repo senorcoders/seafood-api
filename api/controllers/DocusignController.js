@@ -28,7 +28,7 @@ module.exports = {
 
             // create a new envelope object that we will manage the signature request through
             var envDef = new docusign.EnvelopeDefinition();
-            envDef.emailSubject = 'Please sign this document sent from Node SDK';
+            envDef.emailSubject = 'Contract of Seafood Souq';
             envDef.templateId = credentials.templateID;
             // envDef.email = true;
             // envDef.emailAddress = 'jos.ojiron@gmail.com';
@@ -65,10 +65,22 @@ module.exports = {
                     res.serverError(err);
                     return console.error(err);
                 }
-                await Docusign.create({
-                    user: id,
-                    envelope: envelopeSummary
-                });
+                let doc = await Docusign.findOne({ user: id, type: "contract" });
+                if (doc === undefined) {
+                    await Docusign.create({
+                        user: id,
+                        type: "contract",
+                        envelopeId: envelopeSummary.envelopeId,
+                        envelope: envelopeSummary
+                    });
+                } else {
+                    await Docusign.create({
+                        user: id,
+                        type: "resend-contract",
+                        envelopeId: envelopeSummary.envelopeId,
+                        envelope: envelopeSummary
+                    });
+                }
                 res.json(envelopeSummary);
                 console.log('EnvelopeSummary: ' + JSON.stringify(envelopeSummary));
             });
@@ -77,6 +89,15 @@ module.exports = {
         catch (e) {
             console.error(e);
         }
+    },
+    resposeEnvelope: async (req, res) => {
+        // console.log("\n\n", JSON.stringify(req.body));
+        console.log()
+        let envelope = req.body.DocuSignEnvelopeInformation.EnvelopeStatus;
+        let envelopeId = envelope.EnvelopeID
+        let status = envelope.Status.toLowerCase();
+        await Docusign.update({ envelopeId }, { status });
+        res.status(200);
     }
 
 };
