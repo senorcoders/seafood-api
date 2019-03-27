@@ -70,8 +70,10 @@ module.exports.http = {
       return function (req, res, next) {
         
         // If it looks like XML, parse it as XML
-        if (req.headers && (req.headers['content-type'].includes('text/xml') || req.headers['content-type'].includes('application/xml'))) {
-          return xmlParser(req, res, next);
+        if(req.isDefined("headers") === true){
+          if (req.headers && (req.headers['content-type'].includes('text/xml') || req.headers['content-type'].includes('application/xml'))) {
+            return xmlParser(req, res, next);
+          }
         }
         // Otherwise let Skipper handle it
         return skipper(req, res, next);
