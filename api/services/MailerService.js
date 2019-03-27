@@ -94,7 +94,7 @@ module.exports = {
                 console.error
             )
     },
-    newUserNotification: async (role) => {
+    newUserNotification: async (name, emailAddress, role, company) => {
         let roleType;
         if (role == 0) {
             roleType = "Admin"
@@ -103,7 +103,10 @@ module.exports = {
         } else { roleType = "Buyer" }
         email.render('../email_templates/new_user_admin_notification',
             await applyExtend({
-                role: roleType
+                name,
+                email: emailAddress,
+                role: roleType,
+                company
             })
         )
             .then(res => {
