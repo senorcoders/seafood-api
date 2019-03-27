@@ -83,6 +83,8 @@ module.exports.routes = {
   //Para que actualize el status del usuario
   'PUT /user/status/:id/:status': 'UserController.updateStatus',
 
+  "GET /user-not-verified": "UserController.getUsersNotVerfied",
+
   // 'PUT /user':'UserController.updateUser',
 
   /*************
