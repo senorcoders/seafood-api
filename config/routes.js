@@ -444,7 +444,15 @@ module.exports.routes = {
     'GET /api/orderStatus/logistic': 'OrderStatus.getLogisticOrderstatus',
 
     'GET /api/orderStatus/payments': 'OrderStatus.getPaymentOrderstatus',
-
+  
+  /*****
+   * 
+   * DOSUSIGN
+   * 
+   * 
+   */
+  'POST /docusign': 'DocusignController.sentTemplate',
+  
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝
@@ -452,6 +460,9 @@ module.exports.routes = {
   'POST /payments/payfort': 'PaymentsController.getAuthorization',
 
   'GET /xero/updateToken': 'Xero.updateXero',
+
+  //Docusign
+  'POST /response-docusign': 'DocusignController.resposeEnvelope',
  
   //  ╔╦╗╦╔═╗╔═╗  ╦═╗╔═╗╔╦╗╦╦═╗╔═╗╔═╗╔╦╗╔═╗
   //  ║║║║╚═╗║    ╠╦╝║╣  ║║║╠╦╝║╣ ║   ║ ╚═╗
@@ -459,6 +470,6 @@ module.exports.routes = {
   '/terms': '/legal/terms',
   '/logout': '/api/v1/account/logout',
 
-  'POST /docusign': 'DocusignController.sentTemplate'
+  
   
 };

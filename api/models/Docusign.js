@@ -17,6 +17,21 @@ module.exports = {
       required: true
     },
 
+    type: {
+      type: "string",
+      required: false
+    },
+
+    status: {
+      type: "string",
+      required: false
+    },
+
+    envelopeId: {
+      type: "string",
+      required: false
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝

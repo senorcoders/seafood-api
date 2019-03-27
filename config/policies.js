@@ -49,19 +49,22 @@ module.exports.policies = {
   ShoppingCartController: {
     sendPDF: true,
   },
-/*  FeaturedProductsController: {
-    "*": true
+  DocusignController: {
+    resposeEnvelope: true
   },
-  FeaturedSellerController: {
-    "*": true
-  },
-  FeaturedTypesController: {
-    "*": true,
-  },
-  FishTypeMenu: {
-    "*": true
-  },
-*/
+  /*  FeaturedProductsController: {
+      "*": true
+    },
+    FeaturedSellerController: {
+      "*": true
+    },
+    FeaturedTypesController: {
+      "*": true,
+    },
+    FishTypeMenu: {
+      "*": true
+    },
+  */
   'countries/find': true,
   'entrance/*': true,
   'account/logout': true,
