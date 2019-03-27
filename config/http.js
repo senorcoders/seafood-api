@@ -70,7 +70,7 @@ module.exports.http = {
       return function (req, res, next) {
         
         // If it looks like XML, parse it as XML
-        if(req.isDefined("headers") === true){
+        if(req.headers.isDefined('content-type') === true){
           if (req.headers && (req.headers['content-type'].includes('text/xml') || req.headers['content-type'].includes('application/xml'))) {
             return xmlParser(req, res, next);
           }
