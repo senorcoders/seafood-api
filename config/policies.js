@@ -52,6 +52,9 @@ module.exports.policies = {
   DocusignController: {
     resposeEnvelope: true
   },
+  PaymentsController: {
+    getAuthorization: true
+  },
   /*  FeaturedProductsController: {
       "*": true
     },
