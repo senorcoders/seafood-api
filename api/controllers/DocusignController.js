@@ -91,8 +91,6 @@ module.exports = {
         }
     },
     resposeEnvelope: async (req, res) => {
-        // console.log("\n\n", JSON.stringify(req.body));
-        console.log()
         let envelope = req.body.DocuSignEnvelopeInformation.EnvelopeStatus;
         let envelopeId = envelope.EnvelopeID
         let status = envelope.Status.toLowerCase();
