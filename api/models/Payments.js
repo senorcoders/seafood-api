@@ -14,7 +14,7 @@ module.exports = {
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
     response:{
       type: 'json',
-      required: true,
+      required: false,
       example: `
         weight: {
           type: "pounds",
@@ -25,7 +25,8 @@ module.exports = {
     },
     type: {
       type: 'string',
-      example: 'tokenization, authorization, purchase'
+      example: 'tokenization, authorization, purchase',
+      required: false
     },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
@@ -38,7 +39,7 @@ module.exports = {
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
     shoppingCart: {
       model: "shoppingcart",
-      required: true
+      required: false
     },
   },
 
