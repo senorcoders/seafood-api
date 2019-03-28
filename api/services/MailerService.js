@@ -67,7 +67,7 @@ async function formatDates(d) {
 };
 
 module.exports = {
-    registerNewUser: async (user) => { console.log("este");
+    registerNewUser: async (user) => {
         email.render('../email_templates/register_new_user',
             await applyExtend({
                 name: user.firstName + ' ' + user.lastName,
