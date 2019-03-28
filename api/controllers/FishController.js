@@ -38,7 +38,7 @@ module.exports = {
                 /*descriptor: body.descriptor,*/
                 store: body.store,
                 name: body.name,
-		price : {
+		        price : {
                   type : "AED",
                   value : body.variations[0].prices[0].price,
                   description : body.variations[0].prices[0].price + " for pack"
