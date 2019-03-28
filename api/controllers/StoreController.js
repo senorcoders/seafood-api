@@ -313,18 +313,22 @@ module.exports = {
         ordersShipped = [];
         ordersNotShipped = [];
 
-        StoreOrders.map( order => {
-            order.allShipped = true;
-            order.items.map( item => {
-                if( item.status == '5c017ae247fb07027943a404' || item.status == '5c017af047fb07027943a405' ) {
-                    order.allShipped = false;
-                }            
+        await Promise.all( StoreOrders.map( async order => {
+                order.allShipped = true;
+                await Promise.all( order.items.map( async item => {
+                    itemFish = await Fish.findOne(  item.fish );
+                    item['fish'] = itemFish;
+                        if( item.status == '5c017ae247fb07027943a404' || item.status == '5c017af047fb07027943a405' ) {
+                            order.allShipped = false;
+                        }            
+                    } )
+                )
+                if( order.allShipped )
+                    ordersShipped.push( order );
+                else 
+                    ordersNotShipped.push( order );
             } )
-            if( order.allShipped )
-                ordersShipped.push( order );
-            else 
-                ordersNotShipped.push( order );
-        } )
+        )
         
         if( status == 'shipped' )
             res.status(200).json( ordersShipped );
