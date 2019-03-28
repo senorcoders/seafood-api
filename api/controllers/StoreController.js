@@ -335,6 +335,67 @@ module.exports = {
         else
             res.status(200).json( ordersNotShipped );
     },
+    getStoreOrdersByItemStatus: async ( req, res ) => {
+        let userID = req.param("owner_id");        
+        let status = req.param("status_id") ;
+        let store = await Store.find( { where: { owner: userID } }  );
+
+        if( store === undefined ) 
+            return res.status(400).status("not found");
+
+        let storeIds = []; 
+        store.map( item => {
+            storeIds.push( item.id );
+        } )
+
+        let storeFishes = await Fish.find( { store: storeIds } );  
+         // end get buyer information
+
+        let storeFishesIds = [];
+        storeFishes.map( item => {
+            storeFishesIds.push(item.id);
+        } )
+
+        itemsBuyed = await ItemShopping.find( { 
+            where: { 
+                fish: storeFishesIds 
+            } 
+        } );
+
+        let ordersIds = []; 
+        itemsBuyed.map( item => {
+            ordersIds.push( item.shoppingCart );
+        } )
+
+        let StoreOrders = await ShoppingCart.find( { 
+            where: 
+            { 
+                id: ordersIds, 
+                status: 'paid'
+            },
+            sort: 'updatedAt DESC'
+        } ).populate("buyer").populate("items");
+
+        let statusOrders = [];
+        
+        await Promise.all( StoreOrders.map( async order => {
+                order.allShipped = true;
+                let shouldGetOrder = false;
+                await Promise.all( order.items.map( async item => {
+                    if( item.status == status ) {
+                        itemFish = await Fish.findOne(  item.fish );
+                        item['fish'] = itemFish;                    
+                        shouldGetOrder = true;
+                    }
+                    } )
+                )
+                if( shouldGetOrder )
+                    statusOrders.push( order );
+            } )
+        )
+           
+       res.status(200).json( statusOrders );
+    },
     getStoreOrderItems: async (req, res) =>{
         let userID =  req.param("owner");
         let shoppingCartID = req.param('shoppingCartID');
