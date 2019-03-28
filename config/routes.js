@@ -446,6 +446,9 @@ module.exports.routes = {
     'GET /api/orderStatus/logistic': 'OrderStatus.getLogisticOrderstatus',
 
     'GET /api/orderStatus/payments': 'OrderStatus.getPaymentOrderstatus',
+
+    // Get all orders by status
+    'GET /api/store/:owner_id/order/status/:status_id': 'StoreController.getStoreOrdersByItemStatus',
   
   /*****
    * 
