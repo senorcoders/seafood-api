@@ -1,4 +1,4 @@
-const random = require("randomatic"), webappUrl = sails.config.custom.webappUr
+const random = require("randomatic"), webappUrl = sails.config.custom.webappUrl
 module.exports = {
     verificationCode: async (req, res) => {
 
