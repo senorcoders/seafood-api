@@ -79,6 +79,7 @@ module.exports = {
         deliveryDate.setDate(deliveryDate.getDate() + 1);
         // date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
 	date = today.getDate()+'/'+(today.getMonth()+1)+'/'+today.getFullYear();
+	date_name = date.split('/').join('-');
         // date2 = deliveryDate.getFullYear() + '-' + (deliveryDate.getMonth() + 1) + '-' + deliveryDate.getDate();
 	date2 = deliveryDate.getDate() + '/' + (deliveryDate.getMonth()+1) + '/' + deliveryDate.getFullYear();
         let portOfLoading = await sails.helpers.portOfLoadingByCode(itemsShopping.fish.processingCountry, itemsShopping.fish.city);
@@ -106,7 +107,7 @@ module.exports = {
 
             }
         );
-        let pdf_name = `purchase-order-${orderNumber}-${paidDateTime}-${counter}.pdf`;
+        let pdf_name = `purchase-order-${orderNumber}-${date_name}-${counter}.pdf`;
         await pdf.create(html).toFile(`./pdf_purchase_order/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
             MailerService.sendCartPaidSellerNotified(fullName, cart, itemsShopping, orderNumber, itemsShopping.fish.store.owner.email, pdf_name, buyerETA);
