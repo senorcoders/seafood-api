@@ -11,9 +11,10 @@ const propMap = function (obj, byPass) {
   }
 
   let isByPass = (name) => {
+    if (byPass === undefined) return false;
     return byPass.findIndex(it => {
       return it === name;
-    }) !== -1;   
+    }) !== -1;
   };
 
   if (obj.typeObject() === "array") {
@@ -25,7 +26,7 @@ const propMap = function (obj, byPass) {
   if (obj.typeObject() === 'object') {
     let names = Object.keys(obj);
     for (let name of names) {
-      if(isByPass(name) === false)
+      if (isByPass(name) === false)
         obj[name] = procsProp(obj[name]);
     }
   }

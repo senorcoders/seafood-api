@@ -386,16 +386,24 @@
                                                                 inform you that your SFS account has not been approved
                                                                 at the moment. There are multiple reasons for not
                                                                 approving <%=roleType %> accounts:</span></p>
-                                                        <p style="margin-top: 20px;font-size: 14px;line-height: 21px">
+                                                        <!-- <p style="margin-top: 20px;font-size: 14px;line-height: 21px">
                                                             <span style="font-size: 15px; line-height: 22px;"
-                                                                old="<%= message %>"></span></p>
+                                                                old="<%= message %>"></span></p> -->
+                                                        <% if(message!==''){ %>
                                                         <p style="margin-top: 20px;font-size: 14px;line-height: 21px">
                                                             <span style="font-size: 15px; line-height: 22px;">
-                                                                -&nbsp;&nbsp;&nbsp;Your Business does not qualify to our target company profiles  this stage. </span>
+                                                                -&nbsp;&nbsp;&nbsp;<%= message %> </span></p>
+                                                        <% } %>
+                                                        <p style="margin-top: 20px;font-size: 14px;line-height: 21px">
+                                                            <span style="font-size: 15px; line-height: 22px;">
+                                                                -&nbsp;&nbsp;&nbsp;Your Business does not qualify to our
+                                                                target company profiles this stage. </span>
                                                         </p>
                                                         <p style="margin-top: 20px;font-size: 14px;line-height: 21px">
                                                             <span style="font-size: 15px; line-height: 22px;">
-                                                                -&nbsp;&nbsp;&nbsp;Your Business is located in a geographic location that is not qualified to trade on Seafood Souq Platform. </span>
+                                                                -&nbsp;&nbsp;&nbsp;Your Business is located in a
+                                                                geographic location that is not qualified to trade on
+                                                                Seafood Souq Platform. </span>
                                                         </p>
                                                     </div>
                                                 </div>
@@ -432,18 +440,22 @@
                                                     <div
                                                         style="font-size:12px;line-height:18px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;">
                                                         <p style="margin: 0;font-size: 14px;line-height: 21px"><span
-                                                                style="font-size: 15px; line-height: 22px;">We are constantly rolling out our services in new markets and will be back in touch as soon as you are eligible for an account!</span></p>
+                                                                style="font-size: 15px; line-height: 22px;">We are
+                                                                constantly rolling out our services in new markets and
+                                                                will be back in touch as soon as you are eligible for an
+                                                                account!</span></p>
                                                     </div>
                                                 </div>
                                                 <!--[if mso]></td></tr></table><![endif]-->
                                                 <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
-                                                    <div
+                                                <div
                                                     style="color:#555555;line-height:150%;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">
                                                     <div
                                                         style="font-size:12px;line-height:18px;color:#555555;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;text-align:left;">
                                                         <p style="margin: 0;font-size: 14px;line-height: 21px"><span
                                                                 style="font-size: 15px; line-height: 22px;">
-                                                                In the meantime to keep up to date on our new rollouts you can sign up to our newsletter here.
+                                                                In the meantime to keep up to date on our new rollouts
+                                                                you can sign up to our newsletter here.
                                                             </span></p>
                                                     </div>
                                                 </div>
