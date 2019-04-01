@@ -22,10 +22,10 @@ const DEFAULT = {
 };
 
 //Para asignar variables globales en los datas de los mailers
-async function applyExtend(data) {
+async function applyExtend(data, byPass) {
     let _data = _.extend(data, DEFAULT);
-    //console.log(_data.items[0]);
-    return await sails.helpers.propMap(_data);
+    byPass = byPass || [];
+    return await sails.helpers.propMap(_data, byPass);
 }
 
 //Para asignar un formato de las fechas de pago global en las ordenes
@@ -73,7 +73,7 @@ module.exports = {
                 name: user.firstName + ' ' + user.lastName,
                 id: user.id,
                 code: user.code
-            })
+            }, ["code"])
         )
             .then(res => {
                 transporter.sendMail({
@@ -266,8 +266,9 @@ module.exports = {
         email.render('../email_templates/forgot_password',
             await applyExtend({
                 code: code,
-                name: name
-            })
+                name: name,
+                webAppUrl: webappUrl
+            }, ["code"])
         )
             .then(res => {
                 transporter.sendMail({
