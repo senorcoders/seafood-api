@@ -1,3 +1,5 @@
+const moment = require("moment");
+
 module.exports = {
 
 
@@ -50,7 +52,7 @@ module.exports = {
       items = inputs.items,
       orderNumber = inputs.orderNumber,
       type = inputs.type, URL = inputs.URL;
-
+    items = JSON.parse( JSON.stringify(items) );
     try {
       //Perder la referencia de la variable
       items = JSON.parse(JSON.stringify(items));
@@ -67,20 +69,28 @@ module.exports = {
         grandTotal += Number(it.sfsMargin);
       }
       grandTotal = Number((grandTotal).toFixed(2));
-      
+
       let paidDateTime = "";
-      if(cart.isDefined("paidDateTime") && cart.paidDateTime !== ''){
+      if (cart.isDefined("paidDateTime") && cart.paidDateTime !== '') {
         paidDateTime = await sails.helpers.formatDate.with({
           date: new Date(cart.paidDateTime),
           format: "DD/MM/YYYY"
         });
       }
-      
+
       //Para completar el src de image primary
       for (let i = 0; i < items.length; i++) {
         let it = items[i];
         if (it.fish.imagePrimary && it.fish.imagePrimary !== '') {
           it.fish.imagePrimary = URL + it.fish.imagePrimary;
+        } console.log("\n\n", it.buyerExpectedDeliveryDate, "\n\n");
+        if (it.isDefined('buyerExpectedDeliveryDate') === true && it.buyerExpectedDeliveryDate !== '' &&
+          /[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/.test(it.buyerExpectedDeliveryDate) === true) {
+          it.buyerExpectedDeliveryDate = moment(it.buyerExpectedDeliveryDate, "MM/DD/YYYY").format("MM/DD/YYYY");
+        }
+        if (it.isDefined('sellerExpectedDeliveryDate') === true && it.sellerExpectedDeliveryDate !== '' &&
+          /[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/.test(it.sellerExpectedDeliveryDate) === true) {
+          it.sellerExpectedDeliveryDate = moment(it.sellerExpectedDeliveryDate, "MM/DD/YYYY").format("MM/DD/YYYY");
         }
         items[i] = it;
       }
