@@ -33,6 +33,12 @@ module.exports.routes = {
   'GET /account/password': { action: 'account/view-edit-password' },
   'GET /account/profile': { action: 'account/view-edit-profile' },
 
+  /******
+   * 
+   * Para mostrar una page mientras se confirma el correo
+   * 
+   */
+  'GET /verification/:id/:code': { view: 'pages/entrance/confirming-email' },
 
   //  ╔═╗╔═╗╦  ╔═╗╔╗╔╔╦╗╔═╗╔═╗╦╔╗╔╔╦╗╔═╗
   //  ╠═╣╠═╝║  ║╣ ║║║ ║║╠═╝║ ║║║║║ ║ ╚═╗
@@ -60,7 +66,7 @@ module.exports.routes = {
   'GET /api/user/email/:email/': 'UserController.emailExist',
 
   //Para verificar el codigo
-  'GET /verification/:id/:code': "UserController.verificationCode",
+  'GET /api/verification/:id/:code': "UserController.verificationCode",
 
   //Para forgot password
   'POST /api/user/forgot': 'UserController.resetEmail',

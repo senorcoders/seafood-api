@@ -1,0 +1,31 @@
+<div id="confirmiyng-email" v-cloak>
+  <div class="container">
+    <h1 class="text-center">Verifying your email</h1>
+    <!-- <div class="confirmation-message">
+      <hr/>
+      <p>Congratulations, your account is now verified! You now have full access to your account.</p>
+      <p><a class="btn btn-outline-info" href="/">To my dashboard</a></p>
+    </div> -->
+  </div>
+</div>
+<%- /* Expose locals as `window.SAILS_LOCALS` :: */ exposeLocalsToBrowser() %>
+
+<script type="text/javascript">
+  function sert() {
+    let paths = location.pathname.split("/");
+    if (paths.length > 1) {
+      let code = paths.pop(),
+        id = paths.pop();
+      fetch("/api/verification/" + id + "/" + code).then(function (response) {
+        return response.json();
+      })
+        .then(function (myJson) {
+          if (myJson.message === "valid") {
+              location.href = myJson.url;
+          }
+        });
+    }
+  }
+
+  setTimeout(sert, 2000);
+</script>
