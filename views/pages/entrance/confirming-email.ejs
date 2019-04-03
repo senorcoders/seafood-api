@@ -1,11 +1,11 @@
 <div id="confirmiyng-email" v-cloak>
   <div class="container">
-    <h1 class="text-center">Verifying your email</h1>
-    <!-- <div class="confirmation-message">
-      <hr/>
-      <p>Congratulations, your account is now verified! You now have full access to your account.</p>
-      <p><a class="btn btn-outline-info" href="/">To my dashboard</a></p>
-    </div> -->
+    <h1 id="text-loading" class="text-center">Verifying your email</h1>
+    <div id="text-error" class="confirmation-message hidden">
+      <hr />
+      <p class="error text-center" style="font-size: 2.5rem;">Incorrect Code</p>
+      <!-- <p><a class="btn btn-outline-info" href="/">To my dashboard</a></p> -->
+    </div>
   </div>
 </div>
 <%- /* Expose locals as `window.SAILS_LOCALS` :: */ exposeLocalsToBrowser() %>
@@ -21,7 +21,10 @@
       })
         .then(function (myJson) {
           if (myJson.message === "valid") {
-              location.href = myJson.url;
+            location.href = myJson.url;
+          } else {
+            document.querySelector("#text-error").classList.remove('hidden');
+            document.querySelector("#text-loading").classList.add('hidden');
           }
         });
     }
