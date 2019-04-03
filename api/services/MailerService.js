@@ -161,7 +161,7 @@ module.exports = {
                 name: name,
                 id,
                 code
-            })
+            }, ["code"])
         )
             .then(res => {
                 transporter.sendMail({
