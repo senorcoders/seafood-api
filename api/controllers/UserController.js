@@ -9,8 +9,8 @@ module.exports = {
                 return res.json({ message: "code invalid" });
 
             if (us.code === code) {
-                us = await User.update({ id }, { verification: true }).fetch();
-                res.redirect(webappUrl + '/verification/' + id + "/" + code);
+                // us = await User.update({ id }, { verification: true }).fetch();
+                res.json({ message: "valid", url: webappUrl + '/verification/' + id + "/" + code });
             } else {
                 res.json({ message: "code invalid" });
             }
