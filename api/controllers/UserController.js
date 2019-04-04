@@ -279,6 +279,19 @@ module.exports = {
             console.error(e);
             res.serverError(e);
         }
-    }
+    },
+
+    getPublicIp: async ( req, res ) => {
+        try {
+	    var ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
+
+
+            res.send( {ip} );
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+   }
 };
 
