@@ -27,7 +27,12 @@ module.exports = {
     addFishWithVariations: async ( req, res ) => {
         try {
             let body = req.body;
-            let seafood_sku = await sails.helpers.generateSku();
+            let seafood_sku = await sails.helpers.generateSku(
+                body.store,
+                body.type,
+                body.descriptor,
+                body.processingCountry
+            );
             let newProduct = {
                 type: body.type,
                 descriptor: body.descriptor,
