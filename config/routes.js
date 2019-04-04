@@ -91,6 +91,8 @@ module.exports.routes = {
 
   "GET /user-not-verified": "UserController.getUsersNotVerfied",
 
+  "GET /user/ip": "UserController.getPublicIp",
+
   // 'PUT /user':'UserController.updateUser',
 
   /*************
