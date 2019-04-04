@@ -217,7 +217,7 @@ module.exports = {
 
             if( hasRecords.length > 0 ) { 
                 // we can't deleted from the database so we are going to update the status of the fish
-                let updatedFish = await Fish.update( { id: id }, { status: '5c45f7a382295a06e36cb304' } );
+                let updatedFish = await Fish.update( { id: id }, { status: '5c45f73f1d75b800924b4c39' } );
                 res.status( 200 ).json( updatedFish );
             } else {
                 let namefile, dirname;
