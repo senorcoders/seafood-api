@@ -34,7 +34,7 @@ module.exports = {
 
     let owner = await User.findOne( { id: inputs.fish.store.owner } ) ;
     let firstMileCost = Number( parseFloat( owner.firstMileCost ) ); //get owner fee
-    let firstMileFee = firstMileCost * inputs.weight * inputs.fish.price.value;
+    let firstMileFee = firstMileCost * inputs.weight;
 
     // getting shipping rate from that city
     shipping = await sails.helpers.shippingByCity( inputs.fish.city, inputs.weight );
