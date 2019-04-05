@@ -35,7 +35,7 @@ module.exports = {
             );
             let newProduct = {
                 type: body.type,
-                descriptor: body.descriptor,
+                /*descriptor: body.descriptor,*/
                 store: body.store,
                 name: body.name,
                 country: body.name,
