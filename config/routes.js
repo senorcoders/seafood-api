@@ -419,7 +419,9 @@ module.exports.routes = {
    'GET /fishTypes/:parent_id/all_levels': 'FishTypeController.getAllChildsByLevel',
 
 
-   'POST /fish/filter': 'FishController.filterProducts', 
+   'POST /fish/filter': 'FishController.filterProducts',
+
+   'GET /fishTypes/update_count': 'FishTypeController.updateTypeCount',
    
    //SHIPPING
    'GET /shippingRates/countries': 'ShippingRates.getCountryWithShippings',

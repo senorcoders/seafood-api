@@ -40,6 +40,11 @@ module.exports = {
       required: false
     },
 
+    totalFishes: {
+      type: 'number',
+      defaultsTo : 0
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
