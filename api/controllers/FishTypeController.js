@@ -303,7 +303,7 @@ module.exports = {
                         // subspecie
                         let subSpecie = 0;
                         let childs2 = await FishType.find( { level:3, parent: type2.id } );
-                        let fishes = await Fish.find( { type: type2.id } );
+                        let fishes = await Fish.find( { type: type2.id, status: '5c0866f9a0eda00b94acbdc2' } );
                         let fishCount = fishes.length;
                         specieCount += fishCount;
                         await FishType.update( { id: type2.id }, { totalFishes: fishCount } );
