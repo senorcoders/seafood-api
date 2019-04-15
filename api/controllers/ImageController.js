@@ -1109,7 +1109,8 @@ w
             console.log(sails.config.appPath);
             let path = `${sails.config.appPath}/shipping_documents/${id}/${name}`;	
             console.log(path);
-            res.sendFile( path );
+            //res.sendFile( path );
+	    res.download(path, name);
 	        console.log( path );
         
         } catch (error) {

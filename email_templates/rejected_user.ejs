@@ -386,22 +386,31 @@
                                                                 inform you that your SFS account has not been approved
                                                                 at the moment. There are multiple reasons for not
                                                                 approving <%=roleType %> accounts:</span></p>
-                                                        <p style="margin-top: 20px;font-size: 14px;line-height: 21px">
+                                                        <!-- <p style="margin-top: 20px;font-size: 14px;line-height: 21px">
                                                             <span style="font-size: 15px; line-height: 22px;"
-                                                                old="<%= message %>"></span></p>
+                                                                old="<%= message %>"></span></p> -->
+                                                        <% if(message!==''){ %>
                                                         <p style="margin-top: 20px;font-size: 14px;line-height: 21px">
                                                             <span style="font-size: 15px; line-height: 22px;">
-                                                                -&nbsp;&nbsp;&nbsp;Your Business Licence is expired/not
+                                                                -&nbsp;&nbsp;&nbsp;<%= message %> </span></p>
+                                                        <% } %>
+                                                        <p style="margin-top: 20px;font-size: 14px;line-height: 21px">
+                                                            <span style="font-size: 15px; line-height: 22px;">
+                                                                -&nbsp;&nbsp;&nbsp;Your Business Licence is
+                                                                expired/not
                                                                 clear. </span>
                                                         </p>
                                                         <p style="margin-top: 20px;font-size: 14px;line-height: 21px">
                                                             <span style="font-size: 15px; line-height: 22px;">
-                                                                -&nbsp;&nbsp;&nbsp;The information you provided in your
-                                                                registration form is insufficient or inaccurate.</span>
+                                                                -&nbsp;&nbsp;&nbsp;The information you provided in
+                                                                your
+                                                                registration form is insufficient or
+                                                                inaccurate.</span>
                                                         </p>
                                                         <p style="margin-top: 20px;font-size: 14px;line-height: 21px">
                                                             <span style="font-size: 15px; line-height: 22px;">
-                                                                Please feel free to contact us at <%=emailContact %> for
+                                                                Please feel free to contact us at <%=emailContact %>
+                                                                for
                                                                 inquiries or further clarifications.</span>
                                                         </p>
                                                     </div>

@@ -33,6 +33,12 @@ module.exports.routes = {
   'GET /account/password': { action: 'account/view-edit-password' },
   'GET /account/profile': { action: 'account/view-edit-profile' },
 
+  /******
+   * 
+   * Para mostrar una page mientras se confirma el correo
+   * 
+   */
+  'GET /verification/:id/:code': { view: 'pages/entrance/confirming-email' },
 
   //  ╔═╗╔═╗╦  ╔═╗╔╗╔╔╦╗╔═╗╔═╗╦╔╗╔╔╦╗╔═╗
   //  ╠═╣╠═╝║  ║╣ ║║║ ║║╠═╝║ ║║║║║ ║ ╚═╗
@@ -62,7 +68,7 @@ module.exports.routes = {
   'GET /api/user/email/:email/': 'UserController.emailExist',
 
   //Para verificar el codigo
-  'GET /verification/:id/:code': "UserController.verificationCode",
+  'GET /api/verification/:id/:code': "UserController.verificationCode",
 
   //Para forgot password
   'POST /api/user/forgot': 'UserController.resetEmail',
@@ -84,6 +90,10 @@ module.exports.routes = {
 
   //Para que actualize el status del usuario
   'PUT /user/status/:id/:status': 'UserController.updateStatus',
+
+  "GET /user-not-verified": "UserController.getUsersNotVerfied",
+
+  "GET /user/ip": "UserController.getPublicIp",
 
   // 'PUT /user':'UserController.updateUser',
 
@@ -465,6 +475,17 @@ module.exports.routes = {
 
     'GET /api/orderStatus/payments': 'OrderStatus.getPaymentOrderstatus',
 
+    // Get all orders by status
+    'GET /api/store/:owner_id/order/status/:status_id': 'StoreController.getStoreOrdersByItemStatus',
+  
+  /*****
+   * 
+   * DOSUSIGN
+   * 
+   * 
+   */
+  'POST /docusign': 'DocusignController.sentTemplate',
+  
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗
   //  ╚╩╝╚═╝╚═╝╩ ╩╚═╝╚═╝╩ ╩╚═╝
@@ -472,11 +493,16 @@ module.exports.routes = {
   'POST /payments/payfort': 'PaymentsController.getAuthorization',
 
   'GET /xero/updateToken': 'Xero.updateXero',
+
+  //Docusign
+  'POST /response-docusign': 'DocusignController.resposeEnvelope',
  
   //  ╔╦╗╦╔═╗╔═╗  ╦═╗╔═╗╔╦╗╦╦═╗╔═╗╔═╗╔╦╗╔═╗
   //  ║║║║╚═╗║    ╠╦╝║╣  ║║║╠╦╝║╣ ║   ║ ╚═╗
   //  ╩ ╩╩╚═╝╚═╝  ╩╚═╚═╝═╩╝╩╩╚═╚═╝╚═╝ ╩ ╚═╝
   '/terms': '/legal/terms',
   '/logout': '/api/v1/account/logout',
+
+  
   
 };

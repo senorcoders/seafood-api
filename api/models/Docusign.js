@@ -1,7 +1,7 @@
 /**
- * Payments.js
+ * Docusign.js
  *
- * @description :: A model definition.  Represents a database table/collection/etc.
+ * @description :: A model definition represents a database table/collection.
  * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
  */
 
@@ -12,20 +12,23 @@ module.exports = {
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
-    response:{
-      type: 'json',
-      required: false,
-      example: `
-        weight: {
-          type: "pounds",
-          value: 2
-        }
-      `
-
+    envelope: {
+      type: "json",
+      required: true
     },
+
     type: {
-      type: 'string',
-      example: 'tokenization, authorization, purchase',
+      type: "string",
+      required: false
+    },
+
+    status: {
+      type: "string",
+      required: false
+    },
+
+    envelopeId: {
+      type: "string",
       required: false
     },
 
@@ -37,10 +40,10 @@ module.exports = {
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-    shoppingCart: {
-      model: "shoppingcart",
-      required: false
-    },
+    user: {
+      model: "user",
+      required: true
+    }
   },
 
 };

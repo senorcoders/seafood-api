@@ -18,18 +18,20 @@ const DEFAULT = {
     emailInfo: 'info@seafoodsouq.com',
     FAQLink: `${webappUrl}`,
     url: URL,
-    contactUs: URL + '/login',
+    webappUrl,
+    contactUs: webappUrl + '/login',
 };
 
 //Para asignar variables globales en los datas de los mailers
-async function applyExtend(data) {
+async function applyExtend(data, byPass) {
     let _data = _.extend(data, DEFAULT);
-    return await sails.helpers.propMap(_data);
+    byPass = byPass || ["orderNumber"];
+    return await sails.helpers.propMap(_data, byPass);
 }
 
 //Para asignar un formato de las fechas de pago global en las ordenes
 //format to style of moment -> https://momentjs.com/docs/#/parsing/string-format/
-const formatPaidDate = "DD/MM/YYYY";
+// const formatPaidDate = "DD/MM/YYYY";
 
 const transporter = nodeMailer.createTransport({
     host: config.host,
@@ -72,7 +74,7 @@ module.exports = {
                 name: user.firstName + ' ' + user.lastName,
                 id: user.id,
                 code: user.code
-            })
+            }, ["code"])
         )
             .then(res => {
                 transporter.sendMail({
@@ -93,7 +95,7 @@ module.exports = {
                 console.error
             )
     },
-    newUserNotification: async (role) => {
+    newUserNotification: async (name, emailAddress, role, company) => {
         let roleType;
         if (role == 0) {
             roleType = "Admin"
@@ -102,7 +104,10 @@ module.exports = {
         } else { roleType = "Buyer" }
         email.render('../email_templates/new_user_admin_notification',
             await applyExtend({
-                role: roleType
+                name,
+                email: emailAddress,
+                role: roleType,
+                company
             })
         )
             .then(res => {
@@ -156,7 +161,7 @@ module.exports = {
                 name: name,
                 id,
                 code
-            })
+            }, ["code"])
         )
             .then(res => {
                 transporter.sendMail({
@@ -262,8 +267,9 @@ module.exports = {
         email.render('../email_templates/forgot_password',
             await applyExtend({
                 code: code,
-                name: name
-            })
+                name: name,
+                webAppUrl: webappUrl
+            }, ["code"])
         )
             .then(res => {
                 transporter.sendMail({
@@ -323,7 +329,8 @@ module.exports = {
                 transporter.sendMail({
                     from: emailSender,
                     to: ADMIN_EMAIL,
-                    subject: `Product #${product.seafood_sku} is awaiting Review`,
+                    // subject: `Product #${product.seafood_sku} is awaiting Review`,
+                    subject: `Product ${product.name} is awaiting Review`,
                     html: res, // html body
                 }, (error, info) => {
                     if (error) {
@@ -349,7 +356,8 @@ module.exports = {
                 transporter.sendMail({
                     from: emailSender,
                     to: seller.email,
-                    subject: `Product #${product.seafood_sku} is Under Review `,
+                    // subject: `Product #${product.seafood_sku} is Under Review `,
+                    subject: `Product ${product.name} is Under Review `,
                     html: res, // html body
                 }, (error, info) => {
                     if (error) {
@@ -376,7 +384,8 @@ module.exports = {
                 transporter.sendMail({
                     from: emailSender,
                     to: seller.email,
-                    subject: `Product #${product.seafood_sku} is awaiting Review`,
+                    // subject: `Product #${product.seafood_sku} is awaiting Review`,
+                    subject: `Product ${product.name} is awaiting Review`,
                     html: res, // html body
                 }, (error, info) => {
                     if (error) {
@@ -402,7 +411,8 @@ module.exports = {
                 transporter.sendMail({
                     from: emailSender,
                     to: seller.email,
-                    subject: `Product #${product.seafood_sku} is awaiting Review`,
+                    // subject: `Product #${product.seafood_sku} is awaiting Review`,
+                    subject: `Product ${product.name} is awaiting Review`,
                     html: res, // html body
                 }, (error, info) => {
                     if (error) {
@@ -419,9 +429,9 @@ module.exports = {
     },
     sendCartPaidSellerNotified: async (sellerName, cart, items, orderNumber, emailAddress, sellerInvoice, buyerETA) => {
 
-        let buyerExpectedDeliveryDate = items.buyerExpectedDeliveryDate.split("/");
-        let buyerDate = new Date(buyerExpectedDeliveryDate[2], buyerExpectedDeliveryDate[0], buyerExpectedDeliveryDate[1]);
-        items.buyerExpectedDeliveryDate = await sails.helpers.formatDate(buyerDate);
+        // let buyerExpectedDeliveryDate = items.buyerExpectedDeliveryDate.split("/");
+        // let buyerDate = new Date(buyerExpectedDeliveryDate[2], buyerExpectedDeliveryDate[0], buyerExpectedDeliveryDate[1]);
+        // items.buyerExpectedDeliveryDate = await sails.helpers.formatDate(buyerDate);
         items = Object.prototype.toString.call(items) === '[object Object]' ? [items] : items;
         let data = await sails.helpers.getDataOrder.with({
             URL,

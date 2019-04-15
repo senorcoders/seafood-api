@@ -1,14 +1,21 @@
-const propMap = function (obj) {
+const propMap = function (obj, byPass) {
 
   let procsProp = function (prop) {
-    if(prop===null||prop===undefined) return prop;
+    if (prop === null || prop === undefined) return prop;
     if (prop.typeObject() === 'array' || prop.typeObject() === 'object') {
       prop = propMap(prop);
-    } else if (isNaN(prop) === false) {
+    } else if (isNaN(prop) === false && prop !== "") {
       prop = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2 }).format(prop);
     }
     return prop;
   }
+
+  let isByPass = (name) => {
+    if (byPass === undefined) return false;
+    return byPass.findIndex(it => {
+      return it === name;
+    }) !== -1;
+  };
 
   if (obj.typeObject() === "array") {
     for (let i = 0; i < obj.length; i++) {
@@ -19,7 +26,8 @@ const propMap = function (obj) {
   if (obj.typeObject() === 'object') {
     let names = Object.keys(obj);
     for (let name of names) {
-      obj[name] = procsProp(obj[name]);
+      if (isByPass(name) === false)
+        obj[name] = procsProp(obj[name]);
     }
   }
 
@@ -43,7 +51,11 @@ module.exports = {
     prop: {
       type: "ref",
       required: true
-    }
+    },
+    byPass: {
+      type: "ref",
+      required: false
+    },
   },
 
 
@@ -60,8 +72,9 @@ module.exports = {
     // TODO
     //si mantengo la referencia puede afectar en calculos 
     //como en los pdf
-    let prop = JSON.parse( JSON.stringify(inputs.prop) );
-    return exits.success(propMap(prop));
+    let prop = JSON.parse(JSON.stringify(inputs.prop));
+    let byPass = inputs.byPass || [];
+    return exits.success(propMap(prop, byPass));
 
   }
 

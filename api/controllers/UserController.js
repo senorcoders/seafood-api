@@ -1,4 +1,4 @@
-const random = require("randomatic"), webappUrl = sails.config.custom.webappUr
+const random = require("randomatic"), webappUrl = sails.config.custom.webappUrl
 module.exports = {
     verificationCode: async (req, res) => {
 
@@ -9,8 +9,8 @@ module.exports = {
                 return res.json({ message: "code invalid" });
 
             if (us.code === code) {
-                us = await User.update({ id }, { verification: true }).fetch();
-                res.redirect(webappUrl+ '/verification/' + id + "/" + code);
+                // us = await User.update({ id }, { verification: true }).fetch();
+                res.json({ message: "valid", url: webappUrl + '/verification/' + id + "/" + code });
             } else {
                 res.json({ message: "code invalid" });
             }
@@ -217,11 +217,11 @@ module.exports = {
                 user = await User.update({ id }, { status, denialMessage, denialType }).fetch();
                 let name = user[0].firstName + " " + user[0].lastName;
                 //await require("./../../mailer").sendDenialMessage(user[0].id, user[0].email, denialMessage);
-                let rolName = user[0].role === 2 ?  'Buyer' : 'Seller';
-                let emailContact = user[0].role === 2 ?  'info@seafoodsouq.com' : 'sellers@seafoodsouq.com';
-                if(Number(denialType)===2){
+                let rolName = user[0].role === 2 ? 'Buyer' : 'Seller';
+                let emailContact = user[0].role === 2 ? 'info@seafoodsouq.com' : 'sellers@seafoodsouq.com';
+                if (Number(denialType) === 2) {
                     await MailerService.sendRejectedEmail_Type2(user[0].email, rolName, name, denialMessage, emailContact);
-                }else{
+                } else {
                     await MailerService.sendRejectedEmail_Type1(user[0].email, rolName, name, denialMessage, emailContact);
                 }
             }
@@ -249,19 +249,49 @@ module.exports = {
             res.serverError(e);
         }
     },
-   
+
     emailExist: async (req, res) => {
         try {
             let email = req.param("email");
             let user = await User.findOne({ email });
             if (user === undefined) {
-                res.status(200).json( { message: false }  );
+                res.status(200).json({ message: false });
             } else {
-                res.status(200).json( { message: true } );
-            }      
+                res.status(200).json({ message: true });
+            }
         } catch (error) {
-            
+
         }
     },
+
+    getUsersNotVerfied: async (req, res) => {
+        try {
+            let users = await User.find({
+                where: { status: "" },
+                skip: Number(req.param("skip")),
+                limit: Number(req.param("limit"))
+            });
+            let count = await User.count({ status: "" });
+
+            res.json({ users, count });
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
+    getPublicIp: async ( req, res ) => {
+        try {
+	    var ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
+
+
+            res.send( {ip} );
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+   }
 };
 

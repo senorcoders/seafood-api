@@ -49,12 +49,37 @@ module.exports.http = {
     *                                                                          *
     ***************************************************************************/
 
-    bodyParser: /*require('express').bodyParser()*/ (function _configureBodyParser(){
-       var skipper = require('skipper');
-       var middlewareFn = skipper({ strict: true, maxTimeToBuffer: 100000,  });
-       return middlewareFn;
-     })(),
+    // bodyParser: (function _configureBodyParser() {
+    //   var skipper = require('skipper');
+    //   var middlewareFn = skipper({ strict: true, maxTimeToBuffer: 100000, });
+    //   return middlewareFn;
+    // })(),
 
-  },
+    bodyParser: (function (opts) {
+      var xml2jsDefaults = {
+        explicitArray: false,
+        normalize: false,
+        normalizeTags: false,
+        trim: true
+      };
+      // Get an XML parser instance
+      var xmlParser = require('express-xml-bodyparser')(xml2jsDefaults);
+      // Get a Skipper instance (handles URLencoded, JSON-encoded and multipart)
+      var skipper = require('skipper')({ strict: true, maxTimeToBuffer: 100000, });
+      // Return a custom middleware function
+      return function (req, res, next) {
+        
+        // If it looks like XML, parse it as XML
+        if(req.headers.isDefined('content-type') === true){
+          if (req.headers && (req.headers['content-type'].includes('text/xml') || req.headers['content-type'].includes('application/xml'))) {
+            return xmlParser(req, res, next);
+          }
+        }
+        // Otherwise let Skipper handle it
+        return skipper(req, res, next);
+      };
 
-};
+    })()
+  }
+
+}

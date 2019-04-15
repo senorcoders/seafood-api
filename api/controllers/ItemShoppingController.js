@@ -278,7 +278,7 @@ module.exports = {
                 let isClose = true;
                 orderItems.map(itemOrder => {
                     console.log(itemOrder.status);
-                    if (itemOrder.status !== '5c017b3c47fb07027943a409' && itemOrder.status !== '5c017b7047fb07027943a40e') {
+                    if (itemOrder.status !== '5c017b3c47fb07027943a409' && itemOrder.paymentStatus !== '5c017b7047fb07027943a40e') {
                         isClose = false;
                     }
                 })
@@ -332,7 +332,7 @@ module.exports = {
                 console.log('status');
                 orderItems.map(itemOrder => {
                     console.log(itemOrder.status);
-                    if (itemOrder.status !== '5c017b3c47fb07027943a409' && itemOrder.status !== '5c017b7047fb07027943a40e') {
+                    if (itemOrder.status !== '5c017b3c47fb07027943a409' && itemOrder.paymentStatus !== '5c017b7047fb07027943a40e') {
                         isClose = false;
                     }
                 })
