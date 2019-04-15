@@ -407,6 +407,8 @@ module.exports.routes = {
    'GET /fishTypes/childs': 'FishTypeController.getChildTypes', 
    'GET /fishTypes/:parent_id/childs': 'FishTypeController.getParentChildTypes', 
 
+   'GET /fishTypes/parents/with-fishes': 'FishTypeController.getParentsWithFishes',
+
    // get fish type by level
   'GET /fishType/parents/:fishID': 'FishType.getParentLevel',
 
