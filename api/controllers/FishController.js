@@ -133,6 +133,9 @@ module.exports = {
     // getFishWithVariations by weight, price, category, sub category, specie
     filterFishWithVariations: async ( req, res ) => {
         try {
+            filterByPricesVariations = false;
+            filterByVariations = false;
+            filterByFish = false;
             let prices_fishes_ids = [];
             let variations_fishes_ids = [];
             let fishes_ids = [];
@@ -144,43 +147,87 @@ module.exports = {
             if( req.body.hasOwnProperty( 'minPrice' ) && req.body.hasOwnProperty( 'maxPrice' ) ) {
                 let req_min_price = req.body.minPrice;
                 let req_max_price = req.body.maxPrice;
-                price_where['price'] =  { ">": req_min_price, "<": req_max_price } ;
-            }
+                if( req_min_price !== '0' && req_max_price !== '0' ) {
+                    filterByPricesVariations = true;
+                    price_where['price'] =  { ">": req_min_price, "<": req_max_price } ;
+                } else if( req_min_price !== '0' ) {
+                    filterByPricesVariations = true;
+                    let req_min_price = req.body.minPrice;
+                    price_where['price'] =  { ">": req_min_price } ;
+                } else if( req_max_price !== '0' ) {
+                    filterByPricesVariations = true;
+                    let req_max_price = req.body.maxPrice;
+                    price_where['price'] =  { "<": req_max_price } ;
+                }
+            } 
 
             if ( req.body.hasOwnProperty( 'weight' ) ) {
-                let req_weight = req.body.weight;
-                price_where['min'] = { "<": req_weight };
-                price_where['max'] = { ">": req_weight };                
+                if( req.body.weight !== '0' ) {
+                    filterByPricesVariations = true;
+                    let req_weight = req.body.weight;
+                    price_where['min'] = { "<": req_weight };
+                    price_where['max'] = { ">": req_weight };                
+                }
+            }
+            
+            //filter by price
+            let variations_ids=[];
+            let prices;
+            if( filterByPricesVariations ) {
+                prices = await VariationPrices.find().where(
+                    price_where
+                ) 
+                //addding variations in filter by prices
+                prices.map( element => {
+                    variations_ids.push( element.variation );
+                } )
+            }            
+            // end variation price filters
+            
+
+            // start variation filters
+            if ( req.body.hasOwnProperty( 'fishPreparation' ) ) {
+                if( req.body.fishPreparation.length > 0 ) {
+                    variation_where['fishPreparation'] = req.body.fishPreparation;
+                    filterByVariations = true;
+                }
+            }
+            if ( req.body.hasOwnProperty( 'wholeFishWeight' ) ) {
+                if( req.body.wholeFishWeight.length > 0 ) {
+                    variation_where['wholeFishWeight'] = req.body.wholeFishWeight;
+                    filterByVariations = true;
+                }
             }
 
-            console.log( price_where )
-            //filter by price
-            let prices = await VariationPrices.find().where(
-                price_where
-            ).populate('variation') 
-            // end variation price filters
-                
-            // start variation filters
-            if ( req.body.hasOwnProperty( 'fishPreparation' ) ) {                
-                variation_where['fishPreparation'] = req.body.fishPreparation;
+            
+            if( filterByPricesVariations ){
+                variation_where['_id'] = variations_ids;
             }
-            if ( req.body.hasOwnProperty( 'wholeFishWeight' ) ) {                
-                variation_where = req.body.wholeFishWeight;
+
+            let variations;
+            if( ( filterByPricesVariations || filterByVariations) && variation_where !== undefined ){
+                console.log( 'variation_where', variation_where );
+                variations = await Variations.find().where( variation_where );
+                variations.map( variation => {
+                    variations_fishes_ids.push( variation.fish );
+                } )
+                fish_where['id'] = variations_fishes_ids
             }
-            let variations = await Variations.find().where( variation_where );
             // end variation filters
 
-            console.log( 'variations', variations );
                 
             // start fish filters
             if ( req.body.hasOwnProperty( 'country' ) ) {
-                fish_where['country'] = req.body.country;
+                if( req.body.country !== '0' ) 
+                    fish_where['country'] = req.body.country;
             }
             if ( req.body.hasOwnProperty( 'raised' ) ) {
-                fish_where['raised'] = req.body.raised;
+                if( req.body.raised.length > 0 )
+                    fish_where['raised'] = req.body.raised;
             }
             if ( req.body.hasOwnProperty( 'treatment' ) ) {
-                fish_where['treatment'] = req.body.treatment;
+                if( req.body.treatment.length > 0 )
+                    fish_where['treatment'] = req.body.treatment;
             }
 
             let category = req.body.category;
@@ -266,13 +313,13 @@ module.exports = {
 
             // end fish filters
             console.log( 'fish_where', fish_where );
-            return res.json( prices );
-            prices.map( price => {
-                prices_fishes_ids.push(price.variation.fish);
-            } )            
-            let fishes = await sails.helpers.getVariableProduct( prices_fishes_ids )
-
-            //res.json( fishes )
+            //return res.json( prices );
+            //prices.map( price => {
+            //   prices_fishes_ids.push(price.variation.fish);
+            //} )            
+            //let fishes = await sails.helpers.getVariableProduct( prices_fishes_ids )
+            let fishes =  await Fish.find( fish_where ).populate( 'status' ).populate( 'type' ).populate('descriptor').populate('store');
+            return res.json( fishes )
 
 
         } catch (error) {
