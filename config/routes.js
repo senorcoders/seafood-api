@@ -438,13 +438,12 @@ module.exports.routes = {
 
    'GET /fishTypes/update_count': 'FishTypeController.updateTypeCount',
 
-<<<<<<< HEAD
+
    'DELETE /api/fishType/:id': 'FishTypeController.delete',
-=======
+
    'POST /fish/filter': 'FishController.filterProducts',
 
    'GET /fishTypes/update_count': 'FishTypeController.updateTypeCount',
->>>>>>> 2a947aa... adding count products to fish types
    
    //SHIPPING
    'GET /shippingRates/countries': 'ShippingRates.getCountryWithShippings',

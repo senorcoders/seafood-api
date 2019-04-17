@@ -326,6 +326,32 @@ module.exports = {
             res.serverError(error);
 >>>>>>> 2a947aa... adding count products to fish types
         }
+    },
+    delete: async( req, res ) => {
+        try {
+            let id = req.param( 'id' );
+            // check if had childs
+            let childs = await FishType.find( { "parent": id } );
+
+            if ( childs.length > 0 ) {
+                /// we can't delete the type because had child categories
+                res.status(400).json( { message: "Is not possible delete the item. first remove the child items" } );
+            } else {
+                // lets validate if the type had fishes
+                let fishes = await Fish.find( { type: id } );
+
+                if( fishes.length > 0 ) {
+                    res.status(400).json( { message: "Is not possible delete the item. there is fishes under this category" } );
+                } else {
+                // no childs so let's deleted                    
+                    let deleteFish = await FishType.destroy( { id } ).fetch();
+                    res.status(200).json( deleteFish );
+                }
+            }
+
+        } catch (error) {
+            res.serverError( error );
+        }
     }
 };
 
