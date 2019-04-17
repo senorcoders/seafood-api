@@ -162,7 +162,7 @@ module.exports = {
     },
     getParentsWithFishes:async ( req, res )=> {
         try {
-            let level0 = await FishType.find( { level: 0 } );
+            let level0 = await FishType.find( { level: 0, totalFishes: { '>': 0 } } );
 
             res.status(200).json( level0 )
         } catch (error) {
@@ -189,7 +189,7 @@ module.exports = {
 
             res.status( 200 ).json( { childs } );
         } catch (error) {
-            res.status( 400 ).json( { error } );   
+            res.serverError( error );   
         }
     },   
     getParentLevel: async ( req, res ) => {
