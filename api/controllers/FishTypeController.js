@@ -162,22 +162,14 @@ module.exports = {
     },
     getParentsWithFishes:async ( req, res )=> {
         try {
-<<<<<<< HEAD
             let level0 = await FishType.find( { level: 0, totalFishes: { '>': 0 } } );
-=======
-            let level0 = await FishType.find( { level: 0 } );
->>>>>>> 2a947aa... adding count products to fish types
 
             res.status(200).json( level0 )
         } catch (error) {
             res.serverError( error );
         }
     },
-<<<<<<< HEAD
     ori_getAllChildsByLevel: async ( req, res ) => {
-=======
-    getAllChildsByLevel: async ( req, res ) => {
->>>>>>> 2a947aa... adding count products to fish types
         try {
             let parent_id = req.param( 'parent_id' );
             let parent = await FishType.findOne( { id: parent_id, totalFishes: { '>': 0 } } );
@@ -197,9 +189,8 @@ module.exports = {
 
             res.status( 200 ).json( { childs } );
         } catch (error) {
-            res.status( 400 ).json( { error } );   
+            res.serverError( error );   
         }
-<<<<<<< HEAD
     },
     getAllChildsByLevel: async ( req, res ) => {
         try {
@@ -223,8 +214,6 @@ module.exports = {
         } catch (error) {
             res.serverError( error );   
         }
-=======
->>>>>>> 2a947aa... adding count products to fish types
     },   
     getParentLevel: async ( req, res ) => {
         try {
@@ -253,7 +242,6 @@ module.exports = {
     },
     updateTypeCount: async (req, res) => {
         try {
-<<<<<<< HEAD
             await sails.helpers.updateCategoryCount();
             let utypes = await FishType.find();
             res.status(200).json( utypes );
@@ -285,46 +273,6 @@ module.exports = {
 
         } catch (error) {
             res.serverError( error );
-=======
-            let types = await FishType.find( { level: 0 } );
-
-            await Promise.all( types.map( async (type0) => {
-                // main category
-                let childs0 = await FishType.find( { level:1, parent: type0.id } );
-                let mainCount = 0;
-                await Promise.all(  childs0.map( async ( type1 ) => {
-
-                    // specie
-                    let specieCount = 0;
-                    let childs1 = await FishType.find( { level:2, parent: type1.id } );
-
-                    await Promise.all( childs1.map( async (type2) => {
-                        
-                        // subspecie
-                        let subSpecie = 0;
-                        let childs2 = await FishType.find( { level:3, parent: type2.id } );
-                        let fishes = await Fish.find( { type: type2.id, status: '5c0866f9a0eda00b94acbdc2' } );
-                        let fishCount = fishes.length;
-                        specieCount += fishCount;
-                        await FishType.update( { id: type2.id }, { totalFishes: fishCount } );
-
-
-                        type2.childs = childs2;
-                    } ) )
-                    await FishType.update( { id: type1.id }, { totalFishes: specieCount } );
-                    mainCount += specieCount;
-                    type1.childs = childs1;
-
-                } ) )
-                await FishType.update( { id: type0.id }, { totalFishes: mainCount } );
-                type0.childs = childs0;
-                
-            } ) )
-            let utypes = await FishType.find();
-            res.status(200).json( utypes );
-        } catch (error) {
-            res.serverError(error);
->>>>>>> 2a947aa... adding count products to fish types
         }
     },
     delete: async( req, res ) => {
