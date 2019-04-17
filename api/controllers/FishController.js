@@ -252,7 +252,7 @@ module.exports = {
                     console.log( 'level2', level2 );
 
 
-                    return categoryChilds;
+                    //return categoryChilds;
                 } ) );
                 fish_where['type'] = subspecies;
             } else if ( subcategory !== '0' ) {
@@ -310,7 +310,7 @@ module.exports = {
 
                 fish_where['type'] =  categoryChilds ;
             }
-
+	    fish_where['status'] = '5c0866f9a0eda00b94acbdc2';
             // end fish filters
             console.log( 'fish_where', fish_where );
             //return res.json( prices );
