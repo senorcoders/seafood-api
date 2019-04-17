@@ -434,6 +434,8 @@ module.exports.routes = {
    'POST /fish/filter-old': 'FishController.filterProducts',
 
    'GET /fishTypes/update_count': 'FishTypeController.updateTypeCount',
+
+   'DELETE /api/fishType/:id': 'FishTypeController.delete',
    
    //SHIPPING
    'GET /shippingRates/countries': 'ShippingRates.getCountryWithShippings',
