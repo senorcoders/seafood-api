@@ -186,9 +186,9 @@ module.exports = {
             
 
             // start variation filters
-            if ( req.body.hasOwnProperty( 'fishPreparation' ) ) {
+            if ( req.body.hasOwnProperty( 'preparation' ) ) {
                 if( req.body.fishPreparation.length > 0 ) {
-                    variation_where['fishPreparation'] = req.body.fishPreparation;
+                    variation_where['preparation'] = req.body.fishPreparation;
                     filterByVariations = true;
                 }
             }
