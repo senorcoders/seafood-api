@@ -27,17 +27,26 @@ module.exports = {
     addFishWithVariations: async ( req, res ) => {
         try {
             let body = req.body;
-            let seafood_sku = await sails.helpers.generateSku(
+            let seafood_sku = 'var-test';/*await sails.helpers.generateSku(
                 body.store,
                 body.type,
-                body.descriptor,
+                '',//body.descriptor,
                 body.processingCountry
-            );
+            );*/
             let newProduct = {
                 type: body.type,
                 /*descriptor: body.descriptor,*/
                 store: body.store,
                 name: body.name,
+		price : {
+                  type : "AED",
+                  value : body.variations[0].prices[0].price,
+                  description : body.variations[0].prices[0].price + " for pack"
+                },
+                weight : {
+                  type : "kg",
+                  value: "0"
+                },
                 country: body.name,
                 processingCountry: body.processingCountry,
                 city: body.city,
@@ -95,7 +104,7 @@ module.exports = {
 
 
 
-            res.json( { var: req.body.variations } );
+            res.json( mainFish );
             
         } catch (error) {
             console.error(error);
@@ -187,31 +196,37 @@ module.exports = {
 
             // start variation filters
             if ( req.body.hasOwnProperty( 'preparation' ) ) {
-                if( req.body.fishPreparation.length > 0 ) {
-                    variation_where['preparation'] = req.body.fishPreparation;
+               if( req.body.preparation.length > 0 ) {
+                    variation_where['fishPreparation'] = req.body.preparation;
+		    console.log('1');
                     filterByVariations = true;
                 }
             }
             if ( req.body.hasOwnProperty( 'wholeFishWeight' ) ) {
                 if( req.body.wholeFishWeight.length > 0 ) {
                     variation_where['wholeFishWeight'] = req.body.wholeFishWeight;
+		    console.log('2');
                     filterByVariations = true;
                 }
             }
 
             
             if( filterByPricesVariations ){
-                variation_where['_id'] = variations_ids;
+                variation_where['id'] = variations_ids;
             }
 
             let variations;
-            if( ( filterByPricesVariations || filterByVariations) && variation_where !== undefined ){
+            if( ( filterByPricesVariations || filterByVariations) ){
                 console.log( 'variation_where', variation_where );
+		console.log( 'filterByPricesVariations', filterByPricesVariations );
+		console.log( 'filterByVariations', filterByVariations );
                 variations = await Variations.find().where( variation_where );
                 variations.map( variation => {
                     variations_fishes_ids.push( variation.fish );
                 } )
+		//if( variations_fishes_ids.length > 0 ){
                 fish_where['id'] = variations_fishes_ids
+		//}
             }
             // end variation filters
 
@@ -243,13 +258,13 @@ module.exports = {
                 level1 = await FishType.find({
                     where: { parent: subspecies }
                 });
-                console.log( 'level1', level1 );
+//                console.log( 'level1', level1 );
                 
                 await Promise.all( level1.map( async value1 => {
                     descriptorChilds.push( value1.id );
 
                     level2 = await FishType.find( { parent: value1.id } );
-                    console.log( 'level2', level2 );
+  //                  console.log( 'level2', level2 );
 
 
                     //return categoryChilds;
@@ -257,20 +272,20 @@ module.exports = {
                 fish_where['type'] = subspecies;
             } else if ( subcategory !== '0' ) {
                 
-                console.log( 'parent' )
+    //            console.log( 'parent' )
                 //condWhere.where['type'] =;
                 let categoryChilds = [];
                 categoryChilds.push( subcategory );
                 level1 = await FishType.find({
                     where: { parent: subcategory }
                 });
-                console.log( 'level1', level1 );
+      //          console.log( 'level1', level1 );
                 
                 await Promise.all( level1.map( async value1 => {
                     categoryChilds.push( value1.id );
 
                     level2 = await FishType.find( { parent: value1.id } );
-                    console.log( 'level2', level2 );
+        //            console.log( 'level2', level2 );
 
 
                     return categoryChilds;
@@ -285,19 +300,19 @@ module.exports = {
                 level1 = await FishType.find({
                     where: { parent: category }
                 });
-                console.log( 'level1', level1 );
+//                console.log( 'level1', level1 );
                 
                 await Promise.all( level1.map( async value1 => {
                     categoryChilds.push( value1.id );
 
                     level2 = await FishType.find( { parent: value1.id } );
-                    console.log( 'level2', level2 );
+//                    console.log( 'level2', level2 );
 
                     await Promise.all( level2.map( async value2 => {
                         categoryChilds.push( value2.id );
 
                         level3 = await FishType.find( { parent: value2.id } );
-                        console.log( 'level3', level3 );
+//                        console.log( 'level3', level3 );
                         level3.map( value3 => {
                             categoryChilds.push( value3.id );
                         } )
@@ -1095,6 +1110,43 @@ module.exports = {
                 
                 fishUpdated = await Fish.update({id}, { status: statusID }).fetch();
                 await MailerService.newProductAccepted(store.owner, fish);
+
+		/*update count*/
+		let types = await FishType.find( { level: 0 } );
+
+            await Promise.all( types.map( async (type0) => {
+                // main category
+                let childs0 = await FishType.find( { level:1, parent: type0.id } );
+                let mainCount = 0;
+                await Promise.all(  childs0.map( async ( type1 ) => {
+
+                    // specie
+                    let specieCount = 0;
+                    let childs1 = await FishType.find( { level:2, parent: type1.id } );
+
+                    await Promise.all( childs1.map( async (type2) => {
+                        
+                        // subspecie
+                        let subSpecie = 0;
+                        let childs2 = await FishType.find( { level:3, parent: type2.id } );
+                        let fishes = await Fish.find( { type: type2.id, status: '5c0866f9a0eda00b94acbdc2' } );
+                        let fishCount = fishes.length;
+                        specieCount += fishCount;
+                        await FishType.update( { id: type2.id }, { totalFishes: fishCount } );
+
+
+                        type2.childs = childs2;
+                    } ) )
+                    await FishType.update( { id: type1.id }, { totalFishes: specieCount } );
+                    mainCount += specieCount;
+                    type1.childs = childs1;
+
+                } ) )
+                await FishType.update( { id: type0.id }, { totalFishes: mainCount } );
+                type0.childs = childs0;
+                
+            } ) )
+		/*end update count*/
                 //await require("./../../mailer").sendEmailProductApproved(store.owner, fish);
             }
 
