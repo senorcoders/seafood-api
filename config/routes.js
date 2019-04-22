@@ -430,6 +430,9 @@ module.exports.routes = {
    'GET /fishTypes/level/:level': 'FishTypeController.getTypeByLevel',
    'GET /fishTypes/:parent_id/all_levels': 'FishTypeController.getAllChildsByLevel',
 
+   //before_variations
+   'GET /fishTypes/:parent_id/ori_all_levels': 'FishTypeController.ori_getAllChildsByLevel',
+
 
    'POST /fish/filter-old': 'FishController.filterProducts',
 
