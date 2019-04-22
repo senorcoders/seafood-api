@@ -33,7 +33,7 @@ module.exports = {
         //let today = cart.paidDatetime;
         let today = new Date();
         // date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-	date = today.getDate()+'/'+(today.getMonth()+1)+'/'+today.getFullYear();
+	    date = today.getDate()+'/'+(today.getMonth()+1)+'/'+today.getFullYear();
         let paidDateTime = date;
         var html = await compiled(
             {
@@ -78,11 +78,11 @@ module.exports = {
         var deliveryDate = new Date();
         deliveryDate.setDate(deliveryDate.getDate() + 1);
         // date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-	date = today.getDate()+'/'+(today.getMonth()+1)+'/'+today.getFullYear();
-	date_name = date.split('/').join('-');
+	    date = today.getDate()+'/'+(today.getMonth()+1)+'/'+today.getFullYear();
+	    date_name = date.split('/').join('-');
         // date2 = deliveryDate.getFullYear() + '-' + (deliveryDate.getMonth() + 1) + '-' + deliveryDate.getDate();
-	date2 = deliveryDate.getDate() + '/' + (deliveryDate.getMonth()+1) + '/' + deliveryDate.getFullYear();
-        let portOfLoading = await sails.helpers.portOfLoadingByCode(itemsShopping.fish.processingCountry, itemsShopping.fish.city);
+	    date2 = deliveryDate.getDate() + '/' + (deliveryDate.getMonth()+1) + '/' + deliveryDate.getFullYear();
+        let portOfLoading = await sails.helpers.portOfLoadingByCode(itemsShopping[0].fish.processingCountry, itemsShopping[0].fish.city);
         console.log(portOfLoading);
         let paidDateTime = date; //new Date().toISOString();
         var html = await compiled(
@@ -110,7 +110,7 @@ module.exports = {
         let pdf_name = `purchase-order-${orderNumber}-${date_name}-${counter}.pdf`;
         await pdf.create(html).toFile(`./pdf_purchase_order/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
-            MailerService.sendCartPaidSellerNotified(fullName, cart, itemsShopping, orderNumber, itemsShopping.fish.store.owner.email, pdf_name, buyerETA);
+            MailerService.sendCartPaidSellerNotified(fullName, cart, itemsShopping, orderNumber, itemsShopping[0].fish.store.owner.email, pdf_name, buyerETA);
             let pdf_updated = await ItemShopping.update({ id: itemsShopping.id }, { po_path: pdf_name });
         })
         return pdf_name;
