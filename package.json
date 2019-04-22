@@ -28,6 +28,7 @@
     "sails-hook-organics": "^0.13.0",
     "sails-hook-orm": "^2.0.0-16",
     "sails-hook-sockets": "^1.4.0",
+    "sails-hook-swagger-generator": "^2.7.1",
     "sails-mongo": "^1.0.0",
     "sharp": "^0.20.2",
     "xero-node": "^3.0.16",
