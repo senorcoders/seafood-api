@@ -315,14 +315,14 @@ module.exports = {
             let itemShopping;
             if (alredyInCart !== undefined && alredyInCart[0] !== undefined) {
                 let fishInfo = await Fish.findOne( { id: req.param("fish") } );
-                if ( fishInfo.maximumOrder < (item.quantity.value + alredyInCart[0].quantity.value) ) {
+                if ( fishInfo.maximumOrder < ( parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value) ) ) {
                     return res.status(400).json( { message: "Maximum order limit reached" } )
                     
-                } else if ( fishInfo.maximumOrder < (item.quantity.value + alredyInCart[0].quantity.value) ){
+                } /*else if ( fishInfo.maximumOrder < (item.quantity.value + alredyInCart[0].quantity.value) ){
                     return res.status(400).json( { message: "Minimum order limit reached" } )                    
-                } else {
+                }*/ else {
                     let item_id = alredyInCart[0].id;
-                    item.quantity.value += alredyInCart[0].quantity.value;
+                    item.quantity.value = parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value);
                     itemShopping = await ItemShopping.update({ id: item_id }, item);                    
                 }
                 //return res.status(200).send( item );

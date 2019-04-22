@@ -162,11 +162,34 @@ module.exports = {
     },
     getParentsWithFishes:async ( req, res )=> {
         try {
-            let level0 = await FishType.find( { level: 0 } );
+            let level0 = await FishType.find( { level: 0, totalFishes: { '>': 0 } } );
 
             res.status(200).json( level0 )
         } catch (error) {
             res.serverError( error );
+        }
+    },
+    ori_getAllChildsByLevel: async ( req, res ) => {
+        try {
+            let parent_id = req.param( 'parent_id' );
+            let parent = await FishType.findOne( { id: parent_id } );
+
+            parentsIDS = [];
+            parentsIDS.push( parent_id );
+            childs = [];
+            for (let index = parent.level + 1; index <= 4; index++) {                
+                console.log( parentsIDS );
+                directChilds = await FishType.find( { parent: parentsIDS } );
+                childs.push( { level: index, fishTypes: directChilds } );
+                parentsIDS = [];
+                directChilds.map( child => {
+                    parentsIDS.push( child.id );
+                } )
+            }            
+
+            res.status( 200 ).json( { childs } );
+        } catch (error) {
+            res.status( 400 ).json( { error } );   
         }
     },
     getAllChildsByLevel: async ( req, res ) => {
@@ -189,7 +212,7 @@ module.exports = {
 
             res.status( 200 ).json( { childs } );
         } catch (error) {
-            res.status( 400 ).json( { error } );   
+            res.serverError( error );   
         }
     },   
     getParentLevel: async ( req, res ) => {

@@ -151,7 +151,7 @@ module.exports.routes = {
 
    "GET /api/fish/:id/variations/": "FishController.getFishWithVariations",
    //search variations by weight
-   "POST /api/fish/variation/filter": "FishController.filterFishWithVariations",
+   "POST /fish/filter": "FishController.filterFishWithVariations",
 
    //add new product and send email
    "POST /fish":"FishController.addFish",
@@ -417,6 +417,8 @@ module.exports.routes = {
    'GET /fishTypes/childs': 'FishTypeController.getChildTypes', 
    'GET /fishTypes/:parent_id/childs': 'FishTypeController.getParentChildTypes', 
 
+   'GET /fishTypes/parents/with-fishes': 'FishTypeController.getParentsWithFishes',
+
    // get fish type by level
   'GET /fishType/parents/:fishID': 'FishType.getParentLevel',
 
@@ -428,8 +430,11 @@ module.exports.routes = {
    'GET /fishTypes/level/:level': 'FishTypeController.getTypeByLevel',
    'GET /fishTypes/:parent_id/all_levels': 'FishTypeController.getAllChildsByLevel',
 
+   //before_variations
+   'GET /fishTypes/:parent_id/ori_all_levels': 'FishTypeController.ori_getAllChildsByLevel',
 
-   'POST /fish/filter': 'FishController.filterProducts',
+
+   'POST /fish/filter-old': 'FishController.filterProducts',
 
    'GET /fishTypes/update_count': 'FishTypeController.updateTypeCount',
 
