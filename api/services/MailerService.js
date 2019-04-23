@@ -945,8 +945,7 @@ module.exports = {
             .then(res => {
                 transporter.sendMail({
                     from: emailSender,
-                    // to: store.owner.email,
-                    to: 'jos.ojiron@gmail.com',
+                    to: store.owner.email,
                     subject: `Order #${cart.orderNumber} is Delivered !`,
                     html: res, // html body
                 }, (error, info) => {
