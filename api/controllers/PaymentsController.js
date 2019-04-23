@@ -63,6 +63,7 @@ var mydata = {
    } ;
 
 let url	 = "https://sbpaymentservices.payfort.com/FortAPI/paymentApi";
+url = 'https://checkout.PayFort.com/FortAPI/paymentPage';
 console.log( 'ask for auto' ,mydata );
 axios.post( url, mydata, { 'Content-Type': 'application/json', 'cache-control': 'no-cache' }  )
   .then(function (response) {
