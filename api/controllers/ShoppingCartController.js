@@ -315,14 +315,14 @@ module.exports = {
             let itemShopping;
             if (alredyInCart !== undefined && alredyInCart[0] !== undefined) {
                 let fishInfo = await Fish.findOne( { id: req.param("fish") } );
-                if ( fishInfo.maximumOrder < (item.quantity.value + alredyInCart[0].quantity.value) ) {
+                if ( fishInfo.maximumOrder < ( parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value) ) ) {
                     return res.status(400).json( { message: "Maximum order limit reached" } )
                     
-                } else if ( fishInfo.maximumOrder < (item.quantity.value + alredyInCart[0].quantity.value) ){
+                } /*else if ( fishInfo.maximumOrder < (item.quantity.value + alredyInCart[0].quantity.value) ){
                     return res.status(400).json( { message: "Minimum order limit reached" } )                    
-                } else {
+                }*/ else {
                     let item_id = alredyInCart[0].id;
-                    item.quantity.value += alredyInCart[0].quantity.value;
+                    item.quantity.value = parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value);
                     itemShopping = await ItemShopping.update({ id: item_id }, item);                    
                 }
                 //return res.status(200).send( item );
@@ -447,18 +447,18 @@ module.exports = {
 
             let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id }).populate("fish");
             //generate purchase order number for each item
-            await Promise.all(itemsShopping.map(async function (it, index) {
-                it.fish.store = await Store.findOne({ id: it.fish.store }).populate("owner");
-                await ItemShopping.update({ id: it.id }).set({ status: '5c017ae247fb07027943a404', orderInvoice: invoiceNumber, purchaseOrder: (maxPurchaseOrder + 1 + index) });
+            //await Promise.all(itemsShopping.map(async function (it, index) {
+                //it.fish.store = await Store.findOne({ id: it.fish.store }).populate("owner");
+                /*await ItemShopping.update({ id: it.id }).set({ status: '5c017ae247fb07027943a404', orderInvoice: invoiceNumber, purchaseOrder: (maxPurchaseOrder + 1 + index) });
 
                 let fullName = it.fish.store.owner.firstName+ " "+ it.fish.store.owner.lastName;
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
                 let sellerAddress = it.fish.store['Address'];
-
-                let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, it, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + index), exchangeRates[0].price, it.buyerExpectedDeliveryDate);
-                return it;
-            }));
-
+*/
+                //let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, it, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + index), exchangeRates[0].price, it.buyerExpectedDeliveryDate);
+                //return it;
+            //}));
+            console.info( 'store group' );
             //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
             let itemsStore = [];
             for (let item of itemsShopping) {
@@ -488,18 +488,37 @@ module.exports = {
             let counter = 0;
             for (let st of itemsStore) {
                 counter += 1;
-                storeName.push(st[0].fish.store['name']);
+                /*storeName.push(st[0].fish.store['name']);
                 // shippingRate.push(await require('./ShippingRatesController').getShippingRateByCities( st[0].fish.city, st[0].quantity.value ));
                 let fullName = st[0].fish.store['name'];//st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
                 let sellerAddress = st[0].fish.store['Address']; //`${st[0].fish.store.owner.dataExtra.Address}, ${st[0].fish.store.owner.dataExtra.City}, ${st[0].fish.store.owner.dataExtra.country}, ${st[0].fish.store.owner.dataExtra.zipCode}`;                
                 //let sellerInvoice = await PDFService.sellerPurchaseOrder( fullName, cart, st, OrderNumber, sellerAddress, counter, exchangeRates[0].price );
+                */
+                console.info( 'store', st );
+                
+                st[0].fish.store = await Store.findOne({ id: st[0].fish.store }).populate("owner");
+                let items_store_ids = [];
+                st.map( itemStore => {
+                    items_store_ids.push( itemStore.id )
+                } )
+                await ItemShopping.update({ id: items_store_ids }).set({ status: '5c017ae247fb07027943a404', orderInvoice: invoiceNumber, purchaseOrder: (maxPurchaseOrder + 1 + counter) });
+
+                let fullName = st[0].fish.store.owner.firstName+ " "+ st[0].fish.store.owner.lastName;
+                let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
+                let sellerAddress = st[0].fish.store['Address'];
+
+                let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, st, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + counter), exchangeRates[0].price, st[0].buyerExpectedDeliveryDate);
 
                 //console.log( 'seller invoice', sellerInvoice );
             }
-            await MailerService.sendCartPaidAdminNotified(itemsShopping, cart, OrderNumber, storeName)
 
-            await PDFService.buyerInvoice(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price)
+
+
+
+            //await MailerService.sendCartPaidAdminNotified(itemsShopping, cart, OrderNumber, storeName)
+
+            //await PDFService.buyerInvoice(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price)
 
             //await MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName);            
 

@@ -19,12 +19,12 @@ module.exports = {
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
     parent: {
       model: "fishtype",
-      required: true
+      required: false
     },
 
     child: {
       model: "fishtype",
-      required: true
+      required: false
     }
   },
 

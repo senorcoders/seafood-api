@@ -185,24 +185,24 @@
     </div>
     <%  subtotal = 0; %>
     <%  total = 0; %>
-    <% /*items.forEach(function(it,index){*/ %>
+    <% items.forEach(function(it,index){ %>
     <div class="row content" style="font-family: 'Arial';font-size: 10px;">
       <div class="col col-3">
-          <%= items.fish.name %>, <%= items.fish.treatment %>, <%= items.fish.raised %>, <%= items.fish.preparation %> &nbsp;
-          <%= items.fish.wholeFishWeight %>
+          <%= it.fish.name %>, <%= it.fish.treatment %>, <%= it.fish.raised %>, <%= it.fish.preparation %> &nbsp;
+          <%= it.fish.wholeFishWeight %>
       </div>
-      <div class="col col-1"> <%= items.fish.seller_sku %></div>
-      <div class="col col-1 align-right"><%= items.quantity.value %></div>
+      <div class="col col-1"> <%= it.fish.seller_sku %></div>
+      <div class="col col-1 align-right"><%= it.quantity.value %></div>
       <div class="col col-1 align-right">KG</div>
-      <div class="col col-2 align-right"><%= (items.price.value / currentExchangeRate).toFixed(2) %> </div>
-      <div class="col col-1 align-right"><%= ( items.price.value * items.quantity.value / currentExchangeRate ).toFixed(2)  %></div>
+      <div class="col col-2 align-right"><%= (it.price.value / currentExchangeRate).toFixed(2) %> </div>
+      <div class="col col-1 align-right"><%= ( it.price.value * it.quantity.value / currentExchangeRate ).toFixed(2)  %></div>
     </div>
-    <%  subtotal = ( items.price.value * items.quantity.value / currentExchangeRate ) ;
+    <%  subtotal = ( it.price.value * it.quantity.value / currentExchangeRate ) ;
       
         total = parseFloat(total) + parseFloat(subtotal) ;
         subtotal = parseFloat(subtotal).toFixed(2);
         total = parseFloat(total).toFixed(2);
-      /*} )*/ %>
+      } ) %>
     <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
       <div class="col col-5 padding-right">
         <span>Subtotal</span>

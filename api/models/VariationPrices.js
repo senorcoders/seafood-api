@@ -1,3 +1,9 @@
+/**
+ * VariationPrices.js
+ *
+ * @description :: A model definition.  Represents a database table/collection/etc.
+ * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
+ */
 
 module.exports = {
 
@@ -6,43 +12,17 @@ module.exports = {
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
-    name: {
-      type: 'string',
-      required: true,
-      maxLength: 130,
-      unique: true
-    },
-
-    description: {
-      type: 'string',
+    min: {
+      type: 'number',
       required: true
     },
-
-    images: {
-      type: "json",
-      columnType: "array",
-      required: false
-    },
-
-    sfsMargin: {
+    max: {
       type: 'number',
-      example: '5 this are pecentage'
+      required: true
     },
-
-    level: {
+    price: {
       type: 'number',
-      required: false,
-      example: '0 , 1 , 2, 4'
-    },
-
-    parent: {
-      type: 'string',
-      required: false
-    },
-
-    totalFishes: {
-      type: 'number',
-      defaultsTo : 0
+      required: true
     },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
@@ -53,16 +33,10 @@ module.exports = {
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-    childsTypes: {
-      collection: "parenttype",
-      via: "parent"
+    variation: {
+      model: "variations",
+      required: true
     },
-
-    parentsTypes: {
-      collection: "parenttype",
-      via: "child"
-    }
-
   },
 
 };

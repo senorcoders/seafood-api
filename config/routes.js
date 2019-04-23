@@ -57,6 +57,8 @@ module.exports.routes = {
 
   'POST /payfort/authorization': 'PaymentsController.askForAuthorization' ,
 
+
+
   /***************
    * 
    * USER 
@@ -110,6 +112,9 @@ module.exports.routes = {
   //subir una imagen for a fish
   'POST /api/images': 'ImageController.imagesUpload',
 
+  
+
+
   //Para guardar multiples images de un producto
   'POST /api/fish/images/:id': 'ImageController.multipleImagesUpload',
 
@@ -137,6 +142,17 @@ module.exports.routes = {
    * FISH AND FISHTYPE
    * 
    */
+
+     
+  /****************
+   * Fish Variations
+   */
+   "POST /api/variations/add": "FishController.addFishWithVariations",
+
+   "GET /api/fish/:id/variations/": "FishController.getFishWithVariations",
+   //search variations by weight
+   "POST /fish/filter": "FishController.filterFishWithVariations",
+
    //add new product and send email
    "POST /fish":"FishController.addFish",
    //Para guardar multiples productos
@@ -401,6 +417,8 @@ module.exports.routes = {
    'GET /fishTypes/childs': 'FishTypeController.getChildTypes', 
    'GET /fishTypes/:parent_id/childs': 'FishTypeController.getParentChildTypes', 
 
+   'GET /fishTypes/parents/with-fishes': 'FishTypeController.getParentsWithFishes',
+
    // get fish type by level
   'GET /fishType/parents/:fishID': 'FishType.getParentLevel',
 
@@ -412,8 +430,20 @@ module.exports.routes = {
    'GET /fishTypes/level/:level': 'FishTypeController.getTypeByLevel',
    'GET /fishTypes/:parent_id/all_levels': 'FishTypeController.getAllChildsByLevel',
 
+   //before_variations
+   'GET /fishTypes/:parent_id/ori_all_levels': 'FishTypeController.ori_getAllChildsByLevel',
 
-   'POST /fish/filter': 'FishController.filterProducts', 
+
+   'POST /fish/filter-old': 'FishController.filterProducts',
+
+   'GET /fishTypes/update_count': 'FishTypeController.updateTypeCount',
+
+
+   'DELETE /api/fishType/:id': 'FishTypeController.delete',
+
+   'POST /fish/filter-old': 'FishController.filterProducts',
+
+   'GET /fishTypes/update_count': 'FishTypeController.updateTypeCount',
    
    //SHIPPING
    'GET /shippingRates/countries': 'ShippingRates.getCountryWithShippings',

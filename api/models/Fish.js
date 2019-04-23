@@ -48,31 +48,27 @@ module.exports = {
       required: false
     },
 
-    raised: {
-      type: "string",
-      required: true
-    },
+    
 
+    /* // moved to variations
     preparation: {
       type: "string", 
       required: true
-    },
+    },*/
 
-    treatment: {
-      type: "string",
-      required: true
-    },
-
+    
+/* // moved to variations
     wholeFishWeight: {
       type: "string",
       required: false
     },
-
+*/
 
     
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
+    /* // moved to variations
     weight: {
       type: 'json',
       required: false,
@@ -95,7 +91,7 @@ module.exports = {
         }
       `
     },
-
+*/
     hsCode: {
       type: 'string',
       required: false,
@@ -139,6 +135,16 @@ module.exports = {
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
+    
+    raised: {
+      model: "raised",
+      required: true
+    },
+    treatment: {
+      model: "treatment",
+      required: true
+    },
+    
     store: {
       model: "store",
       required: true

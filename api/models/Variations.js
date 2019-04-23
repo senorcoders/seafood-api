@@ -1,3 +1,9 @@
+/**
+ * Variations.js
+ *
+ * @description :: A model definition.  Represents a database table/collection/etc.
+ * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
+ */
 
 module.exports = {
 
@@ -5,44 +11,11 @@ module.exports = {
 
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
-    //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
-    name: {
+    //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝    
+    sku: {
       type: 'string',
-      required: true,
-      maxLength: 130,
-      unique: true
-    },
-
-    description: {
-      type: 'string',
+      unique: true,
       required: true
-    },
-
-    images: {
-      type: "json",
-      columnType: "array",
-      required: false
-    },
-
-    sfsMargin: {
-      type: 'number',
-      example: '5 this are pecentage'
-    },
-
-    level: {
-      type: 'number',
-      required: false,
-      example: '0 , 1 , 2, 4'
-    },
-
-    parent: {
-      type: 'string',
-      required: false
-    },
-
-    totalFishes: {
-      type: 'number',
-      defaultsTo : 0
     },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
@@ -53,16 +26,18 @@ module.exports = {
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-    childsTypes: {
-      collection: "parenttype",
-      via: "parent"
+    fishPreparation: {
+      model: "fishPreparation",
+      required: true
     },
-
-    parentsTypes: {
-      collection: "parenttype",
-      via: "child"
+    fish: {
+      model: "fish",
+      required: true
+    },
+    wholeFishWeight: {
+      model: "wholeFishWeight",
+      required: false
     }
-
   },
 
 };
