@@ -26,11 +26,7 @@ module.exports = {
 
   exits: {
     outputType:{
-<<<<<<< HEAD
       result: "string"
-=======
-      result: "ref"
->>>>>>> 56c946c... adding variable product maing logic
     }
   },
 
