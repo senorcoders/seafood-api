@@ -1189,9 +1189,10 @@ module.exports = {
         try {
             let currentAdminCharges = await sails.helpers.currentCharges();
             let id = req.param( 'id' );
+            let variation_id = req.param( 'variation_id' );
             let weight = req.param( 'weight' );
 
-            let charges = await sails.helpers.fishPricing( id, weight, currentAdminCharges ); 
+            let charges = await sails.helpers.fishPricing( id, weight, currentAdminCharges, variation_id ); 
 
             res.status( 200 ).json( charges );
 

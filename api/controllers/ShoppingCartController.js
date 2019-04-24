@@ -298,13 +298,15 @@ module.exports = {
         try {
             let currentAdminCharges = await sails.helpers.currentCharges();
 
-            let id = req.param("id"),
+            let id = req.param("id")
+            variation_id = req.param('variation_id'),
                 item = {
                     shoppingCart: id,
                     fish: req.param("fish"),
                     quantity: req.param("quantity"),
                     price: req.param("price"),
-                    shippingStatus: req.param("shippingStatus")
+                    shippingStatus: req.param("shippingStatus"),
+                    variation_id: req.param('variation_id')
                 };
 
                 // check if this item is already in this cart
@@ -337,7 +339,7 @@ module.exports = {
 
             let total = 0;
             for (var it of cart.items) {                
-                itemCharges = await sails.helpers.fishPricing( it.fish, it.quantity.value, currentAdminCharges );                
+                itemCharges = await sails.helpers.fishPricing( it.fish, it.quantity.value, currentAdminCharges, variation_id );                
                 total += itemCharges['finalPrice'];
             }
 
