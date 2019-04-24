@@ -132,6 +132,14 @@ module.exports = {
       type: 'number',
       required: true
     },
+    perBox: {
+      type: 'boolean',
+      defaultsTo : false
+    },
+    boxWeight: {
+      type: 'number',
+      required: false
+    },
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
