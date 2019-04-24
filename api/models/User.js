@@ -114,6 +114,8 @@ module.exports = {
       type: "number"
     },
     
+    
+
     contactID: {
       type: 'string',
       required: false,
@@ -147,7 +149,14 @@ module.exports = {
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
     // n/a
-
+    
+    incoterms: {
+      model: 'incoterms',
+      required: false,
+      description: `posible options: 
+                    -cip
+                    -ex-works`
+    },
   }
 
 };

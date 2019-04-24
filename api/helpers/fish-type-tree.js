@@ -31,7 +31,8 @@ module.exports = {
 
     await Promise.all( types.map( async (type0) => {
         let childs0 = await FishType.find( { level:1, parent: type0.id } );
-
+        let ico0 = await IncotermsByType.find( { type: type0.id } ).populate( 'incoterm' );
+        type0['incoterms'] = ico0;
         childs0.map( ( species, index ) => {
           console.log( [type0.id] );
           species['parents_ids'] = [ type0.id ]
@@ -44,6 +45,9 @@ module.exports = {
 
         await Promise.all(  childs0.map( async ( type1 ) => {
             let childs1 = await FishType.find( { level:2, parent: type1.id } );
+            let ico1 = await IncotermsByType.find( { type: type1.id } ).populate( 'incoterm' );
+            type1['incoterms'] = ico1;
+
 
             childs1.map( ( subspecies, index ) => {
               console.log( [ type1.id, type0.id ] );
@@ -57,6 +61,8 @@ module.exports = {
             await Promise.all( childs1.map( async (type2) => {
                 let childs2 = await FishType.find( { level:3, parent: type2.id } )
                 let hadFish = await Fish.find( { type: type2.id } ).limit(1);
+                let ico2 = await IncotermsByType.find( { type: type2.id } ).populate( 'incoterm' );
+                type2['incoterms'] = ico2;
 
                 if( hadFish.length > 0 ) {
                   type2['hadFish'] = true;
