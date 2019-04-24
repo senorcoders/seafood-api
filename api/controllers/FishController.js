@@ -50,6 +50,8 @@ module.exports = {
                 country: body.name,
                 processingCountry: body.processingCountry,
                 city: body.city,
+                perBox: body.perBox,
+                boxWeight: body.boxWeight,
                 minimumOrder: body.minimumOrder,
                 maximumOrder: body.maximumOrder,
                 raised: body.raised,
@@ -62,7 +64,7 @@ module.exports = {
                 brandname: body.brandName,
                 hsCode: body.hsCode,
                 acceptableSpoilageRate: body.acceptableSpoilageRate
-            }
+            }            
 
             let mainFish = await Fish.create( newProduct ).fetch();
 
