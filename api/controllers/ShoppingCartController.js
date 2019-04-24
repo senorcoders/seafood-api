@@ -235,7 +235,21 @@ module.exports = {
         try {
             let buyer = req.param("buyer");
             let orders = await ShoppingCart.find({ orderStatus: "5c017ad347fb07027943a403", buyer }).populate("items").populate('orderStatus').sort('createdAt DESC');
-
+            
+            orders = await Promise.all( orders.map( async ( order ) => {
+                
+                
+                let items = await Promise.all( order.items.map( async ( item ) => {
+                    item['fish'] = await Fish.findOne( { id: item.fish } ).populate('store');
+                    item['seller'] = await User.findOne( { id: item.fish.store.owner } );
+                    item['status'] = await OrderStatus.findOne( { id: item.status } );
+                    delete item.seller.token;
+                    delete item.seller.password;
+                    return item;
+                } ) )
+                order['items'] = items;
+                return order;
+            } ) )
             
 
 
