@@ -335,8 +335,38 @@ module.exports = {
             //   prices_fishes_ids.push(price.variation.fish);
             //} )            
             //let fishes = await sails.helpers.getVariableProduct( prices_fishes_ids )
-            let fishes =  await Fish.find( fish_where ).populate( 'status' ).populate( 'type' ).populate('descriptor').populate('store');
-            return res.json( fishes )
+            let fishes =  await Fish.find( fish_where );
+
+            let products_ids = [];
+            fishes.map( ( item ) => {
+                products_ids.push( item.id );
+            } );
+
+            let productos = [];
+            variation_where['fish'] = products_ids;
+            let res_variations = await Variations.find( { variations_where } ).populate( 'fish' ).populate( 'fishPreparation' ).populate( 'wholeFishWeight' );
+            console.log( 'variations', res_variations.length );
+            await Promise.all(res_variations.map(async function (m) {
+
+                //lets recreate old json format with Fish at the top and inside the variations
+                let fish = m.fish;
+                let variation = m;
+                delete variation.fish;                
+                m = fish;
+                //console.log(fish);
+                m['variation'] = variation;
+
+                if (m.store === null)
+                    return m;
+                
+                m.store = await Store.findOne({ id: m.store }).populate('owner');            
+                //m.store.owner = await User.findOne({ id: m.store.owner });            
+                //m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
+                productos.push( m );
+                return m;
+            }));
+
+            return res.json( productos )
 
 
         } catch (error) {
