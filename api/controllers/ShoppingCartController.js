@@ -236,6 +236,9 @@ module.exports = {
             let buyer = req.param("buyer");
             let orders = await ShoppingCart.find({ orderStatus: "5c017ad347fb07027943a403", buyer }).populate("items").populate('orderStatus').sort('createdAt DESC');
 
+            
+
+
             res.status(200).json(orders);
 
         } catch (error) {
