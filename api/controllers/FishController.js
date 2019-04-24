@@ -356,14 +356,44 @@ module.exports = {
         try {
             let start = Number(req.params.page);
             --start;
-            let productos = await Fish.find( {status: '5c0866f9a0eda00b94acbdc2'} ).populate("type").populate("store").populate('status').paginate({ page: start, limit: req.params.limit });
-            productos = await Promise.all(productos.map(async function (m) {
+            let publishedProducts = await Fish.find( {status: '5c0866f9a0eda00b94acbdc2'} );
+            let products_ids = [];
+            publishedProducts.map( ( item ) => {
+                products_ids.push( item.id );
+            } );
+            console.log( 'products_ids', products_ids );
+            //let productos = await Fish.find( {status: '5c0866f9a0eda00b94acbdc2'} ).populate("type").populate("store").populate('status').paginate({ page: start, limit: req.params.limit });
+            let productos = [];
+            let variations = await Variations.find( { fish: products_ids } ).populate( 'fish' ).populate( 'fishPreparation' ).populate( 'wholeFishWeight' );
+            console.log( 'variations', variations.length );
+            await Promise.all(variations.map(async function (m) {
+
+                //lets recreate old json format with Fish at the top and inside the variations
+                let fish = m.fish;
+                let variation = m;
+                delete variation.fish;                
+                m = fish;
+                //console.log(fish);
+                m['variation'] = variation;
+
+                if (m.store === null)
+                    return m;
+                
+                m.store = await Store.findOne({ id: m.store }).populate('owner');            
+                //m.store.owner = await User.findOne({ id: m.store.owner });            
+                //m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
+                productos.push( m );
+                return m;
+            }));
+
+            
+            /*productos = await Promise.all(productos.map(async function (m) {
                 if (m.store === null)
                     return m;
                 m.store.owner = await User.findOne({ id: m.store.owner });            
                 m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
                 return m;
-            }));
+            }));*/
 
             let arr = await Fish.find( {status: '5c0866f9a0eda00b94acbdc2'} ),
                 page_size = Number(req.params.limit), pages = 0;
@@ -1189,9 +1219,10 @@ module.exports = {
         try {
             let currentAdminCharges = await sails.helpers.currentCharges();
             let id = req.param( 'id' );
+            let variation_id = req.param( 'variation_id' );
             let weight = req.param( 'weight' );
 
-            let charges = await sails.helpers.fishPricing( id, weight, currentAdminCharges ); 
+            let charges = await sails.helpers.fishPricing( id, weight, currentAdminCharges, variation_id ); 
 
             res.status( 200 ).json( charges );
 

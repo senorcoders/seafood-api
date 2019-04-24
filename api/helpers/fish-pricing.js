@@ -19,6 +19,10 @@ module.exports = {
     currentCharges: {
       type: "ref",
       required: true
+    },
+    variation_id: {
+      type: 'string',
+      required: false
     }
   },
 
@@ -37,7 +41,42 @@ module.exports = {
 
     // getting the fish information
     let fish = await Fish.findOne( { where: { id: id } } ).populate( 'type' ).populate( 'store' );   
-    let fishPrice = Number( parseFloat( fish.price.value ) );
+
+    let variation = await VariationPrices.findOne().where({
+      'min': { "<": inputs.weight },
+      'max': { ">": inputs.weight },
+      variation: inputs.variation_id
+    })
+    if( variation === undefined ) {
+      // when there is no variation we are going to use the last range of price      
+      await VariationPrices.find( { variation: inputs.variation_id } )
+          .sort( [{ max: 'ASC' }] )
+          .then( 
+              result => {
+                  var BreakException = {};
+                  try {
+                      let resultSize = Object.keys(result).length ;
+                      let resultCount = 0;
+                      result.forEach( row => {
+                          resultCount +=1 ;
+                          if( resultCount == resultSize ){
+                              variation = row;
+                              throw BreakException;
+                          }                          
+                      });                      
+                  } catch (e) {
+                      
+                  return false;                  
+                  }
+                  
+              },
+              error => {
+                  console.log(error);
+              }
+          )
+
+    } 
+    let fishPrice = Number( parseFloat( variation.price ) );    
     
     // getting shipping rate from that city
     shipping = await sails.helpers.shippingByCity( fish.city, weight );
@@ -46,7 +85,12 @@ module.exports = {
     }
 
     exchangeRates   = currentAdminCharges.exchangeRates;
-    sfsMargin       = fish.type.sfsMargin;
+
+    let owner = await User.findOne( { id: fish.store.owner } ) ;
+    console.log('lol', { incoterm: owner.incoterms, type: fish.type.id });
+    let marginPercentage  = await IncotermsByType.findOne( { incoterm: owner.incoterms, type: fish.type.id } )
+    sfsMargin = marginPercentage.margin  ;// fish.type.sfsMargin;
+    //sfsMargin = fish.type.sfsMargin;
     
     // getting fish shipping fee
     let shippingFees = await sails.helpers.shippingFee( fish, weight, currentAdminCharges );
@@ -80,7 +124,9 @@ module.exports = {
         },
         sfsMarginCost: Number(parseFloat(sfsMarginCost).toFixed(2)),
         uaeTaxesFee: Number(parseFloat(uaeTaxesFee).toFixed(2)),
-        finalPrice: Number(parseFloat(finalPrice).toFixed(2)) 
+        finalPrice: Number(parseFloat(finalPrice).toFixed(2)),
+        marginPercentage,
+        variation
     }
 
     // All done.
