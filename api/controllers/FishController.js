@@ -353,6 +353,17 @@ module.exports = {
             console.log( 'variations', res_variations.length );
             await Promise.all(res_variations.map(async function (m) {
 
+                //get min max price
+                let priceVariation = await VariationPrices.find( { variation: m.id } );
+                let minMax = [];
+                priceVariation.map( ( pv ) => {
+                    minMax.push( pv.min );
+                    minMax.push( pv.max );
+                } )
+                
+                m['max'] = Math.max.apply(null, minMax) // 4
+                m['min'] = Math.min.apply(null, minMax) // 1
+
                 //lets recreate old json format with Fish at the top and inside the variations
                 let fish = m.fish;
                 let variation = m;
