@@ -348,7 +348,7 @@ module.exports = {
 
             let productos = [];
             variation_where['fish'] = products_ids;
-            let res_variations = await Variations.find( { variations_where } ).populate( 'fish' ).populate( 'fishPreparation' ).populate( 'wholeFishWeight' );
+            let res_variations = await Variations.find( variation_where ).populate( 'fish' ).populate( 'fishPreparation' ).populate( 'wholeFishWeight' );
             console.log( 'variations', res_variations.length );
             await Promise.all(res_variations.map(async function (m) {
 
@@ -1063,6 +1063,13 @@ module.exports = {
                             res.status(200).json( result );
                         }) */     
                         let productos = await Fish.find( condWhere ).populate("type").populate("store");
+                        productos = await Promise.all(productos.map(async function (m) {
+                            m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
+                            if (m.store === null)
+                                return m;
+                            m.store.owner = await User.findOne({ id: m.store.owner });            
+                            return m;
+                        }));
                         productos = await Promise.all(productos.map(async function (m) {
                             m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
                             if (m.store === null)
