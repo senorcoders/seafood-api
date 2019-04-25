@@ -1,6 +1,6 @@
 const path = require("path"), fs = require("fs");
 const IMAGES = path.resolve(__dirname, '../../images/');
-
+var ObjectId = require('mongodb').ObjectID;   
 module.exports = {
     addFish: async (req, res) => {
         try {
@@ -880,7 +880,7 @@ module.exports = {
             var fish = db.collection(Fish.tableName);
             //.find({
             let fishs = await new Promise((resolve, reject) => {
-                fish.distinct("country", {status: '5c0866f9a0eda00b94acbdc2'}
+                fish.distinct("country", { status: new ObjectId('5c0866f9a0eda00b94acbdc2') },
                     function (err, docs) {
                         if (err) {
                             return reject(err);
