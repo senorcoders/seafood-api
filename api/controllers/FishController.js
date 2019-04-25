@@ -70,12 +70,16 @@ module.exports = {
 
             if( mainFish ){
                 await Promise.all( body.variations.map( async (variation, index) => {
-                    let newVariation = await Variations.create( {
+                    let newVariation = {
                         sku : `${seafood_sku}_${index}`,
-                        fishPreparation: variation.fishPreparation,
-                        wholeFishWeight: variation.wholeFishWeight,
+                        fishPreparation: variation.fishPreparation,                        
                         fish: mainFish.id
-                    } ).fetch();
+                    }
+
+                    if ( variation.hasOwnProperty( wholeFishWeight ) ) {
+                        newVariation['wholeFishWeight'] = variation.wholeFishWeight;
+                    } 
+                    let newVariation = await Variations.create(  ).fetch();
 
                     if( newVariation ) {
                         await Promise.all(
@@ -399,6 +403,18 @@ module.exports = {
             let variations = await Variations.find( { fish: products_ids } ).populate( 'fish' ).populate( 'fishPreparation' ).populate( 'wholeFishWeight' );
             console.log( 'variations', variations.length );
             await Promise.all(variations.map(async function (m) {
+
+
+                //get min max price
+                let priceVariation = await VariationPrices.find( { variation: m.id } );
+                let minMax = [];
+                priceVariation.map( ( pv ) => {
+                    minMax.push( pv.min );
+                    minMax.push( pv.max );
+                } )
+                
+                m['max'] = Math.max.apply(null, minMax) // 4
+                m['min'] = Math.min.apply(null, minMax) // 1
 
                 //lets recreate old json format with Fish at the top and inside the variations
                 let fish = m.fish;
