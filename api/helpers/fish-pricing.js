@@ -90,7 +90,7 @@ module.exports = {
     console.log('lol', { incoterm: owner.incoterms, type: fish.type.id });
     let marginPercentage  = await IncotermsByType.findOne( { incoterm: owner.incoterms, type: fish.type.id } );
     if( marginPercentage === undefined ) {
-      marginPercentage = 5;
+      sfsMargin = 5;
     } else {
       sfsMargin = marginPercentage.margin  ;// fish.type.sfsMargin;
 
