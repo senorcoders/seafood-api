@@ -878,9 +878,9 @@ module.exports = {
         try {
             var db = Fish.getDatastore().manager;
             var fish = db.collection(Fish.tableName);
-
+            //.find({
             let fishs = await new Promise((resolve, reject) => {
-                fish.distinct("country", {},
+                fish.distinct("country", {status: '5c0866f9a0eda00b94acbdc2'}
                     function (err, docs) {
                         if (err) {
                             return reject(err);
