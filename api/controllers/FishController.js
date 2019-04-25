@@ -76,7 +76,7 @@ module.exports = {
                         fish: mainFish.id
                     }
 
-                    if ( variation.hasOwnProperty( wholeFishWeight ) ) {
+                    if ( variation.hasOwnProperty( 'wholeFishWeight' ) ) {
                         newVariation['wholeFishWeight'] = variation.wholeFishWeight;
                     } 
                     let newVariation = await Variations.create(  ).fetch();
