@@ -42,11 +42,14 @@ module.exports = {
     // getting the fish information
     let fish = await Fish.findOne( { where: { id: id } } ).populate( 'type' ).populate( 'store' );   
 
-    let variation = await VariationPrices.findOne().where({
+    let variation = await VariationPrices.find().where({
       'min': { "<": inputs.weight },
       'max': { ">": inputs.weight },
       variation: inputs.variation_id
-    })
+    }).limit(1);
+
+   variation = variation[0];
+
     if( variation === undefined ) {
       // when there is no variation we are going to use the last range of price      
       await VariationPrices.find( { variation: inputs.variation_id } )

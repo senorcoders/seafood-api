@@ -47,7 +47,7 @@ module.exports = {
                   type : "kg",
                   value: "0"
                 },
-                country: body.name,
+                country: body.country,
                 processingCountry: body.processingCountry,
                 city: body.city,
                 perBox: body.perBox,

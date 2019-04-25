@@ -33,10 +33,15 @@ module.exports = {
   fn: async function (inputs, exits) {
 
     let owner = await User.findOne( { id: inputs.fish.store.owner } ) ;
+
+    if( !owner.hasOwnProperty( 'incoterms' ) ) {    
+      owner['incoterms'] = '5cbf68f7aa5dbb0733b05be2';
+    }
+
     //let marginPercentage  = await IncotermsByType.findOne( { incoterms: owner.incoterms, type: inputs.fish.type.id } )
     let firstMileCost;
     let firstMileFee;
-
+  
     // getting shipping rate from that city
     shipping = await sails.helpers.shippingByCity( inputs.fish.city, inputs.weight );
 
