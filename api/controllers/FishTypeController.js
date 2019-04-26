@@ -172,14 +172,14 @@ module.exports = {
     ori_getAllChildsByLevel: async ( req, res ) => {
         try {
             let parent_id = req.param( 'parent_id' );
-            let parent = await FishType.findOne( { id: parent_id, totalFishes: { '>': 0 } } );
+            let parent = await FishType.findOne( { id: parent_id } );
 
             parentsIDS = [];
             parentsIDS.push( parent_id );
             childs = [];
             for (let index = parent.level + 1; index <= 4; index++) {                
                 console.log( parentsIDS );
-                directChilds = await FishType.find( { parent: parentsIDS, totalFishes: { '>': 0 } } );
+                directChilds = await FishType.find( { parent: parentsIDS } );
                 childs.push( { level: index, fishTypes: directChilds } );
                 parentsIDS = [];
                 directChilds.map( child => {
@@ -202,7 +202,7 @@ module.exports = {
             childs = [];
             for (let index = parent.level + 1; index <= 4; index++) {                
                 console.log( parentsIDS );
-                directChilds = await FishType.find( { parent: parentsIDS, totalFishes: { '>': 0 } } );
+                directChilds = await FishType.find( { parent: parentsIDS } );
                 childs.push( { level: index, fishTypes: directChilds } );
                 parentsIDS = [];
                 directChilds.map( child => {
