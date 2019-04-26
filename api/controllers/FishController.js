@@ -122,22 +122,96 @@ module.exports = {
     getFishWithVariations: async ( req, res ) => {
         try {
             let fishID = req.param( 'id' );
-            let fish = await Fish.findOne( { id: fishID } ).populate('status').populate('store').populate('type').populate('descriptor')
+            let fish = await Fish.findOne( { id: fishID } ).populate('status').populate('store').populate('type');//.populate('descriptor')
 
-            if( !fish ) {
-                res.status(200).json( {} );
+            if( fish === undefined ) {
+                return res.status(200).json( {} );
             }
 
             let variations = await Variations.find( { 'fish': fish.id } ).populate( 'fishPreparation' ).populate( 'wholeFishWeight' );
 
-            await Promise.all(
+            let useOne = false;
+            if ( variations.length == 0 ) {
+                useOne = true;
+            }
+            fish['useOne'] = useOne;
+            headAction = false;
+            headOff= false;
+            headOn = false;
+            weights =
+                {
+                    on: {
+                        keys: []
+                    },
+                    off:{
+                        keys: []
+                    }
+                }
+            ;
+            await Promise.all(                
                 variations.map( async variation => {
                     console.log( variation.id );
+
+                    console.log( variation['fishPreparation'] );
+                    if( variation['fishPreparation']['id'] === '5c93bff065e25a011eefbcc2' ) {
+                        headAction = true;
+                        headOn = true;
+                        weights.on.keys.push(variation.id)
+                        weights.on[variation.id] = [];
+                    }
+
+                    if( variation['fishPreparation']['id'] === '5c93c00465e25a011eefbcc3' ) {
+                        headAction = true;
+                        headOff = true;
+                        weights.off.keys.push(variation.id)
+                        weights.off[variation.id] = [];
+                    }
+
+                    
                     let prices = await VariationPrices.find( { 'variation': variation.id } );
+                    let minLimit = fish.minimunOrder;
+                    prices = prices.map( (row, indexPrice) => {                    
+                    
+                        let maxLimit = fish.maximumOrder;;
+                        if( indexPrice < (prices.length -1 ) ) { //is not the last price 
+                            maxLimit = prices[ (indexPrice + 1 ) ].min;
+                        }
+
+                        let optionSlides = {
+                            floor: row.min,
+                            ceil: minLimit,
+                            maxLimit: maxLimit,
+                            step: 1,
+                            noSwitching: true
+                        }
+                        if( variation['fishPreparation']['id'] === '5c93bff065e25a011eefbcc2' ) //head on
+                            weights.on[variation.id].push( optionSlides );
+                        else if( variation['fishPreparation']['id'] === '5c93c00465e25a011eefbcc3' ) //head off
+                            weights.off[variation.id].push( optionSlides );
+
+                        minLimit = row.max;
+                        return row;
+                    } )
                     variation['prices'] = prices;
                 } ) 
             );
+            if( headOff && headOff )
+                fish['head'] = 'both';
+            else if ( headOn )
+                fish['head'] = 'on';
+            else if( headOff )
+                fish['head'] = 'off';
+            else    
+                fish['head'] = '';
+
+            fish['headAction'] = headAction;
+            fish['wholeFishAction'] = headAction;
+            fish['weights'] = weights;
+
             fish['variations'] = variations;
+
+            
+
 
             res.status(200).json( fish );
 
