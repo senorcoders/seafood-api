@@ -156,14 +156,14 @@ module.exports = {
                     if( variation['fishPreparation']['id'] === '5c93bff065e25a011eefbcc2' ) {
                         headAction = true;
                         headOn = true;
-                        weights.on.keys.push('variation.id')
+                        weights.on.keys.push(variation.id)
                         weights.on[variation.id] = [];
                     }
 
                     if( variation['fishPreparation']['id'] === '5c93c00465e25a011eefbcc3' ) {
                         headAction = true;
                         headOff = true;
-                        weights.off.keys.push('variation.id')
+                        weights.off.keys.push(variation.id)
                         weights.off[variation.id] = [];
                     }
 
