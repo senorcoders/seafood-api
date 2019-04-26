@@ -91,9 +91,10 @@ module.exports = {
 
     let owner = await User.findOne( { id: fish.store.owner } ) ;
     console.log('lol', { incoterm: owner.incoterms, type: fish.type.id });
-    let marginPercentage  = await IncotermsByType.findOne( { incoterm: owner.incoterms, type: fish.type.id } );
-    if( marginPercentage === undefined ) {
+    let marginPercentage  = await IncotermsByType.find( { incoterm: owner.incoterms, type: fish.type.id } );
+    if( owner.incoterms === undefined ) {
       sfsMargin = 5;
+      marginPercentage = marginPercentage[0];
     } else {
       sfsMargin = marginPercentage.margin  ;// fish.type.sfsMargin;
 
