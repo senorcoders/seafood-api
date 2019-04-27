@@ -46,6 +46,15 @@ module.exports = {
       defaultsTo : 0
     },
 
+    exworks: {
+      type: 'number',
+      required: false
+    },
+    cpi: {
+      type: 'number',
+      required: false
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
