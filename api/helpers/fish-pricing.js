@@ -91,14 +91,36 @@ module.exports = {
 
     let owner = await User.findOne( { id: fish.store.owner } ) ;
     console.log('lol', { incoterm: owner.incoterms, type: fish.type.id });
-    let marginPercentage  = await IncotermsByType.find( { incoterm: owner.incoterms, type: fish.type.id } );
-    if( owner.incoterms === undefined ) {
+    let marginPercentage  = 0; //await IncotermsByType.find( { incoterm: owner.incoterms, type: fish.type.id } );
+    if ( owner.incoterm === '5cbf68f7aa5dbb0733b05be3' ) { // exworks
+
+      if( fish.type.hasOwnProperty('exworks') ) {
+        sfsMargin = fish.type.exworks;
+        marginPercentage = fish.type.exworks;
+      }
+      else {
+        sfsMargin = 0;
+      }
+    } else if( owner.incoterm === '5cbf6900aa5dbb0733b05be4' ) {
+      if( fish.type.hasOwnProperty('cpi') ) {
+        sfsMargin = fish.type.cpi;
+        marginPercentage = fish.type.cpi;
+      }
+      else {
+        sfsMargin = 0;
+      }
+    } else {
+      sfsMargin = 0;
+    }
+
+/*
+    if( fish.type.hasOwnProperty('cpi') === undefined ) {
       sfsMargin = 5;
       marginPercentage = marginPercentage[0];
     } else {
       sfsMargin = marginPercentage.margin  ;// fish.type.sfsMargin;
 
-    }
+    }*/
     //sfsMargin = fish.type.sfsMargin;
     
     // getting fish shipping fee
