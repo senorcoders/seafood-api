@@ -23,6 +23,7 @@ module.exports = {
             let buyer = req.param("buyer");
             let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items");
             let currentAdminCharges = await sails.helpers.currentCharges();;
+            let in_AED = true;
             if (cart !== undefined) {
                 let totalShipping = 0;
                 let totalSFSMargin = 0;
@@ -36,7 +37,7 @@ module.exports = {
                 shippingItems = [];
                 await Promise.all(cart.items.map(async item => {
                     let itemStore = await Fish.findOne({ id: item.fish }).populate('store');
-                    let fishCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges, item.variation_id)
+                    let fishCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges, item.variation_id, in_AED)
                     item.fish = itemStore;
                     item.store = itemStore.store.id;
                     item.country = itemStore.country;
@@ -314,7 +315,7 @@ module.exports = {
     addItem: async (req, res) => {
         try {
             let currentAdminCharges = await sails.helpers.currentCharges();
-
+            let in_AED = true;
             let id = req.param("id")
             variation_id = req.param('variation_id'),
                 item = {
@@ -326,7 +327,9 @@ module.exports = {
                     variation_id: req.param('variation_id')
                 };
 
-                // check if this item is already in this cart
+            // check if this item is already in this cart
+            itemCharges = await sails.helpers.fishPricing( item.fish, item.quantity.value, currentAdminCharges, variation_id, in_AED );
+            item['price'] = itemCharge.price; //getting variation price
             let alredyInCart = await ItemShopping.find({
                 shoppingCart: id,
                 fish: item.fish
@@ -356,7 +359,7 @@ module.exports = {
 
             let total = 0;
             for (var it of cart.items) {                
-                itemCharges = await sails.helpers.fishPricing( it.fish, it.quantity.value, currentAdminCharges, variation_id );                
+                itemCharges = await sails.helpers.fishPricing( it.fish, it.quantity.value, currentAdminCharges, variation_id, in_AED );                
                 total += itemCharges['finalPrice'];
             }
 

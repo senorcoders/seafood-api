@@ -39,7 +39,7 @@ module.exports = {
                 store: body.store,
                 name: body.name,
 		        price : {
-                  type : "AED",
+                  type : "USD",
                   value : body.variations[0].prices[0].price,
                   description : body.variations[0].prices[0].price + " for pack"
                 },
@@ -1362,8 +1362,10 @@ module.exports = {
             let id = req.param( 'id' );
             let variation_id = req.param( 'variation_id' );
             let weight = req.param( 'weight' );
-
-            let charges = await sails.helpers.fishPricing( id, weight, currentAdminCharges, variation_id ); 
+            let in_AED = ( req.param( 'in_AED' ) == "true" );
+            console.log( 'in_AED', in_AED );
+            console.log( 'in_AED2', req.param( 'in_AED' ) );
+            let charges = await sails.helpers.fishPricing( id, weight, currentAdminCharges, variation_id, in_AED ); 
 
             res.status( 200 ).json( charges );
 
