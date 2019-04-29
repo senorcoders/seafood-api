@@ -327,7 +327,9 @@ module.exports = {
                     variation_id: req.param('variation_id')
                 };
 
-                // check if this item is already in this cart
+            // check if this item is already in this cart
+            itemCharges = await sails.helpers.fishPricing( item.fish, item.quantity.value, currentAdminCharges, variation_id, in_AED );
+            item['price'] = itemCharge.price; //getting variation price
             let alredyInCart = await ItemShopping.find({
                 shoppingCart: id,
                 fish: item.fish

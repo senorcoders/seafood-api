@@ -1363,7 +1363,8 @@ module.exports = {
             let variation_id = req.param( 'variation_id' );
             let weight = req.param( 'weight' );
             let in_AED = ( req.param( 'in_AED' ) == "true" );
-
+            console.log( 'in_AED', in_AED );
+            console.log( 'in_AED2', req.param( 'in_AED' ) );
             let charges = await sails.helpers.fishPricing( id, weight, currentAdminCharges, variation_id, in_AED ); 
 
             res.status( 200 ).json( charges );
