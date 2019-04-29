@@ -119,6 +119,15 @@ module.exports = {
         }
     },
 
+    updateFishWithVariations: async ( req, res ) => {
+        try {
+            
+            res.json( {  } );
+        } catch (error) {
+            res.serverError(error);
+        }
+    },
+
     getFishWithVariations: async ( req, res ) => {
         try {
             let fishID = req.param( 'id' );

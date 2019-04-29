@@ -22,7 +22,8 @@ module.exports = {
             let today = new Date();
             let buyer = req.param("buyer");
             let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items");
-            let currentAdminCharges = await sails.helpers.currentCharges();;
+            let currentAdminCharges = await sails.helpers.currentCharges();
+            
             let in_AED = true;
             if (cart !== undefined) {
                 let totalShipping = 0;
@@ -61,8 +62,8 @@ module.exports = {
                     }
 
                 }))
-
-
+            
+                let resss=[];
                 await Promise.all(shippingItems.map(async store => {
                     let totalWeight = 0;
                     let country = '';
@@ -77,6 +78,7 @@ module.exports = {
                         city = item.city;
                         
                     }))
+                    
                     shippingRate = await sails.helpers.shippingBySeller(firstMileFee, city, totalWeight, currentAdminCharges);
                     
                     // here we calculate the shipping for all the items of one store in one Order
@@ -89,12 +91,11 @@ module.exports = {
                         item.shipping = item.shippingStore;                    
                     })
                 }))                            
-
                 //setting min dalivery date for each item
                 await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish.id }).populate("type").populate("store");
                     it.fishCharges = it.fishCharges;// await sails.helpers.fishPricing(it.fish.id, it.quantity.value, currentAdminCharges)
-
+                    it.fish['price']['value'] = it.fishCharges.variation.price;
                     let fishCountry = await Countries.findOne({ code: it.fish.country });
                     console.log('fishCountry', fishCountry);
                     min = new Date();
@@ -163,7 +164,7 @@ module.exports = {
 
                     it.sfsMargin = it.fishCharges.sfsMarginCost;
                     it.customs = it.fishCharges.customsFee;
-                    it.uaeTaxes = it.fishCharges.uaeTaxesFee;
+                    it.uaeTaxes = it.fishCharges.uaeTaxesFee;                    
 
 
                     await ItemShopping.update({ id: it.id }, {
@@ -173,8 +174,8 @@ module.exports = {
                         sfsMargin: isNaN(it.sfsMargin) === true ? 0 : it.sfsMargin,
                         customs: it.customs,
                         uaeTaxes: it.uaeTaxes,
-                        subtotal: Number((it.quantity.value * it.price.value).toFixed(2)),
-                        total: ( it.quantity.value * it.price.value ) + it.shipping + it.sfsMargin + it.customs + it.uaeTaxes
+                        subtotal: Number((it.quantity.value * it.fishCharges.variation.price).toFixed(2)),
+                        total: ( it.quantity.value * it.fishCharges.variation.price ) + it.shipping + it.sfsMargin + it.customs + it.uaeTaxes
                     })
 
                     return it;
@@ -329,7 +330,7 @@ module.exports = {
 
             // check if this item is already in this cart
             itemCharges = await sails.helpers.fishPricing( item.fish, item.quantity.value, currentAdminCharges, variation_id, in_AED );
-            item['price'] = itemCharge.price; //getting variation price
+            item['price'] = itemCharges.price; //getting variation price
             let alredyInCart = await ItemShopping.find({
                 shoppingCart: id,
                 fish: item.fish
