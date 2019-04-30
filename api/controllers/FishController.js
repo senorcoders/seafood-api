@@ -38,10 +38,10 @@ module.exports = {
                 /*descriptor: body.descriptor,*/
                 store: body.store,
                 name: body.name,
-                price: {
-                    type: "AED",
-                    value: body.variations[0].prices[0].price,
-                    description: body.variations[0].prices[0].price + " for pack"
+		        price : {
+                  type : "USD",
+                  value : body.variations[0].prices[0].price,
+                  description : body.variations[0].prices[0].price + " for pack"
                 },
                 weight: {
                     type: "kg",
@@ -119,7 +119,16 @@ module.exports = {
         }
     },
 
-    getFishWithVariations: async (req, res) => {
+    updateFishWithVariations: async ( req, res ) => {
+        try {
+            
+            res.json( {  } );
+        } catch (error) {
+            res.serverError(error);
+        }
+    },
+
+    getFishWithVariations: async ( req, res ) => {
         try {
             let fishID = req.param('id');
             let fish = await Fish.findOne({ id: fishID }).populate('status').populate('store').populate('type').populate('treatment').populate('raised');//.populate('descriptor')
@@ -1375,11 +1384,14 @@ module.exports = {
     getItemCharges: async (req, res) => {
         try {
             let currentAdminCharges = await sails.helpers.currentCharges();
-            let id = req.param('id');
-            let variation_id = req.param('variation_id');
-            let weight = req.param('weight');
+            let id = req.param( 'id' );
+            let variation_id = req.param( 'variation_id' );
+            let weight = req.param( 'weight' );
+            let in_AED = ( req.param( 'in_AED' ) == "true" );
+            console.log( 'in_AED', in_AED );
+            console.log( 'in_AED2', req.param( 'in_AED' ) );
+            let charges = await sails.helpers.fishPricing( id, weight, currentAdminCharges, variation_id, in_AED ); 
 
-            let charges = await sails.helpers.fishPricing(id, weight, currentAdminCharges, variation_id);
 
             res.status(200).json(charges);
 

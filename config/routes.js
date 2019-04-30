@@ -149,6 +149,8 @@ module.exports.routes = {
    */
    "POST /api/variations/add": "FishController.addFishWithVariations",
 
+   "PUT /api/variations": "FishController.updateFishWithVariations",
+
    "GET /api/fish/:id/variations/": "FishController.getFishWithVariations",
    
    //search variations by weight
@@ -323,7 +325,7 @@ module.exports.routes = {
   //change status and send emails
   'PUT /api/itemshopping/:id/:status':"ItemShoppingController.updateItemStatus",
 
-  'GET /api/fish/:id/variation/:variation_id/charges/:weight': 'FishController.getItemCharges',
+  'GET /api/fish/:id/variation/:variation_id/charges/:weight/:in_AED': 'FishController.getItemCharges',
 
   // get all orders
   'GET /api/itemshopping/all': 'ItemShoppingController.getAllOrders',
