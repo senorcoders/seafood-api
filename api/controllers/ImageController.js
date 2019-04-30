@@ -290,7 +290,7 @@ module.exports = {
             saveAs: function (stream, cb) {
                 // changin name to sku format
                 let newName = stream.filename;
-                newName = newName.replace(/\s+/g, '-').toLowerCase();
+                newName = newName.replace(/\s+/g, '-').toLowerCase()+ new Date().getTime();
                 cb(null, newName);
             }
         }, async function (err, uploadedFiles) {

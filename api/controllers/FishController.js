@@ -1,21 +1,21 @@
 const path = require("path"), fs = require("fs");
 const IMAGES = path.resolve(__dirname, '../../images/');
-var ObjectId = require('mongodb').ObjectID;   
+var ObjectId = require('mongodb').ObjectID;
 module.exports = {
     addFish: async (req, res) => {
         try {
             let body = req.body;
-            let product=await Fish.create(body).fetch();
-            let store=await Store.findOne(product.store).populate('owner')
-            if(product){
-                await MailerService.newProductAddedAdminNotified(product,store.owner);
-                await MailerService.newProductAddedSellerNotified(product,store.owner);
+            let product = await Fish.create(body).fetch();
+            let store = await Store.findOne(product.store).populate('owner')
+            if (product) {
+                await MailerService.newProductAddedAdminNotified(product, store.owner);
+                await MailerService.newProductAddedSellerNotified(product, store.owner);
                 //await require("./../../mailer").sendEmailNewProductAdded(product,store.owner);
                 //await require("./../../mailer").sendEmailNewProductAddedSeller(product,store.owner);
                 res.json({ product })
             }
-            else{
-                res.serverError({message:"error saving product"});
+            else {
+                res.serverError({ message: "error saving product" });
             }
         }
         catch (e) {
@@ -24,7 +24,7 @@ module.exports = {
         }
     },
 
-    addFishWithVariations: async ( req, res ) => {
+    addFishWithVariations: async (req, res) => {
         try {
             let body = req.body;
             let seafood_sku = 'var-test';/*await sails.helpers.generateSku(
@@ -38,14 +38,14 @@ module.exports = {
                 /*descriptor: body.descriptor,*/
                 store: body.store,
                 name: body.name,
-		        price : {
-                  type : "AED",
-                  value : body.variations[0].prices[0].price,
-                  description : body.variations[0].prices[0].price + " for pack"
+                price: {
+                    type: "AED",
+                    value: body.variations[0].prices[0].price,
+                    description: body.variations[0].prices[0].price + " for pack"
                 },
-                weight : {
-                  type : "kg",
-                  value: "0"
+                weight: {
+                    type: "kg",
+                    value: "0"
                 },
                 country: body.country,
                 processingCountry: body.processingCountry,
@@ -64,117 +64,124 @@ module.exports = {
                 brandname: body.brandName,
                 hsCode: body.hsCode,
                 acceptableSpoilageRate: body.acceptableSpoilageRate
-            }            
+            }
 
-            let mainFish = await Fish.create( newProduct ).fetch();
+            let mainFish = await Fish.create(newProduct).fetch();
 
-            if( mainFish ){
-                await Promise.all( body.variations.map( async (variation, index) => {
+            if (mainFish) {
+                await Promise.all(body.variations.map(async (variation, index) => {
                     let newVariation = {
-                        sku : `${seafood_sku}_${index}`,
-                        fishPreparation: variation.fishPreparation,                        
+                        sku: `${seafood_sku}_${index}`,
+                        fishPreparation: variation.fishPreparation,
                         fish: mainFish.id
                     }
 
-                    if ( variation.hasOwnProperty( 'wholeFishWeight' ) ) {
+                    if (variation.hasOwnProperty('wholeFishWeight')) {
                         newVariation['wholeFishWeight'] = variation.wholeFishWeight;
-                    } 
+                    }
 
-                    newVariation = await Variations.create( newVariation ).fetch();
+                    newVariation = await Variations.create(newVariation).fetch();
 
-                    if( newVariation ) {
+                    if (newVariation) {
                         await Promise.all(
-                            variation.prices.map( async ( varPrice, indexPrice ) => {
-                                await VariationPrices.create( {
+                            variation.prices.map(async (varPrice, indexPrice) => {
+                                await VariationPrices.create({
                                     min: varPrice.min,
                                     max: varPrice.max,
                                     price: varPrice.price,
                                     variation: newVariation.id
-                                } )
-                            } )
+                                })
+                            })
                         )
 
                     } else {
-                        res.status( 400 ).json( { message: "Error saving the a variation", newVariation } );
+                        res.status(400).json({ message: "Error saving the a variation", newVariation });
                     }
 
-                    
-    
-                } ) 
+
+
+                })
                 );
             } else { // if there is an error creating the main product
-                res.status( 400 ).json( { message: "Error saving the product", mainFish } );
+                res.status(400).json({ message: "Error saving the product", mainFish });
             }
 
-           
+
             //let variations = json.stringfy( req.body.variations ) ;
 
 
 
-            res.json( mainFish );
-            
+            res.json(mainFish);
+
         } catch (error) {
             console.error(error);
             res.serverError(error);
         }
     },
 
-    getFishWithVariations: async ( req, res ) => {
+    getFishWithVariations: async (req, res) => {
         try {
-            let fishID = req.param( 'id' );
-            let fish = await Fish.findOne( { id: fishID } ).populate('status').populate('store').populate('type').populate('treatment').populate('raised');//.populate('descriptor')
+            let fishID = req.param('id');
+            let fish = await Fish.findOne({ id: fishID }).populate('status').populate('store').populate('type').populate('treatment').populate('raised');//.populate('descriptor')
 
-            if( fish === undefined ) {
-                return res.status(200).json( {} );
+            if (fish === undefined) {
+                return res.status(200).json({});
             }
 
-            let variations = await Variations.find( { 'fish': fish.id } ).populate( 'fishPreparation' ).populate( 'wholeFishWeight' );
+            let variations = await Variations.find({ 'fish': fish.id }).populate('fishPreparation').populate('wholeFishWeight');
 
             let useOne = false;
-            if ( variations.length == 0 ) {
+            if (variations.length == 0) {
                 useOne = true;
             }
             fish['useOne'] = useOne;
             headAction = false;
-            headOff= false;
+            headOff = false;
             headOn = false;
             weights =
                 {
                     on: {
                         keys: []
                     },
-                    off:{
+                    off: {
                         keys: []
                     }
                 }
-            ;
-            await Promise.all(                
-                variations.map( async variation => {
-                    console.log( variation.id );
+                ;
+            let weightsTrim = {};
+            let isTrimms = useOne === true ? false : variations[0].wholeFishWeight === undefined || variations[0].wholeFishWeight === null;
+            await Promise.all(
+                variations.map(async variation => {
+                    console.log(variation.id);
 
-                    console.log( variation['fishPreparation'] );
-                    if( variation['fishPreparation']['id'] === '5c93bff065e25a011eefbcc2' ) {
-                        headAction = true;
-                        headOn = true;
-                        weights.on.keys.push(variation.wholeFishWeight.id)
-                        weights.on[variation.wholeFishWeight.id] = [];
+                    console.log(variation['fishPreparation']);
+                    if (isTrimms === false) {
+                        if (variation['fishPreparation']['id'] === '5c93bff065e25a011eefbcc2') {
+                            headAction = true;
+                            headOn = true;
+                            weights.on.keys.push(variation.wholeFishWeight.id)
+                            weights.on[variation.wholeFishWeight.id] = [];
+                        }
+
+                        if (variation['fishPreparation']['id'] === '5c93c00465e25a011eefbcc3') {
+                            headAction = true;
+                            headOff = true;
+                            weights.off.keys.push(variation.wholeFishWeight.id)
+                            weights.off[variation.wholeFishWeight.id] = [];
+                        }
+                    } else {
+                        weightsTrim[variation.fishPreparation.id] = [];
+                        headAction = false;
                     }
 
-                    if( variation['fishPreparation']['id'] === '5c93c00465e25a011eefbcc3' ) {
-                        headAction = true;
-                        headOff = true;
-                        weights.off.keys.push(variation.wholeFishWeight.id)
-                        weights.off[variation.wholeFishWeight.id] = [];
-                    }
 
-                    
-                    let prices = await VariationPrices.find( { 'variation': variation.id } );
+                    let prices = await VariationPrices.find({ 'variation': variation.id });
                     let minLimit = fish.minimunOrder;
-                    prices = prices.map( (row, indexPrice) => {                    
-                    
+                    prices = prices.map((row, indexPrice) => {
+
                         let maxLimit = fish.maximumOrder;;
-                        if( indexPrice < (prices.length -1 ) ) { //is not the last price 
-                            maxLimit = prices[ (indexPrice + 1 ) ].min;
+                        if (indexPrice < (prices.length - 1)) { //is not the last price 
+                            maxLimit = prices[(indexPrice + 1)].min;
                         }
 
                         let optionSlides = {
@@ -183,37 +190,46 @@ module.exports = {
                             maxLimit: maxLimit,
                             step: 1,
                             noSwitching: true
+                        },
+                        sld = {
+                            idVariation: variation.id,
+                            min: row.min,
+                            max: row.max,
+                            price: row.price,
+                            options: optionSlides
+                        };
+                        if (isTrimms == false) {
+                            if (variation['fishPreparation']['id'] === '5c93bff065e25a011eefbcc2') //head on
+                                weights.on[variation.wholeFishWeight.id].push(sld);
+                            else if (variation['fishPreparation']['id'] === '5c93c00465e25a011eefbcc3') //head off
+                                weights.off[variation.wholeFishWeight.id].push(sld);
+                        } else {
+                            weightsTrim[variation.fishPreparation.id].push(sld);
                         }
-                        if( variation['fishPreparation']['id'] === '5c93bff065e25a011eefbcc2' ) //head on
-                            weights.on[variation.wholeFishWeight.id].push( optionSlides );
-                        else if( variation['fishPreparation']['id'] === '5c93c00465e25a011eefbcc3' ) //head off
-                            weights.off[variation.wholeFishWeight.id].push( optionSlides );
 
                         minLimit = row.max;
                         return row;
-                    } )
+                    })
                     variation['prices'] = prices;
-                } ) 
+                })
             );
-            if( headOff && headOff )
+            if (headOff && headOff)
                 fish['head'] = 'both';
-            else if ( headOn )
+            else if (headOn)
                 fish['head'] = 'on';
-            else if( headOff )
+            else if (headOff)
                 fish['head'] = 'off';
-            else    
+            else
                 fish['head'] = '';
 
             fish['headAction'] = headAction;
             fish['wholeFishAction'] = headAction;
             fish['weights'] = weights;
-
+            fish["weightsTrim"] = weightsTrim;
             fish['variations'] = variations;
+            fish["isTrimms"] = isTrimms;
 
-            
-
-
-            res.status(200).json( fish );
+            res.status(200).json(fish);
 
         } catch (error) {
             res.serverError(error);
@@ -221,7 +237,7 @@ module.exports = {
     },
 
     // getFishWithVariations by weight, price, category, sub category, specie
-    filterFishWithVariations: async ( req, res ) => {
+    filterFishWithVariations: async (req, res) => {
         try {
             filterByPricesVariations = false;
             filterByVariations = false;
@@ -234,95 +250,95 @@ module.exports = {
             let variation_where = {}; // variation where
             let price_where = {}; // variation price where
             // start variation price filters
-            if( req.body.hasOwnProperty( 'minPrice' ) && req.body.hasOwnProperty( 'maxPrice' ) ) {
+            if (req.body.hasOwnProperty('minPrice') && req.body.hasOwnProperty('maxPrice')) {
                 let req_min_price = req.body.minPrice;
                 let req_max_price = req.body.maxPrice;
-                if( req_min_price !== '0' && req_max_price !== '0' ) {
+                if (req_min_price !== '0' && req_max_price !== '0') {
                     filterByPricesVariations = true;
-                    price_where['price'] =  { ">": req_min_price, "<": req_max_price } ;
-                } else if( req_min_price !== '0' ) {
+                    price_where['price'] = { ">": req_min_price, "<": req_max_price };
+                } else if (req_min_price !== '0') {
                     filterByPricesVariations = true;
                     let req_min_price = req.body.minPrice;
-                    price_where['price'] =  { ">": req_min_price } ;
-                } else if( req_max_price !== '0' ) {
+                    price_where['price'] = { ">": req_min_price };
+                } else if (req_max_price !== '0') {
                     filterByPricesVariations = true;
                     let req_max_price = req.body.maxPrice;
-                    price_where['price'] =  { "<": req_max_price } ;
+                    price_where['price'] = { "<": req_max_price };
                 }
-            } 
+            }
 
-            if ( req.body.hasOwnProperty( 'weight' ) ) {
-                if( req.body.weight !== '0' ) {
+            if (req.body.hasOwnProperty('weight')) {
+                if (req.body.weight !== '0') {
                     filterByPricesVariations = true;
                     let req_weight = req.body.weight;
                     price_where['min'] = { "<": req_weight };
-                    price_where['max'] = { ">": req_weight };                
+                    price_where['max'] = { ">": req_weight };
                 }
             }
-            
+
             //filter by price
-            let variations_ids=[];
+            let variations_ids = [];
             let prices;
-            if( filterByPricesVariations ) {
+            if (filterByPricesVariations) {
                 prices = await VariationPrices.find().where(
                     price_where
-                ) 
+                )
                 //addding variations in filter by prices
-                prices.map( element => {
-                    variations_ids.push( element.variation );
-                } )
-            }            
+                prices.map(element => {
+                    variations_ids.push(element.variation);
+                })
+            }
             // end variation price filters
-            
+
 
             // start variation filters
-            if ( req.body.hasOwnProperty( 'preparation' ) ) {
-               if( req.body.preparation.length > 0 ) {
+            if (req.body.hasOwnProperty('preparation')) {
+                if (req.body.preparation.length > 0) {
                     variation_where['fishPreparation'] = req.body.preparation;
-		    console.log('1');
+                    console.log('1');
                     filterByVariations = true;
                 }
             }
-            if ( req.body.hasOwnProperty( 'wholeFishWeight' ) ) {
-                if( req.body.wholeFishWeight.length > 0 ) {
+            if (req.body.hasOwnProperty('wholeFishWeight')) {
+                if (req.body.wholeFishWeight.length > 0) {
                     variation_where['wholeFishWeight'] = req.body.wholeFishWeight;
-		    console.log('2');
+                    console.log('2');
                     filterByVariations = true;
                 }
             }
 
-            
-            if( filterByPricesVariations ){
+
+            if (filterByPricesVariations) {
                 variation_where['id'] = variations_ids;
             }
 
             let variations;
-            if( ( filterByPricesVariations || filterByVariations) ){
-                console.log( 'variation_where', variation_where );
-		console.log( 'filterByPricesVariations', filterByPricesVariations );
-		console.log( 'filterByVariations', filterByVariations );
-                variations = await Variations.find().where( variation_where );
-                variations.map( variation => {
-                    variations_fishes_ids.push( variation.fish );
-                } )
-		//if( variations_fishes_ids.length > 0 ){
+            if ((filterByPricesVariations || filterByVariations)) {
+                console.log('variation_where', variation_where);
+                console.log('filterByPricesVariations', filterByPricesVariations);
+                console.log('filterByVariations', filterByVariations);
+                variations = await Variations.find().where(variation_where);
+                variations.map(variation => {
+                    variations_fishes_ids.push(variation.fish);
+                })
+                //if( variations_fishes_ids.length > 0 ){
                 fish_where['id'] = variations_fishes_ids
-		//}
+                //}
             }
             // end variation filters
 
-                
+
             // start fish filters
-            if ( req.body.hasOwnProperty( 'country' ) ) {
-                if( req.body.country !== '0' ) 
+            if (req.body.hasOwnProperty('country')) {
+                if (req.body.country !== '0')
                     fish_where['country'] = req.body.country;
             }
-            if ( req.body.hasOwnProperty( 'raised' ) ) {
-                if( req.body.raised.length > 0 )
+            if (req.body.hasOwnProperty('raised')) {
+                if (req.body.raised.length > 0)
                     fish_where['raised'] = req.body.raised;
             }
-            if ( req.body.hasOwnProperty( 'treatment' ) ) {
-                if( req.body.treatment.length > 0 )
+            if (req.body.hasOwnProperty('treatment')) {
+                if (req.body.treatment.length > 0)
                     fish_where['treatment'] = req.body.treatment;
             }
 
@@ -331,132 +347,132 @@ module.exports = {
             let subspecies = req.body.subspecies;
             let descriptor = req.body.descriptor;
 
-            if( descriptor !== '0' ){
+            if (descriptor !== '0') {
                 fish_where['descriptor'] = descriptor;
-            } else if ( subspecies !== '0' ){
+            } else if (subspecies !== '0') {
                 let descriptorChilds = [];
-                
+
                 level1 = await FishType.find({
                     where: { parent: subspecies }
                 });
-//                console.log( 'level1', level1 );
-                
-                await Promise.all( level1.map( async value1 => {
-                    descriptorChilds.push( value1.id );
+                //                console.log( 'level1', level1 );
 
-                    level2 = await FishType.find( { parent: value1.id } );
-  //                  console.log( 'level2', level2 );
+                await Promise.all(level1.map(async value1 => {
+                    descriptorChilds.push(value1.id);
+
+                    level2 = await FishType.find({ parent: value1.id });
+                    //                  console.log( 'level2', level2 );
 
 
                     //return categoryChilds;
-                } ) );
+                }));
                 fish_where['type'] = subspecies;
-            } else if ( subcategory !== '0' ) {
-                
-    //            console.log( 'parent' )
+            } else if (subcategory !== '0') {
+
+                //            console.log( 'parent' )
                 //condWhere.where['type'] =;
                 let categoryChilds = [];
-                categoryChilds.push( subcategory );
+                categoryChilds.push(subcategory);
                 level1 = await FishType.find({
                     where: { parent: subcategory }
                 });
-      //          console.log( 'level1', level1 );
-                
-                await Promise.all( level1.map( async value1 => {
-                    categoryChilds.push( value1.id );
+                //          console.log( 'level1', level1 );
 
-                    level2 = await FishType.find( { parent: value1.id } );
-        //            console.log( 'level2', level2 );
+                await Promise.all(level1.map(async value1 => {
+                    categoryChilds.push(value1.id);
+
+                    level2 = await FishType.find({ parent: value1.id });
+                    //            console.log( 'level2', level2 );
 
 
                     return categoryChilds;
-                } ) );
+                }));
 
-                fish_where['type'] =  categoryChilds ;
-            } else if ( category !== '0' ) {
-                console.log( 'parent' )
+                fish_where['type'] = categoryChilds;
+            } else if (category !== '0') {
+                console.log('parent')
                 //condWhere.where['type'] =;
                 let categoryChilds = [];
-                categoryChilds.push( category );
+                categoryChilds.push(category);
                 level1 = await FishType.find({
                     where: { parent: category }
                 });
-//                console.log( 'level1', level1 );
-                
-                await Promise.all( level1.map( async value1 => {
-                    categoryChilds.push( value1.id );
+                //                console.log( 'level1', level1 );
 
-                    level2 = await FishType.find( { parent: value1.id } );
-//                    console.log( 'level2', level2 );
+                await Promise.all(level1.map(async value1 => {
+                    categoryChilds.push(value1.id);
 
-                    await Promise.all( level2.map( async value2 => {
-                        categoryChilds.push( value2.id );
+                    level2 = await FishType.find({ parent: value1.id });
+                    //                    console.log( 'level2', level2 );
 
-                        level3 = await FishType.find( { parent: value2.id } );
-//                        console.log( 'level3', level3 );
-                        level3.map( value3 => {
-                            categoryChilds.push( value3.id );
-                        } )
+                    await Promise.all(level2.map(async value2 => {
+                        categoryChilds.push(value2.id);
+
+                        level3 = await FishType.find({ parent: value2.id });
+                        //                        console.log( 'level3', level3 );
+                        level3.map(value3 => {
+                            categoryChilds.push(value3.id);
+                        })
                         return categoryChilds;
 
-                    } ) )
+                    }))
 
                     return categoryChilds;
-                } ) );
+                }));
 
-                fish_where['type'] =  categoryChilds ;
+                fish_where['type'] = categoryChilds;
             }
-	    fish_where['status'] = '5c0866f9a0eda00b94acbdc2';
+            fish_where['status'] = '5c0866f9a0eda00b94acbdc2';
             // end fish filters
-            console.log( 'fish_where', fish_where );
+            console.log('fish_where', fish_where);
             //return res.json( prices );
             //prices.map( price => {
             //   prices_fishes_ids.push(price.variation.fish);
             //} )            
             //let fishes = await sails.helpers.getVariableProduct( prices_fishes_ids )
-            let fishes =  await Fish.find( fish_where );
+            let fishes = await Fish.find(fish_where);
 
             let products_ids = [];
-            fishes.map( ( item ) => {
-                products_ids.push( item.id );
-            } );
+            fishes.map((item) => {
+                products_ids.push(item.id);
+            });
 
             let productos = [];
             variation_where['fish'] = products_ids;
-            let res_variations = await Variations.find( variation_where ).populate( 'fish' ).populate( 'fishPreparation' ).populate( 'wholeFishWeight' );
-            console.log( 'variations', res_variations.length );
+            let res_variations = await Variations.find(variation_where).populate('fish').populate('fishPreparation').populate('wholeFishWeight');
+            console.log('variations', res_variations.length);
             await Promise.all(res_variations.map(async function (m) {
 
                 //get min max price
-                let priceVariation = await VariationPrices.find( { variation: m.id } );
+                let priceVariation = await VariationPrices.find({ variation: m.id });
                 let minMax = [];
-                priceVariation.map( ( pv ) => {
-                    minMax.push( pv.min );
-                    minMax.push( pv.max );
-                } )
-                
+                priceVariation.map((pv) => {
+                    minMax.push(pv.min);
+                    minMax.push(pv.max);
+                })
+
                 m['max'] = Math.max.apply(null, minMax) // 4
                 m['min'] = Math.min.apply(null, minMax) // 1
 
                 //lets recreate old json format with Fish at the top and inside the variations
                 let fish = m.fish;
                 let variation = m;
-                delete variation.fish;                
+                delete variation.fish;
                 m = fish;
                 //console.log(fish);
                 m['variation'] = variation;
 
                 if (m.store === null)
                     return m;
-                
-                m.store = await Store.findOne({ id: m.store }).populate('owner');            
+
+                m.store = await Store.findOne({ id: m.store }).populate('owner');
                 //m.store.owner = await User.findOne({ id: m.store.owner });            
                 //m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
-                productos.push( m );
+                productos.push(m);
                 return m;
             }));
 
-            return res.json( productos )
+            return res.json(productos)
 
 
         } catch (error) {
@@ -468,7 +484,7 @@ module.exports = {
         try {
             let weight = req.body.weight;
 
-            
+
         } catch (error) {
             res.serverError(error);
         }
@@ -478,49 +494,49 @@ module.exports = {
         try {
             let start = Number(req.params.page);
             --start;
-            let publishedProducts = await Fish.find( {status: '5c0866f9a0eda00b94acbdc2'} );
+            let publishedProducts = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' });
             let products_ids = [];
-            publishedProducts.map( ( item ) => {
-                products_ids.push( item.id );
-            } );
-            console.log( 'products_ids', products_ids );
+            publishedProducts.map((item) => {
+                products_ids.push(item.id);
+            });
+            console.log('products_ids', products_ids);
             //let productos = await Fish.find( {status: '5c0866f9a0eda00b94acbdc2'} ).populate("type").populate("store").populate('status').paginate({ page: start, limit: req.params.limit });
             let productos = [];
-            let variations = await Variations.find( { fish: products_ids } ).populate( 'fish' ).populate( 'fishPreparation' ).populate( 'wholeFishWeight' );
-            console.log( 'variations', variations.length );
+            let variations = await Variations.find({ fish: products_ids }).populate('fish').populate('fishPreparation').populate('wholeFishWeight');
+            console.log('variations', variations.length);
             await Promise.all(variations.map(async function (m) {
 
 
                 //get min max price
-                let priceVariation = await VariationPrices.find( { variation: m.id } );
+                let priceVariation = await VariationPrices.find({ variation: m.id });
                 let minMax = [];
-                priceVariation.map( ( pv ) => {
-                    minMax.push( pv.min );
-                    minMax.push( pv.max );
-                } )
-                
+                priceVariation.map((pv) => {
+                    minMax.push(pv.min);
+                    minMax.push(pv.max);
+                })
+
                 m['max'] = Math.max.apply(null, minMax) // 4
                 m['min'] = Math.min.apply(null, minMax) // 1
 
                 //lets recreate old json format with Fish at the top and inside the variations
                 let fish = m.fish;
                 let variation = m;
-                delete variation.fish;                
+                delete variation.fish;
                 m = fish;
                 //console.log(fish);
                 m['variation'] = variation;
 
                 if (m.store === null)
                     return m;
-                
-                m.store = await Store.findOne({ id: m.store }).populate('owner');            
+
+                m.store = await Store.findOne({ id: m.store }).populate('owner');
                 //m.store.owner = await User.findOne({ id: m.store.owner });            
                 //m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
-                productos.push( m );
+                productos.push(m);
                 return m;
             }));
 
-            
+
             /*productos = await Promise.all(productos.map(async function (m) {
                 if (m.store === null)
                     return m;
@@ -529,7 +545,7 @@ module.exports = {
                 return m;
             }));*/
 
-            let arr = await Fish.find( {status: '5c0866f9a0eda00b94acbdc2'} ),
+            let arr = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' }),
                 page_size = Number(req.params.limit), pages = 0;
             console.log(arr.length, Number(arr.length / page_size));
             if (parseInt(arr.length / page_size, 10) < Number(arr.length / page_size)) {
@@ -623,7 +639,7 @@ module.exports = {
 
     getSuggestions: async (req, res) => {
         try {
-            
+
             let name = req.param("name");
 
             var db = Fish.getDatastore().manager;
@@ -706,12 +722,12 @@ module.exports = {
             }
 
             //check if had records in the carts
-            let hasRecords = await ItemShopping.find( { fish: id } );
+            let hasRecords = await ItemShopping.find({ fish: id });
 
-            if( hasRecords.length > 0 ) { 
+            if (hasRecords.length > 0) {
                 // we can't deleted from the database so we are going to update the status of the fish
-                let updatedFish = await Fish.update( { id: id }, { status: '5c45f73f1d75b800924b4c39' } );
-                res.status( 200 ).json( updatedFish );
+                let updatedFish = await Fish.update({ id: id }, { status: '5c45f73f1d75b800924b4c39' });
+                res.status(200).json(updatedFish);
             } else {
                 let namefile, dirname;
                 if (fish.hasOwnProperty("imagePrimary") && fish.imagePrimary !== "" && fish.imagePrimary !== null) {
@@ -766,7 +782,7 @@ module.exports = {
 
             //Para cagar los items de cada carrito cargado
             async function getItemsCart(shoppingCart) {
-                let items = await ItemShopping.find({ shoppingCart: shoppingCart.id }).populate("fish", { where: {status: '5c0866f9a0eda00b94acbdc2'} });
+                let items = await ItemShopping.find({ shoppingCart: shoppingCart.id }).populate("fish", { where: { status: '5c0866f9a0eda00b94acbdc2' } });
                 items = items.filter(function (it) {
                     return it.fish.type === type;
                 });
@@ -831,7 +847,7 @@ module.exports = {
 
             //Para cagar los items de cada carrito cargado
             async function getItemsCart(shoppingCart) {
-                let items = await ItemShopping.find({ shoppingCart: shoppingCart.id }).populate("fish", { where: {status: '5c0866f9a0eda00b94acbdc2'} });
+                let items = await ItemShopping.find({ shoppingCart: shoppingCart.id }).populate("fish", { where: { status: '5c0866f9a0eda00b94acbdc2' } });
 
                 //Cargamos el comprador y la tienda
                 items = await Promise.all(items.map(async function (it) {
@@ -974,7 +990,7 @@ module.exports = {
         }
     },
 
-    filterProducts: async ( req, res ) => {
+    filterProducts: async (req, res) => {
         try {
             let preparation = req.param('preparation');
             let treatment = req.param('treatment');
@@ -992,108 +1008,108 @@ module.exports = {
             let minPrice = req.param('minPrice'); //price.value
             let maxPrice = req.param('maxPrice'); //price.value
 
-            let condWhere = { where: {status: '5c0866f9a0eda00b94acbdc2'} };
+            let condWhere = { where: { status: '5c0866f9a0eda00b94acbdc2' } };
 
-            if( preparation !== '0' && preparation !== undefined && preparation.length != 0 )
+            if (preparation !== '0' && preparation !== undefined && preparation.length != 0)
                 condWhere.where['preparation'] = preparation;
 
-            if( treatment !== '0' && treatment !== undefined && treatment.length != 0 )
+            if (treatment !== '0' && treatment !== undefined && treatment.length != 0)
                 condWhere.where['treatment'] = treatment;
 
-            if( raised !== '0' && raised !== undefined && raised.length != 0 )
+            if (raised !== '0' && raised !== undefined && raised.length != 0)
                 condWhere.where['raised'] = raised;
 
-            if( country !== '0' )
+            if (country !== '0')
                 condWhere.where['country'] = country;
 
-            if( maximumOrder !== '0' )
+            if (maximumOrder !== '0')
                 condWhere.where['maximumOrder'] = { '<=': parseFloat(maximumOrder) };
 
-            if( minimumOrder !== '0' )
+            if (minimumOrder !== '0')
                 condWhere.where['minimumOrder'] = { '>=': parseFloat(minimumOrder) };
-            
-            if( cooming_soon !== '0' ){
+
+            if (cooming_soon !== '0') {
                 condWhere.where['cooming_soon'] = cooming_soon;
             }
 
-            console.log( 'before cats', condWhere );
-            if( descriptor !== '0' ){
+            console.log('before cats', condWhere);
+            if (descriptor !== '0') {
                 condWhere.where['descriptor'] = descriptor;
-            } else if ( subspecies !== '0' ){
+            } else if (subspecies !== '0') {
                 let descriptorChilds = [];
-                
+
                 level1 = await FishType.find({
                     where: { parent: subspecies }
                 });
-                console.log( 'level1', level1 );
-                
-                Promise.all( level1.map( async value1 => {
-                    descriptorChilds.push( value1.id );
+                console.log('level1', level1);
 
-                    level2 = await FishType.find( { parent: value1.id } );
-                    console.log( 'level2', level2 );
+                Promise.all(level1.map(async value1 => {
+                    descriptorChilds.push(value1.id);
+
+                    level2 = await FishType.find({ parent: value1.id });
+                    console.log('level2', level2);
 
 
                     return descriptorChilds;
-                } ) );
+                }));
                 //condWhere.where['descriptor'] = descriptorChilds;
                 condWhere.where['type'] = subspecies;
-            } else if ( subcategory !== '0' ) {
-                
-                console.log( 'parent' )
+            } else if (subcategory !== '0') {
+
+                console.log('parent')
                 //condWhere.where['type'] =;
                 let categoryChilds = [];
-                categoryChilds.push( subcategory );
+                categoryChilds.push(subcategory);
                 level1 = await FishType.find({
                     where: { parent: subcategory }
                 });
-                console.log( 'level1', level1 );
-                
-                Promise.all( level1.map( async value1 => {
-                    categoryChilds.push( value1.id );
+                console.log('level1', level1);
 
-                    level2 = await FishType.find( { parent: value1.id } );
-                    console.log( 'level2', level2 );
+                Promise.all(level1.map(async value1 => {
+                    categoryChilds.push(value1.id);
+
+                    level2 = await FishType.find({ parent: value1.id });
+                    console.log('level2', level2);
 
 
                     return categoryChilds;
-                } ) );
+                }));
 
-                condWhere.where['type'] =  categoryChilds ;
-            } else if ( category !== '0' ) {
-                console.log( 'parent' )
+                condWhere.where['type'] = categoryChilds;
+            } else if (category !== '0') {
+                console.log('parent')
                 //condWhere.where['type'] =;
                 let categoryChilds = [];
-                categoryChilds.push( category );
+                categoryChilds.push(category);
                 level1 = await FishType.find({
                     where: { parent: category }
                 });
-                console.log( 'level1', level1 );
-                
-                await Promise.all( level1.map( async value1 => {
-                    categoryChilds.push( value1.id );
+                console.log('level1', level1);
 
-                    level2 = await FishType.find( { parent: value1.id } );
-                    console.log( 'level2', level2 );
+                await Promise.all(level1.map(async value1 => {
+                    categoryChilds.push(value1.id);
 
-                    Promise.all( level2.map( async value2 => {
-                        categoryChilds.push( value2.id );
+                    level2 = await FishType.find({ parent: value1.id });
+                    console.log('level2', level2);
 
-                        level3 = await FishType.find( { parent: value2.id } );
-                        console.log( 'level3', level3 );
-                        level3.map( value3 => {
-                            categoryChilds.push( value3.id );
-                        } )
+                    Promise.all(level2.map(async value2 => {
+                        categoryChilds.push(value2.id);
+
+                        level3 = await FishType.find({ parent: value2.id });
+                        console.log('level3', level3);
+                        level3.map(value3 => {
+                            categoryChilds.push(value3.id);
+                        })
                         return categoryChilds;
 
-                    } ) )
+                    }))
 
                     return categoryChilds;
-                } ) );
+                }));
 
-                condWhere.where['type'] =  categoryChilds ;
+                condWhere.where['type'] = categoryChilds;
             }
-            
+
             /*if( subcategory !== '0' ){
                 condWhere.where['type'] = subcategory;                
             }else {
@@ -1116,102 +1132,102 @@ module.exports = {
                 }                
             }*/
             let fish_price_ids = '';
-            if( minPrice!== '0' || maxPrice !== '0' ){
-                
-                fish_price_ids = await Fish.native(  function(err, collection) {
+            if (minPrice !== '0' || maxPrice !== '0') {
+
+                fish_price_ids = await Fish.native(function (err, collection) {
                     if (err) return res.serverError(err);
-                    console.log( 'min', minPrice );
-                    console.log( 'max', maxPrice );
+                    console.log('min', minPrice);
+                    console.log('max', maxPrice);
                     //{status: '5c0866f9a0eda00b94acbdc2'},
-                    let price_ids =  collection.find(
+                    let price_ids = collection.find(
                         {
-                            $and: [ 
-                                
-                                { 
-                                    "price.value": { $gte: parseInt(minPrice) } 
-                                }, 
-                                { 
-                                    "price.value": { $lte: parseInt(maxPrice) }  
-                                } ] 
-                        }, { "status": '5c0866f9a0eda00b94acbdc2' } ).toArray( async function (err, results) {
-                        if (err) return res.serverError(err);
-                        //console.log( 'justids', results );
-                        justIds =  results.map( ( row ) => {
-                            return row._id.toString()
-                        } )
-                        condWhere.where['id'] =  justIds ;
-                                  
-                        /*let fishes = await Fish.find(
-                            condWhere
-                        ).populate("type")
-                        .then(function ( result ) {
-                            let shippingRate = 
-                            res.status(200).json( result );
-                        }) */     
-                        let productos = await Fish.find( condWhere ).populate("type").populate("store");
-                        productos = await Promise.all(productos.map(async function (m) {
-                            m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
-                            if (m.store === null)
+                            $and: [
+
+                                {
+                                    "price.value": { $gte: parseInt(minPrice) }
+                                },
+                                {
+                                    "price.value": { $lte: parseInt(maxPrice) }
+                                }]
+                        }, { "status": '5c0866f9a0eda00b94acbdc2' }).toArray(async function (err, results) {
+                            if (err) return res.serverError(err);
+                            //console.log( 'justids', results );
+                            justIds = results.map((row) => {
+                                return row._id.toString()
+                            })
+                            condWhere.where['id'] = justIds;
+
+                            /*let fishes = await Fish.find(
+                                condWhere
+                            ).populate("type")
+                            .then(function ( result ) {
+                                let shippingRate = 
+                                res.status(200).json( result );
+                            }) */
+                            let productos = await Fish.find(condWhere).populate("type").populate("store");
+                            productos = await Promise.all(productos.map(async function (m) {
+                                m.shippingCost = await require('./ShippingRatesController').getShippingRateByCities(m.city, m.weight.value);
+                                if (m.store === null)
+                                    return m;
+                                m.store.owner = await User.findOne({ id: m.store.owner });
                                 return m;
-                            m.store.owner = await User.findOne({ id: m.store.owner });            
-                            return m;
-                        }));
-                        productos = await Promise.all(productos.map(async function (m) {
-                            m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
-                            if (m.store === null)
+                            }));
+                            productos = await Promise.all(productos.map(async function (m) {
+                                m.shippingCost = await require('./ShippingRatesController').getShippingRateByCities(m.city, m.weight.value);
+                                if (m.store === null)
+                                    return m;
+                                m.store.owner = await User.findOne({ id: m.store.owner });
                                 return m;
-                            m.store.owner = await User.findOne({ id: m.store.owner });            
-                            return m;
-                        }));
-                        res.status(200).json( productos );
-                        return justIds;
-                    });
+                            }));
+                            res.status(200).json(productos);
+                            return justIds;
+                        });
                     return price_ids
                 });
-            }else{
+            } else {
                 /*let fishes = await Fish.find(
                     condWhere
                 ).populate("type")
                 .then(function ( result ) {
                     res.status(200).json( result );
                 })*/
-                let productos = await Fish.find( condWhere ).populate("type").populate("store");
+                let productos = await Fish.find(condWhere).populate("type").populate("store");
                 productos = await Promise.all(productos.map(async function (m) {
-                    m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
+                    m.shippingCost = await require('./ShippingRatesController').getShippingRateByCities(m.city, m.weight.value);
                     if (m.store === null)
                         return m;
-                    m.store.owner = await User.findOne({ id: m.store.owner });            
+                    m.store.owner = await User.findOne({ id: m.store.owner });
                     return m;
                 }));
-                res.status(200).json( productos );
+                res.status(200).json(productos);
             }
             //console.log( fish_price_ids );             
-            
-            
+
+
 
         } catch (error) {
             console.log(error);
             res.serverError(error);
-        }            
+        }
 
-    },  
+    },
 
     generateSKU: async (req, res) => {
         let store = req.param('store_code');
         let category = req.param('category_code');
         let subcategory = req.param('subcategory_code');
         let country = req.param('country');
-        
-        let store_name = await Store.find( 
+
+        let store_name = await Store.find(
             {
                 where: {
                     "id": store
                 }
-            } 
+            }
         )
-	
 
-        let country_name = await Countries.find( 
+
+        let country_name = await Countries.find(
             {
                 where: {
                     "code": country
@@ -1219,28 +1235,28 @@ module.exports = {
             }
         )
 
-        let category_name = await FishType.find( 
+        let category_name = await FishType.find(
             {
                 where: {
                     "id": category
                 }
-            } 
+            }
         )
-        
-        let subcategory_name = await FishType.find( 
+
+        let subcategory_name = await FishType.find(
             {
                 where: {
                     "id": subcategory
                 }
-            } 
+            }
         )
 
-        let fishes = await Fish.count( {
+        let fishes = await Fish.count({
             country: country,
             store: store,
             type: subcategory,
-            country: country            
-        } )
+            country: country
+        })
 
         let body = {
             store_name: store_name[0].name,
@@ -1250,89 +1266,89 @@ module.exports = {
             country: country_name[0].name
         }
         fishes += 1;
-        if(fishes < 10)
-            fishes = '0' + fishes;        
+        if (fishes < 10)
+            fishes = '0' + fishes;
 
-        res.status(200).json( `${store_name[0].name.substring(0, 3).toUpperCase()}-${category_name[0].name.substring(0, 3).toUpperCase()}-${subcategory_name[0].name.substring(0, 3).toUpperCase()}-${country_name[0].name.substring(0, 3).toUpperCase()}-${fishes}` );
-        
+        res.status(200).json(`${store_name[0].name.substring(0, 3).toUpperCase()}-${category_name[0].name.substring(0, 3).toUpperCase()}-${subcategory_name[0].name.substring(0, 3).toUpperCase()}-${country_name[0].name.substring(0, 3).toUpperCase()}-${fishes}`);
+
     },
 
-    updateStatus: async ( req, res ) => {
+    updateStatus: async (req, res) => {
         try {
             let id = req.param("id");
             let statusID = req.param("statusID");
-            
+
             let fishUpdated;
             //let fish = await Fish.update({id}, { status: statusID,statusReason:reason }).fetch();
-            let fish=  await Fish.findOne({id}).populate('store');
-            let store = await Store.findOne({ id: fish.store.id}).populate('owner');
-            if( statusID == '5c0866f2a0eda00b94acbdc1' ){ //Not Approved
-                let SFSAdminFeedback= req.body['message']; //req.param("SFSAdminFeedback")
-                console.log( SFSAdminFeedback )
-                if( SFSAdminFeedback && SFSAdminFeedback!==''){
-                    fishUpdated = await Fish.update({id}, { status: statusID,SFSAdminFeedback:SFSAdminFeedback }).fetch();
+            let fish = await Fish.findOne({ id }).populate('store');
+            let store = await Store.findOne({ id: fish.store.id }).populate('owner');
+            if (statusID == '5c0866f2a0eda00b94acbdc1') { //Not Approved
+                let SFSAdminFeedback = req.body['message']; //req.param("SFSAdminFeedback")
+                console.log(SFSAdminFeedback)
+                if (SFSAdminFeedback && SFSAdminFeedback !== '') {
+                    fishUpdated = await Fish.update({ id }, { status: statusID, SFSAdminFeedback: SFSAdminFeedback }).fetch();
                     //await require("./../../mailer").sendEmailProductRejected(store.owner, fish,SFSAdminFeedback);
-                    await MailerService.newProductRejected(store.owner, fish,SFSAdminFeedback);
+                    await MailerService.newProductRejected(store.owner, fish, SFSAdminFeedback);
                 }
-                else{
-                    res.serverError( {'msg':"You need to provide a reason for not approved the product"} )
+                else {
+                    res.serverError({ 'msg': "You need to provide a reason for not approved the product" })
                 }
-            }else if( statusID == '5c0866f9a0eda00b94acbdc2' ){ //Approved
-                
-                fishUpdated = await Fish.update({id}, { status: statusID }).fetch();
+            } else if (statusID == '5c0866f9a0eda00b94acbdc2') { //Approved
+
+                fishUpdated = await Fish.update({ id }, { status: statusID }).fetch();
                 await MailerService.newProductAccepted(store.owner, fish);
 
                 await sails.helpers.updateCategoryCount();
                 //await require("./../../mailer").sendEmailProductApproved(store.owner, fish);
             }
 
-            res.status( 200 ).json( fishUpdated )
+            res.status(200).json(fishUpdated)
         } catch (error) {
-            res.serverError( error );
+            res.serverError(error);
         }
     },
 
-    getPendingProducts: async ( req, res ) => {
+    getPendingProducts: async (req, res) => {
         try {
             let countries = await Countries.find();
-            let fishes = await Fish.find( { status: '5c0866e4a0eda00b94acbdc0' } ).populate( 'store' ).populate( 'type' );
+            let fishes = await Fish.find({ status: '5c0866e4a0eda00b94acbdc0' }).populate('store').populate('type');
 
-            
+
             fishes = await Promise.all(fishes.map(async (it) => {
                 try {
-                    let owner = await User.findOne( { id:  it.store.owner } )
+                    let owner = await User.findOne({ id: it.store.owner })
 
 
-                    let fishID = req.param( 'fishID' );
+                    let fishID = req.param('fishID');
 
                     let level2 = it.type;
-                    
-                    let descriptor = await FishType.findOne( { id: it.descriptor } );
-                    
 
-                    let level1 = await FishType.findOne( { id: level2.parent } );
+                    let descriptor = await FishType.findOne({ id: it.descriptor });
 
-                    let level0 = await FishType.findOne( { id: level1.parent } );
 
-                    let parentsLevel = { level0, level1, level2, descriptor } ;
+                    let level1 = await FishType.findOne({ id: level2.parent });
+
+                    let level0 = await FishType.findOne({ id: level1.parent });
+
+                    let parentsLevel = { level0, level1, level2, descriptor };
                     it.parentsLevel = parentsLevel;
-                    
-                    await countries.map( async country => {
-                        if( it.country == country.code ){
+
+                    await countries.map(async country => {
+                        if (it.country == country.code) {
                             it.countryName = country.name;
                             console.log(country.name)
 
-                            await country.cities.map( city => {
-                                if( it.city == city.code ) {
+                            await country.cities.map(city => {
+                                if (it.city == city.code) {
                                     it.cityName = city.name;
                                     console.log(city);
                                 }
                             })
                         }
-                        if ( it.processingCountry == country.code ) {
+                        if (it.processingCountry == country.code) {
                             it.processingCountryName = country.name;
                         }
-                    } )
+                    })
 
                     it.owner = {
                         id: owner.id,
@@ -1345,31 +1361,31 @@ module.exports = {
                 }
                 catch (e) {
                     console.error(e);
-                }                
+                }
                 return it;
             }))
 
 
-            res.status( 200 ).json( fishes );
+            res.status(200).json(fishes);
         } catch (error) {
-            console.log( error );
-            res.serverError( error );
+            console.log(error);
+            res.serverError(error);
         }
     },
-    getItemCharges: async ( req, res ) => {
+    getItemCharges: async (req, res) => {
         try {
             let currentAdminCharges = await sails.helpers.currentCharges();
-            let id = req.param( 'id' );
-            let variation_id = req.param( 'variation_id' );
-            let weight = req.param( 'weight' );
+            let id = req.param('id');
+            let variation_id = req.param('variation_id');
+            let weight = req.param('weight');
 
-            let charges = await sails.helpers.fishPricing( id, weight, currentAdminCharges, variation_id ); 
+            let charges = await sails.helpers.fishPricing(id, weight, currentAdminCharges, variation_id);
 
-            res.status( 200 ).json( charges );
+            res.status(200).json(charges);
 
         } catch (error) {
-            console.log( error );
-            res.serverError( error );
+            console.log(error);
+            res.serverError(error);
         }
     },
 
@@ -1389,7 +1405,7 @@ module.exports = {
         res.json(fishstypes);
     })
 
-    
+
 };
 
 getChildsTypes = async childs => {
