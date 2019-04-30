@@ -34,8 +34,7 @@ module.exports = {
                 body.processingCountry
             );*/
             let newProduct = {
-                type: body.type,
-                /*descriptor: body.descriptor,*/
+                type: body.type,                
                 store: body.store,
                 name: body.name,
 		        price : {
@@ -64,7 +63,11 @@ module.exports = {
                 brandname: body.brandName,
                 hsCode: body.hsCode,
                 acceptableSpoilageRate: body.acceptableSpoilageRate
-            }
+            }     
+            if ( body.hasOwnProperty( 'descriptor' ) ) {
+                newProduct['wholeFishWeight'] = body.newProduct;
+            }        
+
 
             let mainFish = await Fish.create(newProduct).fetch();
 
@@ -80,7 +83,8 @@ module.exports = {
                         newVariation['wholeFishWeight'] = variation.wholeFishWeight;
                     }
 
-                    newVariation = await Variations.create(newVariation).fetch();
+                    newVariation = await Variations.create( newVariation ).fetch();
+
 
                     if (newVariation) {
                         await Promise.all(
@@ -121,8 +125,84 @@ module.exports = {
 
     updateFishWithVariations: async ( req, res ) => {
         try {
-            
-            res.json( {  } );
+            let body = req.body;
+            let seafood_sku = 'var-test';
+            // let update fish information
+            let fishBody = {
+                type: body.type,
+                descriptor: body.descriptor,
+                name: body.name,
+                description: body.description,
+                country: body.country,
+                processingCountry: body.processingCountry,
+                city: body.city,
+                weight: body.weight,
+                perBox: body.perBox,
+                minimumOrder: body.minimumOrder,
+                maximumOrder: body.maximumOrder,
+                acceptableSpoilageRate: body.acceptableSpoilageRate,
+                raised: body.raised,
+                treatment: body.treatment,
+                seller_sku: body.seller_sku,
+                mortalityRate: body.mortalityRate,
+                waterLostRate: body.waterLostRate,
+                brandname: body.brandname,
+                hsCode: body.hsCode
+            }
+
+            let fishUpdated = await Fish.update( { id: body.idProduct } ).set(
+                fishBody
+            ).fetch();
+            // let go variations information
+            await Promise.all( body.variations.map( async variation => {
+                let variationBody = {
+                    fishPreparation: variation.fishPreparation,
+                }
+                if( variation.hasOwnProperty('wholeFishWeight') ) {
+                    variationBody['wholeFishWeight'] = variation.wholeFishWeight;
+                }
+                let newVariation ;
+                if ( variation.hasOwnProperty( 'id' ) ) {
+                    // update
+                    newVariation = await Variations.update( { id: variation.id } ).set( variationBody ).fetch();
+                } else {
+                    //create
+                    let sku = `${seafood_sku}`;
+                    variationBody['sku'] = sku;
+                    variationBody['fish'] = body.idProduct;
+                    newVariation = await Variations.create( variationBody ).fetch();
+                }
+
+                // let update pricing information
+                await Promise.all( variation.prices.map( async price => {
+                    let priceBody = {
+                        
+                        min: price.min,
+                        max: price.max,
+                        price: price.price
+                    }
+                    if ( price.hasOwnProperty( 'id' ) ) { 
+                        // lets update
+                        VariationPrices.update( { id: price.id } ).set( priceBody );
+                    } else {
+                        // lets create
+                        priceBody['variation'] = newVariation.id;
+                        VariationPrices.create( priceBody );
+                    }
+                    
+                } ) )
+
+
+            } ) )
+
+            //let delete variation
+            if( body.hasOwnProperty( 'variationsDeleted' ) ) {
+                await Variations.destroy( { id: { in:   body.variationsDeleted  } } );
+            }
+
+
+            res.json( fishUpdated );
+
         } catch (error) {
             res.serverError(error);
         }
@@ -1391,7 +1471,6 @@ module.exports = {
             console.log( 'in_AED', in_AED );
             console.log( 'in_AED2', req.param( 'in_AED' ) );
             let charges = await sails.helpers.fishPricing( id, weight, currentAdminCharges, variation_id, in_AED ); 
-
 
             res.status(200).json(charges);
 

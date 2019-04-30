@@ -151,6 +151,7 @@ module.exports.routes = {
 
    "PUT /api/variations": "FishController.updateFishWithVariations",
 
+
    "GET /api/fish/:id/variations/": "FishController.getFishWithVariations",
    
    //search variations by weight
