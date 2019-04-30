@@ -56,7 +56,7 @@
 
   <% /* Delete the global `self` to help avoid client-side bugs.
     (see https://developer.mozilla.org/en-US/docs/Web/API/Window/self) */ %>
-  <script>delete window.self;</script>
+  <!-- <script>delete window.self;</script> -->
 
   <% /* Auto-injected «script» tags: */ %>
   <!--SCRIPTS-->
@@ -73,6 +73,7 @@
   <script src="/js/components/ajax-form.component.js"></script>
   <script src="/js/components/modal.component.js"></script>
   <script src="/js/utilities/open-stripe-checkout.js"></script>
+  <script src="/js/fetch.umd.js"></script>
   <script src="/js/pages/498.page.js"></script>
   <script src="/js/pages/account/account-overview.page.js"></script>
   <script src="/js/pages/account/edit-password.page.js"></script>

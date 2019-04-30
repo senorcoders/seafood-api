@@ -9,7 +9,7 @@
   </div>
 </div>
 <%- /* Expose locals as `window.SAILS_LOCALS` :: */ exposeLocalsToBrowser() %>
-
+<script src="/js/fetch.umd.js"></script>
 <script type="text/javascript">
   function sert() {
     let paths = location.pathname.split("/");
@@ -20,6 +20,7 @@
         return response.json();
       })
         .then(function (myJson) {
+          console.log(myJson.url);
           if (myJson.message === "valid") {
             location.href = myJson.url;
           } else {
@@ -31,4 +32,5 @@
   }
 
   setTimeout(sert, 2000);
+  console.log("que pasa");
 </script>
