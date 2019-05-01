@@ -34,13 +34,13 @@ module.exports = {
                 body.processingCountry
             );*/
             let newProduct = {
-                type: body.type,                
+                type: body.type,
                 store: body.store,
                 name: body.name,
-		        price : {
-                  type : "USD",
-                  value : body.variations[0].prices[0].price,
-                  description : body.variations[0].prices[0].price + " for pack"
+                price: {
+                    type: "USD",
+                    value: body.variations[0].prices[0].price,
+                    description: body.variations[0].prices[0].price + " for pack"
                 },
                 weight: {
                     type: "kg",
@@ -63,10 +63,10 @@ module.exports = {
                 brandname: body.brandName,
                 hsCode: body.hsCode,
                 acceptableSpoilageRate: body.acceptableSpoilageRate
-            }     
-            if ( body.hasOwnProperty( 'descriptor' ) ) {
+            }
+            if (body.hasOwnProperty('descriptor')) {
                 newProduct['wholeFishWeight'] = body.newProduct;
-            }        
+            }
 
 
             let mainFish = await Fish.create(newProduct).fetch();
@@ -83,7 +83,7 @@ module.exports = {
                         newVariation['wholeFishWeight'] = variation.wholeFishWeight;
                     }
 
-                    newVariation = await Variations.create( newVariation ).fetch();
+                    newVariation = await Variations.create(newVariation).fetch();
 
 
                     if (newVariation) {
@@ -123,7 +123,7 @@ module.exports = {
         }
     },
 
-    updateFishWithVariations: async ( req, res ) => {
+    updateFishWithVariations: async (req, res) => {
         try {
             let body = req.body;
             let seafood_sku = 'var-test';
@@ -146,69 +146,82 @@ module.exports = {
                 seller_sku: body.seller_sku,
                 mortalityRate: body.mortalityRate,
                 waterLostRate: body.waterLostRate,
-                brandname: body.brandname,
+                brandname: body.brandName,
                 hsCode: body.hsCode
             }
 
-            let fishUpdated = await Fish.update( { id: body.idProduct } ).set(
+            let fishUpdated = await Fish.update({ id: body.idProduct }).set(
                 fishBody
             ).fetch();
             // let go variations information
-            await Promise.all( body.variations.map( async variation => {
+            await Promise.all(body.variations.map(async variation => {
                 let variationBody = {
                     fishPreparation: variation.fishPreparation,
                 }
-                if( variation.hasOwnProperty('wholeFishWeight') ) {
+                if (variation.hasOwnProperty('wholeFishWeight')) {
                     variationBody['wholeFishWeight'] = variation.wholeFishWeight;
                 }
-                let newVariation ;
-                if ( variation.hasOwnProperty( 'id' ) ) {
+                let newVariation;
+                if (variation.hasOwnProperty('idVariation')) {
                     // update
-                    newVariation = await Variations.update( { id: variation.id } ).set( variationBody ).fetch();
+                    newVariation = await Variations.update({ id: variation.idVariation }).set(variationBody).fetch();
                 } else {
                     //create
                     let sku = `${seafood_sku}`;
                     variationBody['sku'] = sku;
                     variationBody['fish'] = body.idProduct;
-                    newVariation = await Variations.create( variationBody ).fetch();
+                    newVariation = await Variations.create(variationBody).fetch();
                 }
 
                 // let update pricing information
-                await Promise.all( variation.prices.map( async price => {
+                await Promise.all(variation.prices.map(async price => {
                     let priceBody = {
-                        
+
                         min: price.min,
                         max: price.max,
                         price: price.price
                     }
-                    if ( price.hasOwnProperty( 'id' ) ) { 
+                    if (price.hasOwnProperty('id')) {
                         // lets update
-                        VariationPrices.update( { id: price.id } ).set( priceBody );
+                        await VariationPrices.update({ id: price.id }).set(priceBody);
                     } else {
                         // lets create
-                        priceBody['variation'] = newVariation.id;
-                        VariationPrices.create( priceBody );
+                        console.log("\n\n", newVariation, "\n", variation);
+                        let idVar = "";
+                        if (Object.prototype.toString.call(newVariation) === '[object Array]') {
+                            idVar = newVariation.length > 0 ? newVariation[0].id : variation.id;
+                        } else {
+                            idVar = newVariation.id ? newVariation.id : variation.id;
+                        }
+                        priceBody['variation'] = idVar;
+                        await VariationPrices.create(priceBody);
                     }
-                    
-                } ) )
+
+                }))
 
 
-            } ) )
+            }))
+
 
             //let delete variation
-            if( body.hasOwnProperty( 'variationsDeleted' ) ) {
-                await Variations.destroy( { id: { in:   body.variationsDeleted  } } );
+            if (body.hasOwnProperty('pricesDeleted')) {
+                await VariationPrices.destroy({ id: { in: body.pricesDeleted } });
+            }
+
+            //let delete variation
+            if (body.hasOwnProperty('variationsDeleted')) {
+                await Variations.destroy({ id: { in: body.variationsDeleted } });
             }
 
 
-            res.json( fishUpdated );
+            res.json(fishUpdated);
 
         } catch (error) {
             res.serverError(error);
         }
     },
 
-    getFishWithVariations: async ( req, res ) => {
+    getFishWithVariations: async (req, res) => {
         try {
             let fishID = req.param('id');
             let fish = await Fish.findOne({ id: fishID }).populate('status').populate('store').populate('type').populate('treatment').populate('raised');//.populate('descriptor')
@@ -239,6 +252,7 @@ module.exports = {
                 ;
             let weightsTrim = {};
             let isTrimms = useOne === true ? false : variations[0].wholeFishWeight === undefined || variations[0].wholeFishWeight === null;
+
             await Promise.all(
                 variations.map(async variation => {
                     console.log(variation.id);
@@ -280,13 +294,14 @@ module.exports = {
                             step: 1,
                             noSwitching: true
                         },
-                        sld = {
-                            idVariation: variation.id,
-                            min: row.min,
-                            max: row.max,
-                            price: row.price,
-                            options: optionSlides
-                        };
+                            sld = {
+                                idVariation: variation.id,
+                                id: row.id,
+                                min: row.min,
+                                max: row.max,
+                                price: row.price,
+                                options: optionSlides
+                            };
                         if (isTrimms == false) {
                             if (variation['fishPreparation']['id'] === '5c93bff065e25a011eefbcc2') //head on
                                 weights.on[variation.wholeFishWeight.id].push(sld);
@@ -302,6 +317,7 @@ module.exports = {
                     variation['prices'] = prices;
                 })
             );
+
             if (headOff && headOff)
                 fish['head'] = 'both';
             else if (headOn)
@@ -311,6 +327,26 @@ module.exports = {
             else
                 fish['head'] = '';
 
+            //Ignorar los variations que no tiene prices
+            
+            for (let key of weights.on.keys) {
+                if (weights.on[key] !== undefined && weights.on[key] !== null)
+                    weights.on[key] = weights.on[key].length > 0 ? weights.on[key] : undefined;
+            }
+            console.log(weights.on.keys);
+            weights.on.keys = weights.on.keys.filter(it => {
+                console.log(weights.on[it]);
+                return weights.on[it] !== undefined && weights.on[it] !== null && weights.on[it].length > 0;
+            });
+            console.log(weights.on.keys);
+            
+            for (let key of weights.off.keys) {
+                if (weights.off[key] !== undefined && weights.off[key] !== null)
+                    weights.off[key] = weights.off[key].length > 0 ? weights.off[key] : undefined;
+            }
+            weights.off.keys = weights.off.keys.filter(it => {
+                return weights.off[it] !== undefined && weights.off[it] !== null && weights.off[it].length > 0;
+            });
             fish['headAction'] = headAction;
             fish['wholeFishAction'] = headAction;
             fish['weights'] = weights;
@@ -1464,13 +1500,13 @@ module.exports = {
     getItemCharges: async (req, res) => {
         try {
             let currentAdminCharges = await sails.helpers.currentCharges();
-            let id = req.param( 'id' );
-            let variation_id = req.param( 'variation_id' );
-            let weight = req.param( 'weight' );
-            let in_AED = ( req.param( 'in_AED' ) == "true" );
-            console.log( 'in_AED', in_AED );
-            console.log( 'in_AED2', req.param( 'in_AED' ) );
-            let charges = await sails.helpers.fishPricing( id, weight, currentAdminCharges, variation_id, in_AED ); 
+            let id = req.param('id');
+            let variation_id = req.param('variation_id');
+            let weight = req.param('weight');
+            let in_AED = (req.param('in_AED') == "true");
+            console.log('in_AED', in_AED);
+            console.log('in_AED2', req.param('in_AED'));
+            let charges = await sails.helpers.fishPricing(id, weight, currentAdminCharges, variation_id, in_AED);
 
             res.status(200).json(charges);
 

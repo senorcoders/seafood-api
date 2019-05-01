@@ -118,6 +118,9 @@ module.exports.routes = {
   //Para guardar multiples images de un producto
   'POST /api/fish/images/:id': 'ImageController.multipleImagesUpload',
 
+  //Para actualizar images
+  'PUT /api/fish/images/:id': 'ImageController.updateImages',
+
   //Para obtener images custom
   'GET /api/images/:namefile/:id': 'ImageController.getImage',
 
