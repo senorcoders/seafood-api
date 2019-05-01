@@ -107,6 +107,114 @@ function getMimeFile(dirname) {
     });
 }
 
+
+const deleteImage = async function (req, res) {
+    try {
+        let id = req.param("id"), namefile = req.param("namefile");
+
+        let directory = IMAGES + `${"/" + id + "/" + namefile}`;
+        console.log("\n\n zzz", directory);
+
+        let fish = await Fish.findOne({ id });
+        if (fish === undefined) {
+            return res.serverError("id not found");
+        }
+
+        if (fish.hasOwnProperty("images") && Object.prototype.toString.call(fish.images) === "[object Array]") {
+            let index = fish.images.findIndex(function (i) { return i.filename === namefile })
+            if (index !== -1) {
+                if (fish.images.length === 1) {
+                    fish.images = [];
+                } else if (fish.images.length > 1) {
+                    fish.images.splice(index, 1);
+                }
+            }
+        }
+
+        let upda = await Fish.update({ id: fish.id }, { images: fish.images });
+        //console.log(upda);
+
+        if (!fs.existsSync(directory)) {
+            throw new Error("file not exist");
+        }
+
+        // read binary data
+        var data = fs.unlinkSync(directory);
+
+        res.json({ msg: "success" })
+
+    }
+    catch (e) {
+        //console.log(e);
+        res.serverError(e);
+    }
+}
+
+const multipleImagesUpload = async function (req, res) {
+
+    let fish = await Fish.findOne({ id: req.params.id });
+    if (fish === undefined) {
+        return res.serverError("id not found");
+    }
+
+    let dirname = IMAGES + "/" + req.params.id;
+    //create directory if not exists
+    if (!fs.existsSync(dirname)) {
+        fs.mkdirSync(dirname);
+    }
+
+    let imagesName = [], i = 0;
+    ////console.log(req);
+    req.file("images").upload({
+        dirname,
+        maxBytes: 70000000,
+        saveAs: function (stream, cb) {
+            // changin name to sku format
+            let newName = stream.filename;
+            newName = newName.replace(/\s+/g, '-').toLowerCase() + new Date().getTime();
+            imagesName.push(newName);
+            cb(null, newName);
+        }
+    }, async function (err, uploadedFiles) {
+        if (err) return res.send(500, err);
+
+        let dirs = [];
+        for (let file of uploadedFiles) {
+            // changing name to sku format
+            let newName = imagesName[i];
+            if (file.type.includes("image/") && file["status"] === "finished") {
+                dirs.push({
+                    filename: newName,
+                    src: "/api/images" + "/" + newName + "/" + req.params.id
+                });
+                //for resizing image
+                try {
+                    let directory = IMAGES + `${"/" + req.params.id + "/" + newName}`;
+                    console.log(directory);
+                    await resizeImage(directory, { width: 800, height: null });
+                }
+                catch (e) {
+                    console.error(e);
+                }
+            }
+            i += 1;
+        }
+
+        if (fish.hasOwnProperty("images") && Object.prototype.toString.call(fish.images) === "[object Array]") {
+            for (let dir of dirs) {
+                fish.images.push(dir);
+            }
+        } else {
+            fish.images = dirs;
+        }
+
+        let upda = await Fish.update({ id: fish.id }, { images: fish.images });
+        ////console.log(upda);
+
+        return res.json(fish.images);
+    })
+}
+
 module.exports = {
 
     uploadShippingInformation: async (req, res) => {
@@ -269,72 +377,43 @@ module.exports = {
 
     },
 
-    multipleImagesUpload: async function (req, res) {
-
-        let fish = await Fish.findOne({ id: req.params.id });
-        if (fish === undefined) {
-            return res.serverError("id not found");
-        }
-
-        let dirname = IMAGES + "/" + req.params.id;
-        //create directory if not exists
-        if (!fs.existsSync(dirname)) {
-            fs.mkdirSync(dirname);
-        }
-
-        let images = [], i = 0;
-        ////console.log(req);
-        req.file("images").upload({
-            dirname,
-            maxBytes: 70000000,
-            saveAs: function (stream, cb) {
-                // changin name to sku format
-                let newName = stream.filename;
-                newName = newName.replace(/\s+/g, '-').toLowerCase()+ new Date().getTime();
-                cb(null, newName);
-            }
-        }, async function (err, uploadedFiles) {
-            if (err) return res.send(500, err);
-
-            let dirs = [];
-            for (let file of uploadedFiles) {
-                // changin name to sku format
-                let newName = file.filename;
-                newName = newName.replace(/\s+/g, '-').toLowerCase();
-
-                if (file.type.includes("image/") && file["status"] === "finished") {
-                    dirs.push({
-                        filename: newName,
-                        src: "/api/images" + "/" + newName + "/" + req.params.id
-                    });
-                    //for resizing image
+    updateImages: async (req, res) => {
+        try {
+            let deletedImages = req.param("deletedImages");
+            if (Object.prototype.toString.call(deletedImages) === "[object String]") {
+                deletedImages = JSON.parse(deletedImages);
+                function getIdName(ur) {
+                    return {
+                        id: ur.split("/").pop(), namefile: ur.split("/").splice(-2, 1)[0]
+                    }
+                };
+                console.log("zzz", deletedImages);
+                for (let img of deletedImages) {
                     try {
-                        let directory = IMAGES + `${"/" + req.params.id + "/" + newName}`;
-                        console.log(directory);
-                        await resizeImage(directory, { width: 800, height: null });
+                        let _req = Object.assign(getIdName(img),
+                            { param: function (id) { return this[id] } }); console.log(_req);
+                        await new Promise((resolve, reject) => {
+                            let _res = {
+                                json: resolve,
+                                serverError: reject
+                            };
+                            deleteImage(_req, _res)
+                        });
                     }
                     catch (e) {
                         console.error(e);
                     }
                 }
             }
-
-            if (fish.hasOwnProperty("images") && Object.prototype.toString.call(fish.images) === "[object Array]") {
-                for (let dir of dirs) {
-                    if (fish.images.findIndex(function (i) { return i.src === dir.src || i.filename.replace(/\s+/g, '-').toLowerCase() === dir.filename.replace(/\s+/g, '-').toLowerCase() }) === -1) {
-                        fish.images.push(dir);
-                    }
-                }
-            } else {
-                fish.images = dirs;
-            }
-
-            let upda = await Fish.update({ id: fish.id }, { images: fish.images });
-            ////console.log(upda);
-
-            return res.json(fish.images);
-        })
+            await multipleImagesUpload(req, res);
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError("error in upload");
+        }
     },
+
+    multipleImagesUpload,
 
     getImage: async function (req, res) {
 
@@ -364,47 +443,7 @@ module.exports = {
 
     },
 
-    deleteImage: async function (req, res) {
-        try {
-            let id = req.param("id"), namefile = req.param("namefile");
-
-            let directory = IMAGES + `${"/" + id + "/" + namefile}`;
-            //console.log(directory);
-
-            let fish = await Fish.findOne({ id });
-            if (fish === undefined) {
-                return res.serverError("id not found");
-            }
-
-            if (fish.hasOwnProperty("images") && Object.prototype.toString.call(fish.images) === "[object Array]") {
-                let index = fish.images.findIndex(function (i) { return i.filename === namefile })
-                if (index !== -1) {
-                    if (fish.images.length === 1) {
-                        fish.images = [];
-                    } else if (fish.images.length > 1) {
-                        fish.images.splice(index, 1);
-                    }
-                }
-            }
-
-            let upda = await Fish.update({ id: fish.id }, { images: fish.images });
-            //console.log(upda);
-
-            if (!fs.existsSync(directory)) {
-                throw new Error("file not exist");
-            }
-
-            // read binary data
-            var data = fs.unlinkSync(directory);
-
-            res.json({ msg: "success" })
-
-        }
-        catch (e) {
-            //console.log(e);
-            res.serverError(e);
-        }
-    },
+    deleteImage,
 
     saveLogoStore: async (req, res) => {
         let idStore = "";
