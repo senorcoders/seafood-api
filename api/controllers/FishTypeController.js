@@ -202,7 +202,7 @@ module.exports = {
             childs = [];
             for (let index = parent.level + 1; index <= 4; index++) {                
                 console.log( parentsIDS );
-                directChilds = await FishType.find( { parent: parentsIDS } );
+                directChilds = await FishType.find( { parent: parentsIDS, totalFishes: { '>': 0 } } );
                 childs.push( { level: index, fishTypes: directChilds } );
                 parentsIDS = [];
                 directChilds.map( child => {
