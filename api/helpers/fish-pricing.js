@@ -115,7 +115,7 @@ module.exports = {
         marginPercentage = fish.type.exworks; 
       }
       else {
-        sfsMargin = 1;
+        sfsMargin = 0;
       }
     } else if( owner.incoterm === '5cbf6900aa5dbb0733b05be4' ) {
       if( fish.type.hasOwnProperty('cpi') ) {
@@ -123,10 +123,10 @@ module.exports = {
         marginPercentage = fish.type.cpi;
       }
       else {
-        sfsMargin = 2;
+        sfsMargin = 0;
       }
     } else {
-      sfsMargin = 3;
+      sfsMargin = 0;
     }
     
     // getting fish shipping fee
