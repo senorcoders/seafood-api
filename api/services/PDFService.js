@@ -84,7 +84,7 @@ module.exports = {
         // date2 = deliveryDate.getFullYear() + '-' + (deliveryDate.getMonth() + 1) + '-' + deliveryDate.getDate();
 	    date2 = deliveryDate.getDate() + '/' + (deliveryDate.getMonth()+1) + '/' + deliveryDate.getFullYear();
         let portOfLoading = await sails.helpers.portOfLoadingByCode(itemsShopping[0].fish.processingCountry, itemsShopping[0].fish.city);
-        console.log(portOfLoading);
+        console.log(portOfLoading, "\n\n verver", subTotal, total);
         let paidDateTime = date; //new Date().toISOString();
         var html = await compiled(
             {
@@ -100,8 +100,8 @@ module.exports = {
                 purchase_number: counter,
                 orderNumber: orderNumber,
                 items: itemsShopping,
-                subTotal: parseFloat(itemsShopping.subTotal, 10).toFixed(2),
-                total: parseFloat(cart.total, 10).toFixed(2),
+                // subTotal: parseFloat(itemsShopping.subTotal, 10).toFixed(2),
+                // total: parseFloat(cart.total, 10).toFixed(2),
                 currentExchangeRate: currentExchangeRate,
                 api_url: api_url,
                 port_of_loading: portOfLoading.name,

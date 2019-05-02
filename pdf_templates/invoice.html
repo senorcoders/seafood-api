@@ -207,7 +207,7 @@
               5%
             </td> -->
             <td class="col col-2 align-right">
-                <%= ( ( ( it.price.value * it.quantity.value )  ) ).toFixed(2)  %>
+                <%= ( it.itemCharges.price * it.itemCharges.weight ).toFixed(2)  %>
             </td>
           </tr>
           <% } ); %>

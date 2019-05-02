@@ -185,8 +185,6 @@
         <p><b>Amount USD</b></p>
       </div>
     </div>
-    <%  subtotal = 0; %>
-    <%  total = 0; %>
     <% items.forEach(function(it,index){ %>
     <div class="row content" style="font-family: 'Arial';font-size: 10px;">
       <div class="col col-3">
@@ -196,8 +194,9 @@
       <div class="col col-1 align-right"><%= it.itemCharges.weight %></div>
       <div class="col col-1 align-right">KG</div>
       <div class="col col-2 align-right"><%= it.itemCharges.price %> </div>
-      <div class="col col-1 align-right"><%= ( it.itemCharges.price / currentExchangeRate ).toFixed(2)  %></div>
+      <div class="col col-1 align-right"><%= ( (it.itemCharges.weight * it.itemCharges.price) / currentExchangeRate ).toFixed(2)  %></div>
     </div>
+    <%  } ) %>
     <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
       <div class="col col-5 padding-right">
         <span>Subtotal</span>
