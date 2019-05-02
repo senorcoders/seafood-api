@@ -65,8 +65,9 @@ module.exports = {
                 acceptableSpoilageRate: body.acceptableSpoilageRate
             }
             if (body.hasOwnProperty('descriptor')) {
-                newProduct['wholeFishWeight'] = body.newProduct;
+                newProduct['descriptor'] = body.descriptor;
             }
+
 
 
             let mainFish = await Fish.create(newProduct).fetch();
@@ -147,6 +148,7 @@ module.exports = {
                 mortalityRate: body.mortalityRate,
                 waterLostRate: body.waterLostRate,
                 brandname: body.brandName,
+                boxWeight: body.boxWeight,
                 hsCode: body.hsCode
             }
 
