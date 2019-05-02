@@ -131,6 +131,9 @@ module.exports = {
       type: "number",
       required: false
     },
+    itemCharges: {
+      type: 'json'
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
