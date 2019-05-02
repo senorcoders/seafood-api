@@ -115,8 +115,8 @@ module.exports = {
         marginPercentage = fish.type.exworks; 
       }
       else {
-        sfsMargin = 5;
-        marginPercentage = 5;
+        sfsMargin = 1;
+        marginPercentage = 1;
       }
     } else if( owner.incoterms === '5cbf6900aa5dbb0733b05be4' ) {
       if( fish.type.hasOwnProperty('cpi') ) {
@@ -124,8 +124,8 @@ module.exports = {
         marginPercentage = fish.type.cpi;
       }
       else {
-        sfsMargin = 5;
-        marginPercentage = 5;
+        sfsMargin = 1;
+        marginPercentage = 1;
       }
     } else {
       if( fish.type.hasOwnProperty('exworks') ) {
@@ -133,8 +133,8 @@ module.exports = {
         marginPercentage = fish.type.exworks; 
       }
       else {
-        sfsMargin = 5;
-        marginPercentage = 5;
+        sfsMargin = 1;
+        marginPercentage = 1;
       }
     }
     
