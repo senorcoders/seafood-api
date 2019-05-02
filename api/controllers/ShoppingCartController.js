@@ -96,8 +96,15 @@ module.exports = {
                     it.fish = await Fish.findOne({ id: it.fish.id }).populate("type").populate("store");
                     it.fishCharges = it.fishCharges;// await sails.helpers.fishPricing(it.fish.id, it.quantity.value, currentAdminCharges)
                     it.fish['price']['value'] = it.fishCharges.variation.price;
+
+                    // get fish Preparation  of each item   
+                    it['fishPreparation'] = await FishPreparation.find( { id: it.fishCharges.variation.variation.fishPreparation } );
+
+                    // get whole fish weight of each item
+                    it['wholeFishWeight'] = await WholeFishWeight.find( { id: it.fishCharges.variation.variation.wholeFishWeight } );
+
                     let fishCountry = await Countries.findOne({ code: it.fish.country });
-                    console.log('fishCountry', fishCountry);
+                    //console.log('fishCountry', fishCountry);
                     min = new Date();
                     if (fishCountry == undefined) {
                         it.adminNumberOfDaysForDelivery = 3;
@@ -184,7 +191,7 @@ module.exports = {
                 totalOtherFees = totalSFSMargin + totalCustoms;
                 totalOtherFees = Number(parseFloat(totalOtherFees).toFixed(2));
                 totalShipping = Number(parseFloat(totalShipping).toFixed(2));
-                console.log('total SHipping', totalShipping);
+               // console.log('total SHipping', totalShipping);
                 totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
                 total = Number(parseFloat(subtotal + totalOtherFees + totalShipping + totalUAETaxes).toFixed(2));
 
@@ -217,7 +224,7 @@ module.exports = {
 
                 return res.json(cart)
             };
-            console.log('start');
+            //console.log('start');
 
             cart = await ShoppingCart.create(
                 {
@@ -325,7 +332,7 @@ module.exports = {
                     quantity: req.param("quantity"),
                     price: req.param("price"),
                     shippingStatus: req.param("shippingStatus"),
-                    variation_id: req.param('variation_id')
+                    variation: req.param('variation_id')
                 };
 
             // check if this item is already in this cart
@@ -333,8 +340,12 @@ module.exports = {
             item['price'] = itemCharges.price; //getting variation price
             let alredyInCart = await ItemShopping.find({
                 shoppingCart: id,
-                fish: item.fish
+                fish: item.fish,
+                variation: variation_id
             });
+
+            console.log( 'alread in cart', alredyInCart )
+            
             let itemShopping;
             if (alredyInCart !== undefined && alredyInCart[0] !== undefined) {
                 let fishInfo = await Fish.findOne( { id: req.param("fish") } );
