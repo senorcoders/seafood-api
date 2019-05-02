@@ -115,7 +115,8 @@ module.exports = {
         marginPercentage = fish.type.exworks; 
       }
       else {
-        sfsMargin = 0;
+        sfsMargin = 5;
+        marginPercentage = 5;
       }
     } else if( owner.incoterms === '5cbf6900aa5dbb0733b05be4' ) {
       if( fish.type.hasOwnProperty('cpi') ) {
@@ -123,10 +124,18 @@ module.exports = {
         marginPercentage = fish.type.cpi;
       }
       else {
-        sfsMargin = 0;
+        sfsMargin = 5;
+        marginPercentage = 5;
       }
     } else {
-      sfsMargin = 0;
+      if( fish.type.hasOwnProperty('exworks') ) {
+        sfsMargin = fish.type.exworks;
+        marginPercentage = fish.type.exworks; 
+      }
+      else {
+        sfsMargin = 5;
+        marginPercentage = 5;
+      }
     }
     
     // getting fish shipping fee
