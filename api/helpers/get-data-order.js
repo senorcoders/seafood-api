@@ -59,6 +59,7 @@ module.exports = {
       //Para obtener el total y parsiar la fecha de pago
       let grandTotal = 0;
       for (let it of items) {
+        if(it.isDefined("total"))
         if (it.isDefined("subtotal") === true)
           grandTotal += Number(it.subtotal);
         else
@@ -69,6 +70,9 @@ module.exports = {
         grandTotal += Number(it.sfsMargin);
       }
       grandTotal = Number((grandTotal).toFixed(2));
+      if(cart.isDefined("total") === true){
+        grandTotal = cart.total;
+      }
 
       let paidDateTime = "";
       if (cart.isDefined("paidDateTime") && cart.paidDateTime !== '') {
