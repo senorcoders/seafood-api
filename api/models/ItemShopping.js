@@ -145,6 +145,11 @@ module.exports = {
       required: true
     },
 
+    variation: {
+      model: "Variations",
+      required: false
+    },
+
     shoppingCart: {
       model: "shoppingcart",
       required: true
