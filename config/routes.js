@@ -121,6 +121,9 @@ module.exports.routes = {
   //Para actualizar images
   'PUT /api/fish/images/:id': 'ImageController.updateImages',
 
+  //Eliminar varias imagenes a la ves
+  'PUT /api/fish/images/delete/:id': 'ImageController.deleteImagesFish',
+
   //Para obtener images custom
   'GET /api/images/:namefile/:id': 'ImageController.getImage',
 
