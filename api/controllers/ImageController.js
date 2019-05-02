@@ -130,7 +130,7 @@ const deleteImage = async function (req, res) {
                 }
             }
         }
-
+        console.log("\n\nzzz", "images despues eliminar", fish.images);
         let upda = await Fish.update({ id: fish.id }, { images: fish.images });
         //console.log(upda);
 
@@ -171,13 +171,15 @@ const multipleImagesUpload = async function (req, res) {
         saveAs: function (stream, cb) {
             // changin name to sku format
             let newName = stream.filename;
-            newName = newName.replace(/\s+/g, '-').toLowerCase() + new Date().getTime();
+            newName = newName.replace(/\s+/g, '-').toLowerCase() + new Date().getTime() + "" + (i + 3);
             imagesName.push(newName);
+            i += 1;
             cb(null, newName);
         }
     }, async function (err, uploadedFiles) {
         if (err) return res.send(500, err);
 
+        i = 0;
         let dirs = [];
         for (let file of uploadedFiles) {
             // changing name to sku format
@@ -377,34 +379,39 @@ module.exports = {
 
     },
 
-    updateImages: async (req, res) => {
-        try {
-            let deletedImages = req.param("deletedImages");
-            if (Object.prototype.toString.call(deletedImages) === "[object String]") {
-                deletedImages = JSON.parse(deletedImages);
-                function getIdName(ur) {
-                    return {
-                        id: ur.split("/").pop(), namefile: ur.split("/").splice(-2, 1)[0]
-                    }
-                };
-                console.log("zzz", deletedImages);
-                for (let img of deletedImages) {
-                    try {
-                        let _req = Object.assign(getIdName(img),
-                            { param: function (id) { return this[id] } }); console.log(_req);
-                        await new Promise((resolve, reject) => {
-                            let _res = {
-                                json: resolve,
-                                serverError: reject
-                            };
-                            deleteImage(_req, _res)
-                        });
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
+    deleteImagesFish: async (req, res) => {
+        let deletedImages = req.param("deletedImages"); console.log("imagenes a borar", deletedImages);
+        if (Object.prototype.toString.call(deletedImages) === "[object String]") {
+            deletedImages = JSON.parse(deletedImages);
+            function getIdName(ur) {
+                return {
+                    id: ur.split("/").pop(), namefile: ur.split("/").splice(-2, 1)[0]
+                }
+            };
+            console.log("zzz", deletedImages);
+            for (let img of deletedImages) {
+                try {
+                    let _req = Object.assign(getIdName(img),
+                        { param: function (id) { return this[id] } }); console.log(_req);
+                    await new Promise((resolve, reject) => {
+                        let _res = {
+                            json: resolve,
+                            serverError: reject
+                        };
+                        deleteImage(_req, _res)
+                    });
+                }
+                catch (e) {
+                    console.error(e);
                 }
             }
+        }
+
+        res.json({ mg: "ready" });
+    },
+
+    updateImages: async (req, res) => {
+        try {
             await multipleImagesUpload(req, res);
         }
         catch (e) {
