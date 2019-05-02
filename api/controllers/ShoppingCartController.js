@@ -556,18 +556,18 @@ module.exports = {
                 let sellerAddress = st[0].fish.store['Address'];
 
                 let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, st, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + counter), exchangeRates[0].price, st[0].buyerExpectedDeliveryDate);
-
+ 
                 //console.log( 'seller invoice', sellerInvoice );
             }
 
 
 
 
-            //await MailerService.sendCartPaidAdminNotified(itemsShopping, cart, OrderNumber, storeName)
+            await MailerService.sendCartPaidAdminNotified(itemsShopping, cart, OrderNumber, storeName)
 
-            //await PDFService.buyerInvoice(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price)
+            //Despues de generar el invoice se crea el correo
+            await PDFService.buyerInvoice(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price)
 
-            //await MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName);            
 
             res.json(cartUpdated);
         }
