@@ -193,10 +193,10 @@
           <%= description %>
       </div>
       <div class="col col-1"> <%= it.fish.seller_sku %></div>
-      <div class="col col-1 align-right"><%= it.quantity.value %></div>
+      <div class="col col-1 align-right"><%= it.itemCharges.weight %></div>
       <div class="col col-1 align-right">KG</div>
-      <div class="col col-2 align-right"><%= (it.price.value / currentExchangeRate).toFixed(2) %> </div>
-      <div class="col col-1 align-right"><%= ( it.price.value * it.quantity.value / currentExchangeRate ).toFixed(2)  %></div>
+      <div class="col col-2 align-right"><%= it.itemCharges.price %> </div>
+      <div class="col col-1 align-right"><%= ( it.itemCharges.price / currentExchangeRate ).toFixed(2)  %></div>
     </div>
     <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
       <div class="col col-5 padding-right">

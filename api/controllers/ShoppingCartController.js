@@ -359,6 +359,7 @@ module.exports = {
         try {
             let currentAdminCharges = await sails.helpers.currentCharges();
             let in_AED = true;
+            //itemCharges = await sails.helpers.fishPricing( req.param("fish"), req.param("quantity"), currentAdminCharges, req.param('variation_id'), in_AED );
             let id = req.param("id")
             variation_id = req.param('variation_id'),
                 item = {
@@ -372,6 +373,7 @@ module.exports = {
 
             // check if this item is already in this cart
             itemCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges, variation_id, in_AED);
+            item['itemCharges'] = itemCharges;
             item['price'] = itemCharges.price; //getting variation price
             let alredyInCart = await ItemShopping.find({
                 shoppingCart: id,
