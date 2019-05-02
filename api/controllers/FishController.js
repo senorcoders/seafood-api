@@ -251,7 +251,8 @@ module.exports = {
                 }
                 ;
             let weightsTrim = {};
-            let isTrimms = useOne === true ? false : variations[0].wholeFishWeight === undefined || variations[0].wholeFishWeight === null;
+            let isTrimms = useOne === true ? false : (variations[0].wholeFishWeight === undefined || variations[0].wholeFishWeight === null) && fish.type.parent === '5bda361c78b3140ef5d31fa4';
+            let weightsFilleted = [];
 
             await Promise.all(
                 variations.map(async variation => {
@@ -272,6 +273,8 @@ module.exports = {
                             weights.off.keys.push(variation.wholeFishWeight.id)
                             weights.off[variation.wholeFishWeight.id] = [];
                         }
+
+                        
                     } else {
                         weightsTrim[variation.fishPreparation.id] = [];
                         headAction = false;
@@ -307,6 +310,10 @@ module.exports = {
                                 weights.on[variation.wholeFishWeight.id].push(sld);
                             else if (variation['fishPreparation']['id'] === '5c93c00465e25a011eefbcc3') //head off
                                 weights.off[variation.wholeFishWeight.id].push(sld);
+                            else { //este es para filleted no es trimms y es wholeFishAction false
+                                weightsFilleted.push(sld);
+                            }   
+
                         } else {
                             weightsTrim[variation.fishPreparation.id].push(sld);
                         }
@@ -328,7 +335,6 @@ module.exports = {
                 fish['head'] = '';
 
             //Ignorar los variations que no tiene prices
-            
             for (let key of weights.on.keys) {
                 if (weights.on[key] !== undefined && weights.on[key] !== null)
                     weights.on[key] = weights.on[key].length > 0 ? weights.on[key] : undefined;
@@ -351,6 +357,7 @@ module.exports = {
             fish['wholeFishAction'] = headAction;
             fish['weights'] = weights;
             fish["weightsTrim"] = weightsTrim;
+            fish["weightsFilleted"] = weightsFilleted;
             fish['variations'] = variations;
             fish["isTrimms"] = isTrimms;
 
