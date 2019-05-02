@@ -44,16 +44,17 @@ module.exports = {
                     item.country = itemStore.country;
                     item.city = itemStore.city;
                     item.fishCharges = fishCharges;
-
+                    
                     //order items by store and putting them into shippingItems
                     let storeIsThere = false
                     let storeIndex = 0;
-                    shippingItems.map((shippingItem, index) => {
+                    await Promise.all( shippingItems.map((shippingItem, index) => {
                         if (shippingItem.store == itemStore.store.id) {
                             storeIsThere = true;
                             storeIndex = index;
                         }
-                    })
+                        return shippingItem;
+                    }) )
                     if (!storeIsThere) {
                         shippingItems.push({ store: itemStore.store.id, items: [] });
                         shippingItems[shippingItems.length - 1].items.push(item);
@@ -76,6 +77,8 @@ module.exports = {
                         totalWeight += item.quantity.value;
                         country = item.country;
                         city = item.city;
+
+                        return item;
                         
                     }))
                     
@@ -86,10 +89,12 @@ module.exports = {
                     store.shipping = shippingRate; //{ firstMileFee, totalWeight: totalWeight, country: country, city: city };
 
                     // now we calculate how much belongs to each product in the seller
-                    store.items.map(item => {
+                    await Promise.all(store.items.map(item => {
                         item.shippingStore = item.quantity.value * store.shipping.shippingCost / store.totalWeight;
                         item.shipping = item.shippingStore;                    
-                    })
+                        return item;
+                    }))
+                    return store;
                 }))                            
                 //setting min dalivery date for each item
                 await Promise.all(cart.items.map(async function (it) {
@@ -97,11 +102,19 @@ module.exports = {
                     it.fishCharges = it.fishCharges;// await sails.helpers.fishPricing(it.fish.id, it.quantity.value, currentAdminCharges)
                     it.fish['price']['value'] = it.fishCharges.variation.price;
 
+                    console.log( 'it', it.fishCharges.variation.id );
+                    console.log( 'it 2', it.variation );
+                    let itVariationPrice = await VariationPrices.find( { id: it.fishCharges.variation.id } ).populate('variation');
+                    let itVariation = await Variations.find( { id: it.variation } );
                     // get fish Preparation  of each item   
-                    it['fishPreparation'] = await FishPreparation.find( { id: it.fishCharges.variation.variation.fishPreparation } );
-
-                    // get whole fish weight of each item
-                    it['wholeFishWeight'] = await WholeFishWeight.find( { id: it.fishCharges.variation.variation.wholeFishWeight } );
+                    console.log( 'itVariationPrice', itVariationPrice );
+                    it['fishPreparation'] = await FishPreparation.find( { id: itVariation[0].fishPreparation } );
+                    //console.log( 'fp', it['fishPreparation'] );
+                    if( it.fishCharges.variation.variation.fishPreparation === '5c93bff065e25a011eefbcc2' ||  it.fishCharges.variation.variation.fishPreparation === '5c93c00465e25a011eefbcc3' ){
+                        // get whole fish weight of each item
+                      //  console.log( 'ww',  itVariationPrice[0].variation.wholeFishWeight );
+                        it['wholeFishWeight'] = await WholeFishWeight.find( { id: itVariation[0].wholeFishWeight } );
+                    }
 
                     let fishCountry = await Countries.findOne({ code: it.fish.country });
                     //console.log('fishCountry', fishCountry);
