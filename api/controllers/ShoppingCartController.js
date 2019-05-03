@@ -9,10 +9,10 @@ const getDescription = async (it) => {
         let raised = await Raised.findOne({ id: it.fish.raised });
         if (raised !== undefined) description += ", " + raised.name;
     }
-    if (it.fish.preparation !== null && it.fish.preparation !== undefined) {
-        let preparation = await FishPreparation.findOne({ id: it.fish.preparation });
-        if (preparation !== undefined) description += ", " + preparation.name;
-    }
+    // if (it.fish.preparation !== null && it.fish.preparation !== undefined) {
+    //     let preparation = await FishPreparation.findOne({ id: it.fish.preparation });
+    //     if (preparation !== undefined) description += ", " + preparation.name;
+    // }
     if (it.fish.wholeFishWeight !== null && it.fish.wholeFishWeight !== undefined) {
         let wholeFishWeight = await WholeFishWeight.findOne({ id: it.fish.preparation });
         if (wholeFishWeight !== undefined) description += ", " + wholeFishWeight.name;

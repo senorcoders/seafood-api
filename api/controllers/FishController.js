@@ -113,9 +113,29 @@ module.exports = {
 
 
             //let variations = json.stringfy( req.body.variations ) ;
-
-
-
+            if (mainFish.treatment !== null && mainFish.treatment !== undefined) {
+                let treatment = await Treatment.findOne({ id: mainFish.treatment });
+                if (treatment !== undefined) mainFish.treatment = treatment.name;
+                else mainFish.treatment = '';
+            }
+            if (mainFish.raised !== null && mainFish.raised !== undefined) {
+                let raised = await Raised.findOne({ id: mainFish.raised });
+                if (raised !== undefined) mainFish.raised = raised.name;
+                else mainFish.raised = "";
+            }
+            // if (mainFish.preparation !== null && mainFish.preparation !== undefined) {
+            //     let preparation = await FishPreparation.findOne({ id: mainFish.preparation });
+            //     if (preparation !== undefined) mainFish.preparation = preparation.name;
+            //     else mainFish.preparation = '';
+            // }
+            if (mainFish.wholeFishWeight !== null && mainFish.wholeFishWeight !== undefined) {
+                let wholeFishWeight = await WholeFishWeight.findOne({ id: mainFish.preparation });
+                if (wholeFishWeight !== undefined) mainFish.wholeFishWeight = wholeFishWeight.name;
+                else wholeFishWeight.wholeFishWeight = '';
+            }
+            let store = await Store.findOne(mainFish.store).populate('owner')
+            await MailerService.newProductAddedAdminNotified(mainFish, store.owner);
+            await MailerService.newProductAddedSellerNotified(mainFish, store.owner);
             res.json(mainFish);
 
         } catch (error) {
@@ -276,7 +296,7 @@ module.exports = {
                             weights.off[variation.wholeFishWeight.id] = [];
                         }
 
-                        
+
                     } else {
                         weightsTrim[variation.fishPreparation.id] = [];
                         headAction = false;
@@ -314,7 +334,7 @@ module.exports = {
                                 weights.off[variation.wholeFishWeight.id].push(sld);
                             else { //este es para filleted no es trimms y es wholeFishAction false
                                 weightsFilleted.push(sld);
-                            }   
+                            }
 
                         } else {
                             weightsTrim[variation.fishPreparation.id].push(sld);
@@ -347,7 +367,7 @@ module.exports = {
                 return weights.on[it] !== undefined && weights.on[it] !== null && weights.on[it].length > 0;
             });
             console.log(weights.on.keys);
-            
+
             for (let key of weights.off.keys) {
                 if (weights.off[key] !== undefined && weights.off[key] !== null)
                     weights.off[key] = weights.off[key].length > 0 ? weights.off[key] : undefined;
