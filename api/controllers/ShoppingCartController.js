@@ -1,3 +1,25 @@
+const getDescription = async (it) => {
+    //Para obtener la description del fish
+    let description = it.fish.name;
+    if (it.fish.treatment !== null && it.fish.treatment !== undefined) {
+        let treatment = await Treatment.findOne({ id: it.fish.treatment });
+        if (treatment !== undefined) description += ", " + treatment.name;
+    }
+    if (it.fish.raised !== null && it.fish.raised !== undefined) {
+        let raised = await Raised.findOne({ id: it.fish.raised });
+        if (raised !== undefined) description += ", " + raised.name;
+    }
+    // if (it.fish.preparation !== null && it.fish.preparation !== undefined) {
+    //     let preparation = await FishPreparation.findOne({ id: it.fish.preparation });
+    //     if (preparation !== undefined) description += ", " + preparation.name;
+    // }
+    if (it.fish.wholeFishWeight !== null && it.fish.wholeFishWeight !== undefined) {
+        let wholeFishWeight = await WholeFishWeight.findOne({ id: it.fish.preparation });
+        if (wholeFishWeight !== undefined) description += ", " + wholeFishWeight.name;
+    }
+    return description;
+}
+
 module.exports = {
 
     testOrder: async (req, res) => {
