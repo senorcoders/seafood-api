@@ -395,16 +395,21 @@
                                                                 </b><%= product.name %><br><b>seller SKU:
                                                                 </b><%= product.seller_sku %><br><b>SKU:
                                                                 </b><%= product.seafood_sku %><br>
-                                                                <% if(product.wholeFishWeight!==undefined&&product.wholeFishWeight!==null&&product.wholeFishWeight!==''){ %>
+                                                                <% if(product.wholeFishWeight!==''){ %>
                                                                     <b>Whole Fish Weight: </b><%=product.wholeFishWeight %><br> 
                                                                 <% } %>
                                                                 <b>Country:</b><%= product.country %><br><b>City:
                                                                 </b><%= product.city %><br><b>Price:
                                                                 </b><%= product.price.value %> USD<br><b>Minimum Order:
                                                                 </b><%= product.minimumOrder %><br><b>Maximum Order:
-                                                                </b><%= product.maximumOrder %><br><b>Raised:
-                                                                </b><%= product.raised %><br><b>Treatment:
-                                                                </b><%= product.treatment %></span></p>
+                                                                </b><%= product.maximumOrder %><br>
+                                                                <% if(product.raised!==''){ %>
+                                                                    <b>Raised: </b><%=product.raised %><br> 
+                                                                <% } %>
+                                                                <% if(product.treatment!==''){ %>
+                                                                    <b>Treatment: </b><%=product.treatment %><br> 
+                                                                <% } %>
+                                                            </span></p>
                                                         <p style="margin-top: 20px;font-size: 14px;line-height: 21px">
                                                             <span style="font-size: 15px; line-height: 22px;">To help
                                                                 get your products live on the platform, we encourage you
