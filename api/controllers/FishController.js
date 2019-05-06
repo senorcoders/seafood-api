@@ -1,7 +1,37 @@
 const path = require("path"), fs = require("fs");
 const IMAGES = path.resolve(__dirname, '../../images/');
 var ObjectId = require('mongodb').ObjectID;
+
+//Populamos y obtenemos treatment, reases y wholeFishWeight
+const getTRW = async mainFish => {
+    if (mainFish.treatment !== null && mainFish.treatment !== undefined) {
+        let treatment = await Treatment.findOne({ id: mainFish.treatment });
+        if (treatment !== undefined) mainFish.treatment = treatment.name;
+        else mainFish.treatment = '';
+    }
+    else mainFish.treatment = "";
+
+    if (mainFish.raised !== null && mainFish.raised !== undefined) {
+        let raised = await Raised.findOne({ id: mainFish.raised });
+        if (raised !== undefined) mainFish.raised = raised.name;
+        else mainFish.raised = "";
+    }
+    else mainFish.raised = "";
+    
+    if (mainFish.wholeFishWeight !== null && mainFish.wholeFishWeight !== undefined) {
+        let wholeFishWeight = await WholeFishWeight.findOne({ id: mainFish.preparation });
+        if (wholeFishWeight !== undefined) mainFish.wholeFishWeight = wholeFishWeight.name;
+        else mainFish.wholeFishWeight = '';
+    }
+    else mainFish.wholeFishWeight = '';
+
+    return mainFish;
+}
+
 module.exports = {
+
+    getTRW,
+
     addFish: async (req, res) => {
         try {
             let body = req.body;
@@ -113,26 +143,7 @@ module.exports = {
 
 
             //let variations = json.stringfy( req.body.variations ) ;
-            if (mainFish.treatment !== null && mainFish.treatment !== undefined) {
-                let treatment = await Treatment.findOne({ id: mainFish.treatment });
-                if (treatment !== undefined) mainFish.treatment = treatment.name;
-                else mainFish.treatment = '';
-            }
-            if (mainFish.raised !== null && mainFish.raised !== undefined) {
-                let raised = await Raised.findOne({ id: mainFish.raised });
-                if (raised !== undefined) mainFish.raised = raised.name;
-                else mainFish.raised = "";
-            }
-            // if (mainFish.preparation !== null && mainFish.preparation !== undefined) {
-            //     let preparation = await FishPreparation.findOne({ id: mainFish.preparation });
-            //     if (preparation !== undefined) mainFish.preparation = preparation.name;
-            //     else mainFish.preparation = '';
-            // }
-            if (mainFish.wholeFishWeight !== null && mainFish.wholeFishWeight !== undefined) {
-                let wholeFishWeight = await WholeFishWeight.findOne({ id: mainFish.preparation });
-                if (wholeFishWeight !== undefined) mainFish.wholeFishWeight = wholeFishWeight.name;
-                else wholeFishWeight.wholeFishWeight = '';
-            }
+            mainFish = await getTRW(mainFish);
             let store = await Store.findOne(mainFish.store).populate('owner')
             await MailerService.newProductAddedAdminNotified(mainFish, store.owner);
             await MailerService.newProductAddedSellerNotified(mainFish, store.owner);
@@ -1435,6 +1446,7 @@ module.exports = {
             let fishUpdated;
             //let fish = await Fish.update({id}, { status: statusID,statusReason:reason }).fetch();
             let fish = await Fish.findOne({ id }).populate('store');
+            fish = await getTRW(fish);
             let store = await Store.findOne({ id: fish.store.id }).populate('owner');
             if (statusID == '5c0866f2a0eda00b94acbdc1') { //Not Approved
                 let SFSAdminFeedback = req.body['message']; //req.param("SFSAdminFeedback")
