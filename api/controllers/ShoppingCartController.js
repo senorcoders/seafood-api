@@ -39,34 +39,6 @@ module.exports = {
         }
     },
 
-    createCart_ori: async function (req, res) { 
-        try {
-            let today = new Date();
-            let buyer = req.param("buyer");
-            let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items");
-            let currentAdminCharges = await sails.helpers.currentCharges();
-            let in_AED = true;
-
-            if (cart !== undefined) {
-                let totalShipping = 0;
-                let totalSFSMargin = 0;
-                let totalCustoms = 0;
-                let totalUAETaxes = 0;
-                let totalOtherFees = 0;
-                let subtotal = 0;
-                let total = 0;
-
-                
-            }
-            
-
-        }
-        catch (e) {
-            console.error(e);
-            res.serverError(e);
-        }
-    },
-
     createCart: async function (req, res) {
         try {
             let today = new Date();
