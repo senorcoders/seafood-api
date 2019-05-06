@@ -578,7 +578,7 @@ module.exports = {
                 let fullName = st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
                 let sellerAddress = st[0].fish.store['Address'];
-                let incoterms = st[0].fish.store.owner.incoterms !== null ? st[0].fish.store.owner.incoterms : { name: "no select" };
+                let incoterms = st[0].fish.store.owner.incoterms !== null ? st[0].fish.store.owner.incoterms : { name: "Ex Work" };
                 let description = await getDescription(st[0]);
                 console.log("\n\n aquiii", cart, "\n\n");
                 let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, st, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + counter), exchangeRates[0].price, st[0].buyerExpectedDeliveryDate, incoterms, description, cart.subTotal, cart.total);
