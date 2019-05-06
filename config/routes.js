@@ -292,7 +292,7 @@ module.exports.routes = {
   'POST /shoppingcart': 'ShoppingCart.createCart',
 
   //Para agregar un producto al carrito de compra
-  'POST /api/shopping/add/:id/variation/:variation_id': 'ShoppingCartController.addItem',
+  'POST /api/shopping/add/:id': 'ShoppingCartController.addItem',
 
   //Para obtener el store por id
   'GET /shoppingcart/:id': 'ShoppingCartController.getPopulateXID',

@@ -88,7 +88,7 @@ module.exports = {
                 shippingItems = [];
                 await Promise.all(cart.items.map(async item => {
                     let itemStore = await Fish.findOne({ id: item.fish }).populate('store');
-                    let fishCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges, item.variation_id, in_AED)
+                    let fishCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges, item.variation, in_AED)
                     item.fish = itemStore;
                     item.store = itemStore.store.id;
                     item.country = itemStore.country;
@@ -389,14 +389,14 @@ module.exports = {
             let in_AED = true;
             //itemCharges = await sails.helpers.fishPricing( req.param("fish"), req.param("quantity"), currentAdminCharges, req.param('variation_id'), in_AED );
             let id = req.param("id")
-            variation_id = req.param('variation_id'),
+            variation_id = req.body.variation_id,
                 item = {
                     shoppingCart: id,
-                    fish: req.param("fish"),
-                    quantity: req.param("quantity"),
-                    price: req.param("price"),
-                    shippingStatus: req.param("shippingStatus"),
-                    variation: req.param('variation_id')
+                    fish: req.body.fish,
+                    quantity: req.body.quantity,
+                    price: req.body.price,
+                    shippingStatus: req.body.shippingStatus,
+                    variation: req.body.variation_id
                 };
 
             // check if this item is already in this cart
@@ -413,7 +413,7 @@ module.exports = {
 
             let itemShopping;
             if (alredyInCart !== undefined && alredyInCart[0] !== undefined) {
-                let fishInfo = await Fish.findOne({ id: req.param("fish") });
+                let fishInfo = await Fish.findOne({ id: req.body.fish });
                 if (fishInfo.maximumOrder < (parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value))) {
                     return res.status(400).json({ message: "Maximum order limit reached" })
 
