@@ -208,7 +208,7 @@ module.exports = {
                         await MailerService.sendApprovedSellerEmail(user[0].email, name); 
                     } else {
                         await MailerService.sendApprovedBuyerEmail(user[0].id, user[0].email, user[0].code, name);
-                    }
+                    } 
                 }
             } else if (status === "denied") {
                 console.log('denied');
