@@ -61,6 +61,7 @@ module.exports = {
 
     variation = variation[0];
     console.log( 'variation', variation );
+    //if is filleted is a flat rate for customs 35 AED
     if( variation.variation.fishPreparation !== '5c93c01465e25a011eefbcc4' && variation.variation.fishPreparation !== '5c4b9b8e23a9a60223553d04' && variation.variation.fishPreparation !== '5c4b9ba023a9a60223553d05' && variation.variation.fishPreparation !== '5c4b9ba523a9a60223553d06' && variation.variation.fishPreparation !== '5c4b9baa23a9a60223553d07' && variation.variation.fishPreparation !== '5c4b9bae23a9a60223553d08' ) {
       currentAdminCharges.customs = 35;
       is_flat_custom = true;
