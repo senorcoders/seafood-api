@@ -6,13 +6,13 @@ module.exports = {
             let id = req.param("id"), code = req.param("code");
             let us = await User.findOne({ id });
             if (us === undefined)
-                return res.json({ message: "code invalid" });
+                return res.json({ message: "The code entered is incorrect" });
 
             if (us.code === code) {
                 // us = await User.update({ id }, { verification: true }).fetch();
                 res.json({ message: "valid", url: webappUrl + '/verification/' + id + "/" + code });
             } else {
-                res.json({ message: "code invalid" });
+                res.json({ message: "The code entered is incorrect" });
             }
 
         }
@@ -65,9 +65,9 @@ module.exports = {
             let forg = await ForgotPassword.findOne({ code, valid: false });
             let moment = require("moment");
             if (forg === undefined) {
-                return res.status(400).send("not found code");
+                return res.status(400).send("The code entered is incorrect. Please check your reset password email and try again");
             } else if (moment(forg.createdAt).isAfter(moment())) {
-                return res.status(400).send("code expired");
+                return res.status(400).send("The code entered expired");
             }
 
             await ForgotPassword.update({ id: forg.id }, { valid: true })
