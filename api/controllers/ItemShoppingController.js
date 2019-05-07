@@ -272,7 +272,7 @@ module.exports = {
             } else if (status == '5c017b3c47fb07027943a409') { //Delivered
                 data = await ItemShopping.update({ id }, { status: '5c017b3c47fb07027943a409', deliveredAt: ts, updateInfo: currentUpdateDates }).fetch()
 
-                //check if order is close
+                /*//check if order is close
                 let orderItems = await ItemShopping.find({ where: { shoppingCart: item.shoppingCart.id } });
                 console.log('status')
                 let isClose = true;
@@ -288,7 +288,7 @@ module.exports = {
                         orderStatus: '5c40b364970dc99bb06bed6a',
                         status: 'closed'
                     })
-                }
+                }*/
 
                 if (data.length > 0) {
                     item.fish.store = store;
@@ -324,28 +324,7 @@ module.exports = {
                 }
                 
             } else if (status == '5c017b7047fb07027943a40e') { //Refunded
-                data = await ItemShopping.update({ id }, { paymentStatus: '5c017b7047fb07027943a40e', updateInfo: currentUpdateDates }).fetch()
-
-                let orderItems = await ItemShopping.find({ where: { shoppingCart: item.shoppingCart.id } });
-
-                let isClose = true;
-                console.log('status');
-                orderItems.map(itemOrder => {
-                    console.log(itemOrder.status);
-                    if (itemOrder.status !== '5c017b3c47fb07027943a409' && itemOrder.paymentStatus !== '5c017b7047fb07027943a40e') {
-                        isClose = false;
-                    }
-                })
-                // all items are delivered or refunded, so let's update the order status
-
-                if (isClose) {
-                    await ShoppingCart.update({ id: item.shoppingCart.id }, {
-                        orderStatus: '5c40b364970dc99bb06bed6a',
-                        status: 'closed'
-                    })
-                    await MailerService.buyerRefund(name, cart, store, item);
-                }
-
+                data = await ItemShopping.update({ id }, { paymentStatus: '5c017b7047fb07027943a40e', updateInfo: currentUpdateDates }).fetch()                
 
             } else if (status == '5c06f4bf7650a503f4b731fd') { //Seller Cancelled Order
                 data = await ItemShopping.update({ id }, { status: '5c06f4bf7650a503f4b731fd', paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates }).fetch();
@@ -367,6 +346,29 @@ module.exports = {
                 data = await ItemShopping.update({ id }, { status: status, updateInfo: currentUpdateDates }).fetch();
             }
             data = await ItemShopping.find({ id }).populate('status');
+
+            // check if order is closed
+            let orderItems = await ItemShopping.find({ where: { shoppingCart: item.shoppingCart.id } });
+
+            let isClose = true;
+            console.log('status');
+            orderItems.map(itemOrder => {
+                console.log(itemOrder.status);
+                if (itemOrder.status !== '5c06f4bf7650a503f4b731fd' && itemOrder.status !== '5c017b5a47fb07027943a40c' &&  itemOrder.status !== '5c017b3c47fb07027943a409' && itemOrder.paymentStatus !== '5c017b7047fb07027943a40e' && itemOrder.paymentStatus !== '5c017b4f47fb07027943a40b') {
+                    isClose = false;
+                }
+            })
+            // all items are delivered or refunded, so let's update the order status
+
+            if (isClose) {
+                await ShoppingCart.update({ id: item.shoppingCart.id }, {
+                    orderStatus: '5c40b364970dc99bb06bed6a',
+                    status: 'closed'
+                })
+                await MailerService.buyerRefund(name, cart, store, item);
+            }
+
+
             res.status(200).json({ "message": "status updated", item: data });
 
 

@@ -319,6 +319,10 @@ module.exports = {
             )
     },
     newProductAddedAdminNotified: async (product, seller) => {
+        let charges = await sails.helpers.currentCharges();
+        let price = product.price.value;
+        price = price / charges["exchangeRates"];
+        product.price.value = price;
         email.render('../email_templates/new_product_awaiting_review',
             await applyExtend({
                 name: seller.firstName + ' ' + seller.lastName,
@@ -346,6 +350,10 @@ module.exports = {
             )
     },
     newProductAddedSellerNotified: async (product, seller) => {
+        let charges = await sails.helpers.currentCharges();
+        let price = product.price.value;
+        price = price / charges["exchangeRates"];
+        product.price.value = price;
         email.render('../email_templates/new_product_seller_notified',
             await applyExtend({
                 name: seller.firstName + ' ' + seller.lastName,
@@ -373,6 +381,10 @@ module.exports = {
             )
     },
     newProductRejected: async (seller, product, SFSAdminFeedback) => {
+        let charges = await sails.helpers.currentCharges();
+        let price = product.price.value;
+        price = price / charges["exchangeRates"];
+        product.price.value = price;
         email.render('../email_templates/new_product_rejected',
             await applyExtend({
                 name: seller.firstName + ' ' + seller.lastName,
@@ -384,8 +396,7 @@ module.exports = {
                 transporter.sendMail({
                     from: emailSender,
                     to: seller.email,
-                    // subject: `Product #${product.seafood_sku} is awaiting Review`,
-                    subject: `Product ${product.name} is awaiting Review`,
+                    subject: `Product ${product.name} was not approved to be listed on Seafood Souq`,
                     html: res, // html body
                 }, (error, info) => {
                     if (error) {
@@ -401,6 +412,10 @@ module.exports = {
             )
     },
     newProductAccepted: async (seller, product) => {
+        let charges = await sails.helpers.currentCharges();
+        let price = product.price.value;
+        price = price / charges["exchangeRates"];
+        product.price.value = price;
         email.render('../email_templates/new_product_accepted',
             await applyExtend({
                 name: seller.firstName + ' ' + seller.lastName,
@@ -411,8 +426,7 @@ module.exports = {
                 transporter.sendMail({
                     from: emailSender,
                     to: seller.email,
-                    // subject: `Product #${product.seafood_sku} is awaiting Review`,
-                    subject: `Product ${product.name} is awaiting Review`,
+                    subject: `Product ${product.name} is approved and live on Seafood Souq`,
                     html: res, // html body
                 }, (error, info) => {
                     if (error) {

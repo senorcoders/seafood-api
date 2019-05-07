@@ -131,6 +131,9 @@ module.exports = {
       type: "number",
       required: false
     },
+    itemCharges: {
+      type: 'json'
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
@@ -143,6 +146,11 @@ module.exports = {
     fish: {
       model: "fish",
       required: true
+    },
+
+    variation: {
+      model: "Variations",
+      required: false
     },
 
     shoppingCart: {

@@ -26,7 +26,8 @@ module.exports = {
 
     sfsMargin: {
       type: 'number',
-      example: '5 this are pecentage'
+      example: '5 this are pecentage',
+      description: 'used for exworks margin'
     },
 
     level: {
@@ -37,6 +38,20 @@ module.exports = {
 
     parent: {
       type: 'string',
+      required: false
+    },
+
+    totalFishes: {
+      type: 'number',
+      defaultsTo : 0
+    },
+
+    exworks: {
+      type: 'number',
+      required: false
+    },
+    cpi: {
+      type: 'number',
       required: false
     },
 

@@ -1,3 +1,25 @@
+const getDescription = async (it) => {
+    //Para obtener la description del fish
+    let description = it.fish.name;
+    if (it.fish.treatment !== null && it.fish.treatment !== undefined) {
+        let treatment = await Treatment.findOne({ id: it.fish.treatment });
+        if (treatment !== undefined) description += ", " + treatment.name;
+    }
+    if (it.fish.raised !== null && it.fish.raised !== undefined) {
+        let raised = await Raised.findOne({ id: it.fish.raised });
+        if (raised !== undefined) description += ", " + raised.name;
+    }
+    // if (it.fish.preparation !== null && it.fish.preparation !== undefined) {
+    //     let preparation = await FishPreparation.findOne({ id: it.fish.preparation });
+    //     if (preparation !== undefined) description += ", " + preparation.name;
+    // }
+    if (it.fish.wholeFishWeight !== null && it.fish.wholeFishWeight !== undefined) {
+        let wholeFishWeight = await WholeFishWeight.findOne({ id: it.fish.preparation });
+        if (wholeFishWeight !== undefined) description += ", " + wholeFishWeight.name;
+    }
+    return description;
+}
+
 module.exports = {
 
     testOrder: async (req, res) => {
@@ -22,7 +44,9 @@ module.exports = {
             let today = new Date();
             let buyer = req.param("buyer");
             let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items");
-            let currentAdminCharges = await sails.helpers.currentCharges();;
+            let currentAdminCharges = await sails.helpers.currentCharges();
+
+            let in_AED = true;
             if (cart !== undefined) {
                 let totalShipping = 0;
                 let totalSFSMargin = 0;
@@ -36,7 +60,7 @@ module.exports = {
                 shippingItems = [];
                 await Promise.all(cart.items.map(async item => {
                     let itemStore = await Fish.findOne({ id: item.fish }).populate('store');
-                    let fishCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges)
+                    let fishCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges, item.variation, in_AED)
                     item.fish = itemStore;
                     item.store = itemStore.store.id;
                     item.country = itemStore.country;
@@ -46,12 +70,13 @@ module.exports = {
                     //order items by store and putting them into shippingItems
                     let storeIsThere = false
                     let storeIndex = 0;
-                    shippingItems.map((shippingItem, index) => {
+                    await Promise.all(shippingItems.map((shippingItem, index) => {
                         if (shippingItem.store == itemStore.store.id) {
                             storeIsThere = true;
                             storeIndex = index;
                         }
-                    })
+                        return shippingItem;
+                    }))
                     if (!storeIsThere) {
                         shippingItems.push({ store: itemStore.store.id, items: [] });
                         shippingItems[shippingItems.length - 1].items.push(item);
@@ -61,7 +86,7 @@ module.exports = {
 
                 }))
 
-
+                let resss = [];
                 await Promise.all(shippingItems.map(async store => {
                     let totalWeight = 0;
                     let country = '';
@@ -74,28 +99,47 @@ module.exports = {
                         totalWeight += item.quantity.value;
                         country = item.country;
                         city = item.city;
-                        
+
+                        return item;
+
                     }))
+
                     shippingRate = await sails.helpers.shippingBySeller(firstMileFee, city, totalWeight, currentAdminCharges);
-                    
+
                     // here we calculate the shipping for all the items of one store in one Order
                     store.totalWeight = totalWeight;
                     store.shipping = shippingRate; //{ firstMileFee, totalWeight: totalWeight, country: country, city: city };
 
                     // now we calculate how much belongs to each product in the seller
-                    store.items.map(item => {
+                    await Promise.all(store.items.map(item => {
                         item.shippingStore = item.quantity.value * store.shipping.shippingCost / store.totalWeight;
-                        item.shipping = item.shippingStore;                    
-                    })
-                }))                            
-
+                        item.shipping = item.shippingStore;
+                        return item;
+                    }))
+                    return store;
+                }))
                 //setting min dalivery date for each item
                 await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish.id }).populate("type").populate("store");
                     it.fishCharges = it.fishCharges;// await sails.helpers.fishPricing(it.fish.id, it.quantity.value, currentAdminCharges)
+                    it.fish['price']['value'] = it.fishCharges.variation.price;
+
+                    console.log('it', it.fishCharges.variation.id);
+                    console.log('it 2', it.variation);
+                    let itVariationPrice = await VariationPrices.find({ id: it.fishCharges.variation.id }).populate('variation');
+                    let itVariation = await Variations.find({ id: it.variation });
+                    // get fish Preparation  of each item   
+                    console.log('itVariationPrice', itVariationPrice);
+                    it['fishPreparation'] = await FishPreparation.find({ id: itVariation[0].fishPreparation });
+                    //console.log( 'fp', it['fishPreparation'] );
+                    if (it.fishCharges.variation.variation.fishPreparation === '5c93bff065e25a011eefbcc2' || it.fishCharges.variation.variation.fishPreparation === '5c93c00465e25a011eefbcc3') {
+                        // get whole fish weight of each item
+                        //  console.log( 'ww',  itVariationPrice[0].variation.wholeFishWeight );
+                        it['wholeFishWeight'] = await WholeFishWeight.find({ id: itVariation[0].wholeFishWeight });
+                    }
 
                     let fishCountry = await Countries.findOne({ code: it.fish.country });
-                    console.log('fishCountry', fishCountry);
+                    //console.log('fishCountry', fishCountry);
                     min = new Date();
                     if (fishCountry == undefined) {
                         it.adminNumberOfDaysForDelivery = 3;
@@ -109,7 +153,7 @@ module.exports = {
                     }
 
                     it.minDeliveryDate = min;
-                    
+
                     shippingRate = await sails.helpers.shippingByCity(it.fish.city, it.quantity.value);
                     it.owner = await User.findOne({ id: it.fish.store.owner })
                     it.shippingCost = it.fishCharges.shippingCost.cost;
@@ -167,13 +211,13 @@ module.exports = {
 
                     await ItemShopping.update({ id: it.id }, {
                         currentCharges: it.currentCharges,
-                        shipping: isNaN(it.fishCharges.shippingCost.cost)==true ? 0 : it.fishCharges.shippingCost.cost,
+                        shipping: isNaN(it.fishCharges.shippingCost.cost) == true ? 0 : it.fishCharges.shippingCost.cost,
                         shippingStore: it.shipping,
                         sfsMargin: isNaN(it.sfsMargin) === true ? 0 : it.sfsMargin,
                         customs: it.customs,
                         uaeTaxes: it.uaeTaxes,
-                        subtotal: Number((it.quantity.value * it.price.value).toFixed(2)),
-                        total: ( it.quantity.value * it.price.value ) + it.shipping + it.sfsMargin + it.customs + it.uaeTaxes
+                        subtotal: Number((it.quantity.value * it.fishCharges.variation.price).toFixed(2)),
+                        total: (it.quantity.value * it.fishCharges.variation.price) + it.shipping + it.sfsMargin + it.customs + it.uaeTaxes
                     })
 
                     return it;
@@ -182,7 +226,7 @@ module.exports = {
                 totalOtherFees = totalSFSMargin + totalCustoms;
                 totalOtherFees = Number(parseFloat(totalOtherFees).toFixed(2));
                 totalShipping = Number(parseFloat(totalShipping).toFixed(2));
-                console.log('total SHipping', totalShipping);
+                // console.log('total SHipping', totalShipping);
                 totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
                 total = Number(parseFloat(subtotal + totalOtherFees + totalShipping + totalUAETaxes).toFixed(2));
 
@@ -203,7 +247,7 @@ module.exports = {
                     uaeTaxes: totalUAETaxes,
                 }).fetch();
                 cart.total = total;
-		cart.subTotal = subtotal;
+                cart.subTotal = subtotal;
                 cart.customs = totalCustoms;
                 cart.totalOtherFees = totalOtherFees;
                 cart.totalUAETaxes = totalUAETaxes;
@@ -215,7 +259,7 @@ module.exports = {
 
                 return res.json(cart)
             };
-            console.log('start');
+            //console.log('start');
 
             cart = await ShoppingCart.create(
                 {
@@ -235,6 +279,23 @@ module.exports = {
         try {
             let buyer = req.param("buyer");
             let orders = await ShoppingCart.find({ orderStatus: "5c017ad347fb07027943a403", buyer }).populate("items").populate('orderStatus').sort('createdAt DESC');
+
+            orders = await Promise.all(orders.map(async (order) => {
+
+
+                let items = await Promise.all(order.items.map(async (item) => {
+                    item['fish'] = await Fish.findOne({ id: item.fish }).populate('store');
+                    item['seller'] = await User.findOne({ id: item.fish.store.owner });
+                    item['status'] = await OrderStatus.findOne({ id: item.status });
+                    delete item.seller.token;
+                    delete item.seller.password;
+                    return item;
+                }))
+                order['items'] = items;
+                return order;
+            }))
+
+
 
             res.status(200).json(orders);
 
@@ -297,33 +358,43 @@ module.exports = {
     addItem: async (req, res) => {
         try {
             let currentAdminCharges = await sails.helpers.currentCharges();
-
-            let id = req.param("id"),
+            let in_AED = true;
+            //itemCharges = await sails.helpers.fishPricing( req.param("fish"), req.param("quantity"), currentAdminCharges, req.param('variation_id'), in_AED );
+            let id = req.param("id")
+            variation_id = req.body.variation_id,
                 item = {
                     shoppingCart: id,
-                    fish: req.param("fish"),
-                    quantity: req.param("quantity"),
-                    price: req.param("price"),
-                    shippingStatus: req.param("shippingStatus")
+                    fish: req.body.fish,
+                    quantity: req.body.quantity,
+                    price: req.body.price,
+                    shippingStatus: req.body.shippingStatus,
+                    variation: req.body.variation_id
                 };
 
-                // check if this item is already in this cart
+            // check if this item is already in this cart
+            itemCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges, variation_id, in_AED);
+            item['itemCharges'] = itemCharges;
+            item['price'] = itemCharges.price; //getting variation price
             let alredyInCart = await ItemShopping.find({
                 shoppingCart: id,
-                fish: item.fish
+                fish: item.fish,
+                variation: variation_id
             });
+
+            console.log('alread in cart', alredyInCart)
+
             let itemShopping;
             if (alredyInCart !== undefined && alredyInCart[0] !== undefined) {
-                let fishInfo = await Fish.findOne( { id: req.param("fish") } );
-                if ( fishInfo.maximumOrder < (item.quantity.value + alredyInCart[0].quantity.value) ) {
-                    return res.status(400).json( { message: "Maximum order limit reached" } )
-                    
-                } else if ( fishInfo.maximumOrder < (item.quantity.value + alredyInCart[0].quantity.value) ){
+                let fishInfo = await Fish.findOne({ id: req.body.fish });
+                if (fishInfo.maximumOrder < (parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value))) {
+                    return res.status(400).json({ message: "Maximum order limit reached" })
+
+                } /*else if ( fishInfo.maximumOrder < (item.quantity.value + alredyInCart[0].quantity.value) ){
                     return res.status(400).json( { message: "Minimum order limit reached" } )                    
-                } else {
+                }*/ else {
                     let item_id = alredyInCart[0].id;
-                    item.quantity.value += alredyInCart[0].quantity.value;
-                    itemShopping = await ItemShopping.update({ id: item_id }, item);                    
+                    item.quantity.value = parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value);
+                    itemShopping = await ItemShopping.update({ id: item_id }, item);
                 }
                 //return res.status(200).send( item );
             } else {
@@ -336,8 +407,8 @@ module.exports = {
             let cart = await ShoppingCart.findOne({ id }).populate("items");
 
             let total = 0;
-            for (var it of cart.items) {                
-                itemCharges = await sails.helpers.fishPricing( it.fish, it.quantity.value, currentAdminCharges );                
+            for (var it of cart.items) {
+                itemCharges = await sails.helpers.fishPricing(it.fish, it.quantity.value, currentAdminCharges, variation_id, in_AED);
                 total += itemCharges['finalPrice'];
             }
 
@@ -444,21 +515,20 @@ module.exports = {
             if (cart === undefined) {
                 return res.status(400).send("not found");
             }
-
             let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id }).populate("fish");
             //generate purchase order number for each item
-            await Promise.all(itemsShopping.map(async function (it, index) {
-                it.fish.store = await Store.findOne({ id: it.fish.store }).populate("owner");
-                await ItemShopping.update({ id: it.id }).set({ status: '5c017ae247fb07027943a404', orderInvoice: invoiceNumber, purchaseOrder: (maxPurchaseOrder + 1 + index) });
+            //await Promise.all(itemsShopping.map(async function (it, index) {
+            //it.fish.store = await Store.findOne({ id: it.fish.store }).populate("owner");
+            /*await ItemShopping.update({ id: it.id }).set({ status: '5c017ae247fb07027943a404', orderInvoice: invoiceNumber, purchaseOrder: (maxPurchaseOrder + 1 + index) });
 
-                let fullName = it.fish.store.owner.firstName+ " "+ it.fish.store.owner.lastName;
-                let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
-                let sellerAddress = it.fish.store['Address'];
-
-                let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, it, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + index), exchangeRates[0].price, it.buyerExpectedDeliveryDate);
-                return it;
-            }));
-
+            let fullName = it.fish.store.owner.firstName+ " "+ it.fish.store.owner.lastName;
+            let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
+            let sellerAddress = it.fish.store['Address'];
+*/
+            //let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, it, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + index), exchangeRates[0].price, it.buyerExpectedDeliveryDate);
+            //return it;
+            //}));
+            console.info('store group');
             //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
             let itemsStore = [];
             for (let item of itemsShopping) {
@@ -488,20 +558,44 @@ module.exports = {
             let counter = 0;
             for (let st of itemsStore) {
                 counter += 1;
-                storeName.push(st[0].fish.store['name']);
+                /*storeName.push(st[0].fish.store['name']);
                 // shippingRate.push(await require('./ShippingRatesController').getShippingRateByCities( st[0].fish.city, st[0].quantity.value ));
                 let fullName = st[0].fish.store['name'];//st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
                 let sellerAddress = st[0].fish.store['Address']; //`${st[0].fish.store.owner.dataExtra.Address}, ${st[0].fish.store.owner.dataExtra.City}, ${st[0].fish.store.owner.dataExtra.country}, ${st[0].fish.store.owner.dataExtra.zipCode}`;                
                 //let sellerInvoice = await PDFService.sellerPurchaseOrder( fullName, cart, st, OrderNumber, sellerAddress, counter, exchangeRates[0].price );
+                */
+                console.info('store', st);
+
+                st[0].fish.store = await Store.findOne({ id: st[0].fish.store }).populate("owner");
+                st[0].fish.store.owner = await User.findOne({ id: st[0].fish.store.owner.id }).populate("incoterms");
+                let items_store_ids = [];
+                st.map(itemStore => {
+                    items_store_ids.push(itemStore.id)
+                })
+                await ItemShopping.update({ id: items_store_ids }).set({ status: '5c017ae247fb07027943a404', orderInvoice: invoiceNumber, purchaseOrder: (maxPurchaseOrder + 1 + counter) });
+
+                let fullName = st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
+                let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
+                let sellerAddress = st[0].fish.store['Address'];
+                let incoterms = st[0].fish.store.owner.incoterms !== null && st[0].fish.store.owner.incoterms !== undefined ? st[0].fish.store.owner.incoterms : { name: "Ex Work" };
+                let description = await getDescription(st[0]);
+                console.log("\n\n aquiii", cart, "\n\n");
+                let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, st, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + counter), exchangeRates[0].price, st[0].buyerExpectedDeliveryDate, incoterms, description, cart.subTotal, cart.total);
 
                 //console.log( 'seller invoice', sellerInvoice );
             }
+
+            //Para agregar la description a los items
+            itemsShopping = await Promise.all(itemsShopping.map(async (it) => {
+                it.description = await getDescription(it);
+                return it;
+            }));
             await MailerService.sendCartPaidAdminNotified(itemsShopping, cart, OrderNumber, storeName)
 
+            //Despues de generar el invoice se crea el correo
             await PDFService.buyerInvoice(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price)
 
-            //await MailerService.sendCartPaidBuyerNotified(itemsShopping, cart,OrderNumber,storeName);            
 
             res.json(cartUpdated);
         }

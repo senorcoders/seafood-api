@@ -15,7 +15,7 @@ const writeImage = async function (nameFile, directory, image) {
                 return reject(err);
             }
 
-            resolve({ message: "success", path: directory + '/' + nameFile});
+            resolve({ message: "success", path: directory + '/' + nameFile });
 
         });
 
@@ -33,6 +33,28 @@ const resizeSave = async function (nameFile, directory, image, size) {
 
                 try {
                     let write = await writeImage(nameFile, directory, data);
+                    resolve(directory, data, info, true);
+                }
+                catch (e) {
+                    reject(e);
+                }
+
+            });
+
+    });
+}
+
+const resizeImage = async function (directory, size) {
+    let image = fs.readFileSync(directory);
+    return new Promise(function (resolve, reject) {
+
+        sharp(image).resize(size.width, size.height)
+            .crop(sharp.strategy.entropy)
+            .toBuffer(async function (err, data, info) {
+                if (err) { return reject(err); }
+
+                try {
+                    fs.writeFileSync(directory, data);
                     resolve(directory, data, info, true);
                 }
                 catch (e) {
@@ -66,15 +88,15 @@ const singleImagesUpload = async function (imageBody, model, id, name) {
     if (!fs.existsSync(directory[1])) {
         fs.mkdirSync(directory[1]);
     }
-          
+
     //para original
     let original = await writeImage(nameFile, directory[1], image);
-    console.log( original );
+    console.log(original);
     return [original];
 
 }
 
-function getMimeFile(dirname){
+function getMimeFile(dirname) {
     return new Promise(function (resolve, reject) {
         var magic = new Magic(mmm.MAGIC_MIME_TYPE);
         magic.detectFile(dirname, function (err, result) {
@@ -85,35 +107,145 @@ function getMimeFile(dirname){
     });
 }
 
+
+const deleteImage = async function (req, res) {
+    try {
+        let id = req.param("id"), namefile = req.param("namefile");
+
+        let directory = IMAGES + `${"/" + id + "/" + namefile}`;
+        console.log("\n\n zzz", directory);
+
+        let fish = await Fish.findOne({ id });
+        if (fish === undefined) {
+            return res.serverError("id not found");
+        }
+
+        if (fish.hasOwnProperty("images") && Object.prototype.toString.call(fish.images) === "[object Array]") {
+            let index = fish.images.findIndex(function (i) { return i.filename === namefile })
+            if (index !== -1) {
+                if (fish.images.length === 1) {
+                    fish.images = [];
+                } else if (fish.images.length > 1) {
+                    fish.images.splice(index, 1);
+                }
+            }
+        }
+        console.log("\n\nzzz", "images despues eliminar", fish.images);
+        let upda = await Fish.update({ id: fish.id }, { images: fish.images });
+        //console.log(upda);
+
+        if (!fs.existsSync(directory)) {
+            throw new Error("file not exist");
+        }
+
+        // read binary data
+        var data = fs.unlinkSync(directory);
+
+        res.json({ msg: "success" })
+
+    }
+    catch (e) {
+        //console.log(e);
+        res.serverError(e);
+    }
+}
+
+const multipleImagesUpload = async function (req, res) {
+
+    let fish = await Fish.findOne({ id: req.params.id });
+    if (fish === undefined) {
+        return res.serverError("id not found");
+    }
+
+    let dirname = IMAGES + "/" + req.params.id;
+    //create directory if not exists
+    if (!fs.existsSync(dirname)) {
+        fs.mkdirSync(dirname);
+    }
+
+    let imagesName = [], i = 0;
+    ////console.log(req);
+    req.file("images").upload({
+        dirname,
+        maxBytes: 70000000,
+        saveAs: function (stream, cb) {
+            // changin name to sku format
+            let newName = stream.filename;
+            newName = newName.replace(/\s+/g, '-').toLowerCase() + new Date().getTime() + "" + (i + 3);
+            imagesName.push(newName);
+            i += 1;
+            cb(null, newName);
+        }
+    }, async function (err, uploadedFiles) {
+        if (err) return res.send(500, err);
+
+        i = 0;
+        let dirs = [];
+        for (let file of uploadedFiles) {
+            // changing name to sku format
+            let newName = imagesName[i];
+            if (file.type.includes("image/") && file["status"] === "finished") {
+                dirs.push({
+                    filename: newName,
+                    src: "/api/images" + "/" + newName + "/" + req.params.id
+                });
+                //for resizing image
+                try {
+                    let directory = IMAGES + `${"/" + req.params.id + "/" + newName}`;
+                    console.log(directory);
+                    await resizeImage(directory, { width: 800, height: null });
+                }
+                catch (e) {
+                    console.error(e);
+                }
+            }
+            i += 1;
+        }
+
+        if (fish.hasOwnProperty("images") && Object.prototype.toString.call(fish.images) === "[object Array]") {
+            for (let dir of dirs) {
+                fish.images.push(dir);
+            }
+        } else {
+            fish.images = dirs;
+        }
+
+        let upda = await Fish.update({ id: fish.id }, { images: fish.images });
+        ////console.log(upda);
+
+        return res.json(fish.images);
+    })
+}
+
 module.exports = {
 
-    uploadShippingInformation: async ( req, res ) => {
+    uploadShippingInformation: async (req, res) => {
         try {
             let orderID = req.params.id;
             let shippingImagePath = 'ItemShopping/shipping/images';
             //console.dir( req.body.image0 );
             //console.log(  req.body.image1  );
-            let image0 = await singleImagesUpload( req.body.image0, shippingImagePath, orderID, 0 );
-            let image1 = await singleImagesUpload( req.body.image1, shippingImagePath, orderID, 1 );
-            let image2 = await singleImagesUpload( req.body.image2, shippingImagePath, orderID, 2 );
-            let image3 = await singleImagesUpload( req.body.image3, shippingImagePath, orderID, 3 );
-            let image4 = await singleImagesUpload( req.body.image4, shippingImagePath, orderID, 4 );
-            let image5 = await singleImagesUpload( req.body.image5, shippingImagePath, orderID, 5 );
-            let image6 = await singleImagesUpload( req.body.image6, shippingImagePath, orderID, 6 );
-            let image7 = await singleImagesUpload( req.body.image7, shippingImagePath, orderID, 7 );
-            let image8 = await singleImagesUpload( req.body.image8, shippingImagePath, orderID, 8 );
-            let image9 = await singleImagesUpload( req.body.image9, shippingImagePath, orderID, 9 );
+            let image0 = await singleImagesUpload(req.body.image0, shippingImagePath, orderID, 0);
+            let image1 = await singleImagesUpload(req.body.image1, shippingImagePath, orderID, 1);
+            let image2 = await singleImagesUpload(req.body.image2, shippingImagePath, orderID, 2);
+            let image3 = await singleImagesUpload(req.body.image3, shippingImagePath, orderID, 3);
+            let image4 = await singleImagesUpload(req.body.image4, shippingImagePath, orderID, 4);
+            let image5 = await singleImagesUpload(req.body.image5, shippingImagePath, orderID, 5);
+            let image6 = await singleImagesUpload(req.body.image6, shippingImagePath, orderID, 6);
+            let image7 = await singleImagesUpload(req.body.image7, shippingImagePath, orderID, 7);
+            let image8 = await singleImagesUpload(req.body.image8, shippingImagePath, orderID, 8);
+            let image9 = await singleImagesUpload(req.body.image9, shippingImagePath, orderID, 9);
 
-            let images_url = [ 
-                orderID + '/' + '0.jpg', 
-                orderID + '/' + '1.jpg', 
-                orderID + '/' + '2.jpg', 
-                orderID + '/' + '3.jpg', 
-                orderID + '/' + '4.jpg', 
-                orderID + '/' + '5.jpg', 
-                orderID + '/' + '6.jpg', 
-                orderID + '/' + '7.jpg', 
-                orderID + '/' + '8.jpg', 
+            let images_url = [
+                orderID + '/' + '0.jpg',
+                orderID + '/' + '1.jpg',
+                orderID + '/' + '2.jpg',
+                orderID + '/' + '3.jpg',
+                orderID + '/' + '4.jpg',
+                orderID + '/' + '5.jpg',
+                orderID + '/' + '6.jpg',
+                orderID + '/' + '7.jpg',
+                orderID + '/' + '8.jpg',
                 orderID + '/' + '9.jpg'
             ];
             /*let images_url = [ 
@@ -128,47 +260,47 @@ module.exports = {
                 shippingImagePath + '/' + orderID + '-8.jpg', 
                 shippingImagePath + '/' + orderID + '-9.jpg'
             ];*/
-            console.log( images_url );
+            console.log(images_url);
 
-            updateItemShopping = await ItemShopping.update( { id: orderID }, { shippingFiles: images_url } );            
+            updateItemShopping = await ItemShopping.update({ id: orderID }, { shippingFiles: images_url });
 
-            
+
             //console.log( image1 );
 
-            res.status(200).json( updateItemShopping, image0, image1, image2, image3, image4, image5, image6, image7, image8, image9 );    
+            res.status(200).json(updateItemShopping, image0, image1, image2, image3, image4, image5, image6, image7, image8, image9);
         } catch (error) {
-            res.serverError( error );
+            res.serverError(error);
         }
-        
+
     },
-    serveShippingImage: async ( req, res ) => {
+    serveShippingImage: async (req, res) => {
         console.log('found');
         try {
             let rootImagePath = path.resolve(__dirname, '../../assets/images/');
             let imagePath = req.param("itemID");
-            let namefile =  req.param("imageIndex") + '.jpg';
-            console.log( namefile );
-            
-            
+            let namefile = req.param("imageIndex") + '.jpg';
+            console.log(namefile);
+
+
             let shippingImagePath = '/ItemShopping/shipping/images';
-            console.log( rootImagePath );
-            let directory =  rootImagePath + shippingImagePath + '/' + imagePath + '/' + namefile;
-            console.log( directory );
+            console.log(rootImagePath);
+            let directory = rootImagePath + shippingImagePath + '/' + imagePath + '/' + namefile;
+            console.log(directory);
             if (!fs.existsSync(directory)) {
                 throw new Error("file not exist");
             }
-            
+
             // read binary data
             var data = fs.readFileSync(directory);
             // convert binary data to base64 encoded string
             let content = 'image/' + namefile.split(".").pop();
             res.contentType(content);
             res.send(data);
-            
+
             //res.status(200).json( { "message": "found it" } );
         } catch (error) {
-            console.log( error );
-            res.serverError( error );
+            console.log(error);
+            res.serverError(error);
         }
     },
 
@@ -195,7 +327,7 @@ module.exports = {
                     saveAs: function (stream, cb) {
                         ////console.log(stream);
                         let newName = stream.filename;
-                        newName = newName.replace(/\s+/g, '-').toLowerCase();  
+                        newName = newName.replace(/\s+/g, '-').toLowerCase();
                         cb(null, stream.filename);
                     }
                 }, async function (err, uploadedFiles) {
@@ -209,7 +341,7 @@ module.exports = {
                     let dirs = [];
                     for (let file of uploadedFiles) {
                         let newName = file.filename;
-                        newName = newName.replace(/\s+/g, '-').toLowerCase();  
+                        newName = newName.replace(/\s+/g, '-').toLowerCase();
                         if (file.type.includes("image/") && file["status"] === "finished") {
                             dirs.push({
                                 filename: file.filename,
@@ -217,7 +349,7 @@ module.exports = {
                             });
                         }
                     }
-w
+                    w
                     if (itemShopping.hasOwnProperty("shippingFiles") && Object.prototype.toString.call(itemShopping.shippingFiles) === "[object Array]") {
                         for (let dir of dirs) {
                             if (itemShopping.shippingFiles.findIndex(function (i) { return i.src === dir.src }) === -1) {
@@ -246,64 +378,49 @@ w
         });
 
     },
-    
-    multipleImagesUpload: async function (req, res) {
 
-        let fish = await Fish.findOne({ id: req.params.id });
-        if (fish === undefined) {
-            return res.serverError("id not found");
-        }
-
-        let dirname = IMAGES + "/" + req.params.id;
-        //create directory if not exists
-        if (!fs.existsSync(dirname)) {
-            fs.mkdirSync(dirname);
-        }
-
-        let images = [], i = 0;
-        ////console.log(req);
-        req.file("images").upload({
-            dirname,
-            maxBytes: 70000000,
-            saveAs: function (stream, cb) {
-                // changin name to sku format
-                let newName = stream.filename;
-                newName = newName.replace(/\s+/g, '-').toLowerCase();            
-                cb(null, newName);
-            }
-        }, async function (err, uploadedFiles) {
-            if (err) return res.send(500, err);
-
-            let dirs = [];
-            for (let file of uploadedFiles) {
-                // changin name to sku format
-                let newName = file.filename;
-                newName = newName.replace(/\s+/g, '-').toLowerCase();
-
-                if (file.type.includes("image/") && file["status"] === "finished") {
-                    dirs.push({
-                        filename: newName,
-                        src: "/api/images" + "/" + newName + "/" + req.params.id
+    deleteImagesFish: async (req, res) => {
+        let deletedImages = req.param("deletedImages"); console.log("imagenes a borar", deletedImages);
+        if (Object.prototype.toString.call(deletedImages) === "[object String]") {
+            deletedImages = JSON.parse(deletedImages);
+            function getIdName(ur) {
+                return {
+                    id: ur.split("/").pop(), namefile: ur.split("/").splice(-2, 1)[0]
+                }
+            };
+            console.log("zzz", deletedImages);
+            for (let img of deletedImages) {
+                try {
+                    let _req = Object.assign(getIdName(img),
+                        { param: function (id) { return this[id] } }); console.log(_req);
+                    await new Promise((resolve, reject) => {
+                        let _res = {
+                            json: resolve,
+                            serverError: reject
+                        };
+                        deleteImage(_req, _res)
                     });
                 }
-            }
-
-            if (fish.hasOwnProperty("images") && Object.prototype.toString.call(fish.images) === "[object Array]") {
-                for (let dir of dirs) {
-                    if (fish.images.findIndex(function (i) { return i.src === dir.src || i.filename.replace(/\s+/g, '-').toLowerCase() === dir.filename.replace(/\s+/g, '-').toLowerCase() }) === -1) {
-                        fish.images.push(dir);
-                    }
+                catch (e) {
+                    console.error(e);
                 }
-            } else {
-                fish.images = dirs;
             }
+        }
 
-            let upda = await Fish.update({ id: fish.id }, { images: fish.images });
-            ////console.log(upda);
-
-            return res.json(fish.images);
-        })
+        res.json({ mg: "ready" });
     },
+
+    updateImages: async (req, res) => {
+        try {
+            await multipleImagesUpload(req, res);
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError("error in upload");
+        }
+    },
+
+    multipleImagesUpload,
 
     getImage: async function (req, res) {
 
@@ -333,47 +450,7 @@ w
 
     },
 
-    deleteImage: async function (req, res) {
-        try {
-            let id = req.param("id"), namefile = req.param("namefile");
-
-            let directory = IMAGES + `${"/" + id + "/" + namefile}`;
-            //console.log(directory);
-
-            let fish = await Fish.findOne({ id });
-            if (fish === undefined) {
-                return res.serverError("id not found");
-            }
-
-            if (fish.hasOwnProperty("images") && Object.prototype.toString.call(fish.images) === "[object Array]") {
-                let index = fish.images.findIndex(function (i) { return i.filename === namefile })
-                if (index !== -1) {
-                    if (fish.images.length === 1) {
-                        fish.images = [];
-                    } else if (fish.images.length > 1) {
-                        fish.images.splice(index, 1);
-                    }
-                }
-            }
-
-            let upda = await Fish.update({ id: fish.id }, { images: fish.images });
-            //console.log(upda);
-
-            if (!fs.existsSync(directory)) {
-                throw new Error("file not exist");
-            }
-
-            // read binary data
-            var data = fs.unlinkSync(directory);
-
-            res.json({ msg: "success" })
-
-        }
-        catch (e) {
-            //console.log(e);
-            res.serverError(e);
-        }
-    },
+    deleteImage,
 
     saveLogoStore: async (req, res) => {
         let idStore = "";
@@ -835,7 +912,7 @@ w
                     saveAs: function (stream, cb) {
                         // changin name to sku format
                         let newName = stream.filename;
-                        newName = newName.replace(/\s+/g, '-').toLowerCase();  
+                        newName = newName.replace(/\s+/g, '-').toLowerCase();
                         cb(null, newName);
                     }
                 }, async (err, uploadedFiles) => {
@@ -844,7 +921,7 @@ w
                     for (let file of uploadedFiles) {
                         let newName = file.filename;
                         // changin name to sku format
-                        newName = newName.replace(/\s+/g, '-').toLowerCase();  
+                        newName = newName.replace(/\s+/g, '-').toLowerCase();
                         await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + newName + "/" + id });
                         valid = true;
                     }
@@ -919,7 +996,7 @@ w
                         //console.log(stream);
                         // changin name to sku format
                         let newName = stream.filename;
-                        newName = newName.replace(/\s+/g, '-').toLowerCase();  
+                        newName = newName.replace(/\s+/g, '-').toLowerCase();
                         cb(null, newName);
                     }
                 }, async (err, uploadedFiles) => {
@@ -928,7 +1005,7 @@ w
                     for (let file of uploadedFiles) {
                         // changin name to sku format
                         let newName = file.filename;
-                        newName = newName.replace(/\s+/g, '-').toLowerCase();  
+                        newName = newName.replace(/\s+/g, '-').toLowerCase();
                         await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + newName + "/" + id });
                     }
 
@@ -1053,13 +1130,13 @@ w
             await writeImage("logo.jpg", directory, image);
             let users = await User.update({ id }, { logoCompany: `/api/logo-company/${id}` }).fetch();
             console.log(users);
-            if (users.length === 1){
+            if (users.length === 1) {
                 return res.json(users[0]);
             }
-                
+
             res.status(400);
             res.send("not found");
-            
+
         }
         catch (e) {
             console.error(e);
@@ -1107,16 +1184,16 @@ w
             let id = req.param("id");
             console.log(id);
             console.log(sails.config.appPath);
-            let path = `${sails.config.appPath}/shipping_documents/${id}/${name}`;	
+            let path = `${sails.config.appPath}/shipping_documents/${id}/${name}`;
             console.log(path);
             //res.sendFile( path );
-	    res.download(path, name);
-	        console.log( path );
-        
+            res.download(path, name);
+            console.log(path);
+
         } catch (error) {
-            res.serverError( error );     
+            res.serverError(error);
         }
     },
-    
+
 }
 

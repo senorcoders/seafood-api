@@ -148,7 +148,9 @@
       <div class="col col-5">
         <h3 style="font-size: 20px">TAX INVOICE</h3>
         <p><%= buyerContactName %><br>
-          <%= buyerContactPostalAddress %></p>
+          <%= buyerContactPostalAddress %><br>
+          <%=vat %>
+        </p>
       </div>
       <div class="col col-25">
         <p style="margin-bottom: 10px"><b>Invoice Date</b><br>
@@ -162,7 +164,7 @@
       </div>
       <div class="col col-25">
        <p style="margin-bottom: 10px"> Seafood Souq General Trading LLC.</p>
-       <p style="margin-bottom: 10px">Warehouse 10,  Al Qou‌z Industrial Area 3, 58 ST., Dubai, United Arab Emirates.</p>
+       <p style="margin-bottom: 10px">Warehouse 10,  Al Q‌uoz Industrial Area 3, 58 ST., Dubai, United Arab Emirates.</p>
        <p style="margin-bottom: 10px">P.O.Box: 282815</p>
        <p>Telephone: <br>
          +971 (04) 042683521
@@ -187,27 +189,25 @@
           <% items.forEach(function(it,index){ %>
           <tr style="border-bottom: gray 1px solid;">
             <td class="col col-3">
-                <%= it.fish.name %>, <%= it.fish.treatment %>, <%= it.fish.raised %>, <%= it.fish.preparation %> &nbsp; <%= it.fish.wholeFishWeight %>
-                <br>
-                <%= it.fish.hsCode %>
+                <%= it.description %>
             </td>
             <td class="col col-1">
               <%= it.fish.country %>
             </td>
             <td class="col col-1">
-              <%= it.quantity.value %>
+              <%= it.itemCharges.weight %>
             </td>
             <td class="col col-1">
               KG
             </td>
             <td class="col col-1">
-                <%= it.price.value %>
+                <%= it.itemCharges.price %>
             </td>
             <!-- <td class="col col-1">
               5%
             </td> -->
             <td class="col col-2 align-right">
-                <%= ( ( ( it.price.value * it.quantity.value )  ) ).toFixed(2)  %>
+                <%= ( it.itemCharges.price * it.itemCharges.weight ).toFixed(2)  %>
             </td>
           </tr>
           <% } ); %>
@@ -232,7 +232,7 @@
     </div>
     <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
       <div class="col col-90 padding-right">
-        <span>Custom and Handling Fees</span>
+        <span>Customs and Handling Fees</span>
       </div>
       <div class="col col-1">
         <span><%= customHandlingFee %></span>
@@ -240,7 +240,7 @@
     </div>
     <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
       <div class="col col-90 padding-right">
-        <span>Total Tax <%= uaeTaxes %>%</span>
+        <span>VAT(<%= uaeTaxes %>%)</span>
       </div>
       <div class="col col-1">
         <span><%= uaeTaxesFee %></span>
@@ -289,7 +289,7 @@
       <p><b>Due Date: <%= invoiceDueDate %></b></p>
     </div>
     <div class="align-right" style="font-size: 10px;font-family: arial">
-      <p class="blue"><a href="http://platform.seafoodsouq.com/terms-conditions">Seefood Souq T&Cs</a></p>
+      <p class="blue"><a href="http://platform.seafoodsouq.com/terms-conditions">Seafood Souq T&Cs</a></p>
       <!-- <p class="blue">Shipping and Returns Policy</p> -->
     </div>
   </body>
