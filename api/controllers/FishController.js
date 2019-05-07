@@ -97,9 +97,6 @@ module.exports = {
                 hsCode: body.hsCode,
                 acceptableSpoilageRate: body.acceptableSpoilageRate
             }
-            if (body.hasOwnProperty('descriptor')) {
-                newProduct['descriptor'] = body.descriptor;
-            }
 
 
 
