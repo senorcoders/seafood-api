@@ -65,6 +65,20 @@ module.exports = {
             let store = await Store.findOne({ id });
             store.fishs = await Fish.find({ store: store.id }).populate("type").populate("status")
 
+	    //fish['variations'] = [];
+            await Promise.all( store.fishs.map( async ( fish ) => {
+                let variations = await Variations.find( { fish: fish.id } );
+
+
+                await Promise.all( variations.map( async ( variation, index ) => {
+
+                    variations[index]['prices'] = await VariationPrices.find( { variation: variation.id } );
+
+
+                } ) )
+                fish['variations']=variations;
+            } ) )
+
             res.json(store);
         }
         catch (e) {
