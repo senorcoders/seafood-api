@@ -78,6 +78,7 @@ module.exports = {
                     type: "kg",
                     value: "0"
                 },
+                descriptor: body.descriptor,
                 country: body.country,
                 processingCountry: body.processingCountry,
                 city: body.city,
@@ -95,9 +96,6 @@ module.exports = {
                 brandname: body.brandName,
                 hsCode: body.hsCode,
                 acceptableSpoilageRate: body.acceptableSpoilageRate
-            }
-            if (body.hasOwnProperty('descriptor')) {
-                newProduct['descriptor'] = body.descriptor;
             }
 
 
