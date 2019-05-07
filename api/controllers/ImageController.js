@@ -193,7 +193,7 @@ const multipleImagesUpload = async function (req, res) {
                 try {
                     let directory = IMAGES + `${"/" + req.params.id + "/" + newName}`;
                     console.log(directory);
-                    await resizeImage(directory, { width: 800, height: null });
+                    await resizeImage(directory, { width: 1200, height: null });
                 }
                 catch (e) {
                     console.error(e);
@@ -924,6 +924,17 @@ module.exports = {
                         newName = newName.replace(/\s+/g, '-').toLowerCase();
                         await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + newName + "/" + id });
                         valid = true;
+
+                        //for resizing image
+                        try {
+                            let directory = IMAGES + `${"/primary/" + req.params.id + "/" + newName}`;
+                            console.log(directory);
+                            await resizeImage(directory, { width: 1200, height: null });
+                        }
+                        catch (e) {
+                            console.error(e);
+                        }
+
                     }
 
                     if (valid === false) {
@@ -1007,6 +1018,15 @@ module.exports = {
                         let newName = file.filename;
                         newName = newName.replace(/\s+/g, '-').toLowerCase();
                         await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + newName + "/" + id });
+                        //for resizing image
+                        try {
+                            let directory = IMAGES + `${"/primary/" +id + "/" +newName}`;
+                            console.log(directory);
+                            await resizeImage(directory, { width: 1200, height: null });
+                        }
+                        catch (e) {
+                            console.error(e);
+                        }
                     }
 
                     res.json({ msg: "success" });
