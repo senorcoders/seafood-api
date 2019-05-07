@@ -78,6 +78,7 @@ module.exports = {
                     type: "kg",
                     value: "0"
                 },
+                descriptor: body.descriptor,
                 country: body.country,
                 processingCountry: body.processingCountry,
                 city: body.city,
