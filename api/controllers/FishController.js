@@ -57,14 +57,12 @@ module.exports = {
     addFishWithVariations: async (req, res) => {
         try {
             let body = req.body;
-            let seafood_sku = await sails.helpers.generateSku(
+            let seafood_sku = 'var-test';/*await sails.helpers.generateSku(
                 body.store,
-                body.parentType,
-                body.specie,
+                body.type,
+                '',//body.descriptor,
                 body.processingCountry
-            );
-            console.log("\n\n\n", seafood_sku, "\n\n\n");
-
+            );*/
             let newProduct = {
                 type: body.type,
                 store: body.store,
@@ -106,24 +104,8 @@ module.exports = {
 
             if (mainFish) {
                 await Promise.all(body.variations.map(async (variation, index) => {
-                    let skuVar = `${seafood_sku}`;
-                    //Para cuando tiene wholeFishWeight y fishPreparation
-                    if (variation.hasOwnProperty('wholeFishWeight') === true && variation.hasOwnProperty('fishPreparation') === true) {
-                        let whole = await WholeFishWeight.findOne({ id: variation.wholeFishWeight });
-                        if (whole !== undefined)
-                            skuVar += "-"+ whole.name.substring(0, 1);
-                    } else if (variation.hasOwnProperty('fishPreparation') === true && variation.fishPreparation === "5c93c01465e25a011eefbcc4") {
-                        //Para fillete
-                        skuVar += "-"+ 1;
-                    } else if (variation.hasOwnProperty('fishPreparation') === true) {
-                        //Para trimmings salmon
-                        let trimm = await TrimmingType.findOne({ id: variation.fishPreparation });
-                        if (trimm !== undefined)
-                            skuVar += "-"+ trimm.name.slice(-1);
-                    }
-
                     let newVariation = {
-                        sku: skuVar,
+                        sku: `${seafood_sku}_${index}`,
                         fishPreparation: variation.fishPreparation,
                         fish: mainFish.id
                     }
@@ -176,6 +158,7 @@ module.exports = {
     updateFishWithVariations: async (req, res) => {
         try {
             let body = req.body;
+            let seafood_sku = 'var-test';
             // let update fish information
             let fishBody = {
                 type: body.type,
@@ -217,23 +200,8 @@ module.exports = {
                     newVariation = await Variations.update({ id: variation.idVariation }).set(variationBody).fetch();
                 } else {
                     //create
-                    let skuVar = `${fishUpdated[0].seafood_sku}`;
-                    //Para cuando tiene wholeFishWeight y fishPreparation
-                    if (variation.hasOwnProperty('wholeFishWeight') === true && variation.hasOwnProperty('fishPreparation') === true) {
-                        let whole = await WholeFishWeight.findOne({ id: variation.wholeFishWeight });
-                        if (whole !== undefined)
-                            skuVar += "-"+ whole.name.substring(0, 1);
-                    } else if (variation.hasOwnProperty('fishPreparation') === true && variation.fishPreparation === "5c93c01465e25a011eefbcc4") {
-                        //Para fillete
-                        skuVar += "-"+ 1;
-                    } else if (variation.hasOwnProperty('fishPreparation') === true) {
-                        //Para trimmings salmon
-                        let trimm = await TrimmingType.findOne({ id: variation.fishPreparation });
-                        if (trimm !== undefined)
-                            skuVar += "-"+ trimm.name.slice(-1);
-                    }
-                    let sku = `${fishUpdated[0].seafood_sku}`;
-                    variationBody['sku'] = skuVar;
+                    let sku = `${seafood_sku}`;
+                    variationBody['sku'] = sku;
                     variationBody['fish'] = body.idProduct;
                     newVariation = await Variations.create(variationBody).fetch();
                 }
