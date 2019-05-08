@@ -831,6 +831,64 @@ module.exports = {
         }
     },
 
+    getAllOrdersPagination: async (req, res) => {
+        try {
+            let where = {};
+            if (req.param("status")) {
+                if (req.param("status") !== undefined) {
+                    where.status = req.param('status')
+                    console.log('by status');
+                }
+            } else {
+                let status = await OrderStatus.find();
+                let statusIDs = [];
+                status.map(record => {
+                    statusIDs.push(record.id);
+                })
+
+                where.status = statusIDs;
+            }
+            if (req.param("orderNumber")) {
+                let shoppingCart = await ShoppingCart.findOne({ orderNumber: req.param('orderNumber') })
+                if (!shoppingCart)
+                    return res.status(200).json({ "message": "Order not found" });
+
+                if (shoppingCart !== undefined) {
+                    where.shoppingCart = shoppingCart.id;
+                    console.log('by orderNumber');
+                }
+
+            }
+
+            let limit = Number(req.param("limit"));
+            let skip = (Number(req.param("page")) - 1) * limit;
+            let totalResults = await ItemShopping.count({ where });
+
+            let items = await ItemShopping.find({ where, skip: skip, limit, })
+                .populate('fish')
+                .populate('shoppingCart')
+                .populate('status')
+                .sort('createdAt DESC');
+
+            await Promise.all(items.map(async function (it) {
+                //		console.log( it.fish.store );
+                if (it.hasOwnProperty('fish') && it.fish !== undefined && it.fish !== null) {
+                    if (it.fish.hasOwnProperty('store') && it.fish.store !== null && it.fish.store !== undefined) {
+                        it.store = await Store.findOne({ id: it.fish.store });
+                    }
+                }
+                return it;
+            }));
+
+
+
+            res.pagination({ page: req.param("page"), limit, datas: items, totalResults });
+        } catch (error) {
+            console.error(error);
+            res.serverError(error);
+        }
+    },
+
     //#endregion
 };
 
