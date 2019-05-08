@@ -1,0 +1,7 @@
+File from: [C:\work\seafood-api\images\5cd1f6c7f637162f404b2d99*.{jpg,JPG,jpeg,JPEG,png,svg,gif}]
+
+File to: [-]
+
+Compression algorithm: [-]
+
+Description:  Directory don't not have files!: 
