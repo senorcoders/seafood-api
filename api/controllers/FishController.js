@@ -689,7 +689,7 @@ module.exports = {
         try {
             let start = Number(req.params.page);
             --start;
-            let publishedProducts = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' });
+            let publishedProducts = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' }).sort('name ASC');
             let products_ids = [];
             publishedProducts.map((item) => {
                 products_ids.push(item.id);
@@ -730,6 +730,11 @@ module.exports = {
                 productos.push(m);
                 return m;
             }));
+            productos = productos.sort(function IHaveAName(a, b) { // non-anonymous as you ordered...
+                return b.name < a.name ?  1 // if b should come earlier, push a to end
+                     : b.name > a.name ? -1 // if b should come later, push a to begin
+                     : -1;                   // a and b are equal
+            });
 
 
             /*productos = await Promise.all(productos.map(async function (m) {
@@ -740,7 +745,7 @@ module.exports = {
                 return m;
             }));*/
 
-            let arr = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' }),
+            let arr = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' }).sort('name ASC'),
                 page_size = Number(req.params.limit), pages = 0;
             console.log(arr.length, Number(arr.length / page_size));
             if (parseInt(arr.length / page_size, 10) < Number(arr.length / page_size)) {

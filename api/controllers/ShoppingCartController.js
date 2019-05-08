@@ -389,16 +389,24 @@ module.exports = {
                 if (fishInfo.maximumOrder < (parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value))) {
                     return res.status(400).json({ message: "Maximum order limit reached" })
 
-                } /*else if ( fishInfo.maximumOrder < (item.quantity.value + alredyInCart[0].quantity.value) ){
-                    return res.status(400).json( { message: "Minimum order limit reached" } )                    
-                }*/ else {
+                } else if ( fishInfo.minimumOrder > (item.quantity.value + parseFloat(alredyInCart[0].quantity.value) ) ){
+                    return res.status(400).json( { message: "Order is below the minimum" } )                    
+                } else {
                     let item_id = alredyInCart[0].id;
                     item.quantity.value = parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value);
                     itemShopping = await ItemShopping.update({ id: item_id }, item);
                 }
                 //return res.status(200).send( item );
             } else {
-                itemShopping = await ItemShopping.create(item);
+                let fishInfo = await Fish.findOne({ id: req.body.fish });
+                if (fishInfo.maximumOrder < (parseFloat(item.quantity.value) )) {
+                    return res.status(400).json({ message: "Maximum order limit reached" })
+
+                } else if ( fishInfo.minimumOrder > item.quantity.value ){
+                    return res.status(400).json( { message: "Order is below the minimum" } )
+                } else {
+                    itemShopping = await ItemShopping.create(item);                    
+                }
             }
 
             //let itemShopping = await ItemShopping.create(item);
