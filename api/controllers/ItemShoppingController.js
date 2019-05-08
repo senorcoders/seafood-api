@@ -207,7 +207,7 @@ module.exports = {
             if (status == '5c017af047fb07027943a405') {//update to pending seller fulfillment
 
                 //checking if item still pending seller confirmation
-                if ( item.status == '5c017ae247fb07027943a404' ) {
+                if (item.status == '5c017ae247fb07027943a404') {
                     let buyerDateParts = item.buyerExpectedDeliveryDate.split('/');
                     let buyerMonth = buyerDateParts[0] - 1;
                     let buyerDay = buyerDateParts[1];
@@ -240,9 +240,9 @@ module.exports = {
                         await ItemShopping.update({ id }, { status: '5c017af047fb07027943a405', paymentStatus: '5c017b4547fb07027943a40a', updateInfo: currentUpdateDates }).fetch();
                     }
                 } else {
-                    return res.status( 400 ).json( { message: "This items is not longer available for confirm.", item } );
+                    return res.status(400).json({ message: "This items is not longer available for confirm.", item });
                 }
-                
+
 
 
             } else if (status == '5c017b0e47fb07027943a406') { //admin marks the item as shipped
@@ -295,7 +295,7 @@ module.exports = {
                     //send email to buyer 
                     await MailerService.orderDeliveredBuyer(name, cart, store, item);
                     //send email to seller
-                    let _name = store.owner.firstName+ " "+ store.owner.lastName;
+                    let _name = store.owner.firstName + " " + store.owner.lastName;
                     await MailerService.orderArrivedSeller(_name, cart, store, item);
                 }
 
@@ -306,10 +306,10 @@ module.exports = {
                 let repayedRef = req.param("ref");
                 data = await ItemShopping.update({ id }, { paymentStatus: '5c017b4f47fb07027943a40b', repayedAt: ts, repayedRef: repayedRef, updateInfo: currentUpdateDates }).fetch()
                 //send email to seller
-                let _name = store.owner.firstName+ " "+ store.owner.lastName;
+                let _name = store.owner.firstName + " " + store.owner.lastName;
                 await MailerService.orderSellerPaid(_name, cart, store, item);
             } else if (status == '5c017b5a47fb07027943a40c') { //Client Cancelled Order"
-                if (  [ '5c017ae247fb07027943a404', '5c017af047fb07027943a405' ].includes(  item.status ) ){
+                if (['5c017ae247fb07027943a404', '5c017af047fb07027943a405'].includes(item.status)) {
                     data = await ItemShopping.update({ id }, { status: '5c017b5a47fb07027943a40c', paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates }).fetch();
                     if (data.length > 0) {
                         //send email to buyer
@@ -320,11 +320,11 @@ module.exports = {
                         await MailerService.buyerCancelledOrderAdmin(cart, store, item);
                     }
                 } else {
-                    return res.status( 400 ).json( { message: "This items is not longer available for cancel", item } );
+                    return res.status(400).json({ message: "This items is not longer available for cancel", item });
                 }
-                
+
             } else if (status == '5c017b7047fb07027943a40e') { //Refunded
-                data = await ItemShopping.update({ id }, { paymentStatus: '5c017b7047fb07027943a40e', updateInfo: currentUpdateDates }).fetch()                
+                data = await ItemShopping.update({ id }, { paymentStatus: '5c017b7047fb07027943a40e', updateInfo: currentUpdateDates }).fetch()
 
             } else if (status == '5c06f4bf7650a503f4b731fd') { //Seller Cancelled Order
                 data = await ItemShopping.update({ id }, { status: '5c06f4bf7650a503f4b731fd', paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates }).fetch();
@@ -354,7 +354,7 @@ module.exports = {
             console.log('status');
             orderItems.map(itemOrder => {
                 console.log(itemOrder.status);
-                if (itemOrder.status !== '5c06f4bf7650a503f4b731fd' && itemOrder.status !== '5c017b5a47fb07027943a40c' &&  itemOrder.status !== '5c017b3c47fb07027943a409' && itemOrder.paymentStatus !== '5c017b7047fb07027943a40e' && itemOrder.paymentStatus !== '5c017b4f47fb07027943a40b') {
+                if (itemOrder.status !== '5c06f4bf7650a503f4b731fd' && itemOrder.status !== '5c017b5a47fb07027943a40c' && itemOrder.status !== '5c017b3c47fb07027943a409' && itemOrder.paymentStatus !== '5c017b7047fb07027943a40e' && itemOrder.paymentStatus !== '5c017b4f47fb07027943a40b') {
                     isClose = false;
                 }
             })
@@ -760,5 +760,77 @@ module.exports = {
             res.serverError(error);
         }
     },
+
+    //#region actions api v2
+    getBuyerOrdersPagination: async (req, res) => {
+        try {
+            let buyer = req.param("buyer");
+            let where = {};
+
+            // check if we had to filter by status
+            if (req.param("status")) {
+                if (req.param("status") !== undefined) {
+                    where.status = req.param('status')
+                    console.log('by status');
+                }
+            } else {
+                // get items status available, this way we don't get items in the cart
+                let status = await OrderStatus.find();
+                let statusIDs = [];
+                status.map(record => {
+                    statusIDs.push(record.id);
+                })
+                where.status = statusIDs;
+            }
+
+            // check if we had to filter by order number
+            if (req.param("orderNumber")) {
+                let shoppingCart = await ShoppingCart.findOne({ buyer: buyer, orderNumber: req.param('orderNumber') })
+                if (!shoppingCart)
+                    return res.status(200).json({ "message": "Order not found" });
+
+                if (shoppingCart !== undefined) {
+                    where.shoppingCart = shoppingCart.id;
+                    console.log('by orderNumber');
+                }
+            } else { // just getting buyer orders
+                let shoppingCart = await ShoppingCart.find({ buyer: buyer })
+                if (!shoppingCart)
+                    return res.status(200).json({ "message": "Order not found" });
+
+                if (shoppingCart !== undefined) {
+                    let shoppingCartIDs = [];
+                    shoppingCart.map(cart => {
+                        shoppingCartIDs.push(cart.id);
+                    })
+                    where.shoppingCart = shoppingCartIDs;
+                    console.log('by orderNumber');
+                }
+            }
+            let limit = Number(req.param("limit"));
+            let skip = (Number(req.param("page")) - 1) * limit;
+            let totalResults = await ItemShopping.count({ where });
+
+            let items = await ItemShopping.find({ where, skip: skip, limit, })
+                .populate('fish')
+                .populate('shoppingCart')
+                .populate('status')
+                .sort('createdAt DESC')
+
+            await Promise.all(items.map(async function (it) {
+                it.store = await Store.findOne({ id: it.fish.store });
+                return it;
+            }));
+
+
+
+            res.pagination({ page: req.param("page"), limit, datas: items, totalResults });
+        } catch (error) {
+            console.error(error);
+            res.serverError(error);
+        }
+    },
+
+    //#endregion
 };
 
