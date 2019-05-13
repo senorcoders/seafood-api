@@ -48,6 +48,7 @@
     "start": "NODE_ENV=development sails_environment=prod node app.js",
     "staging": "NODE_ENV=development sails_environment=staging node app.js --port=8080",
     "dev": "NODE_ENV=development sails_environment=development node app.js --port=8000",
+    "qa": "NODE_ENV=development sails_environment=qa node app.js --port=8081",
     "local": "node app.js",
     "start:dev": "forever start --uid 'seafood' -a --watchDirectory ./api -w app.js --minUptime 1000 --spinSleepTime 1000 app.js",
     "stop:dev": "forever stop 'seafood' ",
