@@ -205,10 +205,10 @@ module.exports = {
                     // await require("./../../mailer").sendCode(user[0].id, user[0].email, user[0].code, name);
                     // await MailerService.sendApprovedEmail(user[0].id, user[0].email, user[0].code, name);                     
                     if (user[0].role == 1) {
-                        await MailerService.sendApprovedSellerEmail(user[0].email, name); 
+                        await MailerService.sendApprovedSellerEmail(user[0].email, name);
                     } else {
                         await MailerService.sendApprovedBuyerEmail(user[0].id, user[0].email, user[0].code, name);
-                    } 
+                    }
                 }
             } else if (status === "denied") {
                 console.log('denied');
@@ -281,17 +281,61 @@ module.exports = {
         }
     },
 
-    getPublicIp: async ( req, res ) => {
+    getPublicIp: async (req, res) => {
         try {
-	    var ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
+            var ip = req.header('x-forwarded-for') || req.connection.remoteAddress;
 
 
-            res.send( {ip} );
+            res.send({ ip });
         }
         catch (e) {
             console.error(e);
             res.serverError(e);
         }
-   }
+    },
+
+    //#region for api v2
+    getUsers: async (req, res) => {
+        try {
+            let where = {}, response = {};
+            if (req.param("where")) {
+                if (Object.prototype.toString.call(req.param("where")) === '[object String]')
+                    where.where = JSON.parse(req.param("where"));
+                else if (Object.prototype.toString.call(req.param("where")) === '[object Object]')
+                    where.where = req.param("where");
+            }
+
+            if (req.param("sort")) {
+                where.sort = req.param("sort");
+            }
+
+            if (req.param("limit")) {
+                where.limit = Number(req.param("limit"));
+            }
+
+            if (req.param("page") && where.limit) {
+                let skip = (Number(req.param("page")) - 1) * where.limit;
+                where.skip = skip;
+            }
+
+            if (_.isUndefined(where.limit) === false && _.isUndefined(where.skip) === false) {
+                response.totalResults = await User.count({ where: where.where });
+                response.datas = await User.find(where);
+                response.page = Number(req.param("page"));
+                response.limit = where.limit;
+                return res.pagination(response);
+            }
+
+            response = await User.find(where);
+            res.v2(response);
+
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    }
+
+    //#endregion
 };
 
