@@ -522,6 +522,14 @@ module.exports.routes = {
   //#region for api v2
   /****
    * 
+   * FOR USERS
+   * 
+   * 
+   */
+  "GET /api/v2/user": "UserController.getUsers",
+
+  /****
+   * 
    * 
    * ITEMS SHOPPING
    * 
