@@ -186,7 +186,8 @@ module.exports = {
                     it.currentCharges = {
                         sfsMargin: it.fishCharges.sfsMargin,
                         shipping: it.fishCharges.shipping,
-                        customs: it.fishCharges.customs
+                        customs: it.fishCharges.customs,
+                        flatCustoms: it.fishCharges.flatCustoms
                     };
 
 

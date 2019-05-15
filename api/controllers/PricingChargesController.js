@@ -23,6 +23,8 @@ module.exports = {
         try{
             let customs = await PricingCharges.find( { where: { type: 'customs' } } ).sort( 'updatedAt DESC' );
 
+            let flatCustoms = await PricingCharges.find( { where: { type: 'flatCustoms' } } ).sort( 'updatedAt DESC' );
+
             let lastMileCost = await PricingCharges.find( { where: { type: 'lastMileCost' } } ).sort( 'updatedAt DESC' );
 
             let uaeTaxes = await PricingCharges.find( { where: { type: 'uaeTaxes' } } ).sort( 'updatedAt DESC' );
@@ -32,6 +34,7 @@ module.exports = {
             let exchangeRates = await PricingCharges.find( { where: { type: 'exchangeRates' } } ).sort( 'updatedAt DESC' );
             
             let data = {
+                "flatCustoms": flatCustoms,
                 "customs": customs,
                 "lastMileCost": lastMileCost,
                 "uaeTaxes": uaeTaxes,
@@ -61,6 +64,7 @@ module.exports = {
                 "lastMileCost": currentCharges.lastMileCost,                
                 "uaeTaxes": currentCharges.uaeTaxes,
                 "customs": currentCharges.customs,
+                "flatCustoms": currentCharges.flatCustoms,
                 "sfsMargin": fish.type.sfsMargin,
                 "handlingFees": currentChargesprice,
                 "exchangeRates": currentCharges.exchangeRates
