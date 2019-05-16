@@ -528,6 +528,10 @@ module.exports.routes = {
    */
   "GET /api/v2/user": "UserController.getUsers",
 
+  // Shipping
+
+  'GET /api/v2/countriesWithShipping': "ShippingRatesController.getCountriesWithShippings",
+
   /****
    * 
    * 
@@ -552,6 +556,8 @@ module.exports.routes = {
   'GET /api/v2/itemshopping/order-number/:orderNumber': 'ItemShoppingController.getAllOrdersPagination',
 
   'GET /api/v2/itemshopping/status/:status/order-number/:orderNumber': 'ItemShoppingController.getAllOrdersPagination',
+
+  
 
   //#endregion
 };
