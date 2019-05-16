@@ -95,7 +95,7 @@ module.exports = {
                 status: "5c0866e4a0eda00b94acbdc0", // pending status
                 brandname: body.brandName,
                 hsCode: body.hsCode,
-                acceptableSpoilageRate: body.acceptableSpoilageRate
+                // acceptableSpoilageRate: body.acceptableSpoilageRate
             }
 
 
@@ -187,7 +187,7 @@ module.exports = {
                 perBox: body.perBox,
                 minimumOrder: body.minimumOrder,
                 maximumOrder: body.maximumOrder,
-                acceptableSpoilageRate: body.acceptableSpoilageRate,
+                // acceptableSpoilageRate: body.acceptableSpoilageRate,
                 raised: body.raised,
                 treatment: body.treatment,
                 seller_sku: body.seller_sku,
