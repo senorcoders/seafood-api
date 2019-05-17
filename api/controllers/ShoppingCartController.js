@@ -153,7 +153,7 @@ module.exports = {
                     }
 
                     it.minDeliveryDate = min;
-
+                    
                     shippingRate = await sails.helpers.shippingByCity(it.fish.city, it.quantity.value);
                     it.owner = await User.findOne({ id: it.fish.store.owner })
                     it.shippingCost = it.fishCharges.shippingCost.cost;
@@ -374,6 +374,9 @@ module.exports = {
 
             // check if this item is already in this cart
             itemCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges, variation_id, in_AED);
+
+            item['quantity']['value'] = itemCharges.weight; //weight could be different in fish pricing if the product is per box, here we update the weight
+
             item['itemCharges'] = itemCharges;
             item['price'] = itemCharges.price; //getting variation price
             let alredyInCart = await ItemShopping.find({
