@@ -404,6 +404,7 @@ module.exports = {
             let items = await ItemShopping.find({ status: status_id }).populate("fish").populate("shoppingCart").populate("status").sort('createdAt DESC');
 
             items = await Promise.all(items.map(async function (it) {
+                it = await concatNameVariation(it);
                 it.store = await Store.findOne({ id: it.fish.store });
                 fishCountry = await Countries.findOne({ code: it.fish.country });
 
@@ -443,6 +444,7 @@ module.exports = {
             ).populate("fish").populate("shoppingCart").populate("status").populate('paymentStatus').sort('createdAt DESC');
 
             items = await Promise.all(items.map(async function (it) {
+                it = await concatNameVariation(it);
                 if (it['store'] !== undefined) {
                     it.store = await Store.findOne({ id: it.fish.store });
                     if (it.fish['country'] !== undefined) {
@@ -487,6 +489,7 @@ module.exports = {
             ).populate("fish").populate("shoppingCart").populate("status").sort('createdAt DESC');
 
             items = await Promise.all(items.map(async function (it) {
+                it = await concatNameVariation(it);
                 it.store = await Store.findOne({ id: it.fish.store });
                 if (it.fish.country) {
                     fishCountry = await Countries.findOne({ code: it.fish.country });
@@ -533,6 +536,7 @@ module.exports = {
                 ).populate("fish").populate("shoppingCart").populate("status").populate('paymentStatus').sort('createdAt DESC');
             }
             await Promise.all(items.map(async function (it) {
+                it = await concatNameVariation(it);
                 it.store = await Store.findOne({ id: it.fish.store });
                 if (it['fish'] !== undefined) {
                     if (it.fish['country'] !== undefined) {
@@ -579,7 +583,8 @@ module.exports = {
             }
             let items = await ItemShopping.find(where).populate('fish').populate('shoppingCart').populate('status').sort('createdAt DESC').limit(1000);
 
-            await Promise.all(items.map(async function (it) {
+            items = await Promise.all(items.map(async function (it) {
+                it = await concatNameVariation(it)
                 it.store = await Store.findOne({ id: it.fish.store });
                 return it;
             }));
@@ -626,13 +631,14 @@ module.exports = {
             console.log(where);
             let items = await ItemShopping.find(where).populate('fish').populate('shoppingCart').populate('status').sort('createdAt DESC').limit(100);
 
-            await Promise.all(items.map(async function (it) {
+            items = await Promise.all(items.map(async function (it) {
                 //		console.log( it.fish.store );
                 if (it.hasOwnProperty('fish') && it.fish !== undefined && it.fish !== null) {
                     if (it.fish.hasOwnProperty('store') && it.fish.store !== null && it.fish.store !== undefined) {
                         it.store = await Store.findOne({ id: it.fish.store });
                     }
                 }
+                it = await concatNameVariation(it);
                 return it;
             }));
 
@@ -695,8 +701,9 @@ module.exports = {
             console.log('where', where);
             let items = await ItemShopping.find(where).populate('fish').populate('shoppingCart').populate('status').sort('createdAt DESC').limit(100);
 
-            await Promise.all(items.map(async function (it) {
+            items = await Promise.all(items.map(async function (it) {
                 it.store = await Store.findOne({ id: it.fish.store });
+                it = await concatNameVariation(it);
                 return it;
             }));
 
@@ -835,7 +842,8 @@ module.exports = {
                 .populate('status')
                 .sort('createdAt DESC')
 
-            await Promise.all(items.map(async function (it) {
+            items = await Promise.all(items.map(async function (it) {
+                it = await concatNameVariation(it);
                 it.store = await Store.findOne({ id: it.fish.store });
                 return it;
             }));

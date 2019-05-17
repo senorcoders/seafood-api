@@ -290,6 +290,7 @@ module.exports = {
                     item['fish'] = await Fish.findOne({ id: item.fish }).populate('store');
                     item['seller'] = await User.findOne({ id: item.fish.store.owner });
                     item['status'] = await OrderStatus.findOne({ id: item.status });
+                    item = await concatNameVariation(item);
                     delete item.seller.token;
                     delete item.seller.password;
                     return item;
@@ -644,9 +645,10 @@ module.exports = {
                             let order = await ShoppingCart.findOne({ id }).populate('buyer').populate('orderStatus').populate('items');
                             let items = [];
                             await Promise.all(order.items.map(async item => {
-
                                 let fishItem = await Fish.findOne({ id: item.fish }).populate('store').populate('type').populate('status')
                                 item.fishItem = fishItem;
+                                item.fish = fishItem;
+                                item = await concatNameVariation(item);
                                 items.push(item);
 
                             }))
