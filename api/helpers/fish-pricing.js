@@ -47,6 +47,13 @@ module.exports = {
     // getting the fish information
     let fish = await Fish.findOne( { where: { id: id } } ).populate( 'type' ).populate( 'store' );   
 
+    if( fish.hasOwnProperty(perBox) ) {
+      if( fish.perBox ) { // if is per box the api is sending the number of boxes, not the weight
+        weight = fish.boxWeight * weight;
+        inputs.weight = weight;
+      }
+    }
+
     let variation = await VariationPrices.find().where({
       'min': { "<=": inputs.weight },
       'max': { ">=": inputs.weight },
