@@ -1,8 +1,22 @@
 const favoriteFsihCtrl = require("./FavoriteFishController");
 const fs = require('fs');
 const path = require('path');
+const concatNameVariation = async function (item) {
+    if (item.variation !== null && item.variation !== undefined) {
+        let variation = await Variations.findOne({ id: item.variation })
+            .populate("fishPreparation").populate("wholeFishWeight");
+        if (variation.wholeFishWeight !== undefined && variation.wholeFishWeight !== null)
+            item.fish.name += ", " + variation.wholeFishWeight.name;
+        else {
+            item.fish.name += ", " + variation.fishPreparation.name;
+        }
+    }
+    return item;
+}
 
 module.exports = {
+    concatNameVariation,
+    
     getWithAllData: async function (req, res) {
         try {
             let item = await ItemShopping.findOne({ id: req.param("id") }).populate("fish").populate("shoppingCart").populate('status');
@@ -155,6 +169,7 @@ module.exports = {
                 res.status(400).send("not found");
             }
 
+            item = await concatNameVariation(item);
             let cart = await ShoppingCart.findOne({ id: item.shoppingCart.id }).populate("buyer")
 
             await ItemShopping.update({ id }, { shippingStatus: "shipped", status: '5c017b0e47fb07027943a406' })
@@ -178,6 +193,9 @@ module.exports = {
             var ts = Math.round((new Date()).getTime() / 1000);
             let data = ''; //
             let item = await ItemShopping.findOne({ id }).populate("shoppingCart").populate("fish");
+            //For get trim and concat with name fish
+            item = await concatNameVariation(item);
+
             if (item === undefined) {
                 res.status(400).send("not found");
             }
@@ -386,6 +404,7 @@ module.exports = {
             let items = await ItemShopping.find({ status: status_id }).populate("fish").populate("shoppingCart").populate("status").sort('createdAt DESC');
 
             items = await Promise.all(items.map(async function (it) {
+                it = await concatNameVariation(it);
                 it.store = await Store.findOne({ id: it.fish.store });
                 fishCountry = await Countries.findOne({ code: it.fish.country });
 
@@ -425,6 +444,7 @@ module.exports = {
             ).populate("fish").populate("shoppingCart").populate("status").populate('paymentStatus').sort('createdAt DESC');
 
             items = await Promise.all(items.map(async function (it) {
+                it = await concatNameVariation(it);
                 if (it['store'] !== undefined) {
                     it.store = await Store.findOne({ id: it.fish.store });
                     if (it.fish['country'] !== undefined) {
@@ -469,6 +489,7 @@ module.exports = {
             ).populate("fish").populate("shoppingCart").populate("status").sort('createdAt DESC');
 
             items = await Promise.all(items.map(async function (it) {
+                it = await concatNameVariation(it);
                 it.store = await Store.findOne({ id: it.fish.store });
                 if (it.fish.country) {
                     fishCountry = await Countries.findOne({ code: it.fish.country });
@@ -515,6 +536,7 @@ module.exports = {
                 ).populate("fish").populate("shoppingCart").populate("status").populate('paymentStatus').sort('createdAt DESC');
             }
             await Promise.all(items.map(async function (it) {
+                it = await concatNameVariation(it);
                 it.store = await Store.findOne({ id: it.fish.store });
                 if (it['fish'] !== undefined) {
                     if (it.fish['country'] !== undefined) {
@@ -561,7 +583,8 @@ module.exports = {
             }
             let items = await ItemShopping.find(where).populate('fish').populate('shoppingCart').populate('status').sort('createdAt DESC').limit(1000);
 
-            await Promise.all(items.map(async function (it) {
+            items = await Promise.all(items.map(async function (it) {
+                it = await concatNameVariation(it)
                 it.store = await Store.findOne({ id: it.fish.store });
                 return it;
             }));
@@ -608,13 +631,14 @@ module.exports = {
             console.log(where);
             let items = await ItemShopping.find(where).populate('fish').populate('shoppingCart').populate('status').sort('createdAt DESC').limit(100);
 
-            await Promise.all(items.map(async function (it) {
+            items = await Promise.all(items.map(async function (it) {
                 //		console.log( it.fish.store );
                 if (it.hasOwnProperty('fish') && it.fish !== undefined && it.fish !== null) {
                     if (it.fish.hasOwnProperty('store') && it.fish.store !== null && it.fish.store !== undefined) {
                         it.store = await Store.findOne({ id: it.fish.store });
                     }
                 }
+                it = await concatNameVariation(it);
                 return it;
             }));
 
@@ -677,8 +701,9 @@ module.exports = {
             console.log('where', where);
             let items = await ItemShopping.find(where).populate('fish').populate('shoppingCart').populate('status').sort('createdAt DESC').limit(100);
 
-            await Promise.all(items.map(async function (it) {
+            items = await Promise.all(items.map(async function (it) {
                 it.store = await Store.findOne({ id: it.fish.store });
+                it = await concatNameVariation(it);
                 return it;
             }));
 
@@ -817,7 +842,8 @@ module.exports = {
                 .populate('status')
                 .sort('createdAt DESC')
 
-            await Promise.all(items.map(async function (it) {
+            items = await Promise.all(items.map(async function (it) {
+                it = await concatNameVariation(it);
                 it.store = await Store.findOne({ id: it.fish.store });
                 return it;
             }));

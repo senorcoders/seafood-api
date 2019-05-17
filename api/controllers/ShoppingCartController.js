@@ -3,11 +3,11 @@ const getDescription = async (it) => {
     let description = it.fish.name;
     if (it.fish.treatment !== null && it.fish.treatment !== undefined) {
         let treatment = await Treatment.findOne({ id: it.fish.treatment });
-        if (treatment !== undefined) description += ", " + treatment.name;
+        if (treatment !== undefined) description += " - " + treatment.name;
     }
     if (it.fish.raised !== null && it.fish.raised !== undefined) {
         let raised = await Raised.findOne({ id: it.fish.raised });
-        if (raised !== undefined) description += ", " + raised.name;
+        if (raised !== undefined) description += " - " + raised.name;
     }
     // if (it.fish.preparation !== null && it.fish.preparation !== undefined) {
     //     let preparation = await FishPreparation.findOne({ id: it.fish.preparation });
@@ -19,6 +19,8 @@ const getDescription = async (it) => {
     }
     return description;
 }
+
+const concatNameVariation = require("./ItemShoppingController").concatNameVariation;
 
 module.exports = {
 
@@ -288,6 +290,7 @@ module.exports = {
                     item['fish'] = await Fish.findOne({ id: item.fish }).populate('store');
                     item['seller'] = await User.findOne({ id: item.fish.store.owner });
                     item['status'] = await OrderStatus.findOne({ id: item.status });
+                    item = await concatNameVariation(item);
                     delete item.seller.token;
                     delete item.seller.password;
                     return item;
@@ -374,6 +377,9 @@ module.exports = {
 
             // check if this item is already in this cart
             itemCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges, variation_id, in_AED);
+
+            item['quantity']['value'] = itemCharges.weight; //weight could be different in fish pricing if the product is per box, here we update the weight
+
             item['itemCharges'] = itemCharges;
             item['price'] = itemCharges.price; //getting variation price
             let alredyInCart = await ItemShopping.find({
@@ -390,8 +396,8 @@ module.exports = {
                 if (fishInfo.maximumOrder < (parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value))) {
                     return res.status(400).json({ message: "Maximum order limit reached" })
 
-                } else if ( fishInfo.minimumOrder > (item.quantity.value + parseFloat(alredyInCart[0].quantity.value) ) ){
-                    return res.status(400).json( { message: "Order is below the minimum" } )                    
+                } else if (fishInfo.minimumOrder > (item.quantity.value + parseFloat(alredyInCart[0].quantity.value))) {
+                    return res.status(400).json({ message: "Order is below the minimum" })
                 } else {
                     let item_id = alredyInCart[0].id;
                     item.quantity.value = parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value);
@@ -400,13 +406,13 @@ module.exports = {
                 //return res.status(200).send( item );
             } else {
                 let fishInfo = await Fish.findOne({ id: req.body.fish });
-                if (fishInfo.maximumOrder < (parseFloat(item.quantity.value) )) {
+                if (fishInfo.maximumOrder < (parseFloat(item.quantity.value))) {
                     return res.status(400).json({ message: "Maximum order limit reached" })
 
-                } else if ( fishInfo.minimumOrder > item.quantity.value ){
-                    return res.status(400).json( { message: "Order is below the minimum" } )
+                } else if (fishInfo.minimumOrder > item.quantity.value) {
+                    return res.status(400).json({ message: "Order is below the minimum" })
                 } else {
-                    itemShopping = await ItemShopping.create(item);                    
+                    itemShopping = await ItemShopping.create(item);
                 }
             }
 
@@ -538,10 +544,17 @@ module.exports = {
             //return it;
             //}));
             console.info('store group');
+            //para agregarles el nombre con el variations
+            itemsShopping = await Promise.all(itemsShopping.map(async function(it){
+                it = await concatNameVariation(it);
+                it.description = await getDescription(it);
+                return it;
+            }));
+
             //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
             let itemsStore = [];
             for (let item of itemsShopping) {
-
+                
                 let index = itemsStore.findIndex(function (it) {
                     return it[0].fish.store.id === item.fish.store.id;
                 });
@@ -588,9 +601,8 @@ module.exports = {
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
                 let sellerAddress = st[0].fish.store['Address'];
                 let incoterms = st[0].fish.store.owner.incoterms !== null && st[0].fish.store.owner.incoterms !== undefined ? st[0].fish.store.owner.incoterms : { name: "Ex Work" };
-                let description = await getDescription(st[0]);
                 console.log("\n\n aquiii", cart, "\n\n");
-                let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, st, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + counter), exchangeRates[0].price, st[0].buyerExpectedDeliveryDate, incoterms, description, cart.subTotal, cart.total);
+                let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, st, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + counter), exchangeRates[0].price, st[0].buyerExpectedDeliveryDate, incoterms, cart.subTotal, cart.total);
 
                 //console.log( 'seller invoice', sellerInvoice );
             }
@@ -633,9 +645,10 @@ module.exports = {
                             let order = await ShoppingCart.findOne({ id }).populate('buyer').populate('orderStatus').populate('items');
                             let items = [];
                             await Promise.all(order.items.map(async item => {
-
                                 let fishItem = await Fish.findOne({ id: item.fish }).populate('store').populate('type').populate('status')
                                 item.fishItem = fishItem;
+                                item.fish = fishItem;
+                                item = await concatNameVariation(item);
                                 items.push(item);
 
                             }))
