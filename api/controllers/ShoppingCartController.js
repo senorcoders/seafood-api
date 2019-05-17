@@ -155,7 +155,7 @@ module.exports = {
                     }
 
                     it.minDeliveryDate = min;
-                    
+
                     shippingRate = await sails.helpers.shippingByCity(it.fish.city, it.quantity.value);
                     it.owner = await User.findOne({ id: it.fish.store.owner })
                     it.shippingCost = it.fishCharges.shippingCost.cost;
@@ -395,8 +395,8 @@ module.exports = {
                 if (fishInfo.maximumOrder < (parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value))) {
                     return res.status(400).json({ message: "Maximum order limit reached" })
 
-                } else if ( fishInfo.minimumOrder > (item.quantity.value + parseFloat(alredyInCart[0].quantity.value) ) ){
-                    return res.status(400).json( { message: "Order is below the minimum" } )                    
+                } else if (fishInfo.minimumOrder > (item.quantity.value + parseFloat(alredyInCart[0].quantity.value))) {
+                    return res.status(400).json({ message: "Order is below the minimum" })
                 } else {
                     let item_id = alredyInCart[0].id;
                     item.quantity.value = parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value);
@@ -405,13 +405,13 @@ module.exports = {
                 //return res.status(200).send( item );
             } else {
                 let fishInfo = await Fish.findOne({ id: req.body.fish });
-                if (fishInfo.maximumOrder < (parseFloat(item.quantity.value) )) {
+                if (fishInfo.maximumOrder < (parseFloat(item.quantity.value))) {
                     return res.status(400).json({ message: "Maximum order limit reached" })
 
-                } else if ( fishInfo.minimumOrder > item.quantity.value ){
-                    return res.status(400).json( { message: "Order is below the minimum" } )
+                } else if (fishInfo.minimumOrder > item.quantity.value) {
+                    return res.status(400).json({ message: "Order is below the minimum" })
                 } else {
-                    itemShopping = await ItemShopping.create(item);                    
+                    itemShopping = await ItemShopping.create(item);
                 }
             }
 
@@ -543,10 +543,17 @@ module.exports = {
             //return it;
             //}));
             console.info('store group');
+            //para agregarles el nombre con el variations
+            itemsShopping = await Promise.all(itemsShopping.map(async function(it){
+                it = await concatNameVariation(it);
+                it.description = await getDescription(it);
+                return it;
+            }));
+
             //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
             let itemsStore = [];
             for (let item of itemsShopping) {
-
+                
                 let index = itemsStore.findIndex(function (it) {
                     return it[0].fish.store.id === item.fish.store.id;
                 });
@@ -579,7 +586,6 @@ module.exports = {
                 let sellerAddress = st[0].fish.store['Address']; //`${st[0].fish.store.owner.dataExtra.Address}, ${st[0].fish.store.owner.dataExtra.City}, ${st[0].fish.store.owner.dataExtra.country}, ${st[0].fish.store.owner.dataExtra.zipCode}`;                
                 //let sellerInvoice = await PDFService.sellerPurchaseOrder( fullName, cart, st, OrderNumber, sellerAddress, counter, exchangeRates[0].price );
                 */
-               st[0] = await concatNameVariation(st[0]);
                 console.info('store', st);
 
                 st[0].fish.store = await Store.findOne({ id: st[0].fish.store }).populate("owner");
@@ -594,9 +600,8 @@ module.exports = {
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
                 let sellerAddress = st[0].fish.store['Address'];
                 let incoterms = st[0].fish.store.owner.incoterms !== null && st[0].fish.store.owner.incoterms !== undefined ? st[0].fish.store.owner.incoterms : { name: "Ex Work" };
-                let description = await getDescription(st[0]);
                 console.log("\n\n aquiii", cart, "\n\n");
-                let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, st, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + counter), exchangeRates[0].price, st[0].buyerExpectedDeliveryDate, incoterms, description, cart.subTotal, cart.total);
+                let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, st, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + counter), exchangeRates[0].price, st[0].buyerExpectedDeliveryDate, incoterms, cart.subTotal, cart.total);
 
                 //console.log( 'seller invoice', sellerInvoice );
             }
