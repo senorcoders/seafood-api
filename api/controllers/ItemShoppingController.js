@@ -1,8 +1,22 @@
 const favoriteFsihCtrl = require("./FavoriteFishController");
 const fs = require('fs');
 const path = require('path');
+const concatNameVariation = async function (item) {
+    if (item.variation !== null && item.variation !== undefined) {
+        let variation = await Variations.findOne({ id: item.variation })
+            .populate("fishPreparation").populate("wholeFishWeight");
+        if (variation.wholeFishWeight !== undefined && variation.wholeFishWeight !== null)
+            item.fish.name += ", " + variation.wholeFishWeight.name;
+        else {
+            item.fish.name += ", " + variation.fishPreparation.name;
+        }
+    }
+    return item;
+}
 
 module.exports = {
+    concatNameVariation,
+    
     getWithAllData: async function (req, res) {
         try {
             let item = await ItemShopping.findOne({ id: req.param("id") }).populate("fish").populate("shoppingCart").populate('status');
@@ -155,6 +169,7 @@ module.exports = {
                 res.status(400).send("not found");
             }
 
+            item = await concatNameVariation(item);
             let cart = await ShoppingCart.findOne({ id: item.shoppingCart.id }).populate("buyer")
 
             await ItemShopping.update({ id }, { shippingStatus: "shipped", status: '5c017b0e47fb07027943a406' })
@@ -178,6 +193,9 @@ module.exports = {
             var ts = Math.round((new Date()).getTime() / 1000);
             let data = ''; //
             let item = await ItemShopping.findOne({ id }).populate("shoppingCart").populate("fish");
+            //For get trim and concat with name fish
+            item = await concatNameVariation(item);
+
             if (item === undefined) {
                 res.status(400).send("not found");
             }

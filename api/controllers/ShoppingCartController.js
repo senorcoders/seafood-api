@@ -3,11 +3,11 @@ const getDescription = async (it) => {
     let description = it.fish.name;
     if (it.fish.treatment !== null && it.fish.treatment !== undefined) {
         let treatment = await Treatment.findOne({ id: it.fish.treatment });
-        if (treatment !== undefined) description += ", " + treatment.name;
+        if (treatment !== undefined) description += " - " + treatment.name;
     }
     if (it.fish.raised !== null && it.fish.raised !== undefined) {
         let raised = await Raised.findOne({ id: it.fish.raised });
-        if (raised !== undefined) description += ", " + raised.name;
+        if (raised !== undefined) description += " - " + raised.name;
     }
     // if (it.fish.preparation !== null && it.fish.preparation !== undefined) {
     //     let preparation = await FishPreparation.findOne({ id: it.fish.preparation });
@@ -19,6 +19,8 @@ const getDescription = async (it) => {
     }
     return description;
 }
+
+const concatNameVariation = require("./ItemShoppingController").concatNameVariation;
 
 module.exports = {
 
@@ -577,6 +579,7 @@ module.exports = {
                 let sellerAddress = st[0].fish.store['Address']; //`${st[0].fish.store.owner.dataExtra.Address}, ${st[0].fish.store.owner.dataExtra.City}, ${st[0].fish.store.owner.dataExtra.country}, ${st[0].fish.store.owner.dataExtra.zipCode}`;                
                 //let sellerInvoice = await PDFService.sellerPurchaseOrder( fullName, cart, st, OrderNumber, sellerAddress, counter, exchangeRates[0].price );
                 */
+               st[0] = await concatNameVariation(st[0]);
                 console.info('store', st);
 
                 st[0].fish.store = await Store.findOne({ id: st[0].fish.store }).populate("owner");
