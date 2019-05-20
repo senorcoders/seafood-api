@@ -393,6 +393,12 @@ module.exports = {
             let itemShopping;
             if (alredyInCart !== undefined && alredyInCart[0] !== undefined) {
                 let fishInfo = await Fish.findOne({ id: req.body.fish });
+                if( fishInfo.hasOwnProperty("perBox") ) {
+                    if( fishInfo.perBox === true) { // if is per box the app is sending the number of boxes, not the weight
+                        fishInfo.maximumOrder = fishInfo.boxWeight * fishInfo.maximumOrder;
+                        fishInfo.minimumOrder = fishInfo.boxWeight * fishInfo.minimumOrder;
+                    }
+                }
                 if (fishInfo.maximumOrder < (parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value))) {
                     return res.status(400).json({ message: "Maximum order limit reached" })
 

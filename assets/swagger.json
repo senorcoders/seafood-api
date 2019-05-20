@@ -21,7 +21,10 @@
       "description": "Operations about user"
   },{
       "name": "store",
-      "description": "Access to Petstore orders"
+      "description": ""
+  },{
+      "name": "product",
+      "description": ""
   }],
   "schemes": ["https", "http"],
   "paths": {
@@ -373,7 +376,216 @@
       }
     },
    
-     
+     "/store/allProducts": {
+      "get": {
+        "tags": ["product"],
+        "summary": "Get all products with Store and Type Information",
+        "operationId": "StoreController.getAllProductsWithTypes",
+        "produces": ["application/json"],
+        "parameters": [],
+        "responses": {
+          "200": {
+           "description": "successful operation",
+            "schema": {
+                "$ref": "#/definitions/Product"
+            }
+            
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    
+    "/api/store": {
+      "get": {
+        "tags": ["store"],
+        "summary": "Get Stores Names ",
+        "operationId": "StoreController.getStoreSimplified",
+        "produces": ["application/json"],
+        "parameters": [],
+        "responses": {
+          "200": {
+           "description": "successful operation"
+          }
+        },
+        "security":[{"token":[]}]
+      },
+      "post": {
+        "tags": ["store"],
+        "summary": "Register a new store including the images",
+        "operationId": "StoreController.save",
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "description": "",
+          "required": true,
+          "schema": {
+              "type": "object",
+              "properties": {
+                  "owner": {
+                      "type": "string"
+                  },
+                  "description": {
+                      "type": "string"
+                  },
+                  "location": {
+                      "type": "string"
+                  },
+                  "logo": {
+                      "type": "object"
+                  }
+              }
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+            
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    
+    "/api/store/logo/{id}": {
+      "post": {
+        "tags": ["store"],
+        "summary": "Update or Save the logo store",
+        "operationId": "ImageController.saveLogoStore",
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        },{
+          "in": "body",
+          "name": "body",
+          "description": "",
+          "required": true,
+          "schema": {
+              "type": "object",
+              "properties": {
+                  "logo": {
+                      "type": "string"
+                  }
+              }
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    "/api/store/hero/{id}": {
+      "post": {
+        "tags": ["store"],
+        "summary": "Update or Save the hero image store",
+        "operationId": "ImageController.saveHeroStore",
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        },{
+          "in": "body",
+          "name": "body",
+          "description": "",
+          "required": true,
+          "schema": {
+              "type": "object",
+              "properties": {
+                  "logo": {
+                      "type": "string"
+                  }
+              }
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    "/api/store/gallery/{id}": {
+      "post": {
+        "tags": ["store"],
+        "summary": "Update or Save the gallery",
+        "operationId": "ImageController.saveImagesStore",
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        },{
+          "in": "body",
+          "name": "body",
+          "description": "",
+          "required": true,
+          "schema": {
+              "type": "object",
+              "properties": {
+                  "gallery": {
+                      "type": "string"
+                  }
+              }
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    
+    "/store/{id}": {
+      "get": {
+        "tags": ["store"],
+        "summary": "Get Store Information with Types",
+        "operationId": "StoreController.getWithTypes",
+        "produces": ["application/json"],
+        "parameters": [{
+          "name": "id",
+          "in": "path",
+          "description": "Store id",
+          "required": true,
+          "type": "string"
+        }],
+        "responses": {
+          "200": {
+           "description": "successful operation"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    
+    
       
   },
   "securityDefinitions": {
@@ -433,6 +645,46 @@
           "xml": {
               "name": "User"
           }
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "price": { "type": "object"},
+          "weight": { "type": "object"},
+          "maximumOrder": {"type":"number"},
+          "cooming_soon": {"type":"boolean"},
+          "brandName": {"type":"string"},
+          "coomingSoon": {"type":"boolean"},
+          "createdAt": {"type":"number"},
+          "updatedAt": {"type":"number"},
+          "id": {"type":"string"},
+          "name": {"type":"string"},
+          "brandname": {"type":"string"},
+          "description": {"type":"string"},
+          "country": {"type":"string"},
+          "processingCountry": {"type":"string"},
+          "city": {"type":"string"},
+          "quality": {"type":"string"},
+          "minimumOrder": {"type":"number"},
+          "hsCode": {"type":"string"},
+          "imagePrimary": {"type":"string"},
+          "images": {"type":"object"},
+          "seller_sku": {"type":"string"},
+          "seafood_sku": {"type":"string"},
+          "SFSAdminFeedback": {"type":"string"},
+          "stock": {"type":"number"},
+          "waterLostRate": {"type":"string"},
+          "mortalityRate": {"type":"number"},
+          "raised": {"type":"object"},
+          "treatment": {"type":"object"},
+          "store": {"type":"object"},
+          "type": {"type":"object"},
+          "descriptor": {"type":"string"},
+          "status": {"type":"string"}
+        },
+        "xml": {
+          "name": "Fish"
+        }
       },
       "ApiResponse": {
           "type": "object",
