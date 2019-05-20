@@ -134,6 +134,10 @@ module.exports = {
         try {
 
             let users = await User.find({ role: 0 });
+            users = users.map( user => {
+                delete user.token;
+                return user;
+            } )
             res.json(users);
         }
         catch (e) {
