@@ -391,8 +391,23 @@ module.exports = {
             console.log('alread in cart', alredyInCart)
 
             let itemShopping;
+	    let fishInfo = await Fish.findOne({ id: req.body.fish });
+            if( fishInfo.hasOwnProperty("perBox") ) {
+              if( fishInfo.perBox === true) { // if is per box the app is sending the number of boxes, not the weight
+                fishInfo.maximumOrder = fishInfo.boxWeight * fishInfo.maximumOrder;
+                fishInfo.minimumOrder = fishInfo.boxWeight * fishInfo.minimumOrder;
+              }
+            }
             if (alredyInCart !== undefined && alredyInCart[0] !== undefined) {
-                let fishInfo = await Fish.findOne({ id: req.body.fish });
+                /*let fishInfo = await Fish.findOne({ id: req.body.fish });
+                if( fishInfo.hasOwnProperty("perBox") ) {
+                    if( fishInfo.perBox === true) { // if is per box the app is sending the number of boxes, not the weight
+                        fishInfo.maximumOrder = fishInfo.boxWeight * fishInfo.maximumOrder;
+                        fishInfo.minimumOrder = fishInfo.boxWeight * fishInfo.minimumOrder;
+                    }
+                }*/
+		console.log(fishInfo.minimumOrder );
+		console.log( fishInfo.maximumOrder );
                 if (fishInfo.maximumOrder < (parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value))) {
                     return res.status(400).json({ message: "Maximum order limit reached" })
 
@@ -405,7 +420,7 @@ module.exports = {
                 }
                 //return res.status(200).send( item );
             } else {
-                let fishInfo = await Fish.findOne({ id: req.body.fish });
+                /*let fishInfo = await Fish.findOne({ id: req.body.fish });*/
                 if (fishInfo.maximumOrder < (parseFloat(item.quantity.value))) {
                     return res.status(400).json({ message: "Maximum order limit reached" })
 
