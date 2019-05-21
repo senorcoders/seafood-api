@@ -171,7 +171,7 @@ module.exports = {
     if( !is_flat_custom ) { // if is not flat custom then we use the percentaje;
       customsFee = ( currentAdminCharges.customs / 100 )  * fishCost
     }
-    let exchangeRateCommission = ( fishCost + shippingFees.firstMileCost ) * ( currentAdminCharges.exchangeRateCommission / 100 );
+    let exchangeRateCommission = ( fishCost + shippingFees.firstMileFee ) * ( currentAdminCharges.exchangeRateCommission / 100 );
     let uaeTaxesFee   = ( fishCost + shippingFees.shippingCost + customsFee + sfsMarginCost  ) * ( currentAdminCharges.uaeTaxes  / 100 ); //F = (A+C+D+E) Tax
     let finalPrice    = fishCost + exchangeRateCommission + shippingFees.shippingCost + sfsMarginCost + customsFee + uaeTaxesFee ;
 
