@@ -681,6 +681,54 @@ module.exports = {
         }
 
     },
+
+    getOrderLogisticPagination: async function (req, res) {
+        try {
+            // let orders = await ShoppingCart.find( { orderNumber: { '!=': null } } ).populate('buyer').populate('orderStatus').populate('items').sort('orderNumber DESC');
+            var db = ShoppingCart.getDatastore().manager;
+            var _shopping = db.collection(ShoppingCart.tableName);
+
+            let limit = Number(req.param("limit"));
+            let skip = (Number(req.param("page")) - 1) * limit;
+            // let totalResults = await OrderStatus.count({ id: ids });
+
+            let totalResults = await _shopping.count({ $and: [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }] }, { _id: 1, orderNumber: 1 })
+            let orders = await new Promise((resolve, reject) => {
+                _shopping.find({ $and: [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }] }, { _id: 1, orderNumber: 1 })
+                    .sort({ orderNumber: -1 })
+                    // PARA EL FUTURO, PAGINATION
+                    .skip(skip)
+                    .limit(limit)
+                    .toArray(async (err, arr) => {
+                        if (err) { return reject(err); }
+                        arr = arr.map(it => { return it._id.toString(); });
+                        let orders = [];
+                        for (let id of arr) {
+                            let order = await ShoppingCart.findOne({ id }).populate('buyer').populate('orderStatus').populate('items');
+                            let items = [];
+                            await Promise.all(order.items.map(async item => {
+                                let fishItem = await Fish.findOne({ id: item.fish }).populate('store').populate('type').populate('status')
+                                item.fishItem = fishItem;
+                                item.fish = fishItem;
+                                item = await concatNameVariation(item);
+                                items.push(item);
+
+                            }))
+                            order.items = items;
+                            orders.push(order);
+                        }
+                        resolve(orders);
+                    });
+            });
+
+            return res.pagination({ page: req.param("page"), limit, datas: orders, totalResults });
+
+        } catch (error) {
+            res.status(400).json(error);
+        }
+
+    },
+
     sendPDF: async (req, res) => {
         try {
             let directory = req.param("directory");

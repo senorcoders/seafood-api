@@ -16,7 +16,7 @@ const concatNameVariation = async function (item) {
 
 module.exports = {
     concatNameVariation,
-    
+
     getWithAllData: async function (req, res) {
         try {
             let item = await ItemShopping.findOne({ id: req.param("id") }).populate("fish").populate("shoppingCart").populate('status');
@@ -434,7 +434,7 @@ module.exports = {
     },
     getPayedItems: async (req, res) => {
         try {
-            //let status_id = req.param("status");
+
             let items = await ItemShopping.find(
                 {
                     where: {
@@ -468,9 +468,60 @@ module.exports = {
                 return it;
             }));
 
+            res.json(items);
+
+        } catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+    getPayedItemsPagination: async (req, res) => {
+        try {
+
+            let limit = Number(req.param("limit"));
+            let skip = (Number(req.param("page")) - 1) * limit;
+            let totalResults = await ItemShopping.count({
+                paymentStatus: ['5c017b4547fb07027943a40a', '5c017b4f47fb07027943a40b', '5c017b6847fb07027943a40d', '5c017b7047fb07027943a40e']
+            });
+
+            let items = await ItemShopping.find(
+                {
+                    where: {
+                        paymentStatus: ['5c017b4547fb07027943a40a', '5c017b4f47fb07027943a40b', '5c017b6847fb07027943a40d', '5c017b7047fb07027943a40e']
+                    },
+                    skip,
+                    limit
+                }
+            ).populate("fish").populate("shoppingCart").populate("status").populate('paymentStatus').sort('createdAt DESC');
+
+            items = await Promise.all(items.map(async function (it) {
+                it = await concatNameVariation(it);
+                if (it['store'] !== undefined) {
+                    it.store = await Store.findOne({ id: it.fish.store });
+                    if (it.fish['country'] !== undefined) {
+                        fishCountry = await Countries.findOne({ code: it.fish.country });
+                        it.country = {
+                            code: fishCountry.code,
+                            name: fishCountry.name
+                        }
+
+                        Promise.all(fishCountry.cities.map(async function (city) {
+                            if (city.code === it.fish.city) {
+                                it.city = city;
+                            }
+                            return city;
+                        }));
+                    }
+                }
 
 
-            res.status(200).json(items);
+
+                return it;
+            }));
+
+
+
+            res.pagination({ page: req.param("page"), limit, datas: items, totalResults });
 
         } catch (e) {
             console.error(e);
@@ -561,6 +612,59 @@ module.exports = {
                 return it;
             }));
             res.status(200).json(items);
+
+        } catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+    getPayedItemsByOrderNumberPagination: async (req, res) => {
+        let orderNumber = req.param('orderNumber')
+        try {
+            let limit = Number(req.param("limit"));
+            let skip = (Number(req.param("page")) - 1) * limit;
+            let totalResults = await ShoppingCart.count({ 'orderNumber': orderNumber });
+
+            let shoppingCart = await ShoppingCart.find({ where: { 'orderNumber': orderNumber }, limit, skip });
+            let items = [];
+            for (let sc of shoppingCart) {
+                items = await ItemShopping.find(
+                    {
+                        where: {
+                            shoppingCart: sc.id,
+                            status: ['5c017af047fb07027943a405', '5c017b0e47fb07027943a406', '5c017b1447fb07027943a407', '5c017b2147fb07027943a408', '5c017b3c47fb07027943a409', '5c017b4547fb07027943a40a'],
+
+                        }
+                    }
+                ).populate("fish").populate("shoppingCart").populate("status").populate('paymentStatus').sort('createdAt DESC');
+            }
+            await Promise.all(items.map(async function (it) {
+                it = await concatNameVariation(it);
+                it.store = await Store.findOne({ id: it.fish.store });
+                if (it['fish'] !== undefined) {
+                    if (it.fish['country'] !== undefined) {
+                        if (it.fish.hasOwnProperty(country)) {
+                            fishCountry = await Countries.findOne({ code: it.fish.country });
+                            it.country = {
+                                code: fishCountry.code,
+                                name: fishCountry.name
+                            }
+
+                            Promise.all(fishCountry.cities.map(async function (city) {
+                                if (city.code === it.fish.city) {
+                                    it.city = city;
+                                }
+                                return city;
+                            }));
+                        }
+
+                    }
+                }
+
+                return it;
+            }));
+
+            res.pagination({ page: req.param("page"), limit, datas: items, totalResults });
 
         } catch (e) {
             console.error(e);
