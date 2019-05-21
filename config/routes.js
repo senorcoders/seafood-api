@@ -549,7 +549,7 @@ module.exports.routes = {
   'GET /api/v2/itemshopping/:buyer/status/:status/order-number/:orderNumber': 'ItemShoppingController.getBuyerOrdersPagination',
 
   //Get orders for admin
-  'GET /api/v2/itemshopping/all': 'ItemShoppingController.getAllOrdersPagination',
+  'GET /api/v2/itemshopping/all': 'ItemShoppingController.getAllOrdersPagination', 
 
   'GET /api/v2/itemshopping/status/:status': 'ItemShoppingController.getAllOrdersPagination',
 
@@ -557,7 +557,19 @@ module.exports.routes = {
 
   'GET /api/v2/itemshopping/status/:status/order-number/:orderNumber': 'ItemShoppingController.getAllOrdersPagination',
 
-  
+  'GET /api/v2/orderStatus/logistic': 'OrderStatus.getLogisticOrderstatusPagination',
+
+  'GET /api/v2/orderStatus/payments': 'OrderStatus.getPaymentOrderstatusPagination',
+
+  'GET /api/v2/shoppingcart/orderlogistic': 'ShoppingCartController.getOrderLogisticPagination',
+
+
+  'GET /api/v2/itemshopping/payed': 'ItemShoppingController.getPayedItemsPagination',
+
+  'GET /itemshopping/cancel': 'ItemShoppingController.getCancelledItems',
+
+  //get items by status and order number
+  // 'GET /api/v2/itemshopping/payed/:orderNumber': 'ItemShoppingController.getPayedItemsByOrderNumber',
 
   //#endregion
 };
