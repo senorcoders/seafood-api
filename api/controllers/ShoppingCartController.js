@@ -518,7 +518,7 @@ module.exports = {
 
     updateShoppingCartPaid: async function (req, res) {
         try {
-            let exchangeRates = await PricingCharges.find({ where: { type: 'exchangeRates' } }).sort('updatedAt DESC').limit(1);
+            // let exchangeRates = await PricingCharges.find({ where: { type: 'exchangeRates' } }).sort('updatedAt DESC').limit(1);
             let uaeTaxes = await PricingCharges.find({ where: { type: 'uaeTaxes' } }).sort('updatedAt DESC').limit(1);
 
             let paidDateTime = new Date().toISOString();
@@ -617,7 +617,7 @@ module.exports = {
                 let sellerAddress = st[0].fish.store['Address'];
                 let incoterms = st[0].fish.store.owner.incoterms !== null && st[0].fish.store.owner.incoterms !== undefined ? st[0].fish.store.owner.incoterms : { name: "Ex Work" };
                 console.log("\n\n aquiii", cart, "\n\n");
-                let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, st, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + counter), exchangeRates[0].price, st[0].buyerExpectedDeliveryDate, incoterms, cart.subTotal, cart.total);
+                let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, st, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + counter), cart.currentCharges.exchangeRates, st[0].buyerExpectedDeliveryDate, incoterms, cart.subTotal, cart.total);
 
                 //console.log( 'seller invoice', sellerInvoice );
             }

@@ -45,8 +45,8 @@ module.exports = {
     let is_flat_custom = false;
 
     // getting the fish information
-    let fish = await Fish.findOne( { where: { id: id } } ).populate( 'type' ).populate( 'store' );   
-
+    let fish = await Fish.findOne( { where: { id: id } } ).populate( 'type' ).populate( 'store' ).populate('descriptor');   
+    console.log( 'fish', fish );
     if( fish.hasOwnProperty("perBox") ) {
       if( fish.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
         weight = fish.boxWeight * weight;
@@ -66,8 +66,7 @@ module.exports = {
       }).populate('variation').limit(1);
     }
 
-    variation = variation[0];
-    console.log( 'variation', variation );
+    variation = variation[0];    
 
     //if is not filleted ( include trims ) we use a flat rate for customs
     if( variation.variation.fishPreparation !== '5c93c01465e25a011eefbcc4' && variation.variation.fishPreparation !== '5c4b9b8e23a9a60223553d04' && variation.variation.fishPreparation !== '5c4b9ba023a9a60223553d05' && variation.variation.fishPreparation !== '5c4b9ba523a9a60223553d06' && variation.variation.fishPreparation !== '5c4b9baa23a9a60223553d07' && variation.variation.fishPreparation !== '5c4b9bae23a9a60223553d08' ) {
