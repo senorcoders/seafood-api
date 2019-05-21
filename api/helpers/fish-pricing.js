@@ -118,23 +118,37 @@ module.exports = {
     let marginPercentage  = 0; //await IncotermsByType.find( { incoterm: owner.incoterms, type: fish.type.id } );
     if ( owner.incoterms === '5cbf68f7aa5dbb0733b05be3' ) { // exworks
 
-      if( fish.type.hasOwnProperty('exworks') ) {
-        sfsMargin = fish.type.exworks;
-        marginPercentage = fish.type.exworks; 
+      if ( fish.descriptor !== null ){
+        sfsMargin = fish.descriptor.exworks;
+        marginPercentage = fish.descriptor.exworks; 
+      } else {
+        if( fish.type.hasOwnProperty('exworks') ) {
+          sfsMargin = fish.type.exworks;
+          marginPercentage = fish.type.exworks; 
+        }
+        else {
+          sfsMargin = 1;
+          marginPercentage = 1;
+        }
       }
-      else {
-        sfsMargin = 1;
-        marginPercentage = 1;
-      }
+
+      
     } else if( owner.incoterms === '5cbf6900aa5dbb0733b05be4' ) {
-      if( fish.type.hasOwnProperty('cpi') ) {
-        sfsMargin = fish.type.cpi;
-        marginPercentage = fish.type.cpi;
+      if ( fish.descriptor !== null ){
+        sfsMargin = fish.descriptor.cpi;
+        marginPercentage = fish.descriptor.cpi;
+      } else { 
+        if( fish.type.hasOwnProperty('cpi') ) {
+          sfsMargin = fish.type.cpi;
+          marginPercentage = fish.type.cpi;
+        }
+        else {
+          sfsMargin = 1;
+          marginPercentage = 1;
+        }
       }
-      else {
-        sfsMargin = 1;
-        marginPercentage = 1;
-      }
+
+      
     } else {
       if( fish.type.hasOwnProperty('exworks') ) {
         sfsMargin = fish.type.exworks;
@@ -157,8 +171,9 @@ module.exports = {
     if( !is_flat_custom ) { // if is not flat custom then we use the percentaje;
       customsFee = ( currentAdminCharges.customs / 100 )  * fishCost
     }
+    let exchangeRateCommission = ( fishCost + shippingFees.firstMileCost ) * ( currentAdminCharges.exchangeRateCommission / 100 );
     let uaeTaxesFee   = ( fishCost + shippingFees.shippingCost + customsFee + sfsMarginCost  ) * ( currentAdminCharges.uaeTaxes  / 100 ); //F = (A+C+D+E) Tax
-    let finalPrice    = fishCost + shippingFees.shippingCost + sfsMarginCost + customsFee + uaeTaxesFee ;
+    let finalPrice    = fishCost + exchangeRateCommission + shippingFees.shippingCost + sfsMarginCost + customsFee + uaeTaxesFee ;
 
     if( inputs.in_AED ){      
       exchangeRates = 1;
@@ -175,7 +190,7 @@ module.exports = {
         customs: Number(parseFloat(currentAdminCharges.customs ).toFixed(2)),
         uaeTaxes: Number(parseFloat(currentAdminCharges.uaeTaxes ).toFixed(2)),
         fishCost: Number(parseFloat(fishCost / exchangeRates).toFixed(2)),
-        firstMileCost: Number(parseFloat(shippingFees.firstMileCost / exchangeRates).toFixed(2)),
+        firstMileCost: Number(parseFloat(shippingFees.firstMileCost / exchangeRates).toFixed(2)),        
         lastMileCost: Number(parseFloat(currentAdminCharges.lastMileCost / exchangeRates).toFixed(2)),
         shippingFee: Number(parseFloat(shippingFees.shippingFee / exchangeRates).toFixed(2)),
         customsFee: Number(parseFloat(customsFee / exchangeRates).toFixed(2)),
@@ -185,6 +200,7 @@ module.exports = {
             cost: Number(parseFloat(shippingFees.shippingCost / exchangeRates).toFixed(2)),
             include: 'first mile cost + shipping fee + handling fee + last mile cost'
         },
+        exchangeRateCommission: Number(parseFloat(exchangeRateCommission / exchangeRates).toFixed(2)),
         sfsMarginCost: Number(parseFloat(sfsMarginCost / exchangeRates).toFixed(2)),
         uaeTaxesFee: Number(parseFloat(uaeTaxesFee / exchangeRates).toFixed(2)),
         finalPrice: Number(parseFloat(finalPrice / exchangeRates).toFixed(2)),
