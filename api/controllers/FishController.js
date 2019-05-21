@@ -689,7 +689,7 @@ module.exports = {
         try {
             let start = Number(req.params.page);
             --start;
-            let publishedProducts = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' }).sort('name ASC');
+            let publishedProducts = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' }).sort('name ASC').paginate({ page: start, limit: req.params.limit });
             let products_ids = [];
             publishedProducts.map((item) => {
                 products_ids.push(item.id);
