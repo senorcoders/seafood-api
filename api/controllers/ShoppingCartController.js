@@ -228,7 +228,7 @@ module.exports = {
                     return it;
                 }));
 
-                totalOtherFees = totalSFSMargin + totalCustoms + totalExchangeRateCommission;
+                totalOtherFees = totalSFSMargin + totalExchangeRateCommission;
                 totalOtherFees = Number(parseFloat(totalOtherFees).toFixed(2));
                 totalShipping = Number(parseFloat(totalShipping).toFixed(2));
                 // console.log('total SHipping', totalShipping);
