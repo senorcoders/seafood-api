@@ -41,7 +41,7 @@ module.exports = {
 
 
   description: `Para recorrer todas las propiedades de un objecto 
-    y convertir las propiedades numericas, en propiedades en cadenas de tecto 
+    y convertir las propiedades numericas, en propiedades en cadenas de texto 
     representando numeros con dos decimales
   `,
 
