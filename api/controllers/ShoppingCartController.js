@@ -249,6 +249,7 @@ module.exports = {
                     customs: totalCustoms,
                     total: total,
                     totalOtherFees: totalOtherFees,
+                    totalExchangeRatesCommissions: totalExchangeRateCommission,
                     uaeTaxes: totalUAETaxes,
                 }).fetch();
                 cart.total = total;
