@@ -116,7 +116,7 @@ module.exports = {
 
     let owner = await User.findOne( { id: fish.store.owner } ) ;
     let marginPercentage  = 0; //await IncotermsByType.find( { incoterm: owner.incoterms, type: fish.type.id } );
-    if ( owner.incoterms === '5cbf68f7aa5dbb0733b05be3' ) { // exworks
+    if ( owner.incoterms === '5cbf6900aa5dbb0733b05be4' ) { // exworks
 
       if ( fish.descriptor !== null ){
         sfsMargin = fish.descriptor.exworks;
@@ -133,7 +133,7 @@ module.exports = {
       }
 
       
-    } else if( owner.incoterms === '5cbf6900aa5dbb0733b05be4' ) {
+    } else if( owner.incoterms === '5cbf68f7aa5dbb0733b05be3' ) {
       if ( fish.descriptor !== null ){
         sfsMargin = fish.descriptor.cpi;
         marginPercentage = fish.descriptor.cpi;
