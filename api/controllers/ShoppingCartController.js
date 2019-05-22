@@ -53,6 +53,7 @@ module.exports = {
                 let totalShipping = 0;
                 let totalSFSMargin = 0;
                 let totalCustoms = 0;
+                let totalExchangeRateCommission = 0;
                 let totalUAETaxes = 0;
                 let totalOtherFees = 0;
                 let subtotal = 0;
@@ -180,6 +181,7 @@ module.exports = {
                     //console.log( 'now shipping', totalShipping);
                     totalSFSMargin += it.fishCharges.sfsMarginCost;
                     totalCustoms += it.fishCharges.customsFee;
+                    totalExchangeRateCommission += it.fishCharges.exchangeRateCommission;
                     totalUAETaxes += it.fishCharges.uaeTaxesFee;
 
                     subtotal += it.fishCharges.fishCost;
@@ -226,12 +228,12 @@ module.exports = {
                     return it;
                 }));
 
-                totalOtherFees = totalSFSMargin + totalCustoms;
+                totalOtherFees = totalSFSMargin + totalExchangeRateCommission;
                 totalOtherFees = Number(parseFloat(totalOtherFees).toFixed(2));
                 totalShipping = Number(parseFloat(totalShipping).toFixed(2));
                 // console.log('total SHipping', totalShipping);
                 totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
-                total = Number(parseFloat(subtotal + totalOtherFees + totalShipping + totalUAETaxes).toFixed(2));
+                total = Number(parseFloat(subtotal + totalCustoms + totalOtherFees + totalShipping + totalUAETaxes).toFixed(2));
 
                 totalSFSMargin = isNaN(totalSFSMargin) === true ? 0 : totalSFSMargin;
                 subtotal = isNaN(subtotal) === true ? 0 : subtotal;
@@ -247,6 +249,7 @@ module.exports = {
                     customs: totalCustoms,
                     total: total,
                     totalOtherFees: totalOtherFees,
+                    totalExchangeRatesCommissions: totalExchangeRateCommission,
                     uaeTaxes: totalUAETaxes,
                 }).fetch();
                 cart.total = total;
