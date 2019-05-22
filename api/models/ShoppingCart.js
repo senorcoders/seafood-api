@@ -42,6 +42,10 @@ module.exports = {
       type: "number",
       required: false
     },
+    totalExchangeRatesCommissions: {
+      type: "number",
+      required: false
+    },
     total: {
       type: "number",
       required: false
