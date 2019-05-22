@@ -233,7 +233,7 @@ module.exports = {
                 totalShipping = Number(parseFloat(totalShipping).toFixed(2));
                 // console.log('total SHipping', totalShipping);
                 totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
-                total = Number(parseFloat(subtotal + totalOtherFees + totalShipping + totalUAETaxes).toFixed(2));
+                total = Number(parseFloat(subtotal + totalCustoms + totalOtherFees + totalShipping + totalUAETaxes).toFixed(2));
 
                 totalSFSMargin = isNaN(totalSFSMargin) === true ? 0 : totalSFSMargin;
                 subtotal = isNaN(subtotal) === true ? 0 : subtotal;
