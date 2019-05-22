@@ -49,11 +49,11 @@ module.exports = {
                 invoice_number: OrderNumber,
                 orderNumber: OrderNumber,
                 items: itemsShopping,
-                subTotal: parseFloat(cart.subTotal, 10).toFixed(2),
+                subTotal: cart.subTotal,
                 customHandlingFee: cart.totalOtherFees,
                 uaeTaxesFee: cart.uaeTaxes,
                 shippingFees: cart.shipping,
-                total: parseFloat(cart.total).toFixed(2),
+                total: cart.total,
                 uaeTaxes: uaeTaxes,
                 api_url: api_url
             }
