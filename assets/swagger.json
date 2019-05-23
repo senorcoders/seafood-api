@@ -25,6 +25,9 @@
   },{
       "name": "product",
       "description": ""
+  },{
+      "name": "images",
+      "description": "images for upload for store, products and types"
   }],
   "schemes": ["https", "http"],
   "paths": {
@@ -562,7 +565,6 @@
         "security":[{"token":[]}]
       }
     },
-    
     "/store/{id}": {
       "get": {
         "tags": ["store"],
@@ -584,7 +586,40 @@
         "security":[{"token":[]}]
       }
     },
-    
+    "/api/fish/images/{id}": {
+      "post": {
+        "tags": ["images"],
+        "summary": "add images for product",
+        "operationId": "ImageController.multipleImagesUpload",
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        },{
+          "in": "formData",
+          "name": "images",
+          "description": "images for upload",
+          "required": true,
+          "type":"file"
+        }],
+        "responses": {
+          "200": {
+            "description": "devuelve el arreglo de url de imagenes",
+            "schema": {
+             "type": "array",
+              "items": {}
+            }
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    }
     
       
   },
