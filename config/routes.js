@@ -566,7 +566,7 @@ module.exports.routes = {
 
   'GET /api/v2/itemshopping/payed': 'ItemShoppingController.getPayedItemsPagination',
 
-  'GET /itemshopping/cancel': 'ItemShoppingController.getCancelledItems',
+  'GET /itemshopping/cancel': 'ItemShoppingController.getCancelledItems', 
 
   //get items by status and order number
   // 'GET /api/v2/itemshopping/payed/:orderNumber': 'ItemShoppingController.getPayedItemsByOrderNumber',
