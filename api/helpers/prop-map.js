@@ -4,9 +4,19 @@ const propMap = function (obj, byPass) {
     if (prop === null || prop === undefined) return prop;
     if (prop.typeObject() === 'array' || prop.typeObject() === 'object') {
       prop = propMap(prop);
-    } else if (isNaN(prop) === false && prop !== "") {
+    } else if (
+      prop.typeObject() === "string" &&
+      prop !== "" &&
+      isNaN(prop.replace(/,/g, "")) === false
+    ) {
+      prop = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2 })
+        .format(prop.replace(/,/g, ""));
+    } else if (
+      prop.typeObject() === "number"
+    ) {
       prop = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2 }).format(prop);
     }
+
     return prop;
   }
 
