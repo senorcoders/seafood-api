@@ -127,6 +127,11 @@ module.exports = {
                     it.fishCharges = it.fishCharges;// await sails.helpers.fishPricing(it.fish.id, it.quantity.value, currentAdminCharges)
                     it.fish['price']['value'] = it.fishCharges.variation.price;
 
+                    if( it.fish.hasOwnProperty('perBox') && it.fish.perBox === true) { // adding min/max boxes 
+                        it.fish['minBox'] = it.fish.minimumOrder / it.fish.boxWeight;
+                        it.fish['maxBox'] = it.fish.maximumOrder / it.fish.boxWeight;
+                    }
+
                     console.log('it', it.fishCharges.variation.id);
                     console.log('it 2', it.variation);
                     let itVariationPrice = await VariationPrices.find({ id: it.fishCharges.variation.id }).populate('variation');

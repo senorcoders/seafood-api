@@ -288,9 +288,14 @@ module.exports = {
         try {
             let fishID = req.param('id');
             let fish = await Fish.findOne({ id: fishID }).populate('status').populate('store').populate('type').populate('treatment').populate('raised');//.populate('descriptor')
-
+            
             if (fish === undefined) {
                 return res.status(200).json({});
+            }
+
+            if( fish.hasOwnProperty('perBox') && fish.perBox === true) { // adding min/max boxes 
+                fish['minBox'] = fish.minimumOrder / fish.boxWeight;
+                fish['maxBox'] = fish.maximumOrder / fish.boxWeight;
             }
 
             let variations = await Variations.find({ 'fish': fish.id }).populate('fishPreparation').populate('wholeFishWeight');
