@@ -288,9 +288,14 @@ module.exports = {
         try {
             let fishID = req.param('id');
             let fish = await Fish.findOne({ id: fishID }).populate('status').populate('store').populate('type').populate('treatment').populate('raised');//.populate('descriptor')
-
+            
             if (fish === undefined) {
                 return res.status(200).json({});
+            }
+
+            if( fish.hasOwnProperty('perBox') && fish.perBox === true) { // adding min/max boxes 
+                fish['minBox'] = fish.minimumOrder / fish.boxWeight;
+                fish['maxBox'] = fish.maximumOrder / fish.boxWeight;
             }
 
             let variations = await Variations.find({ 'fish': fish.id }).populate('fishPreparation').populate('wholeFishWeight');
@@ -715,6 +720,12 @@ module.exports = {
 
                 //lets recreate old json format with Fish at the top and inside the variations
                 let fish = m.fish;
+                if( fish.hasOwnProperty('perBox') && fish.perBox === true) { // adding min/max boxes 
+                    fish['minBox'] = fish.minimumOrder / fish.boxWeight;
+                    fish['maxBox'] = fish.maximumOrder / fish.boxWeight;
+                }
+
+                
                 let variation = m;
                 delete variation.fish;
                 m = fish;
@@ -1370,15 +1381,16 @@ module.exports = {
                                 if (m.store === null)
                                     return m;
                                 m.store.owner = await User.findOne({ id: m.store.owner });
+
+                                if( m.hasOwnProperty('perBox') && m.perBox === true) { // adding min/max boxes 
+                                    m['minBox'] = m.minimumOrder / m.boxWeight;
+                                    m['maxBox'] = m.maximumOrder / m.boxWeight;
+                                }
+                
+
                                 return m;
                             }));
-                            productos = await Promise.all(productos.map(async function (m) {
-                                m.shippingCost = await require('./ShippingRatesController').getShippingRateByCities(m.city, m.weight.value);
-                                if (m.store === null)
-                                    return m;
-                                m.store.owner = await User.findOne({ id: m.store.owner });
-                                return m;
-                            }));
+                            
                             res.status(200).json(productos);
                             return justIds;
                         });
