@@ -48,6 +48,11 @@ module.exports = {
       required: false
     },
 
+    maximumOrder:{
+      type: "number",
+      required: false
+    },
+
     
 
     /* // moved to variations
