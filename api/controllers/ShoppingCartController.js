@@ -233,12 +233,12 @@ module.exports = {
                     return it;
                 }));
 
-                totalOtherFees = totalSFSMargin + totalExchangeRateCommission;
-                totalOtherFees = Number(parseFloat(totalOtherFees).toFixed(2));
-                totalShipping = Number(parseFloat(totalShipping).toFixed(2));
+                totalOtherFees = totalSFSMargin + totalExchangeRateCommission + totalCustoms;
+                totalOtherFees = totalOtherFees;
+                totalShipping = totalShipping;
                 // console.log('total SHipping', totalShipping);
-                totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
-                total = Number(parseFloat(subtotal + totalCustoms + totalOtherFees + totalShipping + totalUAETaxes).toFixed(2));
+                totalUAETaxes = totalUAETaxes;
+                total = Number(parseFloat(subtotal + totalOtherFees + totalShipping + totalUAETaxes).toFixed(2));
 
                 totalSFSMargin = isNaN(totalSFSMargin) === true ? 0 : totalSFSMargin;
                 subtotal = isNaN(subtotal) === true ? 0 : subtotal;
@@ -248,22 +248,22 @@ module.exports = {
 
                 let newCart = await ShoppingCart.update({ id: cart.id }, {
                     currentCharges: currentAdminCharges,
-                    subTotal: subtotal,
-                    shipping: totalShipping,
-                    sfsMargin: totalSFSMargin,
-                    customs: totalCustoms,
-                    total: total,
-                    totalOtherFees: totalOtherFees,
-                    totalExchangeRatesCommissions: totalExchangeRateCommission,
-                    uaeTaxes: totalUAETaxes,
+                    subTotal: Number(parseFloat(subtotal).toFixed(2)),
+                    shipping: Number(parseFloat(totalShipping).toFixed(2)),
+                    sfsMargin: Number(parseFloat(totalSFSMargin).toFixed(2)),
+                    customs: Number(parseFloat(totalCustoms).toFixed(2)),
+                    total: Number(parseFloat(total).toFixed(2)),
+                    totalOtherFees: Number(parseFloat(totalOtherFees).toFixed(2)),
+                    totalExchangeRatesCommissions: Number(parseFloat(totalExchangeRateCommission).toFixed(2)),
+                    uaeTaxes: Number(parseFloat(totalUAETaxes).toFixed(2)),
                 }).fetch();
-                cart.total = total;
-                cart.subTotal = subtotal;
-                cart.customs = totalCustoms;
-                cart.totalOtherFees = totalOtherFees;
-                cart.totalUAETaxes = totalUAETaxes;
-                cart.totalShipping = totalShipping;
-                cart.shipping = totalShipping;
+                cart.total = Number(parseFloat(total).toFixed(2));
+                cart.subTotal = Number(parseFloat(subtotal).toFixed(2));
+                cart.customs = Number(parseFloat(totalCustoms).toFixed(2));
+                cart.totalOtherFees = Number(parseFloat(totalOtherFees).toFixed(2));
+                cart.totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
+                cart.totalShipping = Number(parseFloat(totalShipping).toFixed(2));
+                cart.shipping = Number(parseFloat(totalShipping).toFixed(2));
 
 
                 //}
@@ -400,12 +400,12 @@ module.exports = {
 
             let itemShopping;
 	    let fishInfo = await Fish.findOne({ id: req.body.fish });
-            if( fishInfo.hasOwnProperty("perBox") ) {
+            /*if( fishInfo.hasOwnProperty("perBox") ) {
               if( fishInfo.perBox === true) { // if is per box the app is sending the number of boxes, not the weight
-                fishInfo.maximumOrder = fishInfo.boxWeight * fishInfo.maximumOrder;
-                fishInfo.minimumOrder = fishInfo.boxWeight * fishInfo.minimumOrder;
+                //fishInfo.maximumOrder = fishInfo.boxWeight * fishInfo.maximumOrder;
+                //fishInfo.minimumOrder = fishInfo.boxWeight * fishInfo.minimumOrder;
               }
-            }
+            }*/
             if (alredyInCart !== undefined && alredyInCart[0] !== undefined) {
                 /*let fishInfo = await Fish.findOne({ id: req.body.fish });
                 if( fishInfo.hasOwnProperty("perBox") ) {
