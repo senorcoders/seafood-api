@@ -130,7 +130,7 @@ module.exports.routes = {
   //Para eliminar imagenes
   'DELETE /api/images/:namefile/:id/delete': 'ImageController.deleteImage',
 
-  'DELETE /api/images/category/:namefile/:id/': 'ImageController.deleteImageCategory',
+  'DELETE /api/images/category/:namefile/:id/delete': 'ImageController.deleteImageCategory',
 
   //Para guardar la imagen de tracking de items sohopping
   'POST /api/itemshopping/trackingfile/:id': 'ImageController.saveImageTrackingFile',

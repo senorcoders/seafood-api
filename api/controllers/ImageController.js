@@ -927,7 +927,7 @@ module.exports = {
             // read binary data
             var data = fs.unlinkSync(directory);
 
-            res.json(upda);
+            res.json({msg : "success"});
 
         }
         catch (e) {

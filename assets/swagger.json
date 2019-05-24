@@ -28,6 +28,9 @@
   },{
       "name": "images",
       "description": "images manage for stores, products and categories"
+  },{
+    "name": "categories",
+    "description": "categories of products"
   }],
   "schemes": ["https", "http"],
   "paths": {
@@ -855,6 +858,271 @@
                   }
               }
           }
+        }],
+        "responses": {
+          "200": {
+            "description": "return the message of the status of operation",
+            "schema": {
+             "type": "object",
+              "properties": {
+                  "msg": {
+                    "type":"string",
+                    "example": "success"
+                  }
+                }
+            }
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    "/api/store/images/${main}/${namefile}/${id}": {
+      "get": {
+        "tags": ["store"],
+        "summary": "get image hero of logo store",
+        "operationId": "ImageController.getLogoAndHeroStore",
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "path",
+          "name": "main",
+          "type": "string",
+          "required": true,
+          "description": "hero or logo"
+        },{
+          "in": "path",
+          "name": "namefile",
+          "type": "string",
+          "required": true,
+          "description": "name file of image"
+        },{
+          "in": "path",
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "id of product"
+        }],
+        "responses": {
+          "200": {
+            "description": "return image",
+            "schema": {
+             "type": "file"
+            }
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    "/api/store/images/{namefile}/{id}": {
+      "get": {
+        "tags": ["store"],
+        "summary": "get images of store",
+        "operationId": "ImageController.getImagesStore",
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "path",
+          "name": "namefile",
+          "type": "string",
+          "required": true,
+          "description": "name file of image"
+        },{
+          "in": "path",
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "id of product"
+        }],
+        "responses": {
+          "200": {
+            "description": "return image",
+            "schema": {
+             "type": "file"
+            }
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    "/api/fishtype/images/{id}": {
+      "post": {
+        "tags": ["categories"],
+        "summary": "set images for categories",
+        "operationId": "ImageController.multipleImagesCategory",
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        },{
+          "in": "formData",
+          "name": "images",
+          "description": "image for upload",
+          "required": true,
+          "type":"file"
+        }],
+        "responses": {
+          "200": {
+            "description": "return array of url",
+            "schema": {
+             "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "filename": {
+                    "type":"string"
+                  },
+                  "src": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    "/api/images/category/{namefile}/{id}": {
+      "get": {
+        "tags": ["categories"],
+        "summary": "get image for category",
+        "operationId": "ImageController.getImagesCategory",
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "path",
+          "name": "namefile",
+          "required": true,
+          "type": "string"
+        },{
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "type": "string",
+          "description": "id for product"
+        }],
+        "responses": {
+          "200": {
+            "description": "return the image of the product",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "500":{
+            "description": "file not saved or not found",
+            "schema": {
+              "type": "string",
+              "example": "file not exist"
+            }
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    "/api/user/license/{id}": {
+      "post": {
+        "tags": ["user"],
+        "summary": "set license for user",
+        "operationId": "ImageController.saveImageLicence",
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        },{
+          "in": "formData",
+          "name": "license",
+          "description": "image for upload",
+          "required": true,
+          "type":"file"
+        }],
+        "responses": {
+          "200": {
+            "description": "return array of url",
+            "schema": {
+             "type": "file"
+            }
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    "/api/images/license/{namefile}/{id}": {
+      "get": {
+        "tags": ["user"],
+        "summary": "get image for license of user",
+        "operationId": "ImageController.getImagesLicense",
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "path",
+          "name": "namefile",
+          "required": true,
+          "type": "string"
+        },{
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "type": "string",
+          "description": "id for product"
+        }],
+        "responses": {
+          "200": {
+            "description": "return the image of the product",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "500":{
+            "description": "file not saved or not found",
+            "schema": {
+              "type": "string",
+              "example": "file not exist"
+            }
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    "/api/images/category/{namefile}/{id}/delete": {
+      "delete": {
+        "tags": ["categories"],
+        "summary": "delete image category for product",
+        "operationId": "ImageController.deleteImageCategory",
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "path",
+          "name": "namefile",
+          "required": true,
+          "type": "string"
+        },{
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "type": "string",
+          "description": "id for product"
         }],
         "responses": {
           "200": {
