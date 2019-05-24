@@ -41,7 +41,8 @@ module.exports.policies = {
     resetEmail: true,
     updatePassword: true,
     resetEmail: true,
-    changePassword: true
+    changePassword: true,
+    getPublicIp: true
   },
   StoreController: {
     save: true,
