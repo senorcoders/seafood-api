@@ -542,6 +542,19 @@ module.exports = {
                     fish_where['treatment'] = req.body.treatment;
             }
 
+            let req_minimumOrder = req.body.minimumOrder;
+            let req_maximumOrder = req.body.maximumOrder;
+            if (req_minimumOrder !== '0' && req_maximumOrder !== '0') {                
+                fish_where['minimumOrder'] = { ">=": req_minimumOrder, "<=": req_maximumOrder };
+                fish_where['maximumOrder'] = { ">=": req_minimumOrder, "<=": req_maximumOrder };
+            } else if (req_minimumOrder !== '0') {                
+                fish_where['minimumOrder'] = { ">=": req_minimumOrder };
+                fish_where['maximumOrder'] = { ">=": req_minimumOrder };
+            } else if (req_maximumOrder !== '0') {
+                fish_where['minimumOrder'] = { ">=": req_maximumOrder };
+                fish_where['maximumOrder'] = { "<=": req_maximumOrder };
+            }
+
             let category = req.body.category;
             let subcategory = req.body.subcategory;
             let subspecies = req.body.subspecies;
@@ -656,6 +669,12 @@ module.exports = {
 
                 //lets recreate old json format with Fish at the top and inside the variations
                 let fish = m.fish;
+
+		if( fish.hasOwnProperty('perBox') && fish.perBox === true) { // adding min/max boxes 
+                  fish['minBox'] = fish.minimumOrder / fish.boxWeight;
+                  fish['maxBox'] = fish.maximumOrder / fish.boxWeight;
+            	}
+
                 let variation = m;
                 delete variation.fish;
                 m = fish;
@@ -1213,8 +1232,8 @@ module.exports = {
             let subspecies = req.param('subspecies');
             let descriptor = req.param('descriptor');
 
-            let minimumOrder = req.param('minimumOrder');
-            let maximumOrder = req.param('maximumOrder');
+            let minimumOrder = req.body.minimumOrder;
+            let maximumOrder = req.body.maximumOrder;
             let cooming_soon = req.param('cooming_soon');
             let minPrice = req.param('minPrice'); //price.value
             let maxPrice = req.param('maxPrice'); //price.value
@@ -1233,12 +1252,17 @@ module.exports = {
             if (country !== '0')
                 condWhere.where['country'] = country;
 
-            if (maximumOrder !== '0')
-                condWhere.where['maximumOrder'] = { '<=': parseFloat(maximumOrder) };
-
-            if (minimumOrder !== '0')
-                condWhere.where['minimumOrder'] = { '>=': parseFloat(minimumOrder) };
-
+	    if (maximumOrder !== '0' && minimumOrder !== '0' ) {
+		condWhere.where['maximumOrder'] = { '>=': parseFloat(maximumOrder) };
+		condWhere.where['minimumOrder'] = { '<=': parseFloat(minimumOrder) };
+	    } else if (maximumOrder !== '0') {
+                condWhere.where['maximumOrder'] = { '>=': parseFloat(maximumOrder) };
+		condWhere.where['minimumOrder'] = { '<=': parseFloat(maximumOrder) };
+	    } else if (minimumOrder !== '0') {
+                condWhere.where['minimumOrder'] = { '<=': parseFloat(minimumOrder) };
+		condWhere.where['maximumOrder'] = { '>=': parseFloat(minimumOrder) };
+	    }
+	    console.log( condWhere );
             if (cooming_soon !== '0') {
                 condWhere.where['cooming_soon'] = cooming_soon;
             }
@@ -1413,7 +1437,7 @@ module.exports = {
                 }));
                 res.status(200).json(productos);
             }
-            //console.log( fish_price_ids );             
+            console.log( condWhere );             
 
 
 
