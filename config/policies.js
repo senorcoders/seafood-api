@@ -46,7 +46,8 @@ module.exports.policies = {
   },
   StoreController: {
     save: true,
-    update: true
+    update: true,
+    get: true
   },
   ShoppingCartController: {
     sendPDF: true,
