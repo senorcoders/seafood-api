@@ -55,6 +55,7 @@ module.exports = {
                 shippingFees: cart.shipping,
                 total: cart.total,
                 uaeTaxes: uaeTaxes,
+                vatuaeTaxes: cart.currentCharges.customs,
                 api_url: api_url
             }
         );
