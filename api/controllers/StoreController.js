@@ -17,12 +17,10 @@ module.exports = {
             let slug = name.replace(/\s/g, "-").replace(/[\/]|[\/]|[=]|[?]/g, "").toLowerCase();
 
             let storeM = await Store.find({ slug });
-            let count = 0;
-            while (storeM.length > 0) {
-                count += 1;
-                storeM = await Store.find({ slug: slug + count });
-            }
-            let store = await Store.create({ owner, description, location, name, slug: count !== 0 ? slug + count : slug }).fetch();
+            if(storeM.length > 0)
+                return res.status(500).send("That store name already exists");
+
+            let store = await Store.create({ owner, description, location, name, slug }).fetch();
 
             store = await imageCtrl.saveLogoStore(req, store.id);
 
