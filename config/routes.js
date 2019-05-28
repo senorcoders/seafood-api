@@ -122,15 +122,15 @@ module.exports.routes = {
   'PUT /api/fish/images/:id': 'ImageController.updateImages',
 
   //Eliminar varias imagenes a la ves
-  'PUT /api/fish/images/delete/:id': 'ImageController.deleteImagesFish',
+  'PUT /api/fish/images/delete': 'ImageController.deleteImagesFish',
 
   //Para obtener images custom
   'GET /api/images/:namefile/:id': 'ImageController.getImage',
 
   //Para eliminar imagenes
-  'DELETE /api/images/:namefile/:id': 'ImageController.deleteImage',
+  'DELETE /api/images/:namefile/:id/delete': 'ImageController.deleteImage',
 
-  'DELETE /api/images/category/:namefile/:id/': 'ImageController.deleteImageCategory',
+  'DELETE /api/images/category/:namefile/:id/delete': 'ImageController.deleteImageCategory',
 
   //Para guardar la imagen de tracking de items sohopping
   'POST /api/itemshopping/trackingfile/:id': 'ImageController.saveImageTrackingFile',
@@ -200,7 +200,7 @@ module.exports.routes = {
   //Para guardar images en las categorias (FishType)
   'POST /api/fishtype/images/:id': "ImageController.multipleImagesCategory",
 
-  //Para establecer una imagen primary en el maricos
+  //Para establecer una imagen primary en el mariscos
   'POST /api/fish/image/:id': 'ImageController.setPrimaryImage',
 
   //Para obtener imagenes de las categorias
@@ -209,8 +209,8 @@ module.exports.routes = {
   //Para obtener imagen primaria de un producto
   'GET /api/images/primary/:namefile/:id': 'ImageController.getImagePrimary',
 
-  //Para elimnar la imagen
-  'PUT /api/images/primary/:namefile/:id': 'ImageController.updateImagePrimary',
+  //Para actualizar la imagen
+  'PUT /api/images/primary/:namefile/:id/update': 'ImageController.updateImagePrimary',
 
   //Para obtener productos comprador por type
   'GET /api/fish/type/:type': "FishController.getXTypeWithDataEspecified",
@@ -566,7 +566,7 @@ module.exports.routes = {
 
   'GET /api/v2/itemshopping/payed': 'ItemShoppingController.getPayedItemsPagination',
 
-  'GET /itemshopping/cancel': 'ItemShoppingController.getCancelledItems',
+  'GET /itemshopping/cancel': 'ItemShoppingController.getCancelledItems', 
 
   //get items by status and order number
   // 'GET /api/v2/itemshopping/payed/:orderNumber': 'ItemShoppingController.getPayedItemsByOrderNumber',

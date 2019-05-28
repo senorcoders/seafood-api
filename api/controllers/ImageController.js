@@ -10,7 +10,7 @@ var mmm = require('mmmagic'),
     imageSize = { width: 800, height: null }
 folderCompress = "compress";
 
-const deleteImagesF = async pat =>{
+const deleteImagesF = async pat => {
     return findRemoveSync(pat.replace(/\\/g, '/'), { maxLevel: 1, extensions: ".jpg,.JPG,.jpeg,.JPEG,.png,.svg,.gif".split(",") });
 }
 const extractNewName = (name, i, extension) => {
@@ -153,7 +153,7 @@ const deleteImage = async function (req, res) {
         let id = req.param("id"), namefile = req.param("namefile");
 
         let directory = IMAGES + `${"/" + id + "/" + namefile}`;
-        console.log("\n\n zzz", directory);
+        // console.log("\n\n zzz", directory);
 
         let fish = await Fish.findOne({ id });
         if (fish === undefined) {
@@ -175,7 +175,10 @@ const deleteImage = async function (req, res) {
         //console.log(upda);
 
         if (!fs.existsSync(directory)) {
-            throw new Error("file not exist");
+            directory = IMAGES + `${"/" + id + "/compress/"+ namefile}`;
+            if (!fs.existsSync(directory)) {
+                throw new Error("file not exist");
+            }
         }
 
         // read binary data
@@ -425,31 +428,31 @@ module.exports = {
         let deletedImages = req.param("deletedImages"); console.log("imagenes a borar", deletedImages);
         if (Object.prototype.toString.call(deletedImages) === "[object String]") {
             deletedImages = JSON.parse(deletedImages);
-            function getIdName(ur) {
-                return {
-                    id: ur.split("/").pop(), namefile: ur.split("/").splice(-2, 1)[0]
-                }
-            };
-            console.log("zzz", deletedImages);
-            for (let img of deletedImages) {
-                try {
-                    let _req = Object.assign(getIdName(img),
-                        { param: function (id) { return this[id] } }); console.log(_req);
-                    await new Promise((resolve, reject) => {
-                        let _res = {
-                            json: resolve,
-                            serverError: reject
-                        };
-                        deleteImage(_req, _res)
-                    });
-                }
-                catch (e) {
-                    console.error(e);
-                }
+        }
+        function getIdName(ur) {
+            return {
+                id: ur.split("/").pop(), namefile: ur.split("/").splice(-2, 1)[0]
+            }
+        };
+        console.log("zzz", deletedImages);
+        for (let img of deletedImages) {
+            try {
+                let _req = Object.assign(getIdName(img),
+                    { param: function (id) { return this[id] } }); console.log(_req);
+                await new Promise((resolve, reject) => {
+                    let _res = {
+                        json: resolve,
+                        serverError: reject
+                    };
+                    deleteImage(_req, _res)
+                });
+            }
+            catch (e) {
+                console.error(e);
             }
         }
 
-        res.json({ mg: "ready" });
+        res.json({ mg: "success" });
     },
 
     updateImages: async (req, res) => {
@@ -924,7 +927,7 @@ module.exports = {
             // read binary data
             var data = fs.unlinkSync(directory);
 
-            res.json(upda);
+            res.json({msg : "success"});
 
         }
         catch (e) {
@@ -1058,7 +1061,7 @@ module.exports = {
                     }
                 }, async (err, uploadedFiles) => {
                     if (err) { return res.serverError(err); }
-                    
+
                     //Para eliminar las imagenes que antes 
                     //habian comprimidas
                     let dir = path.join(IMAGES, "primary", id, folderCompress);
