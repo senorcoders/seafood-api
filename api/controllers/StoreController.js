@@ -14,9 +14,33 @@ module.exports = {
             let imageCtrl = require("./ImageController");
             let owner = req.param("owner"), description = req.param("description"),
                 location = req.param("location"), name = req.param("name");
-            let store = await Store.create({ owner, description, location, name }).fetch();
+            let slug = name.replace(/\s/g, "-").replace(/[\/]|[\/]|[=]|[?]/g, "").toLowerCase();
+
+            let storeM = await Store.find({ slug });
+            let count = 0;
+            while (storeM.length > 0) {
+                count += 1;
+                storeM = await Store.find({ slug: slug + count });
+            }
+            let store = await Store.create({ owner, description, location, name, slug: count !== 0 ? slug + count : slug }).fetch();
 
             store = await imageCtrl.saveLogoStore(req, store.id);
+
+            res.json(store);
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
+    getForSlug: async (req, res) => {
+        try {
+            let slug = req.param("slug");
+            let store = await Store.findOne({ slug });
+            if (store === undefined) {
+                return res.status(400).send('not found');
+            }
 
             res.json(store);
         }
