@@ -172,16 +172,16 @@
       <div class="col col-1">
         <p><b>SKU</b></p>
       </div>
-      <div class="col col-1 align-right">
+      <div class="col col-1">
         <p><b>Quantity</b></p>
       </div>
-      <div class="col col-1 align-right">
+      <div class="col col-1">
         <p><b>U/M</b></p>
       </div>
-      <div class="col col-2 align-right">
-        <p><b>Unit Price</b></p>
+      <div class="col col-2" >
+        <p><b>Unit Price USD</b></p>
       </div>
-      <div class="col col-1 align-right">
+      <div class="col col-1">
         <p><b>Amount USD</b></p>
       </div>
     </div>
@@ -190,16 +190,16 @@
       <div class="col col-3">
           <%= it.description %>
       </div>
-      <div class="col col-1"> <%= it.fish.seller_sku %></div>
-      <div class="col col-1 align-right"><%= it.itemCharges.weight %></div>
-      <div class="col col-1 align-right">KG</div>
-      <div class="col col-2 align-right"><%= ( it.itemCharges.price / currentExchangeRate ).toFixed(2) %> </div>
-      <div class="col col-1 align-right"><%= ( (it.itemCharges.weight * it.itemCharges.price) / currentExchangeRate ).toFixed(2)  %></div>
+      <div class="col col-1"><%= it.fish.seller_sku %></div>
+      <div class="col col-1"><%= it.itemCharges.weight %></div>
+      <div class="col col-1">KG</div>
+      <div class="col col-2"><%= ( it.itemCharges.price / currentExchangeRate ).toFixed(2) %> </div>
+      <div class="col col-1"><%= ( (it.itemCharges.weight * it.itemCharges.price) / currentExchangeRate ).toFixed(2)  %></div>
     </div>
     <%  } ) %> 
     <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
       <div class="col col-5 padding-right">
-        <span>Subtotal</span>
+        <span>Subtotal USD</span>
       </div>
       <div class="col col-5">
         <span><%= ( Number(subTotal) / currentExchangeRate ).toFixed(2)  %></span>
