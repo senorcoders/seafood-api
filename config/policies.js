@@ -47,6 +47,7 @@ module.exports.policies = {
   StoreController: {
     save: true,
     update: true,
+    getForSlug: true,
     get: true
   },
   ShoppingCartController: {
