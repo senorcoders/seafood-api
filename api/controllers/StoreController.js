@@ -17,8 +17,8 @@ module.exports = {
             let slug = name.replace(/\s/g, "-").replace(/[\/]|[\/]|[=]|[?]/g, "").toLowerCase();
 
             let storeM = await Store.find({ slug });
-            if(storeM.length > 0)
-                return res.status(500).send("That store name already exists");
+            if (storeM.length > 0)
+                return res.json({ message: "error", data: "That store name already exists" });
 
             let store = await Store.create({ owner, description, location, name, slug }).fetch();
 
