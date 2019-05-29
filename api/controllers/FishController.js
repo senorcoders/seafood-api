@@ -542,6 +542,11 @@ module.exports = {
                     fish_where['treatment'] = req.body.treatment;
             }
 
+	    if (req.body.hasOwnProperty('cooming_soon')) {
+                if (req.body.cooming_soon.length > 0)
+                    fish_where['cooming_soon'] = req.body.cooming_soon;
+            }
+
             let req_minimumOrder = req.body.minimumOrder;
             let req_maximumOrder = req.body.maximumOrder;
             if (req_minimumOrder !== '0' && req_maximumOrder !== '0') {                
