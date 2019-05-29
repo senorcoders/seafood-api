@@ -91,12 +91,6 @@ module.exports = {
       type: "string",
       required: false
     },
-    
-    slug: {
-      type:"string",
-      required: false,
-      unique: true
-    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗

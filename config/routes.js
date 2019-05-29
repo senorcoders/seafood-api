@@ -145,7 +145,7 @@ module.exports.routes = {
 
   /***********
    * 
-   * FISH AND FISHTYPE 
+   * FISH AND FISHTYPE
    * 
    */
 
@@ -238,9 +238,6 @@ module.exports.routes = {
 
   //Para guardar store con todo y sus imagenes
   'POST /api/store': "StoreController.save",
-
-  //get store for slug
-  'GET /api/store/:slug': "StoreController.getForSlug",
 
   //Para actualizar o guardar logo
   'POST /api/store/logo/:id': "ImageController.saveLogoStore",
