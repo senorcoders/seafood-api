@@ -16,6 +16,12 @@ if (fs.existsSync(path.join(IMAGES, folderLogosSeller)) === false) {
     fs.mkdirSync(path.join(IMAGES, folderLogosSeller));
 }
 
+//for certifications sellers check if exist folder, if not create folder
+const folderCertificationsSeller = "certifications_seller";
+if (fs.existsSync(path.join(IMAGES, folderCertificationsSeller)) === false) {
+    fs.mkdirSync(path.join(IMAGES, folderCertificationsSeller));
+}
+
 const deleteImagesF = async pat => {
     return findRemoveSync(pat.replace(/\\/g, '/'), { maxLevel: 1, extensions: ".jpg,.JPG,.jpeg,.JPEG,.png,.svg,.gif".split(",") });
 }
@@ -1380,7 +1386,7 @@ module.exports = {
             if (user === undefined) {
                 return res.v2(new Error("user not found"));
             }
-            if (user.logos) { console.log("entra a logos");
+            if (user.logos) {
                 let index = user.logos.findIndex(function (it) {
                     return "/api/v2/logo/seller/" + req.param("namefile") + "/" + req.param("id") === it;
                 });
@@ -1406,6 +1412,140 @@ module.exports = {
         }
 
     },
+
+    uploadCertificationsSellers: async function (req, res) {
+
+        let user = await User.findOne({ id: req.param("id") });
+        if (user === undefined) {
+            return res.v2(new Error("user not found"));
+        }
+
+        let dirname = path.join(IMAGES, folderCertificationsSeller, req.param("id"));
+        if (fs.existsSync(dirname) === false) {
+            fs.mkdirSync(dirname);
+        }
+
+        let imagesName = [], i = 0;
+
+        req.file("certifications").upload({
+            dirname,
+            maxBytes: 70000000,
+            saveAs: function (stream, cb) {
+                // changin name to sku format
+                let newName = stream.filename;
+                newName = extractNewName(newName, i);
+                imagesName.push(newName);
+                i += 1;
+                cb(null, newName);
+            }
+        }, async function (err, uploadedFiles) {
+            if (err) return res.send(500, err);
+
+            i = 0;
+            let dirs = [];
+            for (let file of uploadedFiles) {
+                // changing name to sku format
+                let newName = imagesName[i];
+                if (file.type.includes("image/") && file["status"] === "finished") {
+                    dirs.push("/api/v2/certification/seller/" + newName + "/" + req.param("id"));
+                    //for resizing image
+                    try {
+                        let directory = path.join(dirname, newName);
+                        console.log(directory);
+                        await resizeImage(directory, { width: 100, height: null });
+                    }
+                    catch (e) {
+                        console.error(e);
+                    }
+                }
+                i += 1;
+            }
+            let directory = dirname + "/";
+            await compressImageFolder(directory, directory + folderCompress);
+
+            if (user.hasOwnProperty("certifications") && Object.prototype.toString.call(user.certifications) === "[object Array]") {
+                for (let dir of dirs) {
+                    user.certifications.push(dir);
+                }
+            } else {
+                user.certifications = dirs;
+            }
+
+            let upda = await User.update({ id: user.id }, { certifications: user.certifications });
+            console.log(upda);
+
+            return res.json(user.certifications);
+        })
+    },
+
+    getCertificationSeller: async function (req, res) {
+
+        try {
+
+            let dirname = path.join(IMAGES, folderCertificationsSeller, req.param("id"), folderCompress, req.param("namefile"));
+            console.log(dirname);
+
+            if (!fs.existsSync(dirname)) {
+                return res.v2(new Error("Image not found"));
+            }
+            // read binary data
+            var data = fs.readFileSync(dirname);
+
+            // convert binary data to base64 encoded string
+            let content = await getMimeFile(dirname);
+            res.contentType(content);
+            res.send(data);
+
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+
+    },
+
+    deleteCertificationSeller: async function (req, res) {
+
+        try {
+
+            let dirname = path.join(IMAGES, folderCertificationsSeller, req.param("id"), folderCompress, req.param("namefile"));
+            console.log(dirname);
+
+            if (!fs.existsSync(dirname)) {
+                return res.v2(new Error("Image not found"));
+            }
+
+            //For delete url certifications in property of user
+            let user = await User.findOne({ id: req.param("id") });
+            if (user === undefined) {
+                return res.v2(new Error("user not found"));
+            }
+            if (user.certifications) { console.log("entra a certifications");
+                let index = user.certifications.findIndex(function (it) {
+                    return "/api/v2/certification/seller/" + req.param("namefile") + "/" + req.param("id") === it;
+                });
+                if (index !== -1) {
+                    if (user.certifications.length === 1)
+                        user.certifications = [];
+                    else
+                        user.certifications.splice(index, 1);
+                }
+                let upda = await User.update({ id: user.id }, { certifications: user.certifications }).fetch();
+                console.log(upda);
+            }
+
+            // delete binary data
+            fs.unlinkSync(dirname);
+
+            res.v2({ status: "deleted" });
+
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+
+    }
 
     //#endregion
 }
