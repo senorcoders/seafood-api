@@ -531,11 +531,19 @@ module.exports.routes = {
    */
   "GET /api/v2/user": "UserController.getUsers",
 
+  //for logos sellers
   "POST /api/v2/seller/logos/:id": "ImageController.uploadLogosSellers",
 
   "GET /api/v2/logo/seller/:namefile/:id": "ImageController.getLogoSeller",
 
   "DELETE /api/v2/logo/seller/:namefile/:id": "ImageController.deleteLogoSeller",
+
+  //for certifications
+  "POST /api/v2/seller/certifications/:id": "ImageController.uploadCertificationsSellers",
+
+  "GET /api/v2/certification/seller/:namefile/:id": "ImageController.getCertificationSeller",
+
+  "DELETE /api/v2/certification/seller/:namefile/:id": "ImageController.deleteCertificationSeller",
 
   // Shipping
 
