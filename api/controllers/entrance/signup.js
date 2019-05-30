@@ -44,6 +44,8 @@ const resizeSave = async function (nameFile, directory, image, size) {
   });
 }
 
+const saveStore = require("./../StoreController").save;
+
 if (!fs.existsSync(IMAGES)) {
   fs.mkdirSync(IMAGES);
 }
@@ -157,7 +159,31 @@ the account verification message.)`,
       code,
       status: ""
     }).fetch();
-    console.log(newUserRecord)
+
+
+    console.log(newUserRecord, inputs.role)
+    //for user is seller (role = 1)
+    let store, req = this.req, res = this.res;
+    if (inputs.role === 1) {
+      store = await new Promise(function (resolve, reject) {
+        let _res = {}, _req = {};
+        _req.param = function (id) { if (id === "owner") return newUserRecord.id; else return req.param(id); };
+        _req.file = req.file;
+        _res.json = resolve;
+        _res.serverError = reject;
+        saveStore(_req, _res);
+      });
+
+      //If there a error delete user new
+      if (store.message && store.message === "error") {
+        await User.destroy({ id: newUserRecord.id });
+        return exits.success(store);
+      }
+
+    }
+
+    if (inputs.role === 1)
+      newUserRecord.store = store;
 
     if (inputs.logoCompany !== undefined) {
       let base64 = inputs.logoCompany.replace(/^data:image\/jpeg;base64,/, "");
@@ -175,9 +201,11 @@ the account verification message.)`,
       if (users.length === 1)
         newUserRecord = users[0];
     }
+
+
     await MailerService.registerNewUser(newUserRecord);
     let nameCompany = inputs.dataExtra.companyName || "not have"
-    await MailerService.newUserNotification(inputs.firstName+ " "+inputs.lastName, newEmailAddress, newUserRecord.role, nameCompany);
+    await MailerService.newUserNotification(inputs.firstName + " " + inputs.lastName, newEmailAddress, newUserRecord.role, nameCompany);
     //await require("./../../../mailer").newUserNotification(newUserRecord.firstName, newUserRecord.lastName, newUserRecord.role, newUserRecord.email);
 
 

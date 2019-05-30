@@ -12,13 +12,43 @@ module.exports = {
     save: async (req, res) => {
         try {
             let imageCtrl = require("./ImageController");
-            let owner = req.param("owner"), description = req.param("description"),
-                location = req.param("location"), name = req.param("name");
-            let store = await Store.create({ owner, description, location, name }).fetch();
+            let name = req.param("name");
+            let slug = name.replace(/\s/g, "-").replace(/[\/]|[\/]|[=]|[?]/g, "").toLowerCase();
 
-            store = await imageCtrl.saveLogoStore(req, store.id);
+            let storeM = await Store.find({ slug });
+            if (storeM.length > 0)
+                return res.json({ message: "error", data: "That store name already exists" });
 
-            res.json(store);
+            let store = {
+                "name": "",
+                "owner": "",
+                "description": "",
+                "companyName": "",
+                "companyType": "",
+                "location": "",
+                "Address": "",
+                "City": "",
+                "ContactNumber": "",
+                "CorporateBankAccountNumber": "",
+                "CurrencyofTrade": "",
+                "FoodSafetyCertificateNumber": "",
+                "ProductsInterestedSelling": "",
+                "TradeBrandName": "",
+                "TradeLicenseNumber": "",
+                description: "",
+                location: "",
+
+            };
+            for(let name of Object.keys(store)){
+                store[name] = req.param(name);
+            }
+            store.slug = slug;
+
+            let _store = await Store.create(store).fetch();
+
+            _store = await imageCtrl.saveLogoStore(req, _store.id);
+
+            res.json(_store);
         }
         catch (e) {
             console.error(e);
