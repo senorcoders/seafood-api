@@ -10,6 +10,12 @@ var mmm = require('mmmagic'),
     imageSize = { width: 800, height: null }
 folderCompress = "compress";
 
+//for logos sellers check if exist folder, if not create folder
+const folderLogosSeller = "logos_seller";
+if (fs.existsSync(path.join(IMAGES, folderLogosSeller)) === false) {
+    fs.mkdirSync(path.join(IMAGES, folderLogosSeller));
+}
+
 const deleteImagesF = async pat => {
     return findRemoveSync(pat.replace(/\\/g, '/'), { maxLevel: 1, extensions: ".jpg,.JPG,.jpeg,.JPEG,.png,.svg,.gif".split(",") });
 }
@@ -175,7 +181,7 @@ const deleteImage = async function (req, res) {
         //console.log(upda);
 
         if (!fs.existsSync(directory)) {
-            directory = IMAGES + `${"/" + id + "/compress/"+ namefile}`;
+            directory = IMAGES + `${"/" + id + "/compress/" + namefile}`;
             if (!fs.existsSync(directory)) {
                 throw new Error("file not exist");
             }
@@ -487,13 +493,13 @@ module.exports = {
             var data = fs.readFileSync(directory);
 
             // convert binary data to base64 encoded string
-            let content = 'image/' + namefile.split(".").pop();
+            let content = await getMimeFile(directory);
             res.contentType(content);
             res.send(data);
 
         }
         catch (e) {
-            //console.log(e);
+            console.error(e);
             res.serverError(e);
         }
 
@@ -927,7 +933,7 @@ module.exports = {
             // read binary data
             var data = fs.unlinkSync(directory);
 
-            res.json({msg : "success"});
+            res.json({ msg: "success" });
 
         }
         catch (e) {
@@ -1266,5 +1272,141 @@ module.exports = {
         }
     },
 
+    //#region 
+    uploadLogosSellers: async function (req, res) {
+
+        let user = await User.findOne({ id: req.param("id") });
+        if (user === undefined) {
+            return res.v2(new Error("user not found"));
+        }
+
+        let dirname = path.join(IMAGES, folderLogosSeller, req.param("id"));
+        if (fs.existsSync(dirname) === false) {
+            fs.mkdirSync(dirname);
+        }
+
+        let imagesName = [], i = 0;
+
+        req.file("logos").upload({
+            dirname,
+            maxBytes: 70000000,
+            saveAs: function (stream, cb) {
+                // changin name to sku format
+                let newName = stream.filename;
+                newName = extractNewName(newName, i);
+                imagesName.push(newName);
+                i += 1;
+                cb(null, newName);
+            }
+        }, async function (err, uploadedFiles) {
+            if (err) return res.send(500, err);
+
+            i = 0;
+            let dirs = [];
+            for (let file of uploadedFiles) {
+                // changing name to sku format
+                let newName = imagesName[i];
+                if (file.type.includes("image/") && file["status"] === "finished") {
+                    dirs.push("/api/v2/logo/seller/" + newName + "/" + req.param("id"));
+                    //for resizing image
+                    try {
+                        let directory = path.join(dirname, newName);
+                        console.log(directory);
+                        await resizeImage(directory, { width: 100, height: null });
+                    }
+                    catch (e) {
+                        console.error(e);
+                    }
+                }
+                i += 1;
+            }
+            let directory = dirname + "/";
+            await compressImageFolder(directory, directory + folderCompress);
+
+            if (user.hasOwnProperty("logos") && Object.prototype.toString.call(user.logos) === "[object Array]") {
+                for (let dir of dirs) {
+                    user.logos.push(dir);
+                }
+            } else {
+                user.logos = dirs;
+            }
+
+            let upda = await User.update({ id: user.id }, { logos: user.logos });
+            console.log(upda);
+
+            return res.json(user.logos);
+        })
+    },
+
+    getLogoSeller: async function (req, res) {
+
+        try {
+
+            let dirname = path.join(IMAGES, folderLogosSeller, req.param("id"), folderCompress, req.param("namefile"));
+            console.log(dirname);
+
+            if (!fs.existsSync(dirname)) {
+                return res.v2(new Error("Image not found"));
+            }
+            // read binary data
+            var data = fs.readFileSync(dirname);
+
+            // convert binary data to base64 encoded string
+            let content = await getMimeFile(dirname);
+            res.contentType(content);
+            res.send(data);
+
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+
+    },
+
+    deleteLogoSeller: async function (req, res) {
+
+        try {
+
+            let dirname = path.join(IMAGES, folderLogosSeller, req.param("id"), folderCompress, req.param("namefile"));
+            console.log(dirname);
+
+            if (!fs.existsSync(dirname)) {
+                return res.v2(new Error("Image not found"));
+            }
+
+            //For delete url logos in property of user
+            let user = await User.findOne({ id: req.param("id") });
+            if (user === undefined) {
+                return res.v2(new Error("user not found"));
+            }
+            if (user.logos) { console.log("entra a logos");
+                let index = user.logos.findIndex(function (it) {
+                    return "/api/v2/logo/seller/" + req.param("namefile") + "/" + req.param("id") === it;
+                });
+                if (index !== -1) {
+                    if (user.logos.length === 1)
+                        user.logos = [];
+                    else
+                        user.logos.splice(index, 1);
+                }
+                let upda = await User.update({ id: user.id }, { logos: user.logos }).fetch();
+                console.log(upda);
+            }
+
+            // delete binary data
+            fs.unlinkSync(dirname);
+
+            res.v2({ status: "deleted" });
+
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+
+    },
+
+    //#endregion
 }
 

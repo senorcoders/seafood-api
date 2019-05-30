@@ -55,7 +55,7 @@ module.exports = function v2(optionalData) {
         return res.sendStatus(statusCodeToSet);
       }
       else {
-        return res.status(statusCodeToSet).send({message: "error", data: optionalData});
+        return res.status(statusCodeToSet).send({message: "error", data: optionalData.message });
       }
     }
   }
