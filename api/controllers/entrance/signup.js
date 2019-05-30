@@ -161,7 +161,7 @@ the account verification message.)`,
     }).fetch();
 
 
-    console.log(newUserRecord)
+    console.log(newUserRecord, inputs.role)
     //for user is seller (role = 1)
     let store, req = this.req, res = this.res;
     if (inputs.role === 1) {
@@ -173,6 +173,13 @@ the account verification message.)`,
         _res.serverError = reject;
         saveStore(_req, _res);
       });
+
+      //If there a error delete user new
+      if (store.message && store.message === "error") {
+        await User.destroy({ id: newUserRecord.id });
+        return exits.success(store);
+      }
+
     }
 
     if (inputs.role === 1)
