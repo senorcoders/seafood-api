@@ -120,6 +120,12 @@ module.exports = {
       required: false
     },
 
+    certifications: {
+      type: "json",
+      columnType: "array",
+      required: false
+    },
+
     contactID: {
       type: 'string',
       required: false,
