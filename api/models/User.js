@@ -104,17 +104,21 @@ module.exports = {
       description: `1- Contact in the Future
                     2- Never Contact Again`
     },
-    
+
     logoCompany: {
       type: "string",
       required: false
     },
-    
+
     firstMileCost: {
       type: "number"
     },
-    
-    
+
+    logos: {
+      type: "json",
+      columnType: "array",
+      required: false
+    },
 
     contactID: {
       type: 'string',
@@ -149,7 +153,7 @@ module.exports = {
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
     // n/a
-    
+
     incoterms: {
       model: 'incoterms',
       required: false,
