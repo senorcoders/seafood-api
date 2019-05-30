@@ -531,6 +531,12 @@ module.exports.routes = {
    */
   "GET /api/v2/user": "UserController.getUsers",
 
+  "POST /api/v2/seller/logos/:id": "ImageController.uploadLogosSellers",
+
+  "GET /api/v2/logo/seller/:namefile/:id": "ImageController.getLogoSeller",
+
+  "DELETE /api/v2/logo/seller/:namefile/:id": "ImageController.deleteLogoSeller",
+
   // Shipping
 
   'GET /api/v2/countriesWithShipping': "ShippingRatesController.getCountriesWithShippings",
