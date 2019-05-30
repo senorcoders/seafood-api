@@ -34,6 +34,7 @@ module.exports.policies = {
     getLogoAndHeroStore: true,
     getImagesStore: true,
     getShippingFiles: true,
+    getLogoSeller: true
   },
   UserController: {
     emailExist: true,
