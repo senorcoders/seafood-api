@@ -55,6 +55,12 @@ module.exports = {
       shippingFee   = shipping * inputs.weight; //b1
       handlingFee   = inputs.currentCharges.handlingFees * inputs.weight; //b2 //are 3 AED/KG to get the shipment released from Customs.
       shippingCost  = handlingFee + inputs.currentCharges.lastMileCost; //C = first mile cost + b1 + b2 + last mile cost
+    } else if ( owner.incoterms === '5cf1a5a11a36d4acacdb22b9' ) { // FCA
+      firstMileCost = 0; //get owner fee
+      firstMileFee  = 0;
+      shippingFee   = shipping * inputs.weight; //b1
+      handlingFee   = inputs.currentCharges.handlingFees * inputs.weight; //b2 //are 3 AED/KG to get the shipment released from Customs.
+      shippingCost  = shippingFee + handlingFee + inputs.currentCharges.lastMileCost; //C = first mile cost + b1 + b2 + last mile cost
     } else { // Ex Work
       firstMileCost = Number( parseFloat( owner.firstMileCost ) ); //get owner fee
       firstMileFee  = firstMileCost * inputs.weight;
