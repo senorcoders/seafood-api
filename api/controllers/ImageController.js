@@ -263,72 +263,36 @@ const deleteImage = async function (req, res) {
 }
 
 const multipleImagesUpload = async function (req, res) {
-
-    let fish = await Fish.findOne({ id: req.params.id });
+    let id = req.params.id;
+    let fish = await Fish.findOne({ id });
     if (fish === undefined) {
         return res.serverError("id not found");
     }
 
     let dirname = IMAGES + "/" + req.params.id;
-    //create directory if not exists
+
+    //Create directory if not exists
     if (!fs.existsSync(dirname)) {
         fs.mkdirSync(dirname);
     }
 
-    let imagesName = [], i = 0;
-
-    req.file("images").upload({
+    let uploads = await uploadWithPromise(
+        req,
+        "images",
         dirname,
-        maxBytes: 70000000,
-        saveAs: function (stream, cb) {
-            // changin name to sku format
-            let newName = stream.filename;
-            newName = extractNewName(newName, i);
-            imagesName.push(newName);
-            i += 1;
-            cb(null, newName);
-        }
-    }, async function (err, uploadedFiles) {
-        if (err) return res.send(500, err);
+        imageSize,
+        fish,
+        "images",
+        function (file) {
+            return "/api/images/" + file + "/" + id;
+        });
+    console.log(uploads);
+    fish.images = uploads.urls;
 
-        i = 0;
-        let dirs = [];
-        for (let file of uploadedFiles) {
-            // changing name to sku format
-            let newName = imagesName[i];
-            if (file.type.includes("image/") && file["status"] === "finished") {
-                dirs.push({
-                    filename: newName,
-                    src: "/api/images" + "/" + newName + "/" + req.params.id
-                });
-                //for resizing image
-                try {
-                    let directory = IMAGES + `${"/" + req.params.id + "/" + newName}`;
-                    console.log(directory);
-                    await resizeImage(directory, imageSize);
-                }
-                catch (e) {
-                    console.error(e);
-                }
-            }
-            i += 1;
-        }
-        let directory = IMAGES + "/" + req.params.id + "/";
-        await compressImageFolder(directory, directory + folderCompress);
+    let upda = await Fish.update({ id: fish.id }, { images: fish.images });
+    console.log(upda);
 
-        if (fish.hasOwnProperty("images") && Object.prototype.toString.call(fish.images) === "[object Array]") {
-            for (let dir of dirs) {
-                fish.images.push(dir);
-            }
-        } else {
-            fish.images = dirs;
-        }
-
-        let upda = await Fish.update({ id: fish.id }, { images: fish.images });
-        ////console.log(upda);
-
-        return res.json(fish.images);
-    })
+    return res.json(fish.images);
 }
 
 module.exports = {
@@ -1023,43 +987,22 @@ module.exports = {
                 fs.mkdirSync(dirname);
             }
 
-            let newName = "";
-            req.file("image")
-                .upload({
-                    dirname,
-                    maxBytes: 70000000,
-                    saveAs: function (stream, cb) {
-                        newName = extractNewName(stream.filename);
-                        cb(null, newName);
-                    }
-                }, async (err, uploadedFiles) => {
+            let uploads = await uploadWithPromise(
+                req,
+                "image",
+                dirname,
+                imageSize,
+                fish,
+                "image",
+                function (file) {
+                    return "/api/images/primary/" + file + "/" + id;
+                });
+            console.log(uploads);
+            fish.image = uploads.urls[0];
 
-                    if (err) {
-                        return res.status(500).send(err);
-                    }
-                    //Para eliminar las imagenes que antes 
-                    //habian comprimidas
-                    let dir = path.join(IMAGES, "primary", id, folderCompress);
-                    deleteImagesF(dir);
-                    await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + newName + "/" + id });
+            await Fish.update({ id }, { imagePrimary: fish.image });
 
-                    //for resizing image
-                    try {
-                        let directory = IMAGES + `${"/primary/" + req.params.id + "/" + newName}`;
-                        console.log(directory);
-                        await resizeImage(directory, imageSize);
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
-
-                    let directory = IMAGES + "/primary/" + id + "/";
-                    await compressImageFolder(directory, directory + folderCompress);
-
-
-                    res.json({ msg: "success" });
-                })
-
+            res.json({ msg: "success" });
         }
         catch (e) {
             console.error(e);
@@ -1119,38 +1062,55 @@ module.exports = {
                 fs.unlinkSync(directory);
             }
 
-            let newName = "";
-            req.file("image")
-                .upload({
-                    dirname,
-                    maxBytes: 70000000,
-                    saveAs: function (stream, cb) {
-                        newName = extractNewName(stream.filename);
-                        cb(null, newName);
-                    }
-                }, async (err, uploadedFiles) => {
-                    if (err) { return res.serverError(err); }
+            let uploads = await uploadWithPromise(
+                req,
+                "image",
+                dirname,
+                imageSize,
+                fish,
+                "image",
+                function (file) {
+                    return "/api/images/primary/" + file + "/" + id;
+                });
+            console.log(uploads);
+            fish.image = uploads.urls[0];
 
-                    //Para eliminar las imagenes que antes 
-                    //habian comprimidas
-                    let dir = path.join(IMAGES, "primary", id, folderCompress);
-                    deleteImagesF(dir);
+            await Fish.update({ id }, { imagePrimary: fish.image });
+            
+            res.json({ msg: "success" });
 
-                    await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + newName + "/" + id });
-                    //for resizing image
-                    try {
-                        let directory = IMAGES + `${"/primary/" + id + "/" + newName}`;
-                        console.log(directory);
-                        await resizeImage(directory, imageSize);
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
+            // let newName = "";
+            // req.file("image")
+            //     .upload({
+            //         dirname,
+            //         maxBytes: 70000000,
+            //         saveAs: function (stream, cb) {
+            //             newName = extractNewName(stream.filename);
+            //             cb(null, newName);
+            //         }
+            //     }, async (err, uploadedFiles) => {
+            //         if (err) { return res.serverError(err); }
 
-                    let directory = IMAGES + "/primary/" + id + "/";
-                    await compressImageFolder(directory, directory + folderCompress);
-                    res.json({ msg: "success" });
-                })
+            //         //Para eliminar las imagenes que antes 
+            //         //habian comprimidas
+            //         let dir = path.join(IMAGES, "primary", id, folderCompress);
+            //         deleteImagesF(dir);
+
+            //         await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + newName + "/" + id });
+            //         //for resizing image
+            //         try {
+            //             let directory = IMAGES + `${"/primary/" + id + "/" + newName}`;
+            //             console.log(directory);
+            //             await resizeImage(directory, imageSize);
+            //         }
+            //         catch (e) {
+            //             console.error(e);
+            //         }
+
+            //         let directory = IMAGES + "/primary/" + id + "/";
+            //         await compressImageFolder(directory, directory + folderCompress);
+            //         res.json({ msg: "success" });
+            //     })
         }
         catch (e) {
             console.error(e);
