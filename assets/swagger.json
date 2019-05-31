@@ -26,11 +26,11 @@
       "name": "product",
       "description": ""
   },{
-      "name": "images",
-      "description": "images manage for stores, products and categories"
-  },{
     "name": "categories",
     "description": "categories of products"
+  },{
+    "name": "item shopping",
+    "description": "item shopping of cart"
   }],
   "schemes": ["https", "http"],
   "paths": {
@@ -591,7 +591,7 @@
     },
     "/api/fish/image/{id}": {
       "post": {
-        "tags": ["images"],
+        "tags": ["product"],
         "summary": "set image primary for product",
         "operationId": "ImageController.setPrimaryImage",
         "consumes": ["multipart/form-data"],
@@ -632,7 +632,7 @@
     },
     "/api/images/primary/{namefile}/{id}": {
       "get": {
-        "tags": ["images"],
+        "tags": ["product"],
         "summary": "get image primary for product",
         "operationId": "ImageController.getImagePrimary",
         "produces": ["application/json"],
@@ -671,7 +671,7 @@
     },
     "/api/images/primary/{namefile}/{id}/update": {
       "put": {
-        "tags": ["images"],
+        "tags": ["product"],
         "summary": "update image primary for product",
         "operationId": "ImageController.updateImagePrimary",
         "consumes": ["multipart/form-data"],
@@ -716,7 +716,7 @@
     },
     "/api/fish/images/{id}": {
       "post": {
-        "tags": ["images"],
+        "tags": ["product"],
         "summary": "add images for product",
         "operationId": "ImageController.multipleImagesUpload",
         "consumes": ["multipart/form-data"],
@@ -760,7 +760,7 @@
     },
     "/api/images/{namefile}/{id}": {
       "get": {
-        "tags": ["images"],
+        "tags": ["product"],
         "summary": "get image for product",
         "operationId": "ImageController.getImage",
         "produces": ["application/json"],
@@ -799,7 +799,7 @@
     },
     "/api/images/{namefile}/{id}/delete": {
       "delete": {
-        "tags": ["images"],
+        "tags": ["product"],
         "summary": "delete image primary for product",
         "operationId": "ImageController.deleteImage",
         "produces": ["application/json"],
@@ -837,7 +837,7 @@
     },
     "/api/fish/images/delete": {
       "put": {
-        "tags": ["images"],
+        "tags": ["product"],
         "summary": "delete image primary for product",
         "operationId": "ImageController.deleteImagesFish",
         "produces": ["application/json"],
@@ -1135,6 +1135,195 @@
                     "example": "success"
                   }
                 }
+            }
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    "/api/user-logo-company": {
+      "put": {
+        "tags": ["user"],
+        "summary": "set images for categories",
+        "operationId": "ImageController.saveImageLogoCompany",
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "description": "data for upload imge of Store or Company",
+          "required": true,
+          "schema": {
+              "type": "object",
+              "properties": {
+                  "id": {
+                      "type": "string"
+                  },
+                  "logoCompany": {
+                      "type": "string",
+                      "description": "string in base64 format"
+                  }
+              }
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "return array of url",
+            "schema": {
+             "type": "object"
+            }
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    "/api/logo-company/:id": {
+      "get": {
+        "tags": ["user"],
+        "summary": "get image for logo company",
+        "operationId": "ImageController.getImageLogoCompany",
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "type": "string",
+          "description": "id for product"
+        }],
+        "responses": {
+          "200": {
+            "description": "return the image of the company",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "500":{
+            "description": "file not saved or not found",
+            "schema": {
+              "type": "string",
+              "example": "file not exist"
+            }
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    "/shipping/{id}/upload/": {
+      "post": {
+        "tags": ["item shopping"],
+        "summary": "upload files of item shopping",
+        "operationId": "ImageController.uploadShippingInformation",
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "path",
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "id of item shopping"
+        },{
+          "in": "body",
+          "name": "body",
+          "description": "data for upload imge of Store or Company",
+          "required": true,
+          "schema": {
+              "type": "object",
+              "properties": {
+                  "image0": {
+                      "type": "string",
+                      "description": "string in base64 format"
+                  },
+                  "image1": {
+                      "type": "string",
+                      "description": "string in base64 format"
+                  },
+                  "image2": {
+                      "type": "string",
+                      "description": "string in base64 format"
+                  },
+                  "image3": {
+                      "type": "string",
+                      "description": "string in base64 format"
+                  },
+                  "image4": {
+                      "type": "string",
+                      "description": "string in base64 format"
+                  },
+                  "image5": {
+                      "type": "string",
+                      "description": "string in base64 format"
+                  },
+                  "image6": {
+                      "type": "string",
+                      "description": "string in base64 format"
+                  },
+                  "image7": {
+                      "type": "string",
+                      "description": "string in base64 format"
+                  },
+                  "image8": {
+                      "type": "string",
+                      "description": "string in base64 format"
+                  },
+                  "image9": {
+                      "type": "string",
+                      "description": "string in base64 format"
+                  }
+              }
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "return object",
+            "schema": {
+             "type": "object"
+            }
+          },
+          "401": {
+              "description": "Unauthorized"
+          }
+        },
+        "security":[{"token":[]}]
+      }
+    },
+    "/api/ItemShopping/shipping/images/{id}/{imageIndex}": {
+      "get": {
+        "tags": ["item shopping"],
+        "summary": "get image for logo company",
+        "operationId": "ImageController.serveShippingImage",
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "type": "string",
+          "description": "id for item shopping"
+        },{
+          "in": "path",
+          "name": "imageIndex",
+          "required": true,
+          "type": "string",
+          "description": "id for index of image"
+        }],
+        "responses": {
+          "200": {
+            "description": "return the image of item shopping",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "500":{
+            "description": "file not saved or not found",
+            "schema": {
+              "type": "string",
+              "example": "file not exist"
             }
           },
           "401": {
