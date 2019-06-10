@@ -115,49 +115,35 @@ module.exports = {
     exchangeRates   = currentAdminCharges.exchangeRates;
 
     let owner = await User.findOne( { id: fish.store.owner } ) ;
+    let sfsMargin = 0;
     let marginPercentage  = 0; //await IncotermsByType.find( { incoterm: owner.incoterms, type: fish.type.id } );
     if ( owner.incoterms === '5cbf6900aa5dbb0733b05be4' ) { // exworks
-
       if ( fish.descriptor !== null ){
         sfsMargin = fish.descriptor.exworks;
         marginPercentage = fish.descriptor.exworks; 
-      } else {
-        if( fish.type.hasOwnProperty('exworks') ) {
+      } else if ( fish.type.hasOwnProperty('exworks') ) {
           sfsMargin = fish.type.exworks;
-          marginPercentage = fish.type.exworks; 
-        }
-        else {
-          sfsMargin = 1;
-          marginPercentage = 1;
-        }
+          marginPercentage = fish.type.exworks;         
       }
-
-      
-    } else if( owner.incoterms === '5cbf68f7aa5dbb0733b05be3' ) {
+    } else if ( owner.incoterms === '5cf1a5a11a36d4acacdb22b9' ) { // FCA
+      if ( fish.descriptor !== null ){
+        sfsMargin = fish.descriptor.exworks;
+        marginPercentage = fish.descriptor.exworks; 
+      } else if ( fish.type.hasOwnProperty('exworks') ) {
+          sfsMargin = fish.type.exworks;
+          marginPercentage = fish.type.exworks;         
+      }
+    } else if( owner.incoterms === '5cbf68f7aa5dbb0733b05be3' ) { // CIP
       if ( fish.descriptor !== null ){
         sfsMargin = fish.descriptor.cpi;
         marginPercentage = fish.descriptor.cpi;
-      } else { 
-        if( fish.type.hasOwnProperty('cpi') ) {
-          sfsMargin = fish.type.cpi;
-          marginPercentage = fish.type.cpi;
-        }
-        else {
-          sfsMargin = 1;
-          marginPercentage = 1;
-        }
+      } else if( fish.type.hasOwnProperty('cpi') ) {
+        sfsMargin = fish.type.cpi;
+        marginPercentage = fish.type.cpi;        
       }
-
-      
-    } else {
-      if( fish.type.hasOwnProperty('exworks') ) {
+    } else if ( fish.type.hasOwnProperty('exworks') ) {
         sfsMargin = fish.type.exworks;
         marginPercentage = fish.type.exworks; 
-      }
-      else {
-        sfsMargin = 1;
-        marginPercentage = 1;
-      }
     }
     
     // getting fish shipping fee

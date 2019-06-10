@@ -25,10 +25,67 @@ if (fs.existsSync(path.join(IMAGES, folderCertificationsSeller)) === false) {
 const deleteImagesF = async pat => {
     return findRemoveSync(pat.replace(/\\/g, '/'), { maxLevel: 1, extensions: ".jpg,.JPG,.jpeg,.JPEG,.png,.svg,.gif".split(",") });
 }
+const getExtension = function (name) {
+    let ext = name.split(".").pop();
+    if (ext === name)
+        return "jpg";
+    return ext;
+}
 const extractNewName = (name, i, extension) => {
-    extension = extension || "jpg";
+    extension = extension || getExtension(name);
     i = i || 0;
     return name.replace(/\s+/g, '-').replace(".", "").toLowerCase() + new Date().getTime() + "" + (i + 3) + "." + extension;
+}
+
+const uploadWithPromise = function (req, name, dirname, sizeCompress, entity, field, getUrl) {
+    return new Promise(function (resolve, reject) {
+        req.file(name).upload({
+            dirname,
+            maxBytes: 70000000
+        }, async function (err) {
+            if (err) return reject(err);
+            try {
+                let listFile = getFilesList(dirname);
+
+                let dirs = [];
+                for (let file of listFile) {
+                    if (file === "compress") continue;
+
+                    dirs.push(getUrl(file));
+                    //for resizing image
+                    try {
+                        let directory = path.join(dirname, file);
+                        console.log(directory);
+                        await resizeImage(directory, sizeCompress);
+                    }
+                    catch (e) {
+                        console.error(e);
+                    }
+                }
+
+                let directory = dirname + "/";
+                await compressImageFolder(directory, directory + folderCompress);
+
+                if (entity.hasOwnProperty(field) && Object.prototype.toString.call(entity[field]) === "[object Array]") {
+                    for (let dir of dirs) {
+                        entity[field].push(dir);
+                    }
+                } else {
+                    entity[field] = dirs;
+                }
+
+                resolve({ listFile, urls: entity[field] });
+            }
+            catch (e) {
+                console.error(e);
+                reject(e);
+            }
+        })
+    });
+}
+
+const getFilesList = function (dirname) {
+    return fs.readdirSync(dirname, { withFileTypes: true });
 }
 
 const compressImageFolder = async (inputPath, outputPath) => {
@@ -206,72 +263,36 @@ const deleteImage = async function (req, res) {
 }
 
 const multipleImagesUpload = async function (req, res) {
-
-    let fish = await Fish.findOne({ id: req.params.id });
+    let id = req.params.id;
+    let fish = await Fish.findOne({ id });
     if (fish === undefined) {
         return res.serverError("id not found");
     }
 
     let dirname = IMAGES + "/" + req.params.id;
-    //create directory if not exists
+
+    //Create directory if not exists
     if (!fs.existsSync(dirname)) {
         fs.mkdirSync(dirname);
     }
 
-    let imagesName = [], i = 0;
-
-    req.file("images").upload({
+    let uploads = await uploadWithPromise(
+        req,
+        "images",
         dirname,
-        maxBytes: 70000000,
-        saveAs: function (stream, cb) {
-            // changin name to sku format
-            let newName = stream.filename;
-            newName = extractNewName(newName, i);
-            imagesName.push(newName);
-            i += 1;
-            cb(null, newName);
-        }
-    }, async function (err, uploadedFiles) {
-        if (err) return res.send(500, err);
+        imageSize,
+        fish,
+        "images",
+        function (file) {
+            return "/api/images/" + file + "/" + id;
+        });
+    console.log(uploads);
+    fish.images = uploads.urls;
 
-        i = 0;
-        let dirs = [];
-        for (let file of uploadedFiles) {
-            // changing name to sku format
-            let newName = imagesName[i];
-            if (file.type.includes("image/") && file["status"] === "finished") {
-                dirs.push({
-                    filename: newName,
-                    src: "/api/images" + "/" + newName + "/" + req.params.id
-                });
-                //for resizing image
-                try {
-                    let directory = IMAGES + `${"/" + req.params.id + "/" + newName}`;
-                    console.log(directory);
-                    await resizeImage(directory, imageSize);
-                }
-                catch (e) {
-                    console.error(e);
-                }
-            }
-            i += 1;
-        }
-        let directory = IMAGES + "/" + req.params.id + "/";
-        await compressImageFolder(directory, directory + folderCompress);
+    let upda = await Fish.update({ id: fish.id }, { images: fish.images });
+    console.log(upda);
 
-        if (fish.hasOwnProperty("images") && Object.prototype.toString.call(fish.images) === "[object Array]") {
-            for (let dir of dirs) {
-                fish.images.push(dir);
-            }
-        } else {
-            fish.images = dirs;
-        }
-
-        let upda = await Fish.update({ id: fish.id }, { images: fish.images });
-        ////console.log(upda);
-
-        return res.json(fish.images);
-    })
+    return res.json(fish.images);
 }
 
 module.exports = {
@@ -966,43 +987,22 @@ module.exports = {
                 fs.mkdirSync(dirname);
             }
 
-            let newName = "";
-            req.file("image")
-                .upload({
-                    dirname,
-                    maxBytes: 70000000,
-                    saveAs: function (stream, cb) {
-                        newName = extractNewName(stream.filename);
-                        cb(null, newName);
-                    }
-                }, async (err, uploadedFiles) => {
+            let uploads = await uploadWithPromise(
+                req,
+                "image",
+                dirname,
+                imageSize,
+                fish,
+                "image",
+                function (file) {
+                    return "/api/images/primary/" + file + "/" + id;
+                });
+            console.log(uploads);
+            fish.image = uploads.urls[0];
 
-                    if (err) {
-                        return res.status(500).send(err);
-                    }
-                    //Para eliminar las imagenes que antes 
-                    //habian comprimidas
-                    let dir = path.join(IMAGES, "primary", id, folderCompress);
-                    deleteImagesF(dir);
-                    await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + newName + "/" + id });
+            await Fish.update({ id }, { imagePrimary: fish.image });
 
-                    //for resizing image
-                    try {
-                        let directory = IMAGES + `${"/primary/" + req.params.id + "/" + newName}`;
-                        console.log(directory);
-                        await resizeImage(directory, imageSize);
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
-
-                    let directory = IMAGES + "/primary/" + id + "/";
-                    await compressImageFolder(directory, directory + folderCompress);
-
-
-                    res.json({ msg: "success" });
-                })
-
+            res.json({ msg: "success" });
         }
         catch (e) {
             console.error(e);
@@ -1062,38 +1062,55 @@ module.exports = {
                 fs.unlinkSync(directory);
             }
 
-            let newName = "";
-            req.file("image")
-                .upload({
-                    dirname,
-                    maxBytes: 70000000,
-                    saveAs: function (stream, cb) {
-                        newName = extractNewName(stream.filename);
-                        cb(null, newName);
-                    }
-                }, async (err, uploadedFiles) => {
-                    if (err) { return res.serverError(err); }
+            let uploads = await uploadWithPromise(
+                req,
+                "image",
+                dirname,
+                imageSize,
+                fish,
+                "image",
+                function (file) {
+                    return "/api/images/primary/" + file + "/" + id;
+                });
+            console.log(uploads);
+            fish.image = uploads.urls[0];
 
-                    //Para eliminar las imagenes que antes 
-                    //habian comprimidas
-                    let dir = path.join(IMAGES, "primary", id, folderCompress);
-                    deleteImagesF(dir);
+            await Fish.update({ id }, { imagePrimary: fish.image });
+            
+            res.json({ msg: "success" });
 
-                    await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + newName + "/" + id });
-                    //for resizing image
-                    try {
-                        let directory = IMAGES + `${"/primary/" + id + "/" + newName}`;
-                        console.log(directory);
-                        await resizeImage(directory, imageSize);
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
+            // let newName = "";
+            // req.file("image")
+            //     .upload({
+            //         dirname,
+            //         maxBytes: 70000000,
+            //         saveAs: function (stream, cb) {
+            //             newName = extractNewName(stream.filename);
+            //             cb(null, newName);
+            //         }
+            //     }, async (err, uploadedFiles) => {
+            //         if (err) { return res.serverError(err); }
 
-                    let directory = IMAGES + "/primary/" + id + "/";
-                    await compressImageFolder(directory, directory + folderCompress);
-                    res.json({ msg: "success" });
-                })
+            //         //Para eliminar las imagenes que antes 
+            //         //habian comprimidas
+            //         let dir = path.join(IMAGES, "primary", id, folderCompress);
+            //         deleteImagesF(dir);
+
+            //         await Fish.update({ id }, { imagePrimary: "/api/images/primary/" + newName + "/" + id });
+            //         //for resizing image
+            //         try {
+            //             let directory = IMAGES + `${"/primary/" + id + "/" + newName}`;
+            //             console.log(directory);
+            //             await resizeImage(directory, imageSize);
+            //         }
+            //         catch (e) {
+            //             console.error(e);
+            //         }
+
+            //         let directory = IMAGES + "/primary/" + id + "/";
+            //         await compressImageFolder(directory, directory + folderCompress);
+            //         res.json({ msg: "success" });
+            //     })
         }
         catch (e) {
             console.error(e);
@@ -1280,8 +1297,8 @@ module.exports = {
 
     //#region 
     uploadLogosSellers: async function (req, res) {
-
-        let user = await User.findOne({ id: req.param("id") });
+        let id = req.param("id");
+        let user = await User.findOne({ id });
         if (user === undefined) {
             return res.v2(new Error("user not found"));
         }
@@ -1291,57 +1308,23 @@ module.exports = {
             fs.mkdirSync(dirname);
         }
 
-        let imagesName = [], i = 0;
-
-        req.file("logos").upload({
+        let uploads = await uploadWithPromise(
+            req,
+            "logos",
             dirname,
-            maxBytes: 70000000,
-            saveAs: function (stream, cb) {
-                // changin name to sku format
-                let newName = stream.filename;
-                newName = extractNewName(newName, i);
-                imagesName.push(newName);
-                i += 1;
-                cb(null, newName);
-            }
-        }, async function (err, uploadedFiles) {
-            if (err) return res.send(500, err);
+            { width: 100, height: null },
+            user,
+            "logos",
+            function (file) {
+                return "/api/v2/logo/seller/" + file + "/" + id;
+            });
 
-            i = 0;
-            let dirs = [];
-            for (let file of uploadedFiles) {
-                // changing name to sku format
-                let newName = imagesName[i];
-                if (file.type.includes("image/") && file["status"] === "finished") {
-                    dirs.push("/api/v2/logo/seller/" + newName + "/" + req.param("id"));
-                    //for resizing image
-                    try {
-                        let directory = path.join(dirname, newName);
-                        console.log(directory);
-                        await resizeImage(directory, { width: 100, height: null });
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
-                }
-                i += 1;
-            }
-            let directory = dirname + "/";
-            await compressImageFolder(directory, directory + folderCompress);
+        user.logos = uploads.urls;;
 
-            if (user.hasOwnProperty("logos") && Object.prototype.toString.call(user.logos) === "[object Array]") {
-                for (let dir of dirs) {
-                    user.logos.push(dir);
-                }
-            } else {
-                user.logos = dirs;
-            }
+        let upda = await User.update({ id: user.id }, { logos: user.logos });
+        console.log(upda);
 
-            let upda = await User.update({ id: user.id }, { logos: user.logos });
-            console.log(upda);
-
-            return res.json(user.logos);
-        })
+        return res.json(user.logos);
     },
 
     getLogoSeller: async function (req, res) {
@@ -1415,7 +1398,8 @@ module.exports = {
 
     uploadCertificationsSellers: async function (req, res) {
 
-        let user = await User.findOne({ id: req.param("id") });
+        let id = req.param("id");
+        let user = await User.findOne({ id });
         if (user === undefined) {
             return res.v2(new Error("user not found"));
         }
@@ -1425,57 +1409,24 @@ module.exports = {
             fs.mkdirSync(dirname);
         }
 
-        let imagesName = [], i = 0;
-
-        req.file("certifications").upload({
+        let uploads = await uploadWithPromise(
+            req,
+            "certifications",
             dirname,
-            maxBytes: 70000000,
-            saveAs: function (stream, cb) {
-                // changin name to sku format
-                let newName = stream.filename;
-                newName = extractNewName(newName, i);
-                imagesName.push(newName);
-                i += 1;
-                cb(null, newName);
-            }
-        }, async function (err, uploadedFiles) {
-            if (err) return res.send(500, err);
+            { width: 100, height: null },
+            user,
+            "certifications",
+            function (file) {
+                return "/api/v2/certification/seller/" + file + "/" + id;
+            });
+        console.log(uploads);
 
-            i = 0;
-            let dirs = [];
-            for (let file of uploadedFiles) {
-                // changing name to sku format
-                let newName = imagesName[i];
-                if (file.type.includes("image/") && file["status"] === "finished") {
-                    dirs.push("/api/v2/certification/seller/" + newName + "/" + req.param("id"));
-                    //for resizing image
-                    try {
-                        let directory = path.join(dirname, newName);
-                        console.log(directory);
-                        await resizeImage(directory, { width: 100, height: null });
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
-                }
-                i += 1;
-            }
-            let directory = dirname + "/";
-            await compressImageFolder(directory, directory + folderCompress);
+        user.certifications = uploads.urls;
 
-            if (user.hasOwnProperty("certifications") && Object.prototype.toString.call(user.certifications) === "[object Array]") {
-                for (let dir of dirs) {
-                    user.certifications.push(dir);
-                }
-            } else {
-                user.certifications = dirs;
-            }
+        let upda = await User.update({ id: user.id }, { certifications: user.certifications });
+        console.log(upda);
 
-            let upda = await User.update({ id: user.id }, { certifications: user.certifications });
-            console.log(upda);
-
-            return res.json(user.certifications);
-        })
+        return res.json(user.certifications);
     },
 
     getCertificationSeller: async function (req, res) {
@@ -1520,7 +1471,8 @@ module.exports = {
             if (user === undefined) {
                 return res.v2(new Error("user not found"));
             }
-            if (user.certifications) { console.log("entra a certifications");
+            if (user.certifications) {
+                console.log("entra a certifications");
                 let index = user.certifications.findIndex(function (it) {
                     return "/api/v2/certification/seller/" + req.param("namefile") + "/" + req.param("id") === it;
                 });
