@@ -85,6 +85,8 @@ module.exports.routes = {
   //Para obtener admins
   'GET /api/user/admins': 'UserController.getAdmins',
 
+  'GET /api/user/sellers': 'UserController.getSellers',
+
   //Para Eliminar el usuario
   'DELETE /api/user/:id': 'UserController.deleteUser',
 
@@ -495,6 +497,17 @@ module.exports.routes = {
 
   // Get all orders by status
   'GET /api/store/:owner_id/order/status/:status_id': 'StoreController.getStoreOrdersByItemStatus',
+
+  // Fish Stock
+  'GET /api/variation/:id/stock': 'FishStockController.getFishStock',
+
+  'GET /api/variation/:variation/:quantity': 'FishStockController.testETAStock',
+
+  'PUT /api/stock': 'FishStockController.updateETA',
+
+  'GET /api/variation/skus/:userID': 'VariationsController.getVariationSkus',
+
+  'POST /api/inventory/': 'FishStockController.saveETA',
 
   /*****
    * 

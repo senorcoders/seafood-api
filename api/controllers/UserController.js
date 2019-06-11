@@ -146,6 +146,25 @@ module.exports = {
         }
     },
 
+    getSellers: async (req, res) => {
+        try {
+
+            let users = await User.find({ role: 1, status : "accepted" });
+            users = users.map( user => {
+                delete user.token;
+                delete user.dataExtra;
+                delete user.certifications;
+                delete user.logos;
+                return user;
+            } )
+            res.json(users);
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
     deleteUser: async (req, res) => {
         try {
 
