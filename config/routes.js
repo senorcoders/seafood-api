@@ -558,6 +558,8 @@ module.exports.routes = {
 
   "DELETE /api/v2/certification/seller/:namefile/:id": "ImageController.deleteCertificationSeller",
 
+  "GET /api/store/:id/brandscertifications": "StoreController.getBrandsAndCertifications",
+
   // Shipping
 
   'GET /api/v2/countriesWithShipping': "ShippingRatesController.getCountriesWithShippings",

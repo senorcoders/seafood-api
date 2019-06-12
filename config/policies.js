@@ -52,7 +52,8 @@ module.exports.policies = {
     update: true,
     getForSlug: true,
     get: true,
-    getWithTypes: true
+    getWithTypes: true,
+    getBrandsAndCertifications: true
   },
   ShoppingCartController: {
     sendPDF: true,
