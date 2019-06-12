@@ -491,7 +491,17 @@ module.exports = {
 
         res.status(200).json(items);
 
+    },
+    getBrandsAndCertifications: async ( req, res ) => {
+        let storeID = req.param('id');
+
+        let store = await Store.findOne( { id: storeID  } );
+
+        let user = await User.findOne ( store.owner );
+
+        return res.status(200).json( { brands: user.logos, certifications: user.certifications } )
     }
+    
 
 };
 

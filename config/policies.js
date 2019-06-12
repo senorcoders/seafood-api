@@ -41,16 +41,18 @@ module.exports.policies = {
     emailExist: true,
     verificationCode: true,
     resetEmail: true,
-    updatePassword: true,
-    resetEmail: true,
+    updatePassword: true,    
     changePassword: true,
-    getPublicIp: true
+    getPublicIp: true,
+    getLogoSeller: true,
+    getCertificationSeller: true
   },
   StoreController: {
     save: true,
     update: true,
     get: true,
-    getWithTypes: true
+    getWithTypes: true,
+    getBrandsAndCertifications: true
   },
   ShoppingCartController: {
     sendPDF: true,
