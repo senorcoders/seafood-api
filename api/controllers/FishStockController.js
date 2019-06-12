@@ -50,11 +50,21 @@ module.exports = {
             quantity : req.body.quantity,            
         };
 
+        let alreadyLive = await FishStock.find().where({
+            "date": { '>': unixNow },
+            "variations": variationID
+        } );
+
+        if( alreadyLive.length > 3 ) {
+            return res.status(200).json( { message: "Only 3 dates are available", inventory: exists } )
+        }
+
         let exists = await FishStock.find().where( {
             variations: req.body.sku,
             date: req.body.date,
             short_date: req.body.short_date,            
         } );
+        
 
         
         let stock;
