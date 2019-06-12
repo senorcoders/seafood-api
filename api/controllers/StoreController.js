@@ -507,7 +507,17 @@ module.exports = {
 
         res.status(200).json(items);
 
+    },
+    getBrandsAndCertifications: ( req, res ) => {
+        let storeID = req.param('id');
+
+        let store = await Store.findOne( { id: storeID  } );
+
+        let user = await user.findOne ( store.owner );
+
+        return res.status(200).json( { brands: user.logos, certifications: user.certifications } )
     }
+    
 
 };
 
