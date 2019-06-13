@@ -108,7 +108,7 @@ module.exports = {
         )
 
     }
-    let fishPrice = Number(parseFloat(variation.price));
+    let fishPrice = Number(parseFloat(variation.price).toFixed(2));
 
     //chaging price to AED
     fishPrice = fishPrice * currentAdminCharges['exchangeRates'];
@@ -154,7 +154,7 @@ module.exports = {
     let shippingFees = await sails.helpers.shippingFee(fish, weight, currentAdminCharges);
 
     //calculate cost using seafoodsouq formula
-    let fishCost = (fishPrice * weight); // A
+    let fishCost = Number(parseFloat(fishPrice * weight).toFixed(2)); // A
 
     let sfsMarginCost = (sfsMargin / 100) * fishCost; // D= SFS Fee A //calculated from the total amount of the the product sales excluding shipping fees and taxes.
     let customsFee = currentAdminCharges.customs; //E= Customs rate * A  //Customs in the UAE are 5% on the Seller’s invoice (The seller’s Sale excluding additional Costs

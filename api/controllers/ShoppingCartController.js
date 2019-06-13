@@ -373,6 +373,7 @@ module.exports = {
             let in_AED = true;
             //itemCharges = await sails.helpers.fishPricing( req.param("fish"), req.param("quantity"), currentAdminCharges, req.param('variation_id'), in_AED );
             let id = req.param("id")
+            
             variation_id = req.body.variation_id,
                 item = {
                     shoppingCart: id,
@@ -382,6 +383,12 @@ module.exports = {
                     shippingStatus: req.body.shippingStatus,
                     variation: req.body.variation_id
                 };
+
+            let stock = await sails.helpers.getEtaStock( variation_id , parseFloat(item['quantity']['value']) );
+            console.log( 'stock', stock )
+            if ( stock == 0 ) {
+                return res.status(400).json({ message: "The product is not available" })
+            }
 
             // check if this item is already in this cart
             itemCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges, variation_id, in_AED);
