@@ -37,7 +37,8 @@ const extractNewName = (name, i, extension) => {
     return name.replace(/\s+/g, '-').replace(".", "").toLowerCase() + new Date().getTime() + "" + (i + 3) + "." + extension;
 }
 
-const uploadWithPromise = function (req, name, dirname, sizeCompress, entity, field, getUrl) {
+const uploadWithPromise = function (req, name, dirname, sizeCompress, entity, field, getUrl, compress) {
+    compress = compress === undefined ? true : compress;
     return new Promise(function (resolve, reject) {
         req.file(name).upload({
             dirname,
@@ -49,11 +50,13 @@ const uploadWithPromise = function (req, name, dirname, sizeCompress, entity, fi
 
                 let dirs = [];
                 for (let file of listFile) {
+                    if(typeof file === "object" && file.name)
+                        file = file.name;
                     if (file === "compress") continue;
 
                     dirs.push(getUrl(file));
                     //for resizing image
-                    try {
+                    try { console.log("\n\n", dirname, file, "\n\n");
                         let directory = path.join(dirname, file);
                         console.log(directory);
                         await resizeImage(directory, sizeCompress);
@@ -64,7 +67,8 @@ const uploadWithPromise = function (req, name, dirname, sizeCompress, entity, fi
                 }
 
                 let directory = dirname + "/";
-                await compressImageFolder(directory, directory + folderCompress);
+                if(compress === true)
+                    await compressImageFolder(directory, directory + folderCompress);
 
                 if (entity.hasOwnProperty(field) && Object.prototype.toString.call(entity[field]) === "[object Array]") {
                     for (let dir of dirs) {
@@ -1317,7 +1321,7 @@ module.exports = {
             "logos",
             function (file) {
                 return "/api/v2/logo/seller/" + file + "/" + id;
-            });
+            }, false);
 
         user.logos = uploads.urls;;
 
@@ -1335,7 +1339,9 @@ module.exports = {
             console.log(dirname);
 
             if (!fs.existsSync(dirname)) {
-                return res.v2(new Error("Image not found"));
+                dirname = path.join(IMAGES, folderLogosSeller, req.param("id"), req.param("namefile"));
+                if (!fs.existsSync(dirname))
+                    return res.v2(new Error("Image not found"));
             }
             // read binary data
             var data = fs.readFileSync(dirname);
@@ -1360,10 +1366,6 @@ module.exports = {
             let dirname = path.join(IMAGES, folderLogosSeller, req.param("id"), folderCompress, req.param("namefile"));
             console.log(dirname);
 
-            if (!fs.existsSync(dirname)) {
-                return res.v2(new Error("Image not found"));
-            }
-
             //For delete url logos in property of user
             let user = await User.findOne({ id: req.param("id") });
             if (user === undefined) {
@@ -1381,6 +1383,12 @@ module.exports = {
                 }
                 let upda = await User.update({ id: user.id }, { logos: user.logos }).fetch();
                 console.log(upda);
+            }
+
+            if (!fs.existsSync(dirname)) {
+                dirname = path.join(IMAGES, folderLogosSeller, req.param("id"), req.param("namefile"));
+                if (!fs.existsSync(dirname))
+                    return res.v2({ status: "deleted" });
             }
 
             // delete binary data
@@ -1418,7 +1426,7 @@ module.exports = {
             "certifications",
             function (file) {
                 return "/api/v2/certification/seller/" + file + "/" + id;
-            });
+            }, false);
         console.log(uploads);
 
         user.certifications = uploads.urls;
@@ -1437,7 +1445,9 @@ module.exports = {
             console.log(dirname);
 
             if (!fs.existsSync(dirname)) {
-                return res.v2(new Error("Image not found"));
+                dirname = path.join(IMAGES, folderCertificationsSeller, req.param("id"), req.param("namefile"));
+                if (!fs.existsSync(dirname))
+                    return res.v2(new Error("Image not found"));
             }
             // read binary data
             var data = fs.readFileSync(dirname);
@@ -1462,10 +1472,6 @@ module.exports = {
             let dirname = path.join(IMAGES, folderCertificationsSeller, req.param("id"), folderCompress, req.param("namefile"));
             console.log(dirname);
 
-            if (!fs.existsSync(dirname)) {
-                return res.v2(new Error("Image not found"));
-            }
-
             //For delete url certifications in property of user
             let user = await User.findOne({ id: req.param("id") });
             if (user === undefined) {
@@ -1484,6 +1490,12 @@ module.exports = {
                 }
                 let upda = await User.update({ id: user.id }, { certifications: user.certifications }).fetch();
                 console.log(upda);
+            }
+
+            if (!fs.existsSync(dirname)) {
+                dirname = path.join(IMAGES, folderCertificationsSeller, req.param("id"), req.param("namefile"));
+                if (!fs.existsSync(dirname))
+                    return res.v2({ status: "deleted" });
             }
 
             // delete binary data
