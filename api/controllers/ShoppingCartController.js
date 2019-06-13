@@ -45,7 +45,7 @@ module.exports = {
         try {
             let today = new Date();
             let buyer = req.param("buyer");
-            let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items");
+            let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items").populate("buyer");
             let currentAdminCharges = await sails.helpers.currentCharges();
 
             let in_AED = true;
@@ -277,6 +277,7 @@ module.exports = {
                     buyer: buyer
                 }
             ).fetch();
+            cart.buyer = await User.findOne({id:buyer});
 
             res.status(200).json(cart);
         }
