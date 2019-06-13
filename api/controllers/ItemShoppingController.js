@@ -382,7 +382,11 @@ module.exports = {
                 await ShoppingCart.update({ id: item.shoppingCart.id }, {
                     orderStatus: '5c40b364970dc99bb06bed6a',
                     status: 'closed'
-                })
+                });
+                let available = Number(cart.buyer.cod.available) + Number(cart.total);
+                if(cart.buyer.cod.limit < available) available = cart.buyer.cod.limit;
+                cart.buyer.cod.available = available;
+                await User.update({id:cart.buyer.id},{cod:cart.buyer.cod});
                 await MailerService.buyerRefund(name, cart, store, item);
             }
 
