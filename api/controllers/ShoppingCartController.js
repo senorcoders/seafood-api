@@ -554,6 +554,15 @@ module.exports = {
             if (cart === undefined) {
                 return res.status(400).send("not found");
             }
+
+            // if cart is payment with COD
+            if(cart.isCOD === true){
+                let available = Number(cart.buyer.cod.available) - Number(cart.total);
+                available = Number(parseFloat(available).toFixed("2"));
+                if(available<0) available = 0;
+                cart.buyer.cod.available = available;
+                await User.update({id:cart.buyer.id},{cod:cart.buyer.cod});
+            }
             let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id }).populate("fish");
             //generate purchase order number for each item
             //await Promise.all(itemsShopping.map(async function (it, index) {
