@@ -343,7 +343,7 @@ module.exports = {
                     } )
 
                     
-                    if( minMaxInventory.length = 0 ) {
+                    if( minMaxInventory.length === 0 ) {
                         /*fish['minimumOrder'] = 0;
                         fish['maximumOrder'] = 0;
                         fish['minBox'] = 0;
