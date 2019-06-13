@@ -7,7 +7,7 @@ var mmm = require('mmmagic'),
     Magic = mmm.Magic,
     compress_images = require('compress-images'),
     findRemoveSync = require('find-remove'),
-    imageSize = { width: 800, height: null }
+    imageSize = { width: 800, height: null },
 folderCompress = "compress";
 
 //for logos sellers check if exist folder, if not create folder
@@ -344,7 +344,7 @@ module.exports = {
             ];*/
             console.log(images_url);
 
-            updateItemShopping = await ItemShopping.update({ id: orderID }, { shippingFiles: images_url });
+            let updateItemShopping = await ItemShopping.update({ id: orderID }, { shippingFiles: images_url });
 
 
             //console.log( image1 );
@@ -388,7 +388,7 @@ module.exports = {
 
     imagesUpload: async function (req, res) {
 
-        ItemShoppingID = req.param("id");
+        let ItemShoppingID = req.param("id");
 
 
         return new Promise(async (resolve, reject) => {
@@ -508,7 +508,7 @@ module.exports = {
 
         try {
             let id = req.param("id"), namefile = req.param("namefile");
-
+            let directory;
             let dirname_old = path.join(IMAGES, id, namefile);
             let dirname_new = path.join(IMAGES, id, folderCompress, namefile);
             if (fs.existsSync(dirname_new) === true) directory = dirname_new;
@@ -785,7 +785,7 @@ module.exports = {
 
     multipleImagesCategory: async function (req, res) {
 
-        id = req.param("id");
+        let id = req.param("id");
         let type = await FishType.findOne({ id });
         if (type === undefined) {
             return res.serverError("id not found");
@@ -861,7 +861,7 @@ module.exports = {
     },
 
     saveImageLicence: async (req, res) => {
-        id = req.param("id");
+        let id = req.param("id");
         let user = await User.findOne({ id });
         if (user === undefined) {
             return res.serverError("id not found");
@@ -1146,7 +1146,7 @@ module.exports = {
     },
 
     saveImageTrackingFile: async (req, res) => {
-        id = req.param("id");
+        let id = req.param("id");
         let item = await ItemShopping.findOne({ id });
         if (item === undefined) {
             return res.serverError("id not found");
