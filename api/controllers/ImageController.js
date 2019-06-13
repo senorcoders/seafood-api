@@ -56,7 +56,7 @@ const uploadWithPromise = function (req, name, dirname, sizeCompress, entity, fi
 
                     dirs.push(getUrl(file));
                     //for resizing image
-                    try { console.log("\n\n", dirname, file, "\n\n");
+                    try {
                         let directory = path.join(dirname, file);
                         console.log(directory);
                         await resizeImage(directory, sizeCompress);
