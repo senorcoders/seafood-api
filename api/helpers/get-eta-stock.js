@@ -41,8 +41,9 @@ module.exports = {
 
     //checking the query    
     stocks.map( stock => {
-      if (stock.quantity - stock.purchased >= quantity) {        
-        return exits.success( stock.quantity - stock.purchased );
+      if (stock.quantity - stock.purchased >= quantity) {
+        stock.available = stock.quantity - stock.purchased;
+        return exits.success( stock );
       }
     } )
 

@@ -165,6 +165,10 @@ module.exports = {
     paymentStatus: {
       model: "OrderStatus",
       required: false
+    },
+    inventory: {
+      model: 'FishStock',
+      required: false
     }
 
   }

@@ -302,7 +302,9 @@ module.exports = {
             if( fish.hasOwnProperty('perBox') && fish.perBox === true) { // adding min/max boxes 
                 fish['minBox'] = fish.minimumOrder / fish.boxWeight;
                 fish['maxBox'] = fish.maximumOrder / fish.boxWeight;
-            }
+            } else {
+		delete fish['maxBox'];
+	    }
             let unixNow = Math.floor(new Date());
             let variations = await Variations.find({ 'fish': fish.id }).populate('fishPreparation').populate('wholeFishWeight');
 
@@ -356,6 +358,7 @@ module.exports = {
                         }                        
                     } else {                        
                         fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);                                                    
+			fish['maxBox'] = Math.max.apply(null, minMaxInventory);
                     }
 
                     if ( fish['minimumOrder'] > fish['maximumOrder'] ) {
@@ -387,8 +390,8 @@ module.exports = {
                     let prices = await VariationPrices.find({ 'variation': variation.id });
                     let minLimit = fish.minimunOrder;
                     prices = prices.map((row, indexPrice) => {
-                        if( minMaxInventory.length > 0 ) {
-                            row.max = fish['maxBox'] = Math.max.apply(null, minMaxInventory) / fish.boxWeight;;                            
+                        if( minMaxInventory.length >= 0 ) {
+                            row.max =  Math.max.apply(null, minMaxInventory) / fish.boxWeight;;                            
                         } else {
                             /*row.min = 0;
                             row.max = 0;*/
@@ -398,7 +401,7 @@ module.exports = {
                         /*if (indexPrice < (prices.length - 1)) { //is not the last price 
                             maxLimit = prices[(indexPrice + 1)].min;
                         }*/
-
+			row['max'] = maxLimit;
                         let optionSlides = {
                             floor: row.min,
                             ceil: minLimit,
@@ -410,7 +413,7 @@ module.exports = {
                                 idVariation: variation.id,
                                 id: row.id,
                                 min: row.min,
-                                max: row.max,
+                                max: maxLimit ? maxLimit : row.max,//row.max,
                                 price: row.price,
                                 options: optionSlides
                             };
@@ -791,9 +794,10 @@ module.exports = {
                 m['inventory'] = inventory;
                 m['max'] = Math.max.apply(null, minMax) // 4
                 m['min'] = Math.min.apply(null, minMax) // 1
-
-                if( minMaxInventory.length > 0 && minMaxInventory > 0 ) {
+		
+                if( minMaxInventory.length > 0 ) {
                     m['max'] = Math.max.apply(null, minMaxInventory) // 4
+		    m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
                 } else {
                     /*m['max'] = 0;
                     m['min'] = 0;*/
