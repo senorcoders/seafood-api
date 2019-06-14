@@ -377,6 +377,13 @@ module.exports = {
             } else if (status == '5c06f4bf7650a503f4b731fd') { //Seller Cancelled Order
                 data = await ItemShopping.update({ id }, { status: '5c06f4bf7650a503f4b731fd', paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates }).fetch();
                 if (data.length > 0) {
+                    //returning inventory
+                    if( item.hasOwnProperty('inventory') ) { //backwards compatibility for old products
+                        let inventory = await FishStock.findOne({ id: item.inventory });
+                        await FishStock.update( { id: item.inventory } ).set({
+                            purchased: inventory.purchased + parseFloat(item['quantity']['value'])
+                        })
+                    }
                     //send email to buyer
                     await MailerService.sellerCancelledOrderBuyer(name, cart, store, item);
                     //send email to buyer
