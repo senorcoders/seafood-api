@@ -538,6 +538,60 @@ module.exports = {
                 console.error
             )
     },
+    sendCartPaidBuyerNotifiedCOD: async (items, cart, orderNumber, stores, pdf_invoice, invoiceNumber) => {
+        let store, storeLng = stores.length;
+        for (let [index, value] of stores.entries()) {
+            if (index == 0) {
+                if (storeLng > 1) {
+                    store = value + ' and ';
+                }
+                else {
+                    store = value;
+                }
+            } else {
+                if (index == storeLng - 1) {
+                    store += value
+                } else {
+                    store += value + ' and '
+                }
+            }
+        }
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: cart.buyer.firstName + " " + cart.buyer.lastName,
+            cart,
+            items,
+            orderNumber,
+            type: "sendCartPaidBuyerNotified"
+        });
+        email.render('../email_templates/cart_paid_buyer_notified_cod',
+            await applyExtend(data)
+        )
+            .then(res => {
+                transporter.sendMail({
+                    from: emailSender,
+                    to: cart.buyer.email,
+                    subject: `Order #${orderNumber} is Delivered`,
+                    html: res, // html body
+                    attachments: [
+                        {
+                            filename: `seafood-invoice-${orderNumber}.pdf`,
+                            path: `pdf_invoices/${pdf_invoice}`
+                        }
+                    ]
+                }, (error, info) => {
+                    if (error) {
+                        return console.log(error);
+                    }
+                    console.log('Message sent: %s', info.messageId);
+                    return 'Message sent: %s', info.messageId;
+                })
+
+            })
+            .catch(
+                console.error
+            )
+    },
     sendCartPaidAdminNotified: async (items, cart, orderNumber, stores) => {
         let store, storeLng = stores.length;
         for (let [index, value] of stores.entries()) {

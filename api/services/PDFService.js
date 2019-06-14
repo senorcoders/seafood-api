@@ -70,6 +70,52 @@ module.exports = {
 
 
     },
+    buyerInvoiceCODPaid: async (itemsShopping, cart, OrderNumber, storeName, uaeTaxes) => {
+        itemsShopping = verifiedWholeFishWeight(itemsShopping);
+        console.log('dir name', __dirname);
+        var compiled = await ejs.compile(fs.readFileSync(__dirname + '/../../pdf_templates/invoice_cod_paid.html', 'utf8'));
+        console.log('cart', cart);
+        //console.log( 'itemsShopping', itemsShopping );
+        //let today = cart.paidDatetime;
+        let today = new Date();
+        // date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	    date = today.getDate()+'/'+(today.getMonth()+1)+'/'+today.getFullYear();
+        let paidDateTime = date;
+        var html = await compiled(
+            {
+                invoiceDueDate: paidDateTime,
+                invoiceDate: paidDateTime,
+                buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
+                buyerContactPostalAddress: `${cart.buyer.dataExtra.Address ? cart.buyer.dataExtra.Address : ''}${cart.buyer.dataExtra.City ? ", "+ cart.buyer.dataExtra.City : ''}${cart.buyer.dataExtra.country ? ", "+ cart.buyer.dataExtra.country : ''}${cart.buyer.dataExtra.zipCode ? ", "+ cart.buyer.dataExtra.zipCode : ''}`,
+                contactAccountNumber: '100552524900003',
+                InvoiceNumber: 'InvoiceNumber',
+                vat: cart.buyer.dataExtra.vat || 0,
+                purchase_order_date: paidDateTime,
+                delivery_order_date: paidDateTime,
+                invoice_number: OrderNumber,
+                orderNumber: OrderNumber,
+                items: itemsShopping,
+                subTotal: cart.subTotal,
+                customHandlingFee: cart.totalOtherFees,
+                uaeTaxesFee: cart.uaeTaxes,
+                shippingFees: cart.shipping,
+                total: cart.total,
+                uaeTaxes: uaeTaxes,
+                vatuaeTaxes: cart.uaeTaxes,
+                api_url: api_url
+            }
+        );
+        let pdf_name = `invoice-order-cod-delivered-${OrderNumber}.pdf`;
+        await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
+            console.log('pdf done', pdf_name);
+            MailerService.sendCartPaidBuyerNotifiedCOD(itemsShopping, cart, OrderNumber, storeName, pdf_name, OrderNumber);
+            let pdf_updated_1 = await ShoppingCart.update({ id: cart.id }, { invoice_pdf: pdf_name });
+        });
+
+        return pdf_name;
+
+
+    },
     sellerPurchaseOrder: async (fullName, cart, itemsShopping, orderNumber, sellerAddress, counter, currentExchangeRate, buyerETA, incoterms, subTotal, total) => {
         itemsShopping = verifiedWholeFishWeight(itemsShopping);
         var compiled = await ejs.compile(fs.readFileSync(__dirname + '/../../pdf_templates/PurchaseOrder.html', 'utf8'));
