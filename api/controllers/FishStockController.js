@@ -51,7 +51,7 @@ module.exports = {
         };
         let unixNow = Math.floor(new Date());
         let alreadyLive = await FishStock.find().where({
-            "date": { '>': unixNow },
+            "date": { '>': unixNow, '!=': uVariation.date },            
             "variations": req.body.sku
         } );
 
