@@ -293,6 +293,8 @@ module.exports.routes = {
    * 
    */
 
+   // verify if the carts are available
+   'GET /shoppingcart/:buyer/check': 'ShoppingCart.checkCartItems',
   //Para crear un carrito
   'POST /shoppingcart': 'ShoppingCart.createCart',
 

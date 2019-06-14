@@ -41,12 +41,72 @@ module.exports = {
         }
     },
 
+    checkCartItems: async function( req, res ) {
+      try {
+        
+        let buyer = req.param("buyer");
+        let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items").populate("buyer");        
+        let itemsDeleted = [];
+        //checking if products are still available, if not, we delete them
+        await Promise.all(cart.items.map(async it => {
+            let stock = await sails.helpers.getEtaStock( it.variation , parseFloat(it['quantity']['value']) );
+            console.log( 'stock', stock )
+            if ( stock === 0 || it.inventory !== stock.id ) {
+                
+                
+                it.fish = await Fish.findOne({ id: it.fish }).populate("type");
+                it.fishCharges = it.fishCharges;// await sails.helpers.fishPricing(it.fish.id, it.quantity.value, currentAdminCharges)
+                /*it.fish['price']['value'] = it.fishCharges.variation.price;
+
+                if( it.fish.hasOwnProperty('perBox') && it.fish.perBox === true) { // adding min/max boxes 
+                    it.fish['minBox'] = it.fish.minimumOrder / it.fish.boxWeight;
+                    it.fish['maxBox'] = it.fish.maximumOrder / it.fish.boxWeight;
+                }*/
+
+                //console.log('it', it.fishCharges.variation.id);
+                //console.log('it 2', it.variation);
+                // itVariationPrice = await VariationPrices.find({ id: it.fishCharges.variation.id }).populate('variation');
+                let itVariation = await Variations.find({ id: it.variation });
+                // get fish Preparation  of each item   
+                //console.log('itVariationPrice', itVariationPrice);
+                it['fishPreparation'] = await FishPreparation.find({ id: itVariation[0].fishPreparation });
+                //console.log( 'fp', it['fishPreparation'] );
+                if ( itVariation[0].fishPreparation === '5c93bff065e25a011eefbcc2' || itVariation[0].fishPreparation === '5c93c00465e25a011eefbcc3') {
+                    // get whole fish weight of each item
+                    //  console.log( 'ww',  itVariationPrice[0].variation.wholeFishWeight );
+                    it['wholeFishWeight'] = await WholeFishWeight.find({ id: itVariation[0].wholeFishWeight });
+                }
+
+                await ItemShopping.destroy( { id: it.id } );
+                itemsDeleted.push(it);
+            }
+        }));
+
+        if( itemsDeleted.length > 0 ) {
+            res.status(200).json( { message: "itemsDeleted", items: itemsDeleted } );
+        } else {
+            res.status(200).json( { message: "all ok", items: itemsDeleted } );
+        }
+      } catch (error) {
+          res.serverError(error);
+      }  
+    },
+
     createCart: async function (req, res) {
         try {
             let today = new Date();
             let buyer = req.param("buyer");
             let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items").populate("buyer");
             let currentAdminCharges = await sails.helpers.currentCharges();
+
+            //checking if products are still available, if not, we delete them
+            /*await Promise.all(cart.items.map(async item => {
+                let stock = await sails.helpers.getEtaStock( variation_id , parseFloat(item['quantity']['value']) );
+                console.log( 'stock', stock )
+                if ( stock === 0 || item.inventory == stock.id ) {
+                    await ItemShopping.destroyOne( { id: item.id } );
+                }
+            }));*/
 
             let in_AED = true;
             if (cart !== undefined) {
@@ -139,6 +199,9 @@ module.exports = {
                     // get fish Preparation  of each item   
                     console.log('itVariationPrice', itVariationPrice);
                     it['fishPreparation'] = await FishPreparation.find({ id: itVariation[0].fishPreparation });
+		    if( it.hasOwnProperty('inventory') ) {
+                        it['inventory'] = await FishStock.findOne( { id: it.inventory } );
+                    }
                     //console.log( 'fp', it['fishPreparation'] );
                     if (it.fishCharges.variation.variation.fishPreparation === '5c93bff065e25a011eefbcc2' || it.fishCharges.variation.variation.fishPreparation === '5c93c00465e25a011eefbcc3') {
                         // get whole fish weight of each item
@@ -387,13 +450,14 @@ module.exports = {
 
             let stock = await sails.helpers.getEtaStock( variation_id , parseFloat(item['quantity']['value']) );
             console.log( 'stock', stock )
-            if ( stock == 0 ) {
+            if ( stock === 0 ) {
                 return res.status(400).json({ message: "The product is not available" })
             }
 
             // check if this item is already in this cart
             itemCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges, variation_id, in_AED);
-
+        
+            item['inventory'] = stock.id;
             item['quantity']['value'] = itemCharges.weight; //weight could be different in fish pricing if the product is per box, here we update the weight
 
             item['itemCharges'] = itemCharges;
