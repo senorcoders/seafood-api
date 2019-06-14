@@ -643,7 +643,6 @@ module.exports = {
                 let incoterms = st[0].fish.store.owner.incoterms !== null && st[0].fish.store.owner.incoterms !== undefined ? st[0].fish.store.owner.incoterms : { name: "Ex Work" };
                 console.log("\n\n aquiii", cart, "\n\n");
                 let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, st, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + counter), cart.currentCharges.exchangeRates, st[0].buyerExpectedDeliveryDate, incoterms, cart.subTotal, cart.total);
-
                 //console.log( 'seller invoice', sellerInvoice );
             }
 
@@ -657,7 +656,10 @@ module.exports = {
             //Despues de generar el invoice se crea el correo
             itemsShopping = await sails.helpers.propMap(itemsShopping, []);
             cart = await sails.helpers.propMap(cart, ["vat", "zipCode"]);
-            await PDFService.buyerInvoice(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price)
+            if(cart.isCOD === true){
+                await PDFService.buyerInvoiceCOD(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price);
+            }else
+                await PDFService.buyerInvoice(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price);
 
 
             res.json(cartUpdated);
@@ -719,9 +721,14 @@ module.exports = {
             let skip = (Number(req.param("page")) - 1) * limit;
             // let totalResults = await OrderStatus.count({ id: ids });
 
-            let totalResults = await _shopping.count({ $and: [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }] }, { _id: 1, orderNumber: 1 })
+            let query = { $and: [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }, { isCOD: null }] };
+            if (req.param("type") && req.param("type") === "cod") {
+                query = { $and: [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }, { isCOD: true } ] };
+            }
+
+            let totalResults = await _shopping.count(query, { _id: 1, orderNumber: 1 })
             let orders = await new Promise((resolve, reject) => {
-                _shopping.find({ $and: [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }] }, { _id: 1, orderNumber: 1 })
+                _shopping.find(query, { _id: 1, orderNumber: 1 })
                     .sort({ orderNumber: -1 })
                     // PARA EL FUTURO, PAGINATION
                     .skip(skip)
