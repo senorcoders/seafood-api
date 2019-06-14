@@ -652,6 +652,15 @@ module.exports = {
             itemsShopping = await Promise.all(itemsShopping.map(async function(it){
                 it = await concatNameVariation(it);
                 it.description = await getDescription(it);
+
+                //let update fish stock
+                if( it.hasOwnProperty( 'inventory' ) ) {
+                    let inventory = await FishStock.findOne({ id: it.inventory });
+                    await FishStock.update({ id: it.inventory }).set({
+                        purchased: inventory.purchased - parseFloat(it['quantity']['value'])
+                    });
+                }
+
                 return it;
             }));
 
