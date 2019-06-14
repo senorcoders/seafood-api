@@ -1694,7 +1694,8 @@ module.exports = {
             console.log('in_AED', in_AED);
             console.log('in_AED2', req.param('in_AED'));
             let charges = await sails.helpers.fishPricing(id, weight, currentAdminCharges, variation_id, in_AED);
-
+	    let stock = await sails.helpers.getEtaStock( variation_id , weight );
+            charges['eta'] = stock;
             res.status(200).json(charges);
 
         } catch (error) {

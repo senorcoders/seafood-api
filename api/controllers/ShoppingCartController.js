@@ -49,34 +49,35 @@ module.exports = {
         let itemsDeleted = [];
         //checking if products are still available, if not, we delete them
         await Promise.all(cart.items.map(async it => {
-            let stock = await sails.helpers.getEtaStock( variation_id , parseFloat(it['quantity']['value']) );
+            let stock = await sails.helpers.getEtaStock( it.variation , parseFloat(it['quantity']['value']) );
             console.log( 'stock', stock )
-            if ( stock === 0 || it.inventory == stock.id ) {
+            if ( stock === 0 || it.inventory !== stock.id ) {
                 
                 
-                it.fish = await Fish.findOne({ id: it.fish.id }).populate("type");
+                it.fish = await Fish.findOne({ id: it.fish }).populate("type");
                 it.fishCharges = it.fishCharges;// await sails.helpers.fishPricing(it.fish.id, it.quantity.value, currentAdminCharges)
-                it.fish['price']['value'] = it.fishCharges.variation.price;
+                /*it.fish['price']['value'] = it.fishCharges.variation.price;
 
                 if( it.fish.hasOwnProperty('perBox') && it.fish.perBox === true) { // adding min/max boxes 
                     it.fish['minBox'] = it.fish.minimumOrder / it.fish.boxWeight;
                     it.fish['maxBox'] = it.fish.maximumOrder / it.fish.boxWeight;
-                }
+                }*/
 
-                console.log('it', it.fishCharges.variation.id);
-                console.log('it 2', it.variation);
-                let itVariationPrice = await VariationPrices.find({ id: it.fishCharges.variation.id }).populate('variation');
+                //console.log('it', it.fishCharges.variation.id);
+                //console.log('it 2', it.variation);
+                // itVariationPrice = await VariationPrices.find({ id: it.fishCharges.variation.id }).populate('variation');
                 let itVariation = await Variations.find({ id: it.variation });
                 // get fish Preparation  of each item   
-                console.log('itVariationPrice', itVariationPrice);
+                //console.log('itVariationPrice', itVariationPrice);
                 it['fishPreparation'] = await FishPreparation.find({ id: itVariation[0].fishPreparation });
                 //console.log( 'fp', it['fishPreparation'] );
-                if (it.fishCharges.variation.variation.fishPreparation === '5c93bff065e25a011eefbcc2' || it.fishCharges.variation.variation.fishPreparation === '5c93c00465e25a011eefbcc3') {
+                if ( itVariation[0].fishPreparation === '5c93bff065e25a011eefbcc2' || itVariation[0].fishPreparation === '5c93c00465e25a011eefbcc3') {
                     // get whole fish weight of each item
                     //  console.log( 'ww',  itVariationPrice[0].variation.wholeFishWeight );
                     it['wholeFishWeight'] = await WholeFishWeight.find({ id: itVariation[0].wholeFishWeight });
                 }
-                await ItemShopping.destroyOne( { id: it.id } );
+
+                await ItemShopping.destroy( { id: it.id } );
                 itemsDeleted.push(it);
             }
         }));
@@ -198,6 +199,9 @@ module.exports = {
                     // get fish Preparation  of each item   
                     console.log('itVariationPrice', itVariationPrice);
                     it['fishPreparation'] = await FishPreparation.find({ id: itVariation[0].fishPreparation });
+		    if( it.hasOwnProperty('inventory') ) {
+                        it['inventory'] = await FishStock.findOne( { id: it.inventory } );
+                    }
                     //console.log( 'fp', it['fishPreparation'] );
                     if (it.fishCharges.variation.variation.fishPreparation === '5c93bff065e25a011eefbcc2' || it.fishCharges.variation.variation.fishPreparation === '5c93c00465e25a011eefbcc3') {
                         // get whole fish weight of each item
@@ -452,8 +456,8 @@ module.exports = {
 
             // check if this item is already in this cart
             itemCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges, variation_id, in_AED);
-      
-            item['inventory'] = stock;
+        
+            item['inventory'] = stock.id;
             item['quantity']['value'] = itemCharges.weight; //weight could be different in fish pricing if the product is per box, here we update the weight
 
             item['itemCharges'] = itemCharges;
