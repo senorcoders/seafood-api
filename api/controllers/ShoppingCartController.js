@@ -486,12 +486,11 @@ module.exports = {
                         fishInfo.minimumOrder = fishInfo.boxWeight * fishInfo.minimumOrder;
                     }
                 }*/
-		console.log(fishInfo.minimumOrder );
-		console.log( fishInfo.maximumOrder );
-                if (fishInfo.maximumOrder < (parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value))) {
+
+                /*if (fishInfo.maximumOrder < (parseFloat(item.quantity.value) + parseFloat(alredyInCart[0].quantity.value))) {
                     return res.status(400).json({ message: "Maximum order limit reached" })
 
-                } else if (fishInfo.minimumOrder > (item.quantity.value + parseFloat(alredyInCart[0].quantity.value))) {
+                } else */if (fishInfo.minimumOrder > (item.quantity.value + parseFloat(alredyInCart[0].quantity.value))) {
                     return res.status(400).json({ message: "Order is below the minimum" })
                 } else {
                     let item_id = alredyInCart[0].id;
@@ -652,6 +651,15 @@ module.exports = {
             itemsShopping = await Promise.all(itemsShopping.map(async function(it){
                 it = await concatNameVariation(it);
                 it.description = await getDescription(it);
+
+                //let update fish stock
+                if( it.hasOwnProperty( 'inventory' ) ) {
+                    let inventory = await FishStock.findOne({ id: it.inventory });
+                    await FishStock.update({ id: it.inventory }).set({
+                        purchased: inventory.purchased - parseFloat(it['quantity']['value'])
+                    });
+                }
+
                 return it;
             }));
 

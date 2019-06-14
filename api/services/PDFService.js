@@ -156,7 +156,7 @@ module.exports = {
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
             MailerService.sendCartPaidBuyerNotifiedCOD(itemsShopping, cart, OrderNumber, storeName, pdf_name, OrderNumber);
-            et pdf_updated_1 = await ShoppingCart.update({ id: cart.id }, { invoice_pdf: pdf_name });
+            let pdf_updated_1 = await ShoppingCart.update({ id: cart.id }, { invoice_pdf: pdf_name });
         });
 
         return pdf_name;
