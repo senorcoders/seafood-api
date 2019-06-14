@@ -35,20 +35,21 @@ module.exports = {
    
     let unixNow = Math.floor(new Date());
     let stocks = await FishStock.find().where({
-        "date": { '<': unixNow },
+        "date": { '>': unixNow },
         "variations": variationID        
-    } ).sort( [{ date: 'DESC' }] );
+    } ).sort( [{ date: 'ASC' }] );
 
     //checking the query    
     stocks.map( stock => {
-      if (stock.quantity - stock.purchased >= quantity) {        
+      if (stock.quantity - stock.purchased >= quantity) {
+        stock.available = stock.quantity - stock.purchased;
         return exits.success( stock );
       }
     } )
 
 
     // Send back the result through the success exit.
-    return exits.success(null);
+    return exits.success(0);
     
   }
 

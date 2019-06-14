@@ -302,8 +302,10 @@ module.exports = {
             if( fish.hasOwnProperty('perBox') && fish.perBox === true) { // adding min/max boxes 
                 fish['minBox'] = fish.minimumOrder / fish.boxWeight;
                 fish['maxBox'] = fish.maximumOrder / fish.boxWeight;
-            }
-
+            } else {
+		delete fish['maxBox'];
+	    }
+            let unixNow = Math.floor(new Date());
             let variations = await Variations.find({ 'fish': fish.id }).populate('fishPreparation').populate('wholeFishWeight');
 
             let useOne = false;
@@ -332,6 +334,36 @@ module.exports = {
                 variations.map(async variation => {
                     console.log(variation.id);
 
+                    let inventory = await FishStock.find().where({
+                        "date": { '>': unixNow },
+                        "variations": variation.id
+                    } ).sort( 'date DESC' ).populate('variations');                    
+                    
+                    let minMaxInventory = [];
+                    inventory.map( item => {
+                        minMaxInventory.push( (item.quantity - item.purchased) );
+                    } )
+
+                    
+                    if( minMaxInventory.length === 0 ) {
+                        /*fish['minimumOrder'] = 0;
+                        fish['maximumOrder'] = 0;
+                        fish['minBox'] = 0;
+                        fish['maxBox'] = 0;*/
+                        fish['coomingsoon'] = '1';
+                    } else if ( fish.hasOwnProperty('perBox') && fish.perBox === true) { // adding min/max boxes     
+                        fish['maxBox'] = Math.max.apply(null, minMaxInventory) / fish.boxWeight;
+                        if( fish['minBox'] > fish['maxBox'] ) {
+                            fish['minBox'] = fish['maxBox'];
+                        }                        
+                    } else {                        
+                        fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);                                                    
+			fish['maxBox'] = Math.max.apply(null, minMaxInventory);
+                    }
+
+                    if ( fish['minimumOrder'] > fish['maximumOrder'] ) {
+                        fish['minimumOrder'] = fish['maximumOrder'];
+                    }
                     console.log(variation['fishPreparation']);
                     if (isTrimms === false) {
                         if (variation['fishPreparation']['id'] === '5c93bff065e25a011eefbcc2') {
@@ -358,12 +390,18 @@ module.exports = {
                     let prices = await VariationPrices.find({ 'variation': variation.id });
                     let minLimit = fish.minimunOrder;
                     prices = prices.map((row, indexPrice) => {
-
-                        let maxLimit = fish.maximumOrder;;
-                        if (indexPrice < (prices.length - 1)) { //is not the last price 
-                            maxLimit = prices[(indexPrice + 1)].min;
+                        if( minMaxInventory.length >= 0 ) {
+                            row.max =  Math.max.apply(null, minMaxInventory) / fish.boxWeight;;                            
+                        } else {
+                            /*row.min = 0;
+                            row.max = 0;*/
+                            fish['cooming_soon'] = '1';
                         }
-
+                        let maxLimit = fish.maximumOrder;;
+                        /*if (indexPrice < (prices.length - 1)) { //is not the last price 
+                            maxLimit = prices[(indexPrice + 1)].min;
+                        }*/
+			row['max'] = maxLimit;
                         let optionSlides = {
                             floor: row.min,
                             ceil: minLimit,
@@ -375,7 +413,7 @@ module.exports = {
                                 idVariation: variation.id,
                                 id: row.id,
                                 min: row.min,
-                                max: row.max,
+                                max: maxLimit ? maxLimit : row.max,//row.max,
                                 price: row.price,
                                 options: optionSlides
                             };
@@ -734,8 +772,17 @@ module.exports = {
             let productos = [];
             let variations = await Variations.find({ fish: products_ids }).populate('fish').populate('fishPreparation').populate('wholeFishWeight');
             console.log('variations', variations.length);
+            let unixNow = Math.floor(new Date());
             await Promise.all(variations.map(async function (m) {
-
+                let inventory = await FishStock.find().where({
+                    "date": { '>': unixNow },
+                    "variations": m.id
+                } ).sort( 'date DESC' ).populate('variations');
+                
+                let minMaxInventory = [];
+                inventory.map( item => {
+                    minMaxInventory.push( (item.quantity - item.purchased) );
+                } )
 
                 //get min max price
                 let priceVariation = await VariationPrices.find({ variation: m.id });
@@ -744,15 +791,32 @@ module.exports = {
                     minMax.push(pv.min);
                     minMax.push(pv.max);
                 })
-
+                m['inventory'] = inventory;
                 m['max'] = Math.max.apply(null, minMax) // 4
                 m['min'] = Math.min.apply(null, minMax) // 1
+		
+                if( minMaxInventory.length > 0 ) {
+                    m['max'] = Math.max.apply(null, minMaxInventory) // 4
+		    m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
+                } else {
+                    /*m['max'] = 0;
+                    m['min'] = 0;*/
+                    m['cooming_soon'] = '1';
+                }
 
                 //lets recreate old json format with Fish at the top and inside the variations
                 let fish = m.fish;
                 if( fish.hasOwnProperty('perBox') && fish.perBox === true) { // adding min/max boxes 
                     fish['minBox'] = fish.minimumOrder / fish.boxWeight;
                     fish['maxBox'] = fish.maximumOrder / fish.boxWeight;
+                    
+                    if( minMaxInventory.length > 0 && Math.max.apply(null, minMaxInventory) > 0 ) {
+                        m['maxBox'] = Math.max.apply(null, minMaxInventory) / fish.boxWeight // 4
+                    } else {
+                        /*m['maxBox'] = 0;
+                        m['minBox'] = 0;*/
+                        m['cooming_soon'] = '1';
+                    }
                 }
 
                 
@@ -1630,7 +1694,8 @@ module.exports = {
             console.log('in_AED', in_AED);
             console.log('in_AED2', req.param('in_AED'));
             let charges = await sails.helpers.fishPricing(id, weight, currentAdminCharges, variation_id, in_AED);
-
+	    let stock = await sails.helpers.getEtaStock( variation_id , weight );
+            charges['eta'] = stock;
             res.status(200).json(charges);
 
         } catch (error) {

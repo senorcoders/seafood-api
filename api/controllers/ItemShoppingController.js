@@ -14,6 +14,28 @@ const concatNameVariation = async function (item) {
     return item;
 }
 
+const getDescription = async (it) => {
+    //Para obtener la description del fish
+    let description = it.fish.name;
+    if (it.fish.treatment !== null && it.fish.treatment !== undefined) {
+        let treatment = await Treatment.findOne({ id: it.fish.treatment });
+        if (treatment !== undefined) description += " - " + treatment.name;
+    }
+    if (it.fish.raised !== null && it.fish.raised !== undefined) {
+        let raised = await Raised.findOne({ id: it.fish.raised });
+        if (raised !== undefined) description += " - " + raised.name;
+    }
+    // if (it.fish.preparation !== null && it.fish.preparation !== undefined) {
+    //     let preparation = await FishPreparation.findOne({ id: it.fish.preparation });
+    //     if (preparation !== undefined) description += ", " + preparation.name;
+    // }
+    if (it.fish.wholeFishWeight !== null && it.fish.wholeFishWeight !== undefined) {
+        let wholeFishWeight = await WholeFishWeight.findOne({ id: it.fish.preparation });
+        if (wholeFishWeight !== undefined) description += ", " + wholeFishWeight.name;
+    }
+    return description;
+}
+
 module.exports = {
     concatNameVariation,
 
@@ -329,6 +351,14 @@ module.exports = {
             } else if (status == '5c017b5a47fb07027943a40c') { //Client Cancelled Order"
                 if (['5c017ae247fb07027943a404', '5c017af047fb07027943a405'].includes(item.status)) {
                     data = await ItemShopping.update({ id }, { status: '5c017b5a47fb07027943a40c', paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates }).fetch();
+
+                    if( item.hasOwnProperty('inventory') ) { //backwards compatibility for old products
+                        let inventory = await FishStock.findOne({ id: item.inventory });
+                        await FishStock.update( { id: item.inventory } ).set({
+                            purchased: inventory.purchased + parseFloat(item['quantity']['value'])
+                        })
+                    }
+
                     if (data.length > 0) {
                         //send email to buyer
                         await MailerService.buyerCancelledOrderBuyer(name, cart, store, item);
@@ -347,6 +377,13 @@ module.exports = {
             } else if (status == '5c06f4bf7650a503f4b731fd') { //Seller Cancelled Order
                 data = await ItemShopping.update({ id }, { status: '5c06f4bf7650a503f4b731fd', paymentStatus: '5c017b6847fb07027943a40d', updateInfo: currentUpdateDates }).fetch();
                 if (data.length > 0) {
+                    //returning inventory
+                    if( item.hasOwnProperty('inventory') ) { //backwards compatibility for old products
+                        let inventory = await FishStock.findOne({ id: item.inventory });
+                        await FishStock.update( { id: item.inventory } ).set({
+                            purchased: inventory.purchased + parseFloat(item['quantity']['value'])
+                        })
+                    }
                     //send email to buyer
                     await MailerService.sellerCancelledOrderBuyer(name, cart, store, item);
                     //send email to buyer
@@ -382,8 +419,39 @@ module.exports = {
                 await ShoppingCart.update({ id: item.shoppingCart.id }, {
                     orderStatus: '5c40b364970dc99bb06bed6a',
                     status: 'closed'
-                })
-                await MailerService.buyerRefund(name, cart, store, item);
+                });
+                if(cart.isCOD === true){
+                    let available = Number(cart.buyer.cod.available) + Number(cart.total);
+                    if(cart.buyer.cod.limit < available) available = cart.buyer.cod.limit;
+                    cart.buyer.cod.available = available;
+                    await User.update({id:cart.buyer.id},{cod:cart.buyer.cod});
+
+                    //cargamos los items para enviarlos en el invoice
+                    let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id }).populate("fish");
+                    itemsShopping = await Promise.all(itemsShopping.map(async function(it){
+                        it = await concatNameVariation(it);
+                        it.description = await getDescription(it);
+                        return it;
+                    }));
+        
+                    //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
+                    let itemsStore = [];
+                    for (let item of itemsShopping) {
+                        
+                        let index = itemsStore.findIndex(function (it) {
+                            return it[0].fish.store.id === item.fish.store.id;
+                        });
+        
+                        if (index === -1) {
+                            itemsStore.push([item]);
+                        } else {
+                            itemsStore[index].push(item);
+                        }
+                    }
+                    let uaeTaxes = await PricingCharges.find({ where: { type: 'uaeTaxes' } }).sort('updatedAt DESC').limit(1);
+                    await PDFService.buyerInvoiceCODPaid(itemsShopping, cart, cart.orderNumber, [], uaeTaxes[0].price)
+                }else
+                    await MailerService.buyerRefund(name, cart, store, item);
             }
 
 

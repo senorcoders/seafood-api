@@ -81,6 +81,11 @@ module.exports = {
       required: false
     },
 
+    isCOD:{
+      type: "boolean",
+      required: false
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
