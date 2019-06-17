@@ -678,7 +678,7 @@ module.exports = {
                 }
             }
 
-            let OrderStatus = "5c017ad347fb07027943a403"; //Pending Seller Confirmation
+            let OrderStatus = cart.isCOD === true ? "5d07b181b018e14f8e8f3150" : "5c017ad347fb07027943a403"; //Pending Seller Confirmation
             cartUpdated = await ShoppingCart.update({ id: req.param("id") }, {
                 status: "paid",
                 paidDateTime: paidDateTime,
