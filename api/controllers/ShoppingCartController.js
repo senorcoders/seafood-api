@@ -678,7 +678,7 @@ module.exports = {
                 }
             }
 
-            let OrderStatus = cart.isCOD === true ? "5d07b181b018e14f8e8f3150" : "5c017ad347fb07027943a403"; //Pending Seller Confirmation
+            let OrderStatus = "5c017ad347fb07027943a403"; //Pending Seller Confirmation
             cartUpdated = await ShoppingCart.update({ id: req.param("id") }, {
                 status: "paid",
                 paidDateTime: paidDateTime,
@@ -707,7 +707,7 @@ module.exports = {
                 st.map(itemStore => {
                     items_store_ids.push(itemStore.id)
                 })
-                await ItemShopping.update({ id: items_store_ids }).set({ status: '5c017ae247fb07027943a404', orderInvoice: invoiceNumber, purchaseOrder: (maxPurchaseOrder + 1 + counter) });
+                await ItemShopping.update({ id: items_store_ids }).set({ status: '5c017ae247fb07027943a404', paymentStatus: cart.isCOD === true ? "5d07b181b018e14f8e8f3150" : undefined, orderInvoice: invoiceNumber, purchaseOrder: (maxPurchaseOrder + 1 + counter) });
 
                 let fullName = st[0].fish.store.owner.firstName + " " + st[0].fish.store.owner.lastName;
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
