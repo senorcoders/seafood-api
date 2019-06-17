@@ -303,7 +303,7 @@ module.exports = {
                 fish['minBox'] = fish.minimumOrder / fish.boxWeight;
                 fish['maxBox'] = fish.maximumOrder / fish.boxWeight;
             } else {
-		delete fish['maxBox'];
+            delete fish['maxBox'];
 	    }
             let unixNow = Math.floor(new Date());
             let variations = await Variations.find({ 'fish': fish.id }).populate('fishPreparation').populate('wholeFishWeight');
@@ -350,15 +350,18 @@ module.exports = {
                         fish['maximumOrder'] = 0;
                         fish['minBox'] = 0;
                         fish['maxBox'] = 0;*/
-                        fish['coomingsoon'] = '1';
+                        //fish['coomingsoon'] = '1';
+                        fish['outOfStock'] = true;
                     } else if ( fish.hasOwnProperty('perBox') && fish.perBox === true) { // adding min/max boxes     
+                        fish['outOfStock'] = false;
                         fish['maxBox'] = Math.max.apply(null, minMaxInventory) / fish.boxWeight;
                         if( fish['minBox'] > fish['maxBox'] ) {
                             fish['minBox'] = fish['maxBox'];
                         }                        
-                    } else {                        
+                    } else {                      
+                        fish['outOfStock'] = false;  
                         fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);                                                    
-			fish['maxBox'] = Math.max.apply(null, minMaxInventory);
+			            fish['maxBox'] = Math.max.apply(null, minMaxInventory);
                     }
 
                     if ( fish['minimumOrder'] > fish['maximumOrder'] ) {
@@ -797,11 +800,13 @@ module.exports = {
 		
                 if( minMaxInventory.length > 0 ) {
                     m['max'] = Math.max.apply(null, minMaxInventory) // 4
-		    m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
+                    m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
+                    m['outOfStock'] = false;
                 } else {
                     /*m['max'] = 0;
                     m['min'] = 0;*/
-                    m['cooming_soon'] = '1';
+                    //m['cooming_soon'] = '1';
+                    m['outOfStock'] = true;
                 }
 
                 //lets recreate old json format with Fish at the top and inside the variations
