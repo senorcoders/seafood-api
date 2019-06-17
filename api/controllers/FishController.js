@@ -303,7 +303,7 @@ module.exports = {
                 fish['minBox'] = fish.minimumOrder / fish.boxWeight;
                 fish['maxBox'] = fish.maximumOrder / fish.boxWeight;
             } else {
-            elete fish['maxBox'];
+            delete fish['maxBox'];
 	    }
             let unixNow = Math.floor(new Date());
             let variations = await Variations.find({ 'fish': fish.id }).populate('fishPreparation').populate('wholeFishWeight');
