@@ -309,8 +309,8 @@ module.exports = {
                 //notify buyer about item out for delivery
                 item.fish.store = store;
                 await MailerService.orderOutForDelivery(name, cart, store, item);
-            } else if (status == '5c017b3c47fb07027943a409') { //Delivered
-                data = await ItemShopping.update({ id }, { status: '5c017b3c47fb07027943a409', deliveredAt: ts, updateInfo: currentUpdateDates }).fetch()
+            } else if (status == '5c017b3c47fb07027943a409') { //Delivered or COD is PAID
+                data = await ItemShopping.update({ id }, { status:'5c017b3c47fb07027943a409', paymentStatus: cart.isCOD === true ? "5d07b1d8b018e14f8e8f3151" : item.paymentStatus, deliveredAt: ts, updateInfo: currentUpdateDates }).fetch()
 
                 /*//check if order is close
                 let orderItems = await ItemShopping.find({ where: { shoppingCart: item.shoppingCart.id } });
