@@ -8,7 +8,7 @@ var mmm = require('mmmagic'),
     compress_images = require('compress-images'),
     findRemoveSync = require('find-remove'),
     imageSize = { width: 800, height: null },
-folderCompress = "compress";
+    folderCompress = "compress";
 
 //for logos sellers check if exist folder, if not create folder
 const folderLogosSeller = "logos_seller";
@@ -50,7 +50,7 @@ const uploadWithPromise = function (req, name, dirname, sizeCompress, entity, fi
 
                 let dirs = [];
                 for (let file of listFile) {
-                    if(typeof file === "object" && file.name)
+                    if (typeof file === "object" && file.name)
                         file = file.name;
                     if (file === "compress") continue;
 
@@ -67,14 +67,17 @@ const uploadWithPromise = function (req, name, dirname, sizeCompress, entity, fi
                 }
 
                 let directory = dirname + "/";
-                if(compress === true)
+                if (compress === true) {
                     await compressImageFolder(directory, directory + folderCompress);
 
-                if (entity.hasOwnProperty(field) && Object.prototype.toString.call(entity[field]) === "[object Array]") {
-                    for (let dir of dirs) {
-                        entity[field].push(dir);
+                    if (entity.hasOwnProperty(field) && Object.prototype.toString.call(entity[field]) === "[object Array]") {
+                        for (let dir of dirs) {
+                            entity[field].push(dir);
+                        }
+                    } else {
+                        entity[field] = dirs;
                     }
-                } else {
+                }else{
                     entity[field] = dirs;
                 }
 
@@ -1080,7 +1083,7 @@ module.exports = {
             fish.image = uploads.urls[0];
 
             await Fish.update({ id }, { imagePrimary: fish.image });
-            
+
             res.json({ msg: "success" });
 
             // let newName = "";
@@ -1323,7 +1326,7 @@ module.exports = {
                 return "/api/v2/logo/seller/" + file + "/" + id;
             }, false);
 
-        user.logos = uploads.urls;;
+        user.logos = uploads.urls;
 
         let upda = await User.update({ id: user.id }, { logos: user.logos });
         console.log(upda);
