@@ -53,7 +53,10 @@ module.exports = {
       required: false
     },
 
-    
+    unitOfSale: {
+      type: "string",
+      required: false
+    },  
 
     /* // moved to variations
     preparation: {

@@ -795,9 +795,15 @@ module.exports = {
                     minMax.push(pv.max);
                 })
                 m['inventory'] = inventory;
-                m['max'] = Math.max.apply(null, minMax) // 4
-                m['min'] = Math.min.apply(null, minMax) // 1
-		
+
+		if( m.fish.hasOwnProperty('unitOfSale') && m.fish.unitOfSale === 'lbs' ) {
+		  m['max'] = Math.max.apply(null, minMax) / 2.205 // 4
+                  m['min'] = Math.min.apply(null, minMax) / 2.205 // 1
+		} else { 
+                  m['max'] = Math.max.apply(null, minMax) // 4
+                  m['min'] = Math.min.apply(null, minMax) // 1
+		}
+
                 if( minMaxInventory.length > 0 ) {
                     m['max'] = Math.max.apply(null, minMaxInventory) // 4
                     m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
