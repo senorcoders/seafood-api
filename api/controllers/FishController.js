@@ -97,6 +97,7 @@ module.exports = {
                 status: body.role == 0 ? "5c0866f9a0eda00b94acbdc2" : "5c0866e4a0eda00b94acbdc0", // if admin is adding the product the status is approved otherwise is pending
                 brandname: body.brandName,
                 hsCode: body.hsCode,
+                coming_soon: body.coming_soon
                 // acceptableSpoilageRate: body.acceptableSpoilageRate
             }
 
@@ -201,7 +202,8 @@ module.exports = {
                 waterLostRate: body.waterLostRate,
                 brandname: body.brandName,
                 boxWeight: body.boxWeight,
-                hsCode: body.hsCode
+                hsCode: body.hsCode,
+                coming_soon: body.coming_soon
             }
 
             let fishUpdated = await Fish.update({ id: body.idProduct }).set(

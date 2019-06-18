@@ -145,7 +145,7 @@ module.exports = {
       type: 'number',
       required: false
     },
-    cooming_soon: {
+    coming_soon: {
       type: "boolean",
       defaultsTo: false
     },
