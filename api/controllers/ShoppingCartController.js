@@ -500,10 +500,10 @@ module.exports = {
                 //return res.status(200).send( item );
             } else {
                 /*let fishInfo = await Fish.findOne({ id: req.body.fish });*/
-                if (fishInfo.maximumOrder < (parseFloat(item.quantity.value))) {
+                /*if (fishInfo.maximumOrder < (parseFloat(item.quantity.value))) {
                     return res.status(400).json({ message: "Maximum order limit reached" })
 
-                } else if (fishInfo.minimumOrder > item.quantity.value) {
+                } else*/ if (fishInfo.minimumOrder > item.quantity.value) {
                     return res.status(400).json({ message: "Order is below the minimum" })
                 } else {
                     itemShopping = await ItemShopping.create(item);
