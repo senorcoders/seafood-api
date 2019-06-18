@@ -60,7 +60,7 @@ module.exports = {
         }
 
         let exists = await FishStock.find().where( {
-            variations: req.body.sku,            
+            variations: req.body.sku,
             short_date: req.body.short_date,            
         } );
         
