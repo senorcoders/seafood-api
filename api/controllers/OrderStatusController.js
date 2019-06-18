@@ -19,7 +19,7 @@ module.exports = {
     },
     getPaymentOrderstatus: async (req, res) => {
         try {
-            var ids = ['5c017b4f47fb07027943a40b', '5c017b6847fb07027943a40d', '5c017b7047fb07027943a40e', '5c017b4547fb07027943a40a'];
+            var ids = ['5c017b4f47fb07027943a40b', '5c017b6847fb07027943a40d', '5c017b7047fb07027943a40e', '5c017b4547fb07027943a40a', '5d07b181b018e14f8e8f3150', '5d07b1d8b018e14f8e8f3151'];
             let orderStatus = await OrderStatus.find({ id: ids });
 
             return res.json(orderStatus);
