@@ -656,7 +656,7 @@ module.exports = {
                 if( it.hasOwnProperty( 'inventory' ) ) {
                     let inventory = await FishStock.findOne({ id: it.inventory });
                     await FishStock.update({ id: it.inventory }).set({
-                        purchased: inventory.purchased - parseFloat(it['quantity']['value'])
+                        purchased: inventory.purchased
                     });
                 }
 
