@@ -109,7 +109,7 @@ module.exports = {
             let id = req.param("id");
             console.log(id);
             let store = await Store.findOne({ id });
-            store.fishs = await Fish.find({ store: store.id }).populate("type").populate("status")
+            store.fishs = await Fish.find({ store: store.id, status:['5c0866e4a0eda00b94acbdc0', '5c0866f2a0eda00b94acbdc1', '5c0866f9a0eda00b94acbdc2', '5c3fc078970dc99bb06bed69'] }).populate("type").populate("status")
 
             //fish['variations'] = [];
             await Promise.all(store.fishs.map(async (fish) => {
