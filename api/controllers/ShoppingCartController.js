@@ -207,6 +207,17 @@ module.exports = {
                     it['fishPreparation'] = await FishPreparation.find({ id: itVariation[0].fishPreparation });
                     if (it.hasOwnProperty('inventory')) {
                         it['inventory'] = await FishStock.findOne({ id: it.inventory });
+
+                        let inventory = await FishStock.find().where({
+                            "date": { '>': unixNow },
+                            "variations": variation.id
+                        } ).sort( 'date DESC' ).populate('variations');                    
+                        
+                        let minMaxInventory = [];
+                        inventory.map( item => {
+                            minMaxInventory.push( (item.quantity - item.purchased) );
+                        } )
+                        it['maxAvailableInventory'] = Math.max.apply(null, minMaxInventory);
                     }
                     //console.log( 'fp', it['fishPreparation'] );
                     if (it.fishCharges.variation.variation.fishPreparation === '5c93bff065e25a011eefbcc2' || it.fishCharges.variation.variation.fishPreparation === '5c93c00465e25a011eefbcc3') {
