@@ -658,6 +658,13 @@ module.exports = {
                     await FishStock.update({ id: it.inventory }).set({
                         purchased: inventory.purchased + parseFloat(it['quantity']['value'])
                     });
+                    let stock = await sails.helpers.getEtaStock( it.variation , 1 );
+
+                    if( stock === 0 ) {
+                        fish = await Variations.findOne( { id:  it.variation  } ).populate('fish').populate('fishPreparation');
+                        await MailerService.outOfStockNotification( [ fish ] );
+                    }
+                    
                 }
 
                 return it;

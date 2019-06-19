@@ -1112,4 +1112,29 @@ module.exports = {
                 console.error
             )
     },
+    outOfStockNotification: async (products) => {        
+        email.render('../email_templates/out-of-stock-admin-notification',
+            await applyExtend({                
+                products: products
+            })
+        )
+            .then(res => {
+                transporter.sendMail({
+                    from: emailSender,
+                    to: ADMIN_EMAIL,
+                    subject: `PRODUCT OUT OF STOCK`,
+                    html: res, // html body
+                }, (error, info) => {
+                    if (error) {
+                        return console.log(error);
+                    }
+                    console.log('Message sent: %s', info.messageId);
+                    return 'Message sent: %s', info.messageId;
+                })
+
+            })
+            .catch(
+                console.error
+            )
+    },
 }
