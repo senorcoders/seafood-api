@@ -210,7 +210,7 @@ module.exports = {
 
                         let inventory = await FishStock.find().where({
                             "date": { '>': unixNow },
-                            "variations": variation.id
+                            "variations": itVariation[0].id
                         } ).sort( 'date DESC' ).populate('variations');                    
                         
                         let minMaxInventory = [];
