@@ -469,6 +469,111 @@ module.exports = {
         }
     },
 
+    updateItemPaymentStatus: async (req, res) => {
+        try {
+            let id = req.param("id");
+            let status = req.param("status");
+            let userEmail = req.body.userEmail;
+            let userID = req.body.userID;
+            var ts = Math.round((new Date()).getTime() / 1000);
+            let data = ''; //
+            let item = await ItemShopping.findOne({ id }).populate("shoppingCart").populate("fish");
+            //For get trim and concat with name fish
+            item = await concatNameVariation(item);
+
+            if (item === undefined) {
+                res.status(400).send("not found");
+            }
+            let currentUpdateDates = [];
+
+            if (item.hasOwnProperty('updateInfo')) {
+                if (item.updateInfo != null) {
+                    currentUpdateDates = item.updateInfo;
+                }
+            }
+            let newStatus = await OrderStatus.findOne({ id: status });
+            let user = await User.findOne({ id: userID });
+            currentUpdateDates.push(
+                {
+                    action: newStatus.status,
+                    at: ts,
+                    by: `${user.firstName} ${user.lastName}`,
+                    userID: userID,
+                    email: userEmail,
+                    name: `${user.firstName} ${user.lastName}`,
+                    ip: req.ip
+                }
+            )
+            let store = await Store.findOne({ id: item.fish.store }).populate("owner")
+            let cart = await ShoppingCart.findOne({ id: item.shoppingCart.id }).populate("buyer")
+            let name = cart.buyer.firstName + ' ' + cart.buyer.lastName;
+            data = await ItemShopping.update({ id }, { paymentStatus: status, updateInfo: currentUpdateDates }).fetch();
+            data = await ItemShopping.find({ id }).populate('status');
+
+            // check if order is closed
+            let orderItems = await ItemShopping.find({ where: { shoppingCart: item.shoppingCart.id } });
+
+            let isClose = true;
+            console.log('status');
+            orderItems.map(itemOrder => {
+                console.log(itemOrder.status);
+                if (itemOrder.status !== '5c06f4bf7650a503f4b731fd' && itemOrder.status !== '5c017b5a47fb07027943a40c' && itemOrder.status !== '5c017b3c47fb07027943a409' && itemOrder.paymentStatus !== '5c017b7047fb07027943a40e' && itemOrder.paymentStatus !== '5c017b4f47fb07027943a40b') {
+                    isClose = false;
+                }
+            })
+            // all items are delivered or refunded, so let's update the order status
+
+            if (isClose) {
+                await ShoppingCart.update({ id: item.shoppingCart.id }, {
+                    orderStatus: '5c40b364970dc99bb06bed6a',
+                    status: 'closed'
+                });
+                if(cart.isCOD === true){
+                    let available = Number(cart.buyer.cod.available) + Number(cart.total);
+                    if(cart.buyer.cod.limit < available) available = cart.buyer.cod.limit;
+                    cart.buyer.cod.available = available;
+                    await User.update({id:cart.buyer.id},{cod:cart.buyer.cod});
+
+                    //cargamos los items para enviarlos en el invoice
+                    let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id }).populate("fish");
+                    itemsShopping = await Promise.all(itemsShopping.map(async function(it){
+                        it = await concatNameVariation(it);
+                        it.description = await getDescription(it);
+                        return it;
+                    }));
+        
+                    //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
+                    let itemsStore = [];
+                    for (let item of itemsShopping) {
+                        
+                        let index = itemsStore.findIndex(function (it) {
+                            return it[0].fish.store.id === item.fish.store.id;
+                        });
+        
+                        if (index === -1) {
+                            itemsStore.push([item]);
+                        } else {
+                            itemsStore[index].push(item);
+                        }
+                    }
+                    let uaeTaxes = await PricingCharges.find({ where: { type: 'uaeTaxes' } }).sort('updatedAt DESC').limit(1);
+                    await PDFService.buyerInvoiceCODPaid(itemsShopping, cart, cart.orderNumber, [], uaeTaxes[0].price)
+                }else
+                    await MailerService.buyerRefund(name, cart, store, item);
+            }
+
+
+            res.status(200).json({ "message": "status updated", item: data });
+
+
+
+
+        } catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
     getItemsByStatus: async (req, res) => {
         try {
             let status_id = req.param("status");
