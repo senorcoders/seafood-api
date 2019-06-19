@@ -177,6 +177,7 @@
         <thead >
           <tr style=" border-bottom: 1px solid black;">
             <th style="font-size: 11px;">Description</th>
+            <th style="font-size: 11px;">ETA</th>
             <th style="font-size: 11px;">Country of Origin</th>
             <th style="font-size: 11px;">Quantity</th>
             <th style="font-size: 11px;">U/M</th>
@@ -188,9 +189,12 @@
         <tbody>
           <% items.forEach(function(it,index){ %>
           <tr style="border-bottom: gray 1px solid;">
-            <td class="col col-3">
+            <td class="col col-2">
                 <%= it.description %>
             </td>
+            <td class="col col-1">
+              <%= it.inventory.short_date %>
+          </td>
             <td class="col col-1">
               <%= it.fish.country %>
             </td>
