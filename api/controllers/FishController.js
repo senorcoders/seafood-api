@@ -205,6 +205,9 @@ module.exports = {
                 hsCode: body.hsCode,
                 cooming_soon: body.cooming_soon
             }
+            if( body.hasOwnProperty['status'] && body.status !== null && body.status !== undefined && body.status !== '' ){
+                fishBody['status'] = body.status;
+            }
 
             let fishUpdated = await Fish.update({ id: body.idProduct }).set(
                 fishBody
