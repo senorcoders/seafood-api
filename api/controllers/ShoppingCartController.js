@@ -123,7 +123,13 @@ module.exports = {
                 shippingItems = [];
                 await Promise.all(cart.items.map(async item => {
                     let itemStore = await Fish.findOne({ id: item.fish }).populate('store');
-                    let fishCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges, item.variation, in_AED)
+                    let boxesNumbers =  item.quantity.value;
+                    if (itemStore.hasOwnProperty("perBox")) {
+                        if ( itemStore.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
+                            boxesNumbers = item.quantity.value / itemStore.boxWeight ;
+                        }
+                    }
+                    let fishCharges = await sails.helpers.fishPricing(item.fish, boxesNumbers, currentAdminCharges, item.variation, in_AED)
                     item.fish = itemStore;
                     item.store = itemStore.store.id;
                     item.country = itemStore.country;
