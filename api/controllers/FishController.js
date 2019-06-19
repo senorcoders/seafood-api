@@ -203,7 +203,7 @@ module.exports = {
                 brandname: body.brandName,
                 boxWeight: body.boxWeight,
                 hsCode: body.hsCode,
-                cooming_soon: body.cooming_soon,                
+                cooming_soon: body.cooming_soon
             }
             if( body.hasOwnProperty['status'] && body.status !== null && body.status !== undefined && body.status !== '' ){
                 fishBody['status'] = body.status;
