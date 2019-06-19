@@ -187,6 +187,7 @@ module.exports = {
                     }))
                     return store;
                 }))
+		let unixNow = Math.floor(new Date());
                 //setting min dalivery date for each item
                 await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish.id }).populate("type").populate("store");
