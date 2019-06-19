@@ -63,6 +63,9 @@ module.exports.policies = {
   PaymentsController: {
     getAuthorization: true
   },
+  FishStockController: {
+    outOfStockNotification: true
+  },
   /*  FeaturedProductsController: {
       "*": true
     },

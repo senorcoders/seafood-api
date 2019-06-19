@@ -508,6 +508,8 @@ module.exports.routes = {
 
   'POST /api/inventory/': 'FishStockController.saveETA',
 
+  'GET /api/outOfStock': 'FishStockController.outOfStockNotification',
+
   /*****
    * 
    * DOSUSIGN

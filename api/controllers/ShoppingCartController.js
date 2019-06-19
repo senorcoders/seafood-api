@@ -41,55 +41,55 @@ module.exports = {
         }
     },
 
-    checkCartItems: async function( req, res ) {
-      try {
-        
-        let buyer = req.param("buyer");
-        let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items").populate("buyer");        
-        let itemsDeleted = [];
-        //checking if products are still available, if not, we delete them
-        await Promise.all(cart.items.map(async it => {
-            let stock = await sails.helpers.getEtaStock( it.variation , parseFloat(it['quantity']['value']) );
-            console.log( 'stock', stock )
-            if ( stock === 0 || it.inventory !== stock.id ) {
-                
-                
-                it.fish = await Fish.findOne({ id: it.fish }).populate("type");
-                it.fishCharges = it.fishCharges;// await sails.helpers.fishPricing(it.fish.id, it.quantity.value, currentAdminCharges)
-                /*it.fish['price']['value'] = it.fishCharges.variation.price;
+    checkCartItems: async function (req, res) {
+        try {
 
-                if( it.fish.hasOwnProperty('perBox') && it.fish.perBox === true) { // adding min/max boxes 
-                    it.fish['minBox'] = it.fish.minimumOrder / it.fish.boxWeight;
-                    it.fish['maxBox'] = it.fish.maximumOrder / it.fish.boxWeight;
-                }*/
+            let buyer = req.param("buyer");
+            let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items").populate("buyer");
+            let itemsDeleted = [];
+            //checking if products are still available, if not, we delete them
+            await Promise.all(cart.items.map(async it => {
+                let stock = await sails.helpers.getEtaStock(it.variation, parseFloat(it['quantity']['value']));
+                console.log('stock', stock)
+                if (stock === 0 || it.inventory !== stock.id) {
 
-                //console.log('it', it.fishCharges.variation.id);
-                //console.log('it 2', it.variation);
-                // itVariationPrice = await VariationPrices.find({ id: it.fishCharges.variation.id }).populate('variation');
-                let itVariation = await Variations.find({ id: it.variation });
-                // get fish Preparation  of each item   
-                //console.log('itVariationPrice', itVariationPrice);
-                it['fishPreparation'] = await FishPreparation.find({ id: itVariation[0].fishPreparation });
-                //console.log( 'fp', it['fishPreparation'] );
-                if ( itVariation[0].fishPreparation === '5c93bff065e25a011eefbcc2' || itVariation[0].fishPreparation === '5c93c00465e25a011eefbcc3') {
-                    // get whole fish weight of each item
-                    //  console.log( 'ww',  itVariationPrice[0].variation.wholeFishWeight );
-                    it['wholeFishWeight'] = await WholeFishWeight.find({ id: itVariation[0].wholeFishWeight });
+
+                    it.fish = await Fish.findOne({ id: it.fish }).populate("type");
+                    it.fishCharges = it.fishCharges;// await sails.helpers.fishPricing(it.fish.id, it.quantity.value, currentAdminCharges)
+                    /*it.fish['price']['value'] = it.fishCharges.variation.price;
+    
+                    if( it.fish.hasOwnProperty('perBox') && it.fish.perBox === true) { // adding min/max boxes 
+                        it.fish['minBox'] = it.fish.minimumOrder / it.fish.boxWeight;
+                        it.fish['maxBox'] = it.fish.maximumOrder / it.fish.boxWeight;
+                    }*/
+
+                    //console.log('it', it.fishCharges.variation.id);
+                    //console.log('it 2', it.variation);
+                    // itVariationPrice = await VariationPrices.find({ id: it.fishCharges.variation.id }).populate('variation');
+                    let itVariation = await Variations.find({ id: it.variation });
+                    // get fish Preparation  of each item   
+                    //console.log('itVariationPrice', itVariationPrice);
+                    it['fishPreparation'] = await FishPreparation.find({ id: itVariation[0].fishPreparation });
+                    //console.log( 'fp', it['fishPreparation'] );
+                    if (itVariation[0].fishPreparation === '5c93bff065e25a011eefbcc2' || itVariation[0].fishPreparation === '5c93c00465e25a011eefbcc3') {
+                        // get whole fish weight of each item
+                        //  console.log( 'ww',  itVariationPrice[0].variation.wholeFishWeight );
+                        it['wholeFishWeight'] = await WholeFishWeight.find({ id: itVariation[0].wholeFishWeight });
+                    }
+
+                    await ItemShopping.destroy({ id: it.id });
+                    itemsDeleted.push(it);
                 }
+            }));
 
-                await ItemShopping.destroy( { id: it.id } );
-                itemsDeleted.push(it);
+            if (itemsDeleted.length > 0) {
+                res.status(200).json({ message: "itemsDeleted", items: itemsDeleted });
+            } else {
+                res.status(200).json({ message: "all ok", items: itemsDeleted });
             }
-        }));
-
-        if( itemsDeleted.length > 0 ) {
-            res.status(200).json( { message: "itemsDeleted", items: itemsDeleted } );
-        } else {
-            res.status(200).json( { message: "all ok", items: itemsDeleted } );
+        } catch (error) {
+            res.serverError(error);
         }
-      } catch (error) {
-          res.serverError(error);
-      }  
     },
 
     createCart: async function (req, res) {
@@ -187,7 +187,7 @@ module.exports = {
                     it.fishCharges = it.fishCharges;// await sails.helpers.fishPricing(it.fish.id, it.quantity.value, currentAdminCharges)
                     it.fish['price']['value'] = it.fishCharges.variation.price;
 
-                    if( it.fish.hasOwnProperty('perBox') && it.fish.perBox === true) { // adding min/max boxes 
+                    if (it.fish.hasOwnProperty('perBox') && it.fish.perBox === true) { // adding min/max boxes 
                         it.fish['minBox'] = it.fish.minimumOrder / it.fish.boxWeight;
                         it.fish['maxBox'] = it.fish.maximumOrder / it.fish.boxWeight;
                     }
@@ -199,8 +199,8 @@ module.exports = {
                     // get fish Preparation  of each item   
                     console.log('itVariationPrice', itVariationPrice);
                     it['fishPreparation'] = await FishPreparation.find({ id: itVariation[0].fishPreparation });
-		    if( it.hasOwnProperty('inventory') ) {
-                        it['inventory'] = await FishStock.findOne( { id: it.inventory } );
+                    if (it.hasOwnProperty('inventory')) {
+                        it['inventory'] = await FishStock.findOne({ id: it.inventory });
                     }
                     //console.log( 'fp', it['fishPreparation'] );
                     if (it.fishCharges.variation.variation.fishPreparation === '5c93bff065e25a011eefbcc2' || it.fishCharges.variation.variation.fishPreparation === '5c93c00465e25a011eefbcc3') {
@@ -340,7 +340,7 @@ module.exports = {
                     buyer: buyer
                 }
             ).fetch();
-            cart.buyer = await User.findOne({id:buyer});
+            cart.buyer = await User.findOne({ id: buyer });
 
             res.status(200).json(cart);
         }
@@ -437,7 +437,7 @@ module.exports = {
             let in_AED = true;
             //itemCharges = await sails.helpers.fishPricing( req.param("fish"), req.param("quantity"), currentAdminCharges, req.param('variation_id'), in_AED );
             let id = req.param("id")
-            
+
             variation_id = req.body.variation_id,
                 item = {
                     shoppingCart: id,
@@ -448,15 +448,15 @@ module.exports = {
                     variation: req.body.variation_id
                 };
 
-            let stock = await sails.helpers.getEtaStock( variation_id , parseFloat(item['quantity']['value']) );
-            console.log( 'stock', stock )
-            if ( stock === 0 ) {
+            let stock = await sails.helpers.getEtaStock(variation_id, parseFloat(item['quantity']['value']));
+            console.log('stock', stock)
+            if (stock === 0) {
                 return res.status(400).json({ message: "The product is not available" })
             }
 
             // check if this item is already in this cart
             itemCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges, variation_id, in_AED);
-        
+
             item['inventory'] = stock.id;
             item['quantity']['value'] = itemCharges.weight; //weight could be different in fish pricing if the product is per box, here we update the weight
 
@@ -471,7 +471,7 @@ module.exports = {
             console.log('alread in cart', alredyInCart)
 
             let itemShopping;
-	    let fishInfo = await Fish.findOne({ id: req.body.fish });
+            let fishInfo = await Fish.findOne({ id: req.body.fish });
             /*if( fishInfo.hasOwnProperty("perBox") ) {
               if( fishInfo.perBox === true) { // if is per box the app is sending the number of boxes, not the weight
                 //fishInfo.maximumOrder = fishInfo.boxWeight * fishInfo.maximumOrder;
@@ -626,12 +626,12 @@ module.exports = {
             }
 
             // if cart is payment with COD
-            if(cart.isCOD === true){
+            if (cart.isCOD === true) {
                 let available = Number(cart.buyer.cod.available) - Number(cart.total);
                 available = Number(parseFloat(available).toFixed("2"));
-                if(available<0) available = 0;
+                if (available < 0) available = 0;
                 cart.buyer.cod.available = available;
-                await User.update({id:cart.buyer.id},{cod:cart.buyer.cod});
+                await User.update({ id: cart.buyer.id }, { cod: cart.buyer.cod });
             }
             let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id }).populate("fish");
             //generate purchase order number for each item
@@ -648,16 +648,23 @@ module.exports = {
             //}));
             console.info('store group');
             //para agregarles el nombre con el variations
-            itemsShopping = await Promise.all(itemsShopping.map(async function(it){
+            itemsShopping = await Promise.all(itemsShopping.map(async function (it) {
                 it = await concatNameVariation(it);
                 it.description = await getDescription(it);
 
                 //let update fish stock
-                if( it.hasOwnProperty( 'inventory' ) ) {
+                if (it.hasOwnProperty('inventory')) {
                     let inventory = await FishStock.findOne({ id: it.inventory });
                     await FishStock.update({ id: it.inventory }).set({
                         purchased: inventory.purchased + parseFloat(it['quantity']['value'])
                     });
+                    let stock = await sails.helpers.getEtaStock( it.variation , 1 );
+
+                    if( stock === 0 ) {
+                        fish = await Variations.findOne( { id:  it.variation  } ).populate('fish').populate('fishPreparation');
+                        await MailerService.outOfStockNotification( [ fish ] );
+                    }
+                    
                 }
 
                 return it;
@@ -666,7 +673,7 @@ module.exports = {
             //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
             let itemsStore = [];
             for (let item of itemsShopping) {
-                
+
                 let index = itemsStore.findIndex(function (it) {
                     return it[0].fish.store.id === item.fish.store.id;
                 });
@@ -728,9 +735,9 @@ module.exports = {
             //Despues de generar el invoice se crea el correo
             itemsShopping = await sails.helpers.propMap(itemsShopping, []);
             cart = await sails.helpers.propMap(cart, ["vat", "zipCode"]);
-            if(cart.isCOD === true){
+            if (cart.isCOD === true) {
                 await PDFService.buyerInvoiceCOD(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price);
-            }else
+            } else
                 await PDFService.buyerInvoice(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price);
 
 
@@ -795,7 +802,7 @@ module.exports = {
 
             let query = { $and: [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }, { isCOD: null }] };
             if (req.param("type") && req.param("type") === "cod") {
-                query = { $and: [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }, { isCOD: true } ] };
+                query = { $and: [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }, { isCOD: true }] };
             }
 
             let totalResults = await _shopping.count(query, { _id: 1, orderNumber: 1 })
@@ -813,7 +820,9 @@ module.exports = {
                             let order = await ShoppingCart.findOne({ id }).populate('buyer').populate('orderStatus').populate('items');
                             let items = [];
                             await Promise.all(order.items.map(async item => {
-                                let fishItem = await Fish.findOne({ id: item.fish }).populate('store').populate('type').populate('status')
+                                if(item.inventory !== null && item.inventory !== undefined)
+                                    item.inventory = await FishStock.findOne({ id: item.inventory });
+                                let fishItem = await Fish.findOne({ id: item.fish }).populate('store').populate('type').populate('status');
                                 item.fishItem = fishItem;
                                 item.fish = fishItem;
                                 item = await concatNameVariation(item);

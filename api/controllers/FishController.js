@@ -97,6 +97,7 @@ module.exports = {
                 status: body.role == 0 ? "5c0866f9a0eda00b94acbdc2" : "5c0866e4a0eda00b94acbdc0", // if admin is adding the product the status is approved otherwise is pending
                 brandname: body.brandName,
                 hsCode: body.hsCode,
+                cooming_soon: body.cooming_soon
                 // acceptableSpoilageRate: body.acceptableSpoilageRate
             }
 
@@ -201,7 +202,8 @@ module.exports = {
                 waterLostRate: body.waterLostRate,
                 brandname: body.brandName,
                 boxWeight: body.boxWeight,
-                hsCode: body.hsCode
+                hsCode: body.hsCode,
+                cooming_soon: body.cooming_soon
             }
 
             let fishUpdated = await Fish.update({ id: body.idProduct }).set(
@@ -795,9 +797,15 @@ module.exports = {
                     minMax.push(pv.max);
                 })
                 m['inventory'] = inventory;
-                m['max'] = Math.max.apply(null, minMax) // 4
-                m['min'] = Math.min.apply(null, minMax) // 1
-		
+
+		if( m.fish.hasOwnProperty('unitOfSale') && m.fish.unitOfSale === 'lbs' ) {
+		  m['max'] = Math.max.apply(null, minMax) / 2.205 // 4
+                  m['min'] = Math.min.apply(null, minMax) / 2.205 // 1
+		} else { 
+                  m['max'] = Math.max.apply(null, minMax) // 4
+                  m['min'] = Math.min.apply(null, minMax) // 1
+		}
+
                 if( minMaxInventory.length > 0 ) {
                     m['max'] = Math.max.apply(null, minMaxInventory) // 4
                     m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
