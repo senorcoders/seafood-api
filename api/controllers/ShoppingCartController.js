@@ -46,6 +46,9 @@ module.exports = {
 
             let buyer = req.param("buyer");
             let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items").populate("buyer");
+            if (cart === undefined)
+                res.status(200).json({ message: "all ok", items: [] });
+
             let itemsDeleted = [];
             //checking if products are still available, if not, we delete them
             await Promise.all(cart.items.map(async it => {
@@ -676,13 +679,13 @@ module.exports = {
                     await FishStock.update({ id: it.inventory }).set({
                         purchased: inventory.purchased + parseFloat(it['quantity']['value'])
                     });
-                    let stock = await sails.helpers.getEtaStock( it.variation , 1 );
+                    let stock = await sails.helpers.getEtaStock(it.variation, 1);
 
-                    if( stock === 0 ) {
-                        fish = await Variations.findOne( { id:  it.variation  } ).populate('fish').populate('fishPreparation');
-                        await MailerService.outOfStockNotification( [ fish ] );
+                    if (stock === 0) {
+                        fish = await Variations.findOne({ id: it.variation }).populate('fish').populate('fishPreparation');
+                        await MailerService.outOfStockNotification([fish]);
                     }
-                    
+                    it.inventory = inventory;
                 }
 
                 return it;
@@ -838,7 +841,7 @@ module.exports = {
                             let order = await ShoppingCart.findOne({ id }).populate('buyer').populate('orderStatus').populate('items');
                             let items = [];
                             await Promise.all(order.items.map(async item => {
-                                if(item.inventory !== null && item.inventory !== undefined)
+                                if (item.inventory !== null && item.inventory !== undefined)
                                     item.inventory = await FishStock.findOne({ id: item.inventory });
                                 let fishItem = await Fish.findOne({ id: item.fish }).populate('store').populate('type').populate('status');
                                 item.fishItem = fishItem;
