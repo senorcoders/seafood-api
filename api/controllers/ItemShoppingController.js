@@ -355,7 +355,7 @@ module.exports = {
                     if( item.hasOwnProperty('inventory') ) { //backwards compatibility for old products
                         let inventory = await FishStock.findOne({ id: item.inventory });
                         await FishStock.update( { id: item.inventory } ).set({
-                            purchased: inventory.purchased + parseFloat(item['quantity']['value'])
+                            purchased: inventory.purchased - parseFloat(item['quantity']['value'])
                         })
                     }
 
@@ -381,7 +381,7 @@ module.exports = {
                     if( item.hasOwnProperty('inventory') ) { //backwards compatibility for old products
                         let inventory = await FishStock.findOne({ id: item.inventory });
                         await FishStock.update( { id: item.inventory } ).set({
-                            purchased: inventory.purchased + parseFloat(item['quantity']['value'])
+                            purchased: inventory.purchased - parseFloat(item['quantity']['value'])
                         })
                     }
                     //send email to buyer
