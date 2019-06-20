@@ -451,6 +451,7 @@ module.exports = {
                         }
                     }
                     let uaeTaxes = await PricingCharges.find({ where: { type: 'uaeTaxes' } }).sort('updatedAt DESC').limit(1);
+                    cart = await sails.helpers.propMap(cart, ["vat", "zipCode"]);
                     await PDFService.buyerInvoiceCODPaid(itemsShopping, cart, cart.orderNumber, [], uaeTaxes[0].price)
                 } else
                     await MailerService.buyerRefund(name, cart, store, item);
