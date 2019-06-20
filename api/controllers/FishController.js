@@ -203,10 +203,12 @@ module.exports = {
                 brandname: body.brandName,
                 boxWeight: body.boxWeight,
                 hsCode: body.hsCode,
-                cooming_soon: body.cooming_soon
+                cooming_soon: body.cooming_soon,
+		status: body.status
             }
-            if( body.hasOwnProperty['status'] && body.status !== null && body.status !== undefined && body.status !== '' ){
-                fishBody['status'] = body.status;
+	     console.log('status', body.status);
+            if( body.hasOwnProperty['status'] && body.status !== '' ){
+                fishBody.status = body.status;
             }
 
             let fishUpdated = await Fish.update({ id: body.idProduct }).set(
@@ -260,7 +262,7 @@ module.exports = {
                         await VariationPrices.update({ id: price.id }).set(priceBody);
                     } else {
                         // lets create
-                        console.log("\n\n", newVariation, "\n", variation);
+                        //console.log("\n\n", newVariation, "\n", variation);
                         let idVar = "";
                         if (Object.prototype.toString.call(newVariation) === '[object Array]') {
                             idVar = newVariation.length > 0 ? newVariation[0].id : variation.id;
