@@ -13,7 +13,7 @@ module.exports = {
         let stocks = await FishStock.find().where({
             "date": { '>': unixNow },
             "variations": variationID
-        } ).sort( 'date DESC' ).populate('variations');
+        } ).sort( 'date DESC' );
 
         stocks = await Promise.all( stocks.map( async ( stock ) => {
             let variation = await Variations.findOne( { id: stock.variations } )
