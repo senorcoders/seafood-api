@@ -15,7 +15,15 @@ module.exports = {
             "variations": variationID
         } ).sort( 'date DESC' ).populate('variations');
 
-     
+        stocks = await Promise.all( stocks.map( async ( stock ) => {
+            let variation = await Variations.findOne( { id: stock.variations } )
+                .populate('fish')
+                .populate('fishPreparation')
+                .populate('wholeFishWeight')
+
+            stock['variations'] = variation;
+            return stock;
+        } ) )
 
         return res.status(200).json( stocks );
     },     
