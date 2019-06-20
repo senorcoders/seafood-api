@@ -46,6 +46,9 @@ module.exports = {
 
             let buyer = req.param("buyer");
             let cart = await ShoppingCart.findOne({ buyer, status: "pending" }).populate("items").populate("buyer");
+            if (cart === undefined)
+                res.status(200).json({ message: "all ok", items: [] });
+
             let itemsDeleted = [];
             //checking if products are still available, if not, we delete them
             await Promise.all(cart.items.map(async it => {
@@ -123,7 +126,13 @@ module.exports = {
                 shippingItems = [];
                 await Promise.all(cart.items.map(async item => {
                     let itemStore = await Fish.findOne({ id: item.fish }).populate('store');
-                    let fishCharges = await sails.helpers.fishPricing(item.fish, item.quantity.value, currentAdminCharges, item.variation, in_AED)
+                    let boxesNumbers =  item.quantity.value;
+                    if (itemStore.hasOwnProperty("perBox")) {
+                        if ( itemStore.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
+                            boxesNumbers = item.quantity.value / itemStore.boxWeight ;
+                        }
+                    }
+                    let fishCharges = await sails.helpers.fishPricing(item.fish, boxesNumbers, currentAdminCharges, item.variation, in_AED)
                     item.fish = itemStore;
                     item.store = itemStore.store.id;
                     item.country = itemStore.country;
@@ -181,6 +190,7 @@ module.exports = {
                     }))
                     return store;
                 }))
+		let unixNow = Math.floor(new Date());
                 //setting min dalivery date for each item
                 await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish.id }).populate("type").populate("store");
@@ -201,6 +211,17 @@ module.exports = {
                     it['fishPreparation'] = await FishPreparation.find({ id: itVariation[0].fishPreparation });
                     if (it.hasOwnProperty('inventory')) {
                         it['inventory'] = await FishStock.findOne({ id: it.inventory });
+
+                        let inventory = await FishStock.find().where({
+                            "date": { '>': unixNow },
+                            "variations": itVariation[0].id
+                        } ).sort( 'date DESC' ).populate('variations');                    
+                        
+                        let minMaxInventory = [];
+                        inventory.map( item => {
+                            minMaxInventory.push( (item.quantity - item.purchased) );
+                        } )
+                        it['maxAvailableInventory'] = Math.max.apply(null, minMaxInventory);
                     }
                     //console.log( 'fp', it['fishPreparation'] );
                     if (it.fishCharges.variation.variation.fishPreparation === '5c93bff065e25a011eefbcc2' || it.fishCharges.variation.variation.fishPreparation === '5c93c00465e25a011eefbcc3') {
@@ -658,13 +679,13 @@ module.exports = {
                     await FishStock.update({ id: it.inventory }).set({
                         purchased: inventory.purchased + parseFloat(it['quantity']['value'])
                     });
-                    let stock = await sails.helpers.getEtaStock( it.variation , 1 );
+                    let stock = await sails.helpers.getEtaStock(it.variation, 1);
 
-                    if( stock === 0 ) {
-                        fish = await Variations.findOne( { id:  it.variation  } ).populate('fish').populate('fishPreparation');
-                        await MailerService.outOfStockNotification( [ fish ] );
+                    if (stock === 0) {
+                        fish = await Variations.findOne({ id: it.variation }).populate('fish').populate('fishPreparation');
+                        await MailerService.outOfStockNotification([fish]);
                     }
-                    
+                    it.inventory = inventory;
                 }
 
                 return it;
@@ -820,7 +841,7 @@ module.exports = {
                             let order = await ShoppingCart.findOne({ id }).populate('buyer').populate('orderStatus').populate('items');
                             let items = [];
                             await Promise.all(order.items.map(async item => {
-                                if(item.inventory !== null && item.inventory !== undefined)
+                                if (item.inventory !== null && item.inventory !== undefined)
                                     item.inventory = await FishStock.findOne({ id: item.inventory });
                                 let fishItem = await Fish.findOne({ id: item.fish }).populate('store').populate('type').populate('status');
                                 item.fishItem = fishItem;
