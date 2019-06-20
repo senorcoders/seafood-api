@@ -354,8 +354,8 @@ module.exports = {
 
                     if (item.hasOwnProperty('inventory')) { //backwards compatibility for old products
                         let inventory = await FishStock.findOne({ id: item.inventory });
-                        await FishStock.update({ id: item.inventory }).set({
-                            purchased: inventory.purchased + parseFloat(item['quantity']['value'])
+                        await FishStock.update( { id: item.inventory } ).set({
+                            purchased: inventory.purchased - parseFloat(item['quantity']['value'])
                         })
                     }
 
@@ -380,8 +380,8 @@ module.exports = {
                     //returning inventory
                     if (item.hasOwnProperty('inventory')) { //backwards compatibility for old products
                         let inventory = await FishStock.findOne({ id: item.inventory });
-                        await FishStock.update({ id: item.inventory }).set({
-                            purchased: inventory.purchased + parseFloat(item['quantity']['value'])
+                        await FishStock.update( { id: item.inventory } ).set({
+                            purchased: inventory.purchased - parseFloat(item['quantity']['value'])
                         })
                     }
                     //send email to buyer
@@ -451,6 +451,7 @@ module.exports = {
                         }
                     }
                     let uaeTaxes = await PricingCharges.find({ where: { type: 'uaeTaxes' } }).sort('updatedAt DESC').limit(1);
+                    cart = await sails.helpers.propMap(cart, ["vat", "zipCode"]);
                     await PDFService.buyerInvoiceCODPaid(itemsShopping, cart, cart.orderNumber, [], uaeTaxes[0].price)
                 } else
                     await MailerService.buyerRefund(name, cart, store, item);
