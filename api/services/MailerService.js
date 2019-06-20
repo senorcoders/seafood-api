@@ -75,7 +75,7 @@ module.exports = {
                 id: user.id,
                 code: user.code
             }, ["code"])
-        )
+        ) 
             .then(res => {
                 transporter.sendMail({
                     from: emailSender,
