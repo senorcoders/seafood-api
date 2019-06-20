@@ -61,7 +61,8 @@ module.exports = {
                 body.store,
                 body.parentType,
                 body.specie,
-                body.processingCountry
+                body.processingCountry,
+                body.type
             );
             console.log("\n\n\n", seafood_sku, "\n\n\n");
 
@@ -112,7 +113,7 @@ module.exports = {
                     if (variation.hasOwnProperty('wholeFishWeight') === true && variation.hasOwnProperty('fishPreparation') === true) {
                         let whole = await WholeFishWeight.findOne({ id: variation.wholeFishWeight });
                         if (whole !== undefined)
-                            skuVar += "-"+ whole.name.substring(0, 1);
+                            skuVar += "-"+ whole.name.substring(0, 3);
                     } else if (variation.hasOwnProperty('fishPreparation') === true && variation.fishPreparation === "5c93c01465e25a011eefbcc4") {
                         //Para fillete
                         skuVar += "-"+ 1;
@@ -179,6 +180,7 @@ module.exports = {
     updateFishWithVariations: async (req, res) => {
         try {
             let body = req.body;
+            
             // let update fish information
             let fishBody = {
                 type: body.type,
@@ -233,7 +235,7 @@ module.exports = {
                     if (variation.hasOwnProperty('wholeFishWeight') === true && variation.hasOwnProperty('fishPreparation') === true) {
                         let whole = await WholeFishWeight.findOne({ id: variation.wholeFishWeight });
                         if (whole !== undefined)
-                            skuVar += "-"+ whole.name.substring(0, 1);
+                            skuVar += "-"+ whole.name.substring(0, 3);
                     } else if (variation.hasOwnProperty('fishPreparation') === true && variation.fishPreparation === "5c93c01465e25a011eefbcc4") {
                         //Para fillete
                         skuVar += "-"+ 1;
