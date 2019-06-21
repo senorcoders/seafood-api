@@ -1715,10 +1715,14 @@ module.exports = {
             console.log('in_AED2', req.param('in_AED'));
             let charges = await sails.helpers.fishPricing(id, weight, currentAdminCharges, variation_id, in_AED);
 
+            charges['finalPricePerKG'] = charges.finalPrice;
+            charges['fishCostPerKG'] = charges.fishCost;
             //checking if the product is per box
             let varFish = await Variations.findOne({ id: variation_id }).populate("fish");
             if( varFish.fish.hasOwnProperty('perBox') && varFish.fish.perBox ) {
-                weight = weight * varFish.fish.boxWeight;
+                weight = weight * varFish.fish.boxWeight;                
+                charges['finalPricePerKG'] = Number(parseFloat(charges.finalPrice / varFish.fish.boxWeight).toFixed(2));
+                charges['fishCostPerKG'] = Number(parseFloat(charges.fishCost / varFish.fish.boxWeight).toFixed(2));
             } 
 
 	        let stock = await sails.helpers.getEtaStock( variation_id , weight );
