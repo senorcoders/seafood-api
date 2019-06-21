@@ -1721,8 +1721,9 @@ module.exports = {
             let varFish = await Variations.findOne({ id: variation_id }).populate("fish");
             if( varFish.fish.hasOwnProperty('perBox') && varFish.fish.perBox ) {
                 weight = weight * varFish.fish.boxWeight;
-                charges['finalPricePerKG'] = charges.finalPrice / varFish.fish.boxWeight;
-                charges['fishCostPerKG'] = charges.fishCost / varFish.fish.boxWeight;
+                Number(parseFloat(fishPrice / exchangeRates).toFixed(2))
+                charges['finalPricePerKG'] = Number(parseFloat(charges.finalPrice / varFish.fish.boxWeight).toFixed(2));
+                charges['fishCostPerKG'] = Number(parseFloat(charges.fishCost / varFish.fish.boxWeight).toFixed(2));
             } 
 
 	        let stock = await sails.helpers.getEtaStock( variation_id , weight );
