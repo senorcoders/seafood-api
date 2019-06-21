@@ -337,7 +337,9 @@ module.exports.routes = {
   'GET /api/ItemShopping/shipping/images/:itemID/:imageIndex': "ImageController.serveShippingImage",
 
   //change status and send emails
-  'PUT /api/itemshopping/:id/:status': "ItemShoppingController.updateItemStatus",
+  'PUT /api/itemshopping/:id/:status': "ItemShoppingController.updateItemStatus", 
+
+  'PUT /api/itemshopping/payment/:id/:status': "ItemShoppingController.updateItemPaymentStatus", 
 
   'GET /api/fish/:id/variation/:variation_id/charges/:weight/:in_AED': 'FishController.getItemCharges',
 
