@@ -1720,8 +1720,7 @@ module.exports = {
             //checking if the product is per box
             let varFish = await Variations.findOne({ id: variation_id }).populate("fish");
             if( varFish.fish.hasOwnProperty('perBox') && varFish.fish.perBox ) {
-                weight = weight * varFish.fish.boxWeight;
-                Number(parseFloat(fishPrice / exchangeRates).toFixed(2))
+                weight = weight * varFish.fish.boxWeight;                
                 charges['finalPricePerKG'] = Number(parseFloat(charges.finalPrice / varFish.fish.boxWeight).toFixed(2));
                 charges['fishCostPerKG'] = Number(parseFloat(charges.fishCost / varFish.fish.boxWeight).toFixed(2));
             } 

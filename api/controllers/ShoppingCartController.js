@@ -562,17 +562,56 @@ module.exports = {
 
     updateItems: async (req, res) => {
         try {
+            let currentAdminCharges = await sails.helpers.currentCharges();
+            let in_AED = true;
 
             let items = req.param("items");
             if (Object.prototype.toString.call(items) !== "[object Array]") {
                 return res.status(500).send("invalid parameter items");
             }
 
-            for (let it of items) {
+            await Promise.all( items.map( async ( it ) => {
+                let id = it.id;
+                let bdtem = await ItemShopping.findOne( { id: id } );
+                /*delete it.id;
+                await ItemShopping.update({ id }, it);*/
+
+                variation_id = bdtem.variation,
+                item = {
+                    shoppingCart: bdtem.shoppingCart,
+                    fish: bdtem.fish,
+                    quantity: parseFloat(it['quantity']['value']) + bdtem.quantity.value,
+                    price: bdtem.price,
+                    variation: bdtem.variation
+                };
+
+                let stock = await sails.helpers.getEtaStock(variation_id, parseFloat(it['quantity']['value']) + bdtem.quantity.value);
+                console.log('stock', stock)
+                if (stock === 0) {
+                    return res.status(400).json({ message: "The product is not available" })
+                }
+
+                itemCharges = await sails.helpers.fishPricing(bdtem.fish, parseFloat(it['quantity']['value']) + bdtem.quantity.value, currentAdminCharges, variation_id, in_AED);
+                item['inventory'] = stock.id;
+                let itemShopping;
+                let fishInfo = await Fish.findOne({ id: bdtem.fish });
+
+
+                if (fishInfo.minimumOrder > item.quantity.value) {
+                    return res.status(400).json({ message: "Order is below the minimum" })
+                } else {
+                    let item_id = it.id;                    
+                    itemShopping = await ItemShopping.update({ id: item_id }, item);
+                }
+                    
+
+            } ) )
+
+            /*for (let it of items) {
                 let id = it.id;
                 delete it.id;
                 await ItemShopping.update({ id }, it);
-            }
+            }*/
 
             res.json({ msg: "success" });
 
