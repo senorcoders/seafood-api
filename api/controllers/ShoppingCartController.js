@@ -578,21 +578,20 @@ module.exports = {
 
                 variation_id = bdtem.variation,
                 item = {
-                    shoppingCart: bdtem.shoppingCart,
-                    fish: bdtem.fish,
-                    quantity: parseFloat(it['quantity']['value']) + bdtem.quantity.value,
-                    price: bdtem.price,
-                    variation: bdtem.variation
+                    quantity: { "type": "kg", "value": parseFloat(it['quantity']['value']) },
+                    price: bdtem.price
                 };
-
-                let stock = await sails.helpers.getEtaStock(variation_id, parseFloat(it['quantity']['value']) + bdtem.quantity.value);
+		console.log( 'it', it['quantity']['value'] );
+		console.log( 'bd', bdtem.quantity );
+                let stock = await sails.helpers.getEtaStock(variation_id, parseFloat(it['quantity']['value']) );
                 console.log('stock', stock)
                 if (stock === 0) {
                     return res.status(400).json({ message: "The product is not available" })
                 }
 
-                itemCharges = await sails.helpers.fishPricing(bdtem.fish, parseFloat(it['quantity']['value']) + bdtem.quantity.value, currentAdminCharges, variation_id, in_AED);
+                itemCharges = await sails.helpers.fishPricing(bdtem.fish, it['quantity']['value'], currentAdminCharges, variation_id, in_AED);
                 item['inventory'] = stock.id;
+		item['itemCharges'] = itemCharges;
                 let itemShopping;
                 let fishInfo = await Fish.findOne({ id: bdtem.fish });
 
