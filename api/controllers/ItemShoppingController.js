@@ -470,7 +470,7 @@ module.exports = {
     },
 
     updateItemPaymentStatus: async (req, res) => {
-        try {
+        try { 
             let id = req.param("id");
             let status = req.param("status");
             let userEmail = req.body.userEmail;
@@ -750,6 +750,7 @@ module.exports = {
         let orderNumber = req.param('orderNumber')
         try {
             let shoppingCart = await ShoppingCart.find({ 'orderNumber': orderNumber });
+            console.log('shoppingCart', shoppingCart.length);
             let items = [];
             for (let sc of shoppingCart) {
                 items = await ItemShopping.find(
@@ -762,12 +763,13 @@ module.exports = {
                     }
                 ).populate("fish").populate("shoppingCart").populate("status").populate('paymentStatus').sort('createdAt DESC');
             }
+            console.log('items', items.length)
             await Promise.all(items.map(async function (it) {
                 it = await concatNameVariation(it);
                 it.store = await Store.findOne({ id: it.fish.store });
                 if (it['fish'] !== undefined) {
                     if (it.fish['country'] !== undefined) {
-                        if (it.fish.hasOwnProperty(country)) {
+                        if (it.fish.hasOwnProperty('country')) {
                             fishCountry = await Countries.findOne({ code: it.fish.country });
                             it.country = {
                                 code: fishCountry.code,
