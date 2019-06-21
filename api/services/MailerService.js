@@ -69,6 +69,10 @@ async function formatDates(d) {
 
 module.exports = {
     registerNewUser: async (user) => {
+        let attachments = user.role === 2 ? [{
+            filename: 'welcome_buyer.pdf',
+            path: `pdf_templates/welcome_buyer.pdf`
+        }] : [];
         email.render('../email_templates/register_new_user',
             await applyExtend({
                 name: user.firstName + ' ' + user.lastName,
@@ -82,6 +86,7 @@ module.exports = {
                     to: user.email,
                     subject: 'Your Account is Under Review',
                     html: res, // html body
+                    attachments
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
