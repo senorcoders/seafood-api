@@ -792,7 +792,7 @@ module.exports = {
             await MailerService.sendCartPaidAdminNotified(itemsShopping, cart, OrderNumber, storeName)
 
             //Despues de generar el invoice se crea el correo
-            itemsShopping = await sails.helpers.propMap(itemsShopping, []);
+            // itemsShopping = await sails.helpers.propMap(itemsShopping, ['weight','boxWeight','price']);
             cart = await sails.helpers.propMap(cart, ["vat", "zipCode"]);
             if (cart.isCOD === true) {
                 await PDFService.buyerInvoiceCOD(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price);
