@@ -199,13 +199,13 @@
               <%= it.fish.country %>
             </td>
             <td class="col col-1">
-              <%= it.itemCharges.weight %>
+              <%= it.fish.perBox === true ? parseFloat(Number(it.itemCharges.weight) / Number(it.fish.boxWeight)).toFixed(2) : it.itemCharges.weight %>
             </td>
             <td class="col col-1">
-              KG
+              <%=it.fish.perBox===true? parseInt(Number(it.itemCharges.weight) / Number(it.fish.boxWeight)) > 1 ? 'BOXES' : 'BOX':'KG' %>
             </td>
             <td class="col col-1">
-                <%= it.itemCharges.price %>
+                <%=it.fish.perBox === true ? parseFloat(Number(it.itemCharges.price) * Number(it.fish.boxWeight)).toFixed(2) : it.itemCharges.price %>
             </td>
             <!-- <td class="col col-1">
               5%
