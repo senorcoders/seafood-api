@@ -301,7 +301,7 @@ module.exports = {
                     it.sfsMargin = it.fishCharges.sfsMarginCost;
                     it.customs = it.fishCharges.customsFee;
                     it.uaeTaxes = it.fishCharges.uaeTaxesFee;
-
+                    
 
                     await ItemShopping.update({ id: it.id }, {
                         currentCharges: it.currentCharges,
@@ -348,7 +348,7 @@ module.exports = {
                 cart.totalUAETaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
                 cart.totalShipping = Number(parseFloat(totalShipping).toFixed(2));
                 cart.shipping = Number(parseFloat(totalShipping).toFixed(2));
-
+                cart.uaeTaxes = Number(parseFloat(totalUAETaxes).toFixed(2));
 
                 //}
 
