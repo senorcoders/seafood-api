@@ -1,15 +1,15 @@
 var nodeMailer = require("nodemailer");
 var Email = require('email-templates');
 const ADMIN_EMAIL = sails.config.custom.adminEmails, webappUrl = sails.config.custom.webappUrl;
-console.log( 'custom', sails.config.custom.adminEmails );
+console.log('custom', sails.config.custom.adminEmails);
 const APP_NAME = sails.config.APP_NAME;
 const config = sails.config.mailer;
 const sender = config.auth.user;
 const emailSender = 'Seafoodsouq <do-not-reply@seafoodsouq.com>';
 
 //El url base del api, segun su enviroment
-const URL = sails.config.custom.baseUrl, 
-logoSrc = URL + "/images/logo_email.png";
+const URL = sails.config.custom.baseUrl,
+    logoSrc = URL + "/images/logo_email.png";
 
 //El json default que se usa en los correos como emails y logos
 const DEFAULT = {
@@ -69,24 +69,19 @@ async function formatDates(d) {
 
 module.exports = {
     registerNewUser: async (user) => {
-        let attachments = user.role === 2 ? [{
-            filename: 'welcome_buyer.pdf',
-            path: `pdf_templates/welcome_buyer.pdf`
-        }] : [];
         email.render('../email_templates/register_new_user',
             await applyExtend({
                 name: user.firstName + ' ' + user.lastName,
                 id: user.id,
                 code: user.code
             }, ["code"])
-        ) 
+        )
             .then(res => {
                 transporter.sendMail({
                     from: emailSender,
                     to: user.email,
                     subject: 'Your Account is Under Review',
                     html: res, // html body
-                    attachments
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -135,7 +130,7 @@ module.exports = {
             )
     },
     sendApprovedEmail: async (id, emailAddress, code, name) => {
-        
+
         email.render('../email_templates/approved_account',
             await applyExtend({
                 name: name
@@ -174,6 +169,10 @@ module.exports = {
                     to: emailAddress,
                     subject: 'Welcome Onboard, Getting Started with Seafood Souq !',
                     html: res, // html body
+                    attachments: [{
+                        filename: 'welcome_buyer.pdf',
+                        path: `pdf_templates/welcome_buyer.pdf`
+                    }]
                 }, (error, info) => {
                     if (error) {
                         return console.log(error);
@@ -191,7 +190,7 @@ module.exports = {
         email.render('../email_templates/approved_seller',
             await applyExtend({
                 name: name
-            }) 
+            })
         )
             .then(res => {
                 transporter.sendMail({
@@ -845,7 +844,7 @@ module.exports = {
     },
     itemShipped: async (name, cart, store, item) => {
 
-        
+
         let sellerExpectedDeliveryDate = item.sellerExpectedDeliveryDate.split("/");
         let sellerDate = new Date(sellerExpectedDeliveryDate[2], sellerExpectedDeliveryDate[0], sellerExpectedDeliveryDate[1]);
         sellerExpectedDeliveryDate = await sails.helpers.formatDate(sellerDate);
@@ -887,7 +886,7 @@ module.exports = {
         let paidDateTime = new Date(cart.paidDateTime);
         let sellerExpectedDeliveryDate = item.sellerExpectedDeliveryDate.split("/");
         let sellerDate = new Date(sellerExpectedDeliveryDate[2], sellerExpectedDeliveryDate[0], sellerExpectedDeliveryDate[1]);
-        
+
         item = item.typeObject() === 'object' ? [item] : item;
         let data = await sails.helpers.getDataOrder.with({
             URL,
@@ -1117,9 +1116,9 @@ module.exports = {
                 console.error
             )
     },
-    outOfStockNotification: async (products) => {        
+    outOfStockNotification: async (products) => {
         email.render('../email_templates/out-of-stock-admin-notification',
-            await applyExtend({                
+            await applyExtend({
                 products: products
             })
         )
