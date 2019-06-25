@@ -40,7 +40,7 @@ module.exports = {
                 invoiceDueDate: paidDateTime,
                 invoiceDate: paidDateTime,
                 buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
-                buyerContactPostalAddress: `${cart.buyer.dataExtra.Address ? cart.buyer.dataExtra.Address : ''}${cart.buyer.dataExtra.City ? ", " + cart.buyer.dataExtra.City : ''}${cart.buyer.dataExtra.country ? ", " + cart.buyer.dataExtra.country : ''}${cart.buyer.dataExtra.zipCode ? ", " + cart.buyer.dataExtra.zipCode : ''}`,
+                buyerContactPostalAddress: `${cart.shippingAddress.address } ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
                 contactAccountNumber: '100552524900003',
                 InvoiceNumber: 'InvoiceNumber',
                 vat: cart.buyer.dataExtra.vat || 0,
@@ -81,21 +81,14 @@ module.exports = {
         let today = new Date();
         // date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
         date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
-        console.log('testttttttttttt\n\n',
-            itemsShopping[0].itemCharges.weight,
-            itemsShopping[0].fish.boxWeight,
-            Number(itemsShopping[0].itemCharges.weight),
-            Number(itemsShopping[0].fish.boxWeight),
-            parseFloat(Number(itemsShopping[0].itemCharges.weight) / Number(itemsShopping[0].fish.boxWeight)).toFixed(2),
-            '\n\n'
-        );
+
         let paidDateTime = date;
         var html = await compiled(
             {
                 invoiceDueDate: paidDateTime,
                 invoiceDate: paidDateTime,
                 buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
-                buyerContactPostalAddress: `${cart.buyer.dataExtra.Address ? cart.buyer.dataExtra.Address : ''}${cart.buyer.dataExtra.City ? ", " + cart.buyer.dataExtra.City : ''}${cart.buyer.dataExtra.country ? ", " + cart.buyer.dataExtra.country : ''}${cart.buyer.dataExtra.zipCode ? ", " + cart.buyer.dataExtra.zipCode : ''}`,
+                buyerContactPostalAddress: `${cart.shippingAddress.address } ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
                 contactAccountNumber: '100552524900003',
                 InvoiceNumber: 'InvoiceNumber',
                 vat: cart.buyer.dataExtra.vat || 0,
@@ -141,7 +134,7 @@ module.exports = {
                 invoiceDueDate: paidDateTime,
                 invoiceDate: paidDateTime,
                 buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
-                buyerContactPostalAddress: `${cart.buyer.dataExtra.Address ? cart.buyer.dataExtra.Address : ''}${cart.buyer.dataExtra.City ? ", " + cart.buyer.dataExtra.City : ''}${cart.buyer.dataExtra.country ? ", " + cart.buyer.dataExtra.country : ''}${cart.buyer.dataExtra.zipCode ? ", " + cart.buyer.dataExtra.zipCode : ''}`,
+                buyerContactPostalAddress: `${cart.shippingAddress.address } ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
                 contactAccountNumber: '100552524900003',
                 InvoiceNumber: 'InvoiceNumber',
                 vat: cart.buyer.dataExtra.vat || 0,
