@@ -211,7 +211,7 @@
               5%
             </td> -->
             <td class="col col-2" style="text-align: right;">
-              <%= it.itemCharges.fishCost  %>
+              <%= parseFloat(Number(it.itemCharges.fishCost)).toFixed(2) %>
             </td>
           </tr>
           <% } ); %>
