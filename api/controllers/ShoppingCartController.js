@@ -575,7 +575,16 @@ module.exports = {
                 let bdtem = await ItemShopping.findOne( { id: id } );
                 /*delete it.id;
                 await ItemShopping.update({ id }, it);*/
+		/******************************/
 
+		let itemStore = await Fish.findOne({ id: bdtem.fish }).populate('store');
+                let boxesNumbers =  parseFloat(it['quantity']['value']);
+                if (itemStore.hasOwnProperty("perBox")) {
+                    if ( itemStore.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
+                        boxesNumbers = boxesNumbers / itemStore.boxWeight ;
+                    }
+                }
+		/******************************/
                 variation_id = bdtem.variation,
                 item = {
                     quantity: { "type": "kg", "value": parseFloat(it['quantity']['value']) },
@@ -589,7 +598,7 @@ module.exports = {
                     return res.status(400).json({ message: "The product is not available" })
                 }
 
-                itemCharges = await sails.helpers.fishPricing(bdtem.fish, it['quantity']['value'], currentAdminCharges, variation_id, in_AED);
+                itemCharges = await sails.helpers.fishPricing(bdtem.fish, boxesNumbers, currentAdminCharges, variation_id, in_AED);
                 item['inventory'] = stock.id;
 		item['itemCharges'] = itemCharges;
                 let itemShopping;
