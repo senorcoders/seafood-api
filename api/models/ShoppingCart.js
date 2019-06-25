@@ -86,6 +86,15 @@ module.exports = {
       required: false
     },
 
+    shippingAddress: {
+      type: "json",
+      required: false
+    },
+    billingAddress: {
+      type: "json",
+      required: false
+    },
+
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
