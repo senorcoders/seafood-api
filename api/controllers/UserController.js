@@ -134,10 +134,10 @@ module.exports = {
         try {
 
             let users = await User.find({ role: 0 });
-            users = users.map( user => {
+            users = users.map(user => {
                 delete user.token;
                 return user;
-            } )
+            })
             res.json(users);
         }
         catch (e) {
@@ -149,14 +149,14 @@ module.exports = {
     getSellers: async (req, res) => {
         try {
 
-            let users = await User.find({ role: 1, status : "accepted" });
-            users = users.map( user => {
+            let users = await User.find({ role: 1, status: "accepted" });
+            users = users.map(user => {
                 delete user.token;
                 delete user.dataExtra;
                 delete user.certifications;
                 delete user.logos;
                 return user;
-            } )
+            })
             res.json(users);
         }
         catch (e) {
@@ -356,6 +356,18 @@ module.exports = {
         catch (e) {
             console.error(e);
             res.serverError(e);
+        }
+    },
+
+    resendEmail: async (req, res) => {
+        try {
+            let user = await User.findOne({ id: req.param('id') });
+            await MailerService.registerNewUser(user);
+            res.v2('success');
+        }
+        catch (e) {
+            console.error(e);
+            res.v2(e);
         }
     }
 

@@ -11,16 +11,16 @@ const token = async (user) => {
         firstName: user.firstName,
         password: user.password
       }, secret, { expiresIn: 6336000 }, function (err, token) {
-      if (err) {
-        console.log(err);
-        return reject(err);
-      }
+        if (err) {
+          console.log(err);
+          return reject(err);
+        }
 
-      user.token = token;
+        user.token = token;
 
-      //console.log(user);
-      resolve(user);
-    });
+        //console.log(user);
+        resolve(user);
+      });
 
   })
 };
@@ -92,8 +92,7 @@ and exposed as \`req.me\`.)`
       // To customize the response for _only this_ action, replace `responseType` with
       // something else.  For example, you might set `statusCode: 498` and change the
       // implementation below accordingly (see http://sailsjs.com/docs/concepts/controllers).
-    }
-
+    },
   },
 
 
@@ -132,6 +131,10 @@ and exposed as \`req.me\`.)`
         this.req.session.cookie.maxAge = sails.config.custom.rememberMeCookieMaxAge;
       }
     }//ﬁ
+
+    if (userRecord.verification !== true) {
+      return exits.success({ msg: 'no verified', user: userRecord });
+    }
 
     // Modify the active session instance.
     this.req.session.userId = userRecord.id;

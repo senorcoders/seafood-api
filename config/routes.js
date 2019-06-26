@@ -611,7 +611,7 @@ module.exports.routes = {
 
   //get items by status and order number
   // 'GET /api/v2/itemshopping/payed/:orderNumber': 'ItemShoppingController.getPayedItemsByOrderNumber',
-
+  'GET /user/resendemail/:id': 'UserController.resendEmail',
 
   //#endregion
 };

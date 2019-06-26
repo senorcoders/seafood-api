@@ -203,7 +203,7 @@ the account verification message.)`,
     }
 
 
-    await MailerService.registerNewUser(newUserRecord);
+    await MailerService.registerNewUser(newUserRecord); 
     let nameCompany = inputs.dataExtra.companyName || "not have"
     await MailerService.newUserNotification(inputs.firstName + " " + inputs.lastName, newEmailAddress, newUserRecord.role, nameCompany);
     //await require("./../../../mailer").newUserNotification(newUserRecord.firstName, newUserRecord.lastName, newUserRecord.role, newUserRecord.email);
