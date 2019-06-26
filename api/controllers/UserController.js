@@ -361,7 +361,7 @@ module.exports = {
 
     resendEmail: async (req, res) => {
         try {
-            let user = await User.findOne({ id: req.param('id') });
+            let user = await User.findOne({ email: req.param('email') });
             await MailerService.registerNewUser(user);
             res.v2('success');
         }
