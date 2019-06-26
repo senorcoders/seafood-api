@@ -45,7 +45,8 @@ module.exports.policies = {
     changePassword: true,
     getPublicIp: true,
     getLogoSeller: true,
-    getCertificationSeller: true
+    getCertificationSeller: true,
+    resendEmail: true
   },
   StoreController: {
     save: true,
