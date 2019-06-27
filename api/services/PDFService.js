@@ -2,6 +2,7 @@ var fs = require('fs');
 var ejs = require('ejs');
 var pdf = require('html-pdf')
 var api_url = sails.config.custom.baseUrl;
+const moment = require('moment');
 
 //Esta propiedada wholeFishWeight, no es definida
 //en algunos productos por eso necesito definirla.
@@ -40,7 +41,7 @@ module.exports = {
                 invoiceDueDate: paidDateTime,
                 invoiceDate: paidDateTime,
                 buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
-                buyerContactPostalAddress: `${cart.shippingAddress.address } ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
+                buyerContactPostalAddress: `${cart.shippingAddress.address} ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
                 contactAccountNumber: '100552524900003',
                 InvoiceNumber: 'InvoiceNumber',
                 vat: cart.buyer.dataExtra.vat || 0,
@@ -88,7 +89,7 @@ module.exports = {
                 invoiceDueDate: paidDateTime,
                 invoiceDate: paidDateTime,
                 buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
-                buyerContactPostalAddress: `${cart.shippingAddress.address } ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
+                buyerContactPostalAddress: `${cart.shippingAddress.address} ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
                 contactAccountNumber: '100552524900003',
                 InvoiceNumber: 'InvoiceNumber',
                 vat: cart.buyer.dataExtra.vat || 0,
@@ -134,7 +135,7 @@ module.exports = {
                 invoiceDueDate: paidDateTime,
                 invoiceDate: paidDateTime,
                 buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
-                buyerContactPostalAddress: `${cart.shippingAddress.address } ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
+                buyerContactPostalAddress: `${cart.shippingAddress.address} ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
                 contactAccountNumber: '100552524900003',
                 InvoiceNumber: 'InvoiceNumber',
                 vat: cart.buyer.dataExtra.vat || 0,
@@ -174,7 +175,7 @@ module.exports = {
         deliveryDate.setDate(deliveryDate.getDate() + 1);
         // date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
         date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
-        date_name = date.split('/').join('-');
+        let date_name = moment().format('MM-DD-YYYY');
         // date2 = deliveryDate.getFullYear() + '-' + (deliveryDate.getMonth() + 1) + '-' + deliveryDate.getDate();
         date2 = deliveryDate.getDate() + '/' + (deliveryDate.getMonth() + 1) + '/' + deliveryDate.getFullYear();
         let portOfLoading = await sails.helpers.portOfLoadingByCode(itemsShopping[0].fish.processingCountry, itemsShopping[0].fish.city);
@@ -190,7 +191,7 @@ module.exports = {
                 invoice_number: 'invoice_number',
                 purchase_order_date: paidDateTime,
                 delivery_order_date: date2,
-                invoice_number: itemsShopping.orderInvoice,
+                invoice_number: itemsShopping[0].orderInvoice,
                 purchase_number: counter,
                 orderNumber: orderNumber,
                 items: itemsShopping,
@@ -206,9 +207,9 @@ module.exports = {
         );
         let pdf_name = `purchase-order-${orderNumber}-${date_name}-${counter}.pdf`;
         await pdf.create(html).toFile(`./pdf_purchase_order/${pdf_name}`, async () => {
-            console.log('pdf done', pdf_name);
+            console.log('pdf done', pdf_name, '\n\n');
             MailerService.sendCartPaidSellerNotified(fullName, cart, itemsShopping, orderNumber, itemsShopping[0].fish.store.owner.email, pdf_name, buyerETA);
-            let pdf_updated = await ItemShopping.update({ id: itemsShopping.id }, { po_path: pdf_name });
+            let pdf_updated = await ItemShopping.update({ id: itemsShopping.map(it => { return it.id; }) }, { po_path: pdf_name });
         })
         return pdf_name;
     },
