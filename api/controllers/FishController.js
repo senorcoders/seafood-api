@@ -750,11 +750,13 @@ module.exports = {
             }
 
             if (req.body.hasOwnProperty('cooming_soon')) {
-                if (req.body.cooming_soon.length > 0)
-                    fish_where['cooming_soon'] = req.body.cooming_soon;
+                if (req.body.cooming_soon == "true")
+                    fish_where['cooming_soon'] = true;
+		else if (  req.body.cooming_soon == "false" )
+		    fish_where['cooming_soon'] = false;
             }
 
-            let req_minimumOrder = req.body.minimumOrder;
+            /*let req_minimumOrder = req.body.minimumOrder;
             let req_maximumOrder = req.body.maximumOrder;
             if (req_minimumOrder !== '0' && req_maximumOrder !== '0') {
                 fish_where['minimumOrder'] = { ">=": req_minimumOrder, "<=": req_maximumOrder };
@@ -765,7 +767,7 @@ module.exports = {
             } else if (req_maximumOrder !== '0') {
                 fish_where['minimumOrder'] = { ">=": req_maximumOrder };
                 fish_where['maximumOrder'] = { "<=": req_maximumOrder };
-            }
+            }*/
 
             let category = req.body.category;
             let subcategory = req.body.subcategory;
@@ -847,7 +849,7 @@ module.exports = {
 
                 fish_where['type'] = categoryChilds;
             }
-            fish_where['status'] = '5c0866f9a0eda00b94acbdc2';
+            fish_where['status'] = '5c0866f9a0eda00b94acbdc2'; // just published products please
             // end fish filters
             console.log('fish_where', fish_where);
             //return res.json( prices );
@@ -866,8 +868,21 @@ module.exports = {
             variation_where['fish'] = products_ids;
             let res_variations = await Variations.find(variation_where).populate('fish').populate('fishPreparation').populate('wholeFishWeight');
             console.log('variations', res_variations.length);
-            await Promise.all(res_variations.map(async function (m) {
+            let unixNow = Math.floor(new Date());
 
+            await Promise.all(res_variations.map(async function (m) {
+                // looking for the stock of each product
+                let inventory = await FishStock.find().where({
+                    "date": { '>': unixNow },
+                    "variations": m.id
+                }).sort('date DESC').populate('variations');
+
+                let minMaxInventory = [];
+                inventory.map(item => {
+                    minMaxInventory.push((item.quantity - item.purchased));
+                })
+                m['inventory'] = inventory;
+		console.log('inventory')
                 //get min max price
                 let priceVariation = await VariationPrices.find({ variation: m.id });
                 let minMax = [];
@@ -876,30 +891,108 @@ module.exports = {
                     minMax.push(pv.max);
                 })
 
-                m['max'] = Math.max.apply(null, minMax) // 4
-                m['min'] = Math.min.apply(null, minMax) // 1
-
-                //lets recreate old json format with Fish at the top and inside the variations
-                let fish = m.fish;
-
-                if (fish.hasOwnProperty('perBox') && fish.perBox === true) { // adding min/max boxes 
-                    fish['minBox'] = fish.minimumOrder / fish.boxWeight;
-                    fish['maxBox'] = fish.maximumOrder / fish.boxWeight;
+                // checking if is in kg or lbs
+                if (m.fish.hasOwnProperty('unitOfSale') && m.fish.unitOfSale === 'lbs') {
+                    m['max'] = Math.max.apply(null, minMax) / 2.205 // 4
+                    m['min'] = Math.min.apply(null, minMax) / 2.205 // 1
+                } else {
+                    m['max'] = Math.max.apply(null, minMax) // 4
+                    m['min'] = Math.min.apply(null, minMax) // 1
                 }
 
-                let variation = m;
+		m['outOfStock'] = false;
+                if (minMaxInventory.length > 0) {
+                    m['max'] = Math.max.apply(null, minMaxInventory) // 4
+                    m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
+                    m['outOfStock'] = false;
+                } else {
+                    m['outOfStock'] = true;
+                }
+		console.log('out of stock validation')
+                //lets recreate old json format with Fish at the top and inside the variations
+                let fish = m.fish;
+                
+                let req_minimumOrder = req.body.minimumOrder;
+                let req_maximumOrder = req.body.maximumOrder;
+		let variation = m;
                 delete variation.fish;
                 m = fish;
                 //console.log(fish);
                 m['variation'] = variation;
+                if (fish.hasOwnProperty('perBox') && fish.perBox === true && !variation.outOfStock ) { // adding min/max boxes 
+                    fish['minBox'] = fish.minimumOrder / fish.boxWeight;
+                    fish['maxBox'] = fish.maximumOrder / fish.boxWeight;
 
+                    // let's check min max filter here
+                    if (req_minimumOrder !== '0' && req_maximumOrder !== '0') {
+                        if( 
+                            req_minimumOrder <= (fish['minBox'] * fish.boxWeight) &&
+                            req_maximumOrder <= ( fish['maxBox'] * fish.boxWeight)
+                        ) {
+                            productos.push(m);
+                        }
+                    
+                    } else if (req_minimumOrder !== '0') {
+                        if(
+                            req_minimumOrder <= (fish['minBox'] * fish.boxWeight)
+                        ) {
+                            productos.push(m);
+                        }                    
+                    } else if (req_maximumOrder !== '0') {
+                        if(
+                            req_maximumOrder <= ( fish['maxBox'] * fish.boxWeight)
+                        ){
+                            productos.push(m);
+                        }
+                        
+                    } // else we do nothing
+                    // end of min max filter
+                } else if( !variation.outOfStock ) { // if is per KG
+			console.log('per kg');
+                     // let's check min max filter here
+                     if (req_minimumOrder !== '0' && req_maximumOrder !== '0') {
+                        if( 
+                            req_minimumOrder <= variation.min  &&
+                            req_maximumOrder >= variation.max 
+                        ) {
+                            productos.push(m);
+                        }
+                    
+                    } else if (req_minimumOrder !== '0') {
+                        if(
+                            req_minimumOrder <= variation.min
+                        ) {
+                            productos.push(m);
+                        }                    
+                    } else if (req_maximumOrder !== '0') {
+                        if(
+                            req_maximumOrder >= variation.min &&
+                            req_maximumOrder <= variation.max
+                        ){
+                            productos.push(m);
+                        }
+                    } // else we do nothing
+                    // end of min max filter
+                } else if ( fish['cooming_soon'] && fish_where['cooming_soon'] ) {
+			productos.push(m);
+		} 
+
+                 
+
+/*                let variation = m;
+                delete variation.fish;
+                m = fish;
+                //console.log(fish);
+                m['variation'] = variation;
+*/
                 if (m.store === null)
                     return m;
 
                 m.store = await Store.findOne({ id: m.store }).populate('owner');
                 //m.store.owner = await User.findOne({ id: m.store.owner });            
                 //m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
-                productos.push(m);
+
+               
                 return m;
             }));
 
