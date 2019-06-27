@@ -466,7 +466,8 @@ module.exports = {
             .then(res => {
                 transporter.sendMail({
                     from: emailSender,
-                    to: emailAddress,
+                    to: 'jos.ojiron@gmail.com',
+                    // to: emailAddress,
                     subject: `Order #${orderNumber} is Placed`,
                     html: res, // html body
                     attachments: [
@@ -575,7 +576,7 @@ module.exports = {
                 transporter.sendMail({
                     from: emailSender,
                     to: cart.buyer.email,
-                    subject: `Order #${orderNumber} is Delivered`,
+                    subject: `Order #${parseInt(orderNumber)} is Delivered`,
                     html: res, // html body
                     attachments: [
                         {
@@ -938,7 +939,7 @@ module.exports = {
                 transporter.sendMail({
                     from: emailSender,
                     to: cart.buyer.email,
-                    subject: `Order #${cart.orderNumber} is Delivered !`,
+                    subject: `Order #${parseInt(cart.orderNumber)} is Delivered !`,
                     html: res, // html body
                 }, (error, info) => {
                     if (error) {
@@ -1004,7 +1005,7 @@ module.exports = {
                 transporter.sendMail({
                     from: emailSender,
                     to: store.owner.email,
-                    subject: `Order #${cart.orderNumber} is Delivered !`,
+                    subject: `Order #${parseInt(cart.orderNumber)} is Delivered !`,
                     html: res, // html body
                 }, (error, info) => {
                     if (error) {
