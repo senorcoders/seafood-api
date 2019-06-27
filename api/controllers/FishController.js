@@ -750,8 +750,10 @@ module.exports = {
             }
 
             if (req.body.hasOwnProperty('cooming_soon')) {
-                if (req.body.cooming_soon.length > 0)
-                    fish_where['cooming_soon'] = req.body.cooming_soon;
+                if (req.body.cooming_soon == "true")
+                    fish_where['cooming_soon'] = true;
+		else if (  req.body.cooming_soon == "false" )
+		    fish_where['cooming_soon'] = false;
             }
 
             /*let req_minimumOrder = req.body.minimumOrder;
@@ -880,7 +882,7 @@ module.exports = {
                     minMaxInventory.push((item.quantity - item.purchased));
                 })
                 m['inventory'] = inventory;
-
+		console.log('inventory')
                 //get min max price
                 let priceVariation = await VariationPrices.find({ variation: m.id });
                 let minMax = [];
@@ -898,6 +900,7 @@ module.exports = {
                     m['min'] = Math.min.apply(null, minMax) // 1
                 }
 
+		m['outOfStock'] = false;
                 if (minMaxInventory.length > 0) {
                     m['max'] = Math.max.apply(null, minMaxInventory) // 4
                     m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
@@ -905,34 +908,38 @@ module.exports = {
                 } else {
                     m['outOfStock'] = true;
                 }
-
+		console.log('out of stock validation')
                 //lets recreate old json format with Fish at the top and inside the variations
                 let fish = m.fish;
                 
                 let req_minimumOrder = req.body.minimumOrder;
                 let req_maximumOrder = req.body.maximumOrder;
-                if (fish.hasOwnProperty('perBox') && fish.perBox === true) { // adding min/max boxes 
+		let variation = m;
+                delete variation.fish;
+                m = fish;
+                //console.log(fish);
+                m['variation'] = variation;
+                if (fish.hasOwnProperty('perBox') && fish.perBox === true && !variation.outOfStock ) { // adding min/max boxes 
                     fish['minBox'] = fish.minimumOrder / fish.boxWeight;
                     fish['maxBox'] = fish.maximumOrder / fish.boxWeight;
 
                     // let's check min max filter here
                     if (req_minimumOrder !== '0' && req_maximumOrder !== '0') {
                         if( 
-                            req_minimumOrder >= (fish['minBox'] * fish.boxWeight) &&
-                            req_maximumOrder > (fish['minBox'] * fish.boxWeight) && req_maximumOrder <= ( fish['maxBox'] * fish.boxWeight)
+                            req_minimumOrder <= (fish['minBox'] * fish.boxWeight) &&
+                            req_maximumOrder <= ( fish['maxBox'] * fish.boxWeight)
                         ) {
                             productos.push(m);
                         }
                     
                     } else if (req_minimumOrder !== '0') {
                         if(
-                            req_minimumOrder >= (fish['minBox'] * fish.boxWeight)
+                            req_minimumOrder <= (fish['minBox'] * fish.boxWeight)
                         ) {
                             productos.push(m);
                         }                    
                     } else if (req_maximumOrder !== '0') {
                         if(
-                            req_maximumOrder > (fish['minBox'] * fish.boxWeight) &&
                             req_maximumOrder <= ( fish['maxBox'] * fish.boxWeight)
                         ){
                             productos.push(m);
@@ -940,43 +947,44 @@ module.exports = {
                         
                     } // else we do nothing
                     // end of min max filter
-                } else { // if is per KG
-
+                } else if( !variation.outOfStock ) { // if is per KG
+			console.log('per kg');
                      // let's check min max filter here
                      if (req_minimumOrder !== '0' && req_maximumOrder !== '0') {
                         if( 
-                            req_minimumOrder >= fish['min']  &&
-                            req_maximumOrder > fish['min'] && 
-                            req_maximumOrder <= fish['max'] 
+                            req_minimumOrder <= variation.min  &&
+                            req_maximumOrder >= variation.max 
                         ) {
                             productos.push(m);
                         }
                     
                     } else if (req_minimumOrder !== '0') {
                         if(
-                            req_minimumOrder >= fish['min']
+                            req_minimumOrder <= variation.min
                         ) {
                             productos.push(m);
                         }                    
                     } else if (req_maximumOrder !== '0') {
                         if(
-                            req_maximumOrder > fish['min'] &&
-                            req_maximumOrder <= fish['max'] 
+                            req_maximumOrder >= variation.min &&
+                            req_maximumOrder <= variation.max
                         ){
                             productos.push(m);
                         }
                     } // else we do nothing
                     // end of min max filter
-                }
+                } else if ( fish['cooming_soon'] && fish_where['cooming_soon'] ) {
+			productos.push(m);
+		} 
 
                  
 
-                let variation = m;
+/*                let variation = m;
                 delete variation.fish;
                 m = fish;
                 //console.log(fish);
                 m['variation'] = variation;
-
+*/
                 if (m.store === null)
                     return m;
 
