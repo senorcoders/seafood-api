@@ -754,7 +754,7 @@ module.exports = {
             }
 
             let OrderStatus = "5c017ad347fb07027943a403"; //Pending Seller Confirmation
-            cartUpdated = await ShoppingCart.update({ id: req.param("id") }, {
+            let cartUpdated = await ShoppingCart.update({ id: req.param("id") }, {
                 status: "paid",
                 paidDateTime: paidDateTime,
                 orderNumber: OrderNumber,
@@ -788,7 +788,6 @@ module.exports = {
                 let fullNameBuyer = cart.buyer.firstName + " " + cart.buyer.lastName;
                 let sellerAddress = st[0].fish.store['Address'];
                 let incoterms = st[0].fish.store.owner.incoterms !== null && st[0].fish.store.owner.incoterms !== undefined ? st[0].fish.store.owner.incoterms : { name: "Ex Work" };
-                console.log("\n\n aquiii", cart, "\n\n");
                 let sellerInvoice = await PDFService.sellerPurchaseOrder(fullName, cart, st, OrderNumber, sellerAddress, (maxPurchaseOrder + 1 + counter), cart.currentCharges.exchangeRates, st[0].buyerExpectedDeliveryDate, incoterms, cart.subTotal, cart.total);
                 //console.log( 'seller invoice', sellerInvoice );
             }
