@@ -132,9 +132,9 @@ and exposed as \`req.me\`.)`
       }
     }//ﬁ
 
-    if (userRecord.verification !== true) {
+    /*if (userRecord.verification !== true) {
       return exits.success({ msg: 'no verified' });
-    }
+    }*/
 
     // Modify the active session instance.
     this.req.session.userId = userRecord.id;
