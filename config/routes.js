@@ -161,6 +161,8 @@ module.exports.routes = {
 
 
   "GET /api/fish/:id/variations/": "FishController.getFishWithVariations",
+  "GET /api/fish/:id/variations/:variation": "FishController.getFishWithVariations",
+
   'GET /api/fish/:id/variations/edit': 'FishController.getFishWithVariationsForEdit',
 
   //search variations by weight
