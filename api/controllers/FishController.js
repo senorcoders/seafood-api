@@ -280,15 +280,44 @@ module.exports = {
 
             }))
 
+            //check if the id variations 
+            let variationsNoDelete = [], pricesNoDeletes = [];
+            if (body.hasOwnProperty('variationsDeleted')) {
+                for (let vari of body.variationsDeleted) {
+                    let itemss = await ItemShopping.find({
+                        variation: vari
+                    });
+                    if (itemss.length > 0) {
+                        variationsNoDelete.push(vari);
+                        let prices = await VariationPrices.find({ variation: vari });
+                        pricesNoDeletes = pricesNoDeletes.concat(prices.map(it => { return it.id; }));
+                    }
+                }
+            }
+            // console.log('no deletes \n\n', variationsNoDelete, pricesNoDeletes);
 
             //let delete variation
             if (body.hasOwnProperty('pricesDeleted')) {
-                await VariationPrices.destroy({ id: { in: body.pricesDeleted } });
+                await VariationPrices.destroy({
+                    id: {
+                        in: body.pricesDeleted.filter((it) => {
+                            let index = pricesNoDeletes.findIndex(itt => { return itt === it; });
+                            return index !== -1;
+                        })
+                    }
+                });
             }
 
             //let delete variation
             if (body.hasOwnProperty('variationsDeleted')) {
-                await Variations.destroy({ id: { in: body.variationsDeleted } });
+                await Variations.destroy({
+                    id: {
+                        in: body.variationsDeleted.filter((it) => {
+                            let index = variationsNoDelete.findIndex(itt => { return itt === it; });
+                            return index !== -1;
+                        })
+                    }
+                });
             }
 
 
@@ -531,7 +560,7 @@ module.exports = {
             let weightsTrim = {};
             let isTrimms = useOne === true ? false : (variations[0].wholeFishWeight === undefined || variations[0].wholeFishWeight === null) && fish.type.parent === '5bda361c78b3140ef5d31fa4';
             let weightsFilleted = [];
-            
+
             let minLimit = fish.minimunOrder;
             let maxLimit = fish.maximumOrder;;
             await Promise.all(
@@ -564,7 +593,7 @@ module.exports = {
                     let prices = await VariationPrices.find({ 'variation': variation.id });
                     // let minLimit = fish.minimunOrder;
                     prices = prices.map((row, indexPrice) => {
-                        
+
                         let optionSlides = {
                             floor: row.min,
                             ceil: minLimit,
@@ -752,8 +781,8 @@ module.exports = {
             if (req.body.hasOwnProperty('cooming_soon')) {
                 if (req.body.cooming_soon == "true")
                     fish_where['cooming_soon'] = true;
-		else if (  req.body.cooming_soon == "false" )
-		    fish_where['cooming_soon'] = false;
+                else if (req.body.cooming_soon == "false")
+                    fish_where['cooming_soon'] = false;
             }
 
             /*let req_minimumOrder = req.body.minimumOrder;
@@ -882,7 +911,7 @@ module.exports = {
                     minMaxInventory.push((item.quantity - item.purchased));
                 })
                 m['inventory'] = inventory;
-		console.log('inventory')
+                console.log('inventory')
                 //get min max price
                 let priceVariation = await VariationPrices.find({ variation: m.id });
                 let minMax = [];
@@ -900,7 +929,7 @@ module.exports = {
                     m['min'] = Math.min.apply(null, minMax) // 1
                 }
 
-		m['outOfStock'] = false;
+                m['outOfStock'] = false;
                 if (minMaxInventory.length > 0) {
                     m['max'] = Math.max.apply(null, minMaxInventory) // 4
                     m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
@@ -908,83 +937,84 @@ module.exports = {
                 } else {
                     m['outOfStock'] = true;
                 }
-		console.log('out of stock validation')
+                console.log('out of stock validation')
                 //lets recreate old json format with Fish at the top and inside the variations
                 let fish = m.fish;
-                
+
                 let req_minimumOrder = req.body.minimumOrder;
                 let req_maximumOrder = req.body.maximumOrder;
-		let variation = m;
+                let variation = m;
                 delete variation.fish;
                 m = fish;
                 //console.log(fish);
                 m['variation'] = variation;
-                if (fish.hasOwnProperty('perBox') && fish.perBox === true && !variation.outOfStock ) { // adding min/max boxes 
+                if (fish.hasOwnProperty('perBox') && fish.perBox === true && !variation.outOfStock) { // adding min/max boxes 
                     fish['minBox'] = fish.minimumOrder / fish.boxWeight;
                     fish['maxBox'] = fish.maximumOrder / fish.boxWeight;
 
                     // let's check min max filter here
                     if (req_minimumOrder !== '0' && req_maximumOrder !== '0') {
-                        if( 
+                        if (
                             req_minimumOrder <= (fish['minBox'] * fish.boxWeight) &&
-                            req_maximumOrder <= ( fish['maxBox'] * fish.boxWeight)
+                            req_maximumOrder <= (fish['maxBox'] * fish.boxWeight)
                         ) {
                             productos.push(m);
                         }
-                    
+
                     } else if (req_minimumOrder !== '0') {
-                        if(
+                        if (
                             req_minimumOrder <= (fish['minBox'] * fish.boxWeight)
                         ) {
                             productos.push(m);
                         } 
+
                     } else if (req_maximumOrder !== '0') {
-                        if(
-                            req_maximumOrder <= ( fish['maxBox'] * fish.boxWeight)
-                        ){
+                        if (
+                            req_maximumOrder <= (fish['maxBox'] * fish.boxWeight)
+                        ) {
                             productos.push(m);
-                        }
-                        
+                        }                        
                     } else {  productos.push(m); }// else we do nothing
+
                     // end of min max filter
-                } else if( !variation.outOfStock ) { // if is per KG
-			console.log('per kg');
-                     // let's check min max filter here
-                     if (req_minimumOrder !== '0' && req_maximumOrder !== '0') {
-                        if( 
-                            req_minimumOrder <= variation.min  &&
-                            req_maximumOrder >= variation.max 
+                } else if (!variation.outOfStock) { // if is per KG
+                    console.log('per kg');
+                    // let's check min max filter here
+                    if (req_minimumOrder !== '0' && req_maximumOrder !== '0') {
+                        if (
+                            req_minimumOrder <= variation.min &&
+                            req_maximumOrder >= variation.max
                         ) {
                             productos.push(m);
                         }
-                    
+
                     } else if (req_minimumOrder !== '0') {
-                        if(
+                        if (
                             req_minimumOrder <= variation.min
                         ) {
                             productos.push(m);
-                        }                    
+                        }
                     } else if (req_maximumOrder !== '0') {
-                        if(
+                        if (
                             req_maximumOrder >= variation.min &&
                             req_maximumOrder <= variation.max
-                        ){
+                        ) {
                             productos.push(m);
                         }
                     } else {  productos.push(m); } // else we do nothing
                     // end of min max filter
-                } else if ( fish['cooming_soon'] && fish_where['cooming_soon'] ) {
-			productos.push(m);
-		} 
+                } else if (fish['cooming_soon'] && fish_where['cooming_soon']) {
+                    productos.push(m);
+                }
 
-                 
 
-/*                let variation = m;
-                delete variation.fish;
-                m = fish;
-                //console.log(fish);
-                m['variation'] = variation;
-*/
+
+                /*                let variation = m;
+                                delete variation.fish;
+                                m = fish;
+                                //console.log(fish);
+                                m['variation'] = variation;
+                */
                 if (m.store === null)
                     return m;
 
@@ -992,7 +1022,7 @@ module.exports = {
                 //m.store.owner = await User.findOne({ id: m.store.owner });            
                 //m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
 
-               
+
                 return m;
             }));
 
@@ -1291,50 +1321,50 @@ module.exports = {
             }
 
             //check if had records in the carts
-            let hasRecords = await ItemShopping.find({ fish: id });
+            // let hasRecords = await ItemShopping.find({ fish: id });
 
-            if (hasRecords.length > 0) {
-                // we can't deleted from the database so we are going to update the status of the fish
-                let updatedFish = await Fish.update({ id: id }, { status: '5c45f73f1d75b800924b4c39' });
-                res.status(200).json(updatedFish);
-            } else {
-                let namefile, dirname;
-                if (fish.hasOwnProperty("imagePrimary") && fish.imagePrimary !== "" && fish.imagePrimary !== null) {
-                    namefile = fish.imagePrimary.split("/");
-                    namefile = namefile[namefile.length - 2];
-                    console.log(IMAGES, fish.id, namefile);
-                    dirname = path.join(IMAGES, "primary", fish.id, namefile);
-                    console.log(dirname);
-                    if (fs.existsSync(dirname)) {
-                        console.log("exits primary");
-                        fs.unlinkSync(dirname);
-                        //dirname = path.join(IMAGES, "primary", fish.id);
-                        //fs.unlinkSync(dirname);
-                    }
-                }
+            // if (hasRecords.length > 0) {
+            // we can't deleted from the database so we are going to update the status of the fish
+            let updatedFish = await Fish.update({ id: id }, { status: '5c45f73f1d75b800924b4c39' });
+            res.status(200).json(updatedFish);
+            // } else {
+            //     let namefile, dirname;
+            //     if (fish.hasOwnProperty("imagePrimary") && fish.imagePrimary !== "" && fish.imagePrimary !== null) {
+            //         namefile = fish.imagePrimary.split("/");
+            //         namefile = namefile[namefile.length - 2];
+            //         console.log(IMAGES, fish.id, namefile);
+            //         dirname = path.join(IMAGES, "primary", fish.id, namefile);
+            //         console.log(dirname);
+            //         if (fs.existsSync(dirname)) {
+            //             console.log("exits primary");
+            //             fs.unlinkSync(dirname);
+            //             //dirname = path.join(IMAGES, "primary", fish.id);
+            //             //fs.unlinkSync(dirname);
+            //         }
+            //     }
 
-                if (fish.hasOwnProperty("images") && fish.iamges !== null && Object.prototype.toString.call(fish.images) === "[object Array]") {
-                    for (let file of fish.images) {
+            //     if (fish.hasOwnProperty("images") && fish.iamges !== null && Object.prototype.toString.call(fish.images) === "[object Array]") {
+            //         for (let file of fish.images) {
 
-                        namefile = file.filename;
-                        dirname = path.join(IMAGES, fish.id, namefile);
-                        console.log(dirname);
-                        if (fs.existsSync(dirname)) {
-                            console.log("exists");
-                            fs.unlinkSync(dirname);
-                        }
-                    }
+            //             namefile = file.filename;
+            //             dirname = path.join(IMAGES, fish.id, namefile);
+            //             console.log(dirname);
+            //             if (fs.existsSync(dirname)) {
+            //                 console.log("exists");
+            //                 fs.unlinkSync(dirname);
+            //             }
+            //         }
 
-                    //dirname = path.join(IMAGES, fish.id);
-                    //if (fs.existsSync(dirname)) {
-                    //    console.log("exists");
-                    //    fs.unlinkSync(dirname);
-                    //}
-                }
+            //dirname = path.join(IMAGES, fish.id);
+            //if (fs.existsSync(dirname)) {
+            //    console.log("exists");
+            //    fs.unlinkSync(dirname);
+            //}
+            // }
 
-                await Fish.destroy({ id });
-                res.json(fish);
-            }
+            // await Fish.destroy({ id });
+            res.json(fish);
+            // }
 
 
         }
