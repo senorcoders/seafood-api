@@ -567,10 +567,10 @@ module.exports = {
                 req.file("logo").upload({
                     dirname,
                     maxBytes: 5000000,
-                    saveAs: function (stream, cb) {
-                        //console.log(stream);
-                        cb(null, stream.filename);
-                    }
+                    // saveAs: function (stream, cb) {
+                    //     //console.log(stream);
+                    //     cb(null, stream.filename);
+                    // }
                 }, async function (err, uploadedFiles) {
                     if (err) {
                         reject(err);
@@ -580,9 +580,9 @@ module.exports = {
                     }
 
                     let dir = "";
-                    for (let file of uploadedFiles) {
+                    for (let file of uploadedFiles) { console.log('\n\n', file, '\n\n');
                         if (file.type.includes("image/") && file["status"] === "finished") {
-                            dir = "/api/store/images/logo/" + file.filename + "/" + idStore
+                            dir = "/api/store/images/logo/" + file.fd.split('/').pop() + "/" + idStore
                         }
                     }
 
@@ -630,10 +630,10 @@ module.exports = {
                 req.file("hero").upload({
                     dirname,
                     maxBytes: 5000000,
-                    saveAs: function (stream, cb) {
-                        //console.log(stream);
-                        cb(null, stream.filename);
-                    }
+                    // saveAs: function (stream, cb) {
+                    //     //console.log(stream);
+                    //     cb(null, stream.filename);
+                    // }
                 }, async function (err, uploadedFiles) {
                     if (err) {
                         reject(err);
@@ -645,7 +645,7 @@ module.exports = {
                     let dir = "";
                     for (let file of uploadedFiles) {
                         if (file.type.includes("image/") && file["status"] === "finished") {
-                            dir = "/api/store/images/hero/" + file.filename + "/" + idStore;
+                            dir = "/api/store/images/hero/" + file.fd.split('/').pop() + "/" + idStore;
                         }
                     }
 
