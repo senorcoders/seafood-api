@@ -331,7 +331,14 @@ module.exports = {
     getFishWithVariations: async (req, res) => {
         try {
             let fishID = req.param('id');
+            let variation_where = {};            
             let fish = await Fish.findOne({ id: fishID }).populate('status').populate('store').populate('type').populate('treatment').populate('raised');//.populate('descriptor')
+            
+            variation_where['fish'] = fish.id;
+            if ( req.param('variation') !==  undefined ) {
+                variation_where['id'] = req.param( 'variation' );
+            }
+            console.log(variation_where);
 
             if (fish === undefined) {
                 return res.status(200).json({});
@@ -344,7 +351,7 @@ module.exports = {
                 delete fish['maxBox'];
             }
             let unixNow = Math.floor(new Date());
-            let variations = await Variations.find({ 'fish': fish.id }).populate('fishPreparation').populate('wholeFishWeight');
+            let variations = await Variations.find(variation_where).populate('fishPreparation').populate('wholeFishWeight');
 
             let useOne = false;
             if (variations.length == 0) {
@@ -370,7 +377,6 @@ module.exports = {
 
             await Promise.all(
                 variations.map(async variation => {
-                    console.log(variation.id);
 
                     let inventory = await FishStock.find().where({
                         "date": { '>': unixNow },
@@ -405,7 +411,6 @@ module.exports = {
                     if (fish['minimumOrder'] > fish['maximumOrder']) {
                         fish['minimumOrder'] = fish['maximumOrder'];
                     }
-                    console.log(variation['fishPreparation']);
                     if (isTrimms === false) {
                         if (variation['fishPreparation']['id'] === '5c93bff065e25a011eefbcc2') {
                             headAction = true;
@@ -492,12 +497,9 @@ module.exports = {
                 if (weights.on[key] !== undefined && weights.on[key] !== null)
                     weights.on[key] = weights.on[key].length > 0 ? weights.on[key] : undefined;
             }
-            console.log(weights.on.keys);
             weights.on.keys = weights.on.keys.filter(it => {
-                console.log(weights.on[it]);
                 return weights.on[it] !== undefined && weights.on[it] !== null && weights.on[it].length > 0;
             });
-            console.log(weights.on.keys);
 
             for (let key of weights.off.keys) {
                 if (weights.off[key] !== undefined && weights.off[key] !== null)
