@@ -1364,15 +1364,15 @@ module.exports = {
 
             // await Fish.destroy({ id });
             res.json(fish);
-        }
+            // }
 
 
         }
-        catch(e) {
-        console.error(e);
-        res.serverError(e);
-    }
-},
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
 
     getXTypeWithDataEspecified: async (req, res) => {
         try {
@@ -1441,88 +1441,88 @@ module.exports = {
         }
     },
 
-        getWithDataEspecified: async (req, res) => {
-            try {
+    getWithDataEspecified: async (req, res) => {
+        try {
 
-                //Para cagar los items de cada carrito cargado
-                async function getItemsCart(shoppingCart) {
-                    let items = await ItemShopping.find({ shoppingCart: shoppingCart.id }).populate("fish", { where: { status: '5c0866f9a0eda00b94acbdc2' } });
+            //Para cagar los items de cada carrito cargado
+            async function getItemsCart(shoppingCart) {
+                let items = await ItemShopping.find({ shoppingCart: shoppingCart.id }).populate("fish", { where: { status: '5c0866f9a0eda00b94acbdc2' } });
 
-                    //Cargamos el comprador y la tienda
-                    items = await Promise.all(items.map(async function (it) {
+                //Cargamos el comprador y la tienda
+                items = await Promise.all(items.map(async function (it) {
 
-                        it.fish = await Fish.findOne({ id: it.fish.id }).populate("type");
-                        return {
-                            quantity: it.quantity,
-                            type: it.fish.type
-                        };
-                    }));
+                    it.fish = await Fish.findOne({ id: it.fish.id }).populate("type");
+                    return {
+                        quantity: it.quantity,
+                        type: it.fish.type
+                    };
+                }));
 
-                    return items;
-                }
+                return items;
+            }
 
-                let itemsFish = [];
-                let cartsPaid = await ShoppingCart.find({ status: "paid" });
-                for (let cart of cartsPaid) {
-                    let its = await getItemsCart(cart);
-                    itemsFish = itemsFish.concat(its);
-                }
+            let itemsFish = [];
+            let cartsPaid = await ShoppingCart.find({ status: "paid" });
+            for (let cart of cartsPaid) {
+                let its = await getItemsCart(cart);
+                itemsFish = itemsFish.concat(its);
+            }
 
-                let itemsP = [];
-                for (let it of itemsFish) {
-                    let index = itemsP.findIndex(function (ite) {
-                        return ite.type.id === it.type.id;
-                    });
+            let itemsP = [];
+            for (let it of itemsFish) {
+                let index = itemsP.findIndex(function (ite) {
+                    return ite.type.id === it.type.id;
+                });
 
-                    if (index === -1) {
-                        let parser = it;
-                        parser.quantity = [it.quantity];
-                        itemsP.push(parser);
-                    } else {
+                if (index === -1) {
+                    let parser = it;
+                    parser.quantity = [it.quantity];
+                    itemsP.push(parser);
+                } else {
 
-                        let find = false;
-                        for (let i = 0; i < itemsP[index].quantity.length; i++) {
-                            if (itemsP[index].quantity[i].type === it.quantity.type) {
-                                find = true;
-                                itemsP[index].quantity[i].value += it.quantity.value;
-                                break;
-                            }
-                        }
-
-                        if (find === false) {
-                            itemsP[index].quantity.push(it.quantity);
+                    let find = false;
+                    for (let i = 0; i < itemsP[index].quantity.length; i++) {
+                        if (itemsP[index].quantity[i].type === it.quantity.type) {
+                            find = true;
+                            itemsP[index].quantity[i].value += it.quantity.value;
+                            break;
                         }
                     }
-                }
 
-                res.json(itemsP);
-
-            }
-            catch (e) {
-                console.error(e);
-                res.serverError(e);
-            }
-        },
-
-            saveMulti: async (req, res) => {
-                try {
-                    let products = req.body.products;
-                    for (let pro of products) {
-                        await Fish.create(pro);
+                    if (find === false) {
+                        itemsP[index].quantity.push(it.quantity);
                     }
-
-                    res.json({ msg: "success" })
                 }
-                catch (e) {
-                    console.error(e);
-                    res.serverError(e);
-                }
-            },
+            }
 
-                searchAvanced: async (req, res) => {
-                    try {
+            res.json(itemsP);
 
-                        let params = `
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
+    saveMulti: async (req, res) => {
+        try {
+            let products = req.body.products;
+            for (let pro of products) {
+                await Fish.create(pro);
+            }
+
+            res.json({ msg: "success" })
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
+    searchAvanced: async (req, res) => {
+        try {
+
+            let params = `
             name,
             country,
             fishType,
@@ -1530,500 +1530,500 @@ module.exports = {
             preparation,
             treatment`;
 
-                        let par = {};
-                        for (let p of await sails.helpers.parserNameParams(params)) {
-                            if (req.param(p) !== undefined) {
-                                if ("fishType" === p) {
-                                    par["type"] = req.param(p);
-                                } else
-                                    par[p] = { "contains": req.param(p) };
-                            }
+            let par = {};
+            for (let p of await sails.helpers.parserNameParams(params)) {
+                if (req.param(p) !== undefined) {
+                    if ("fishType" === p) {
+                        par["type"] = req.param(p);
+                    } else
+                        par[p] = { "contains": req.param(p) };
+                }
+            }
+            console.log(par);
+
+            let start = Number(req.params.page), page_size = Number(req.params.limit)
+            --start;
+            if (start < 0) start = 0;
+            let productos = await Fish.find(par).populate("type").populate("store").paginate(start, page_size);
+
+            let arr = await Fish.find(par).populate("type").populate("store"), pages = 0;
+            console.log(arr.length, Number(arr.length / page_size));
+            if (parseInt(arr.length / page_size, 10) < Number(arr.length / page_size)) {
+                pages = parseInt(arr.length / page_size, 10) + 1;
+            } else {
+                pages = parseInt(arr.length / page_size, 10)
+            }
+
+            res.json({ productos, pagesNumber: pages, count: arr.length });
+
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
+
+    getDistinctCountry: async (req, res) => {
+        try {
+            var db = Fish.getDatastore().manager;
+            var fish = db.collection(Fish.tableName);
+            //.find({
+            let fishs = await new Promise((resolve, reject) => {
+                fish.distinct("country", { status: new ObjectId('5c0866f9a0eda00b94acbdc2') },
+                    function (err, docs) {
+                        if (err) {
+                            return reject(err);
                         }
-                        console.log(par);
-
-                        let start = Number(req.params.page), page_size = Number(req.params.limit)
-                        --start;
-                        if (start < 0) start = 0;
-                        let productos = await Fish.find(par).populate("type").populate("store").paginate(start, page_size);
-
-                        let arr = await Fish.find(par).populate("type").populate("store"), pages = 0;
-                        console.log(arr.length, Number(arr.length / page_size));
-                        if (parseInt(arr.length / page_size, 10) < Number(arr.length / page_size)) {
-                            pages = parseInt(arr.length / page_size, 10) + 1;
-                        } else {
-                            pages = parseInt(arr.length / page_size, 10)
+                        if (docs) {
+                            resolve(docs);
                         }
-
-                        res.json({ productos, pagesNumber: pages, count: arr.length });
-
-                    }
-                    catch (e) {
-                        console.error(e);
-                        res.serverError(e);
-                    }
-                },
-
-                    getDistinctCountry: async (req, res) => {
-                        try {
-                            var db = Fish.getDatastore().manager;
-                            var fish = db.collection(Fish.tableName);
-                            //.find({
-                            let fishs = await new Promise((resolve, reject) => {
-                                fish.distinct("country", { status: new ObjectId('5c0866f9a0eda00b94acbdc2') },
-                                    function (err, docs) {
-                                        if (err) {
-                                            return reject(err);
-                                        }
-                                        if (docs) {
-                                            resolve(docs);
-                                        }
-                                    })
-                            });
+                    })
+            });
 
 
-                            res.json(fishs);
-                        }
-                        catch (e) {
-                            console.error(e);
-                            res.serverError(e);
-                        }
-                    },
+            res.json(fishs);
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
+    },
 
-                        filterProducts: async (req, res) => {
-                            try {
-                                let preparation = req.param('preparation');
-                                let treatment = req.param('treatment');
-                                let raised = req.param('raised');
+    filterProducts: async (req, res) => {
+        try {
+            let preparation = req.param('preparation');
+            let treatment = req.param('treatment');
+            let raised = req.param('raised');
 
-                                let country = req.param('country');
-                                let category = req.param('category');
-                                let subcategory = req.param('subcategory');
-                                let subspecies = req.param('subspecies');
-                                let descriptor = req.param('descriptor');
+            let country = req.param('country');
+            let category = req.param('category');
+            let subcategory = req.param('subcategory');
+            let subspecies = req.param('subspecies');
+            let descriptor = req.param('descriptor');
 
-                                let minimumOrder = req.body.minimumOrder;
-                                let maximumOrder = req.body.maximumOrder;
-                                let cooming_soon = req.param('cooming_soon');
-                                let minPrice = req.param('minPrice'); //price.value
-                                let maxPrice = req.param('maxPrice'); //price.value
+            let minimumOrder = req.body.minimumOrder;
+            let maximumOrder = req.body.maximumOrder;
+            let cooming_soon = req.param('cooming_soon');
+            let minPrice = req.param('minPrice'); //price.value
+            let maxPrice = req.param('maxPrice'); //price.value
 
-                                let condWhere = { where: { status: '5c0866f9a0eda00b94acbdc2' } };
+            let condWhere = { where: { status: '5c0866f9a0eda00b94acbdc2' } };
 
-                                if (preparation !== '0' && preparation !== undefined && preparation.length != 0)
-                                    condWhere.where['preparation'] = preparation;
+            if (preparation !== '0' && preparation !== undefined && preparation.length != 0)
+                condWhere.where['preparation'] = preparation;
 
-                                if (treatment !== '0' && treatment !== undefined && treatment.length != 0)
-                                    condWhere.where['treatment'] = treatment;
+            if (treatment !== '0' && treatment !== undefined && treatment.length != 0)
+                condWhere.where['treatment'] = treatment;
 
-                                if (raised !== '0' && raised !== undefined && raised.length != 0)
-                                    condWhere.where['raised'] = raised;
+            if (raised !== '0' && raised !== undefined && raised.length != 0)
+                condWhere.where['raised'] = raised;
 
-                                if (country !== '0')
-                                    condWhere.where['country'] = country;
+            if (country !== '0')
+                condWhere.where['country'] = country;
 
-                                if (maximumOrder !== '0' && minimumOrder !== '0') {
-                                    condWhere.where['maximumOrder'] = { '>=': parseFloat(maximumOrder) };
-                                    condWhere.where['minimumOrder'] = { '<=': parseFloat(minimumOrder) };
-                                } else if (maximumOrder !== '0') {
-                                    condWhere.where['maximumOrder'] = { '>=': parseFloat(maximumOrder) };
-                                    condWhere.where['minimumOrder'] = { '<=': parseFloat(maximumOrder) };
-                                } else if (minimumOrder !== '0') {
-                                    condWhere.where['minimumOrder'] = { '<=': parseFloat(minimumOrder) };
-                                    condWhere.where['maximumOrder'] = { '>=': parseFloat(minimumOrder) };
-                                }
-                                console.log(condWhere);
-                                if (cooming_soon !== '0') {
-                                    condWhere.where['cooming_soon'] = cooming_soon;
-                                }
+            if (maximumOrder !== '0' && minimumOrder !== '0') {
+                condWhere.where['maximumOrder'] = { '>=': parseFloat(maximumOrder) };
+                condWhere.where['minimumOrder'] = { '<=': parseFloat(minimumOrder) };
+            } else if (maximumOrder !== '0') {
+                condWhere.where['maximumOrder'] = { '>=': parseFloat(maximumOrder) };
+                condWhere.where['minimumOrder'] = { '<=': parseFloat(maximumOrder) };
+            } else if (minimumOrder !== '0') {
+                condWhere.where['minimumOrder'] = { '<=': parseFloat(minimumOrder) };
+                condWhere.where['maximumOrder'] = { '>=': parseFloat(minimumOrder) };
+            }
+            console.log(condWhere);
+            if (cooming_soon !== '0') {
+                condWhere.where['cooming_soon'] = cooming_soon;
+            }
 
-                                console.log('before cats', condWhere);
-                                if (descriptor !== '0') {
-                                    condWhere.where['descriptor'] = descriptor;
-                                } else if (subspecies !== '0') {
-                                    let descriptorChilds = [];
+            console.log('before cats', condWhere);
+            if (descriptor !== '0') {
+                condWhere.where['descriptor'] = descriptor;
+            } else if (subspecies !== '0') {
+                let descriptorChilds = [];
 
-                                    level1 = await FishType.find({
-                                        where: { parent: subspecies }
-                                    });
-                                    console.log('level1', level1);
+                level1 = await FishType.find({
+                    where: { parent: subspecies }
+                });
+                console.log('level1', level1);
 
-                                    Promise.all(level1.map(async value1 => {
-                                        descriptorChilds.push(value1.id);
+                Promise.all(level1.map(async value1 => {
+                    descriptorChilds.push(value1.id);
 
-                                        level2 = await FishType.find({ parent: value1.id });
-                                        console.log('level2', level2);
-
-
-                                        return descriptorChilds;
-                                    }));
-                                    //condWhere.where['descriptor'] = descriptorChilds;
-                                    condWhere.where['type'] = subspecies;
-                                } else if (subcategory !== '0') {
-
-                                    console.log('parent')
-                                    //condWhere.where['type'] =;
-                                    let categoryChilds = [];
-                                    categoryChilds.push(subcategory);
-                                    level1 = await FishType.find({
-                                        where: { parent: subcategory }
-                                    });
-                                    console.log('level1', level1);
-
-                                    Promise.all(level1.map(async value1 => {
-                                        categoryChilds.push(value1.id);
-
-                                        level2 = await FishType.find({ parent: value1.id });
-                                        console.log('level2', level2);
+                    level2 = await FishType.find({ parent: value1.id });
+                    console.log('level2', level2);
 
 
-                                        return categoryChilds;
-                                    }));
+                    return descriptorChilds;
+                }));
+                //condWhere.where['descriptor'] = descriptorChilds;
+                condWhere.where['type'] = subspecies;
+            } else if (subcategory !== '0') {
 
-                                    condWhere.where['type'] = categoryChilds;
-                                } else if (category !== '0') {
-                                    console.log('parent')
-                                    //condWhere.where['type'] =;
-                                    let categoryChilds = [];
-                                    categoryChilds.push(category);
-                                    level1 = await FishType.find({
-                                        where: { parent: category }
-                                    });
-                                    console.log('level1', level1);
+                console.log('parent')
+                //condWhere.where['type'] =;
+                let categoryChilds = [];
+                categoryChilds.push(subcategory);
+                level1 = await FishType.find({
+                    where: { parent: subcategory }
+                });
+                console.log('level1', level1);
 
-                                    await Promise.all(level1.map(async value1 => {
-                                        categoryChilds.push(value1.id);
+                Promise.all(level1.map(async value1 => {
+                    categoryChilds.push(value1.id);
 
-                                        level2 = await FishType.find({ parent: value1.id });
-                                        console.log('level2', level2);
-
-                                        Promise.all(level2.map(async value2 => {
-                                            categoryChilds.push(value2.id);
-
-                                            level3 = await FishType.find({ parent: value2.id });
-                                            console.log('level3', level3);
-                                            level3.map(value3 => {
-                                                categoryChilds.push(value3.id);
-                                            })
-                                            return categoryChilds;
-
-                                        }))
-
-                                        return categoryChilds;
-                                    }));
-
-                                    condWhere.where['type'] = categoryChilds;
-                                }
-
-                                /*if( subcategory !== '0' ){
-                                    condWhere.where['type'] = subcategory;                
-                                }else {
-                                    if( category !== '0' ){
-                                        let categoryChilds = await FishType.find({
-                                            where: { parent: category, status: '5c0866f9a0eda00b94acbdc2' }
-                                        })
-                                        .then(function ( result ) {
-                                            return result.map( value => {
-                                                return value.id;
-                                            } )
-                                        })
-                                        .catch(function (error) {
-                                            console.log(error);
-                                            return res.serverError(error);
-                                        })
-                                        categoryIds = categoryChilds ;
-                                        categoryIds.push(category);
-                                        condWhere.where['type'] = categoryIds;
-                                    }                
-                                }*/
-                                let fish_price_ids = '';
-                                if (minPrice !== '0' || maxPrice !== '0') {
-
-                                    fish_price_ids = await Fish.native(function (err, collection) {
-                                        if (err) return res.serverError(err);
-                                        console.log('min', minPrice);
-                                        console.log('max', maxPrice);
-                                        //{status: '5c0866f9a0eda00b94acbdc2'},
-                                        let price_ids = collection.find(
-                                            {
-                                                $and: [
-
-                                                    {
-                                                        "price.value": { $gte: parseInt(minPrice) }
-                                                    },
-                                                    {
-                                                        "price.value": { $lte: parseInt(maxPrice) }
-                                                    }]
-                                            }, { "status": '5c0866f9a0eda00b94acbdc2' }).toArray(async function (err, results) {
-                                                if (err) return res.serverError(err);
-                                                //console.log( 'justids', results );
-                                                justIds = results.map((row) => {
-                                                    return row._id.toString()
-                                                })
-                                                condWhere.where['id'] = justIds;
-
-                                                /*let fishes = await Fish.find(
-                                                    condWhere
-                                                ).populate("type")
-                                                .then(function ( result ) {
-                                                    let shippingRate = 
-                                                    res.status(200).json( result );
-                                                }) */
-                                                let productos = await Fish.find(condWhere).populate("type").populate("store");
-                                                productos = await Promise.all(productos.map(async function (m) {
-                                                    m.shippingCost = await require('./ShippingRatesController').getShippingRateByCities(m.city, m.weight.value);
-                                                    if (m.store === null)
-                                                        return m;
-                                                    m.store.owner = await User.findOne({ id: m.store.owner });
-
-                                                    if (m.hasOwnProperty('perBox') && m.perBox === true) { // adding min/max boxes 
-                                                        m['minBox'] = m.minimumOrder / m.boxWeight;
-                                                        m['maxBox'] = m.maximumOrder / m.boxWeight;
-                                                    }
+                    level2 = await FishType.find({ parent: value1.id });
+                    console.log('level2', level2);
 
 
-                                                    return m;
-                                                }));
+                    return categoryChilds;
+                }));
 
-                                                res.status(200).json(productos);
-                                                return justIds;
-                                            });
-                                        return price_ids
-                                    });
-                                } else {
-                                    /*let fishes = await Fish.find(
-                                        condWhere
-                                    ).populate("type")
-                                    .then(function ( result ) {
-                                        res.status(200).json( result );
-                                    })*/
-                                    let productos = await Fish.find(condWhere).populate("type").populate("store");
-                                    productos = await Promise.all(productos.map(async function (m) {
-                                        m.shippingCost = await require('./ShippingRatesController').getShippingRateByCities(m.city, m.weight.value);
-                                        if (m.store === null)
-                                            return m;
-                                        m.store.owner = await User.findOne({ id: m.store.owner });
-                                        return m;
-                                    }));
-                                    res.status(200).json(productos);
-                                }
-                                console.log(condWhere);
+                condWhere.where['type'] = categoryChilds;
+            } else if (category !== '0') {
+                console.log('parent')
+                //condWhere.where['type'] =;
+                let categoryChilds = [];
+                categoryChilds.push(category);
+                level1 = await FishType.find({
+                    where: { parent: category }
+                });
+                console.log('level1', level1);
 
+                await Promise.all(level1.map(async value1 => {
+                    categoryChilds.push(value1.id);
 
+                    level2 = await FishType.find({ parent: value1.id });
+                    console.log('level2', level2);
 
-                            } catch (error) {
-                                console.log(error);
-                                res.serverError(error);
-                            }
+                    Promise.all(level2.map(async value2 => {
+                        categoryChilds.push(value2.id);
 
-                        },
+                        level3 = await FishType.find({ parent: value2.id });
+                        console.log('level3', level3);
+                        level3.map(value3 => {
+                            categoryChilds.push(value3.id);
+                        })
+                        return categoryChilds;
 
-                            generateSKU: async (req, res) => {
-                                let store = req.param('store_code');
-                                let category = req.param('category_code');
-                                let subcategory = req.param('subcategory_code');
-                                let country = req.param('country');
+                    }))
 
-                                let store_name = await Store.find(
-                                    {
-                                        where: {
-                                            "id": store
-                                        }
-                                    }
-                                )
+                    return categoryChilds;
+                }));
 
+                condWhere.where['type'] = categoryChilds;
+            }
 
-                                let country_name = await Countries.find(
-                                    {
-                                        where: {
-                                            "code": country
-                                        }
-                                    }
-                                )
+            /*if( subcategory !== '0' ){
+                condWhere.where['type'] = subcategory;                
+            }else {
+                if( category !== '0' ){
+                    let categoryChilds = await FishType.find({
+                        where: { parent: category, status: '5c0866f9a0eda00b94acbdc2' }
+                    })
+                    .then(function ( result ) {
+                        return result.map( value => {
+                            return value.id;
+                        } )
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        return res.serverError(error);
+                    })
+                    categoryIds = categoryChilds ;
+                    categoryIds.push(category);
+                    condWhere.where['type'] = categoryIds;
+                }                
+            }*/
+            let fish_price_ids = '';
+            if (minPrice !== '0' || maxPrice !== '0') {
 
-                                let category_name = await FishType.find(
-                                    {
-                                        where: {
-                                            "id": category
-                                        }
-                                    }
-                                )
+                fish_price_ids = await Fish.native(function (err, collection) {
+                    if (err) return res.serverError(err);
+                    console.log('min', minPrice);
+                    console.log('max', maxPrice);
+                    //{status: '5c0866f9a0eda00b94acbdc2'},
+                    let price_ids = collection.find(
+                        {
+                            $and: [
 
-                                let subcategory_name = await FishType.find(
-                                    {
-                                        where: {
-                                            "id": subcategory
-                                        }
-                                    }
-                                )
-
-                                let fishes = await Fish.count({
-                                    country: country,
-                                    store: store,
-                                    type: subcategory,
-                                    country: country
-                                })
-
-                                let body = {
-                                    store_name: store_name[0].name,
-                                    country: country_name[0].name,
-                                    category: category_name[0].name,
-                                    sub: subcategory_name[0].name,
-                                    country: country_name[0].name
-                                }
-                                fishes += 1;
-                                if (fishes < 10)
-                                    fishes = '0' + fishes;
-
-                                res.status(200).json(`${store_name[0].name.substring(0, 3).toUpperCase()}-${category_name[0].name.substring(0, 3).toUpperCase()}-${subcategory_name[0].name.substring(0, 3).toUpperCase()}-${country_name[0].name.substring(0, 3).toUpperCase()}-${fishes}`);
-
-                            },
-
-                                updateStatus: async (req, res) => {
-                                    try {
-                                        let id = req.param("id");
-                                        let statusID = req.param("statusID");
-
-                                        let fishUpdated;
-                                        //let fish = await Fish.update({id}, { status: statusID,statusReason:reason }).fetch();
-                                        let fish = await Fish.findOne({ id }).populate('store');
-                                        fish = await getTRW(fish);
-                                        let store = await Store.findOne({ id: fish.store.id }).populate('owner');
-                                        if (statusID == '5c0866f2a0eda00b94acbdc1') { //Not Approved
-                                            let SFSAdminFeedback = req.body['message']; //req.param("SFSAdminFeedback")
-                                            console.log(SFSAdminFeedback)
-                                            if (SFSAdminFeedback && SFSAdminFeedback !== '') {
-                                                fishUpdated = await Fish.update({ id }, { status: statusID, SFSAdminFeedback: SFSAdminFeedback }).fetch();
-                                                //await require("./../../mailer").sendEmailProductRejected(store.owner, fish,SFSAdminFeedback);
-                                                await MailerService.newProductRejected(store.owner, fish, SFSAdminFeedback);
-                                            }
-                                            else {
-                                                res.serverError({ 'msg': "You need to provide a reason for not approved the product" })
-                                            }
-                                        } else if (statusID == '5c0866f9a0eda00b94acbdc2') { //Approved
-
-                                            fishUpdated = await Fish.update({ id }, { status: statusID }).fetch();
-                                            await MailerService.newProductAccepted(store.owner, fish);
-
-                                            await sails.helpers.updateCategoryCount();
-                                            //await require("./../../mailer").sendEmailProductApproved(store.owner, fish);
-                                        }
-
-                                        res.status(200).json(fishUpdated)
-                                    } catch (error) {
-                                        res.serverError(error);
-                                    }
+                                {
+                                    "price.value": { $gte: parseInt(minPrice) }
                                 },
+                                {
+                                    "price.value": { $lte: parseInt(maxPrice) }
+                                }]
+                        }, { "status": '5c0866f9a0eda00b94acbdc2' }).toArray(async function (err, results) {
+                            if (err) return res.serverError(err);
+                            //console.log( 'justids', results );
+                            justIds = results.map((row) => {
+                                return row._id.toString()
+                            })
+                            condWhere.where['id'] = justIds;
 
-                                    getPendingProducts: async (req, res) => {
-                                        try {
-                                            let countries = await Countries.find();
-                                            let fishes = await Fish.find({ status: '5c0866e4a0eda00b94acbdc0' }).populate('store').populate('type');
+                            /*let fishes = await Fish.find(
+                                condWhere
+                            ).populate("type")
+                            .then(function ( result ) {
+                                let shippingRate = 
+                                res.status(200).json( result );
+                            }) */
+                            let productos = await Fish.find(condWhere).populate("type").populate("store");
+                            productos = await Promise.all(productos.map(async function (m) {
+                                m.shippingCost = await require('./ShippingRatesController').getShippingRateByCities(m.city, m.weight.value);
+                                if (m.store === null)
+                                    return m;
+                                m.store.owner = await User.findOne({ id: m.store.owner });
 
-
-                                            fishes = await Promise.all(fishes.map(async (it) => {
-                                                try {
-                                                    let owner = await User.findOne({ id: it.store.owner })
-
-
-                                                    let fishID = req.param('fishID');
-
-                                                    let level2 = it.type;
-
-                                                    let descriptor = await FishType.findOne({ id: it.descriptor });
-
-
-                                                    let level1 = await FishType.findOne({ id: level2.parent });
-
-                                                    let level0 = await FishType.findOne({ id: level1.parent });
-
-                                                    let parentsLevel = { level0, level1, level2, descriptor };
-                                                    it.parentsLevel = parentsLevel;
-
-                                                    await countries.map(async country => {
-                                                        if (it.country == country.code) {
-                                                            it.countryName = country.name;
-                                                            console.log(country.name)
-
-                                                            await country.cities.map(city => {
-                                                                if (it.city == city.code) {
-                                                                    it.cityName = city.name;
-                                                                    console.log(city);
-                                                                }
-                                                            })
-                                                        }
-                                                        if (it.processingCountry == country.code) {
-                                                            it.processingCountryName = country.name;
-                                                        }
-                                                    })
-
-                                                    it.owner = {
-                                                        id: owner.id,
-                                                        email: owner.email,
-                                                        firstName: owner.firstName,
-                                                        lastName: owner.lastName,
-                                                        location: owner.location,
-                                                        dataExtra: owner.dataExtra
-                                                    }
-                                                }
-                                                catch (e) {
-                                                    console.error(e);
-                                                }
-                                                return it;
-                                            }))
+                                if (m.hasOwnProperty('perBox') && m.perBox === true) { // adding min/max boxes 
+                                    m['minBox'] = m.minimumOrder / m.boxWeight;
+                                    m['maxBox'] = m.maximumOrder / m.boxWeight;
+                                }
 
 
-                                            res.status(200).json(fishes);
-                                        } catch (error) {
-                                            console.log(error);
-                                            res.serverError(error);
-                                        }
-                                    },
-                                        getItemCharges: async (req, res) => {
-                                            try {
-                                                let currentAdminCharges = await sails.helpers.currentCharges();
-                                                let id = req.param('id');
-                                                let variation_id = req.param('variation_id');
-                                                let weight = req.param('weight');
-                                                let in_AED = (req.param('in_AED') == "true");
-                                                console.log('in_AED', in_AED);
-                                                console.log('in_AED2', req.param('in_AED'));
-                                                let charges = await sails.helpers.fishPricing(id, weight, currentAdminCharges, variation_id, in_AED);
+                                return m;
+                            }));
 
-                                                charges['finalPricePerKG'] = charges.finalPrice;
-                                                charges['fishCostPerKG'] = charges.fishCost;
-                                                //checking if the product is per box
-                                                let varFish = await Variations.findOne({ id: variation_id }).populate("fish");
-                                                if (varFish.fish.hasOwnProperty('perBox') && varFish.fish.perBox) {
-                                                    weight = weight * varFish.fish.boxWeight;
-                                                    charges['finalPricePerKG'] = Number(parseFloat(charges.finalPrice / varFish.fish.boxWeight).toFixed(2));
-                                                    charges['fishCostPerKG'] = Number(parseFloat(charges.fishCost / varFish.fish.boxWeight).toFixed(2));
-                                                }
+                            res.status(200).json(productos);
+                            return justIds;
+                        });
+                    return price_ids
+                });
+            } else {
+                /*let fishes = await Fish.find(
+                    condWhere
+                ).populate("type")
+                .then(function ( result ) {
+                    res.status(200).json( result );
+                })*/
+                let productos = await Fish.find(condWhere).populate("type").populate("store");
+                productos = await Promise.all(productos.map(async function (m) {
+                    m.shippingCost = await require('./ShippingRatesController').getShippingRateByCities(m.city, m.weight.value);
+                    if (m.store === null)
+                        return m;
+                    m.store.owner = await User.findOne({ id: m.store.owner });
+                    return m;
+                }));
+                res.status(200).json(productos);
+            }
+            console.log(condWhere);
 
-                                                let stock = await sails.helpers.getEtaStock(variation_id, weight);
-                                                charges['eta'] = stock;
-                                                res.status(200).json(charges);
 
-                                            } catch (error) {
-                                                console.log(error);
-                                                res.serverError(error);
-                                            }
-                                        },
 
-                                            getFishs: catchErrors(async (req, res) => {
-                                                let fishstypes = await FishType.find().populate("childsTypes").populate("parentsTypes");
-                                                fishstypes = await Promise.all(fishstypes.map(async (it) => {
-                                                    try {
-                                                        it.childsTypes = await getChildsTypes(it.childsTypes);
-                                                        it.parentsTypes = await getParentsTypes(it.parentsTypes);
-                                                    }
-                                                    catch (e) {
-                                                        console.error(e);
-                                                    }
+        } catch (error) {
+            console.log(error);
+            res.serverError(error);
+        }
 
-                                                    return it;
-                                                }))
-                                                res.json(fishstypes);
-                                            })
+    },
+
+    generateSKU: async (req, res) => {
+        let store = req.param('store_code');
+        let category = req.param('category_code');
+        let subcategory = req.param('subcategory_code');
+        let country = req.param('country');
+
+        let store_name = await Store.find(
+            {
+                where: {
+                    "id": store
+                }
+            }
+        )
+
+
+        let country_name = await Countries.find(
+            {
+                where: {
+                    "code": country
+                }
+            }
+        )
+
+        let category_name = await FishType.find(
+            {
+                where: {
+                    "id": category
+                }
+            }
+        )
+
+        let subcategory_name = await FishType.find(
+            {
+                where: {
+                    "id": subcategory
+                }
+            }
+        )
+
+        let fishes = await Fish.count({
+            country: country,
+            store: store,
+            type: subcategory,
+            country: country
+        })
+
+        let body = {
+            store_name: store_name[0].name,
+            country: country_name[0].name,
+            category: category_name[0].name,
+            sub: subcategory_name[0].name,
+            country: country_name[0].name
+        }
+        fishes += 1;
+        if (fishes < 10)
+            fishes = '0' + fishes;
+
+        res.status(200).json(`${store_name[0].name.substring(0, 3).toUpperCase()}-${category_name[0].name.substring(0, 3).toUpperCase()}-${subcategory_name[0].name.substring(0, 3).toUpperCase()}-${country_name[0].name.substring(0, 3).toUpperCase()}-${fishes}`);
+
+    },
+
+    updateStatus: async (req, res) => {
+        try {
+            let id = req.param("id");
+            let statusID = req.param("statusID");
+
+            let fishUpdated;
+            //let fish = await Fish.update({id}, { status: statusID,statusReason:reason }).fetch();
+            let fish = await Fish.findOne({ id }).populate('store');
+            fish = await getTRW(fish);
+            let store = await Store.findOne({ id: fish.store.id }).populate('owner');
+            if (statusID == '5c0866f2a0eda00b94acbdc1') { //Not Approved
+                let SFSAdminFeedback = req.body['message']; //req.param("SFSAdminFeedback")
+                console.log(SFSAdminFeedback)
+                if (SFSAdminFeedback && SFSAdminFeedback !== '') {
+                    fishUpdated = await Fish.update({ id }, { status: statusID, SFSAdminFeedback: SFSAdminFeedback }).fetch();
+                    //await require("./../../mailer").sendEmailProductRejected(store.owner, fish,SFSAdminFeedback);
+                    await MailerService.newProductRejected(store.owner, fish, SFSAdminFeedback);
+                }
+                else {
+                    res.serverError({ 'msg': "You need to provide a reason for not approved the product" })
+                }
+            } else if (statusID == '5c0866f9a0eda00b94acbdc2') { //Approved
+
+                fishUpdated = await Fish.update({ id }, { status: statusID }).fetch();
+                await MailerService.newProductAccepted(store.owner, fish);
+
+                await sails.helpers.updateCategoryCount();
+                //await require("./../../mailer").sendEmailProductApproved(store.owner, fish);
+            }
+
+            res.status(200).json(fishUpdated)
+        } catch (error) {
+            res.serverError(error);
+        }
+    },
+
+    getPendingProducts: async (req, res) => {
+        try {
+            let countries = await Countries.find();
+            let fishes = await Fish.find({ status: '5c0866e4a0eda00b94acbdc0' }).populate('store').populate('type');
+
+
+            fishes = await Promise.all(fishes.map(async (it) => {
+                try {
+                    let owner = await User.findOne({ id: it.store.owner })
+
+
+                    let fishID = req.param('fishID');
+
+                    let level2 = it.type;
+
+                    let descriptor = await FishType.findOne({ id: it.descriptor });
+
+
+                    let level1 = await FishType.findOne({ id: level2.parent });
+
+                    let level0 = await FishType.findOne({ id: level1.parent });
+
+                    let parentsLevel = { level0, level1, level2, descriptor };
+                    it.parentsLevel = parentsLevel;
+
+                    await countries.map(async country => {
+                        if (it.country == country.code) {
+                            it.countryName = country.name;
+                            console.log(country.name)
+
+                            await country.cities.map(city => {
+                                if (it.city == city.code) {
+                                    it.cityName = city.name;
+                                    console.log(city);
+                                }
+                            })
+                        }
+                        if (it.processingCountry == country.code) {
+                            it.processingCountryName = country.name;
+                        }
+                    })
+
+                    it.owner = {
+                        id: owner.id,
+                        email: owner.email,
+                        firstName: owner.firstName,
+                        lastName: owner.lastName,
+                        location: owner.location,
+                        dataExtra: owner.dataExtra
+                    }
+                }
+                catch (e) {
+                    console.error(e);
+                }
+                return it;
+            }))
+
+
+            res.status(200).json(fishes);
+        } catch (error) {
+            console.log(error);
+            res.serverError(error);
+        }
+    },
+    getItemCharges: async (req, res) => {
+        try {
+            let currentAdminCharges = await sails.helpers.currentCharges();
+            let id = req.param('id');
+            let variation_id = req.param('variation_id');
+            let weight = req.param('weight');
+            let in_AED = (req.param('in_AED') == "true");
+            console.log('in_AED', in_AED);
+            console.log('in_AED2', req.param('in_AED'));
+            let charges = await sails.helpers.fishPricing(id, weight, currentAdminCharges, variation_id, in_AED);
+
+            charges['finalPricePerKG'] = charges.finalPrice;
+            charges['fishCostPerKG'] = charges.fishCost;
+            //checking if the product is per box
+            let varFish = await Variations.findOne({ id: variation_id }).populate("fish");
+            if (varFish.fish.hasOwnProperty('perBox') && varFish.fish.perBox) {
+                weight = weight * varFish.fish.boxWeight;
+                charges['finalPricePerKG'] = Number(parseFloat(charges.finalPrice / varFish.fish.boxWeight).toFixed(2));
+                charges['fishCostPerKG'] = Number(parseFloat(charges.fishCost / varFish.fish.boxWeight).toFixed(2));
+            }
+
+            let stock = await sails.helpers.getEtaStock(variation_id, weight);
+            charges['eta'] = stock;
+            res.status(200).json(charges);
+
+        } catch (error) {
+            console.log(error);
+            res.serverError(error);
+        }
+    },
+
+    getFishs: catchErrors(async (req, res) => {
+        let fishstypes = await FishType.find().populate("childsTypes").populate("parentsTypes");
+        fishstypes = await Promise.all(fishstypes.map(async (it) => {
+            try {
+                it.childsTypes = await getChildsTypes(it.childsTypes);
+                it.parentsTypes = await getParentsTypes(it.parentsTypes);
+            }
+            catch (e) {
+                console.error(e);
+            }
+
+            return it;
+        }))
+        res.json(fishstypes);
+    })
 
 
 };
