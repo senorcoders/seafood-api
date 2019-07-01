@@ -33,12 +33,12 @@ module.exports = {
       required: false
     },
 
-    trackingID:{
+    trackingID: {
       type: "string",
       required: false
     },
 
-    trackingFile:{
+    trackingFile: {
       type: "string",
       required: false
     },
@@ -55,7 +55,7 @@ module.exports = {
       type: 'number',
       required: false
     },
-    sfsMargin: { 
+    sfsMargin: {
       type: 'number',
       required: false
     },
@@ -75,14 +75,14 @@ module.exports = {
       type: 'number',
       required: false
     },
-    outForDeliveryAt:{
+    outForDeliveryAt: {
       type: 'number',
       required: false
     },
-    deliveredAt:{
+    deliveredAt: {
       type: 'number',
       required: false
-    },    
+    },
     cancelAt: {
       type: 'number',
       required: false
@@ -139,6 +139,10 @@ module.exports = {
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
 
+    fishCurrent: {
+      type: 'json',
+      required: false
+    },
 
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
