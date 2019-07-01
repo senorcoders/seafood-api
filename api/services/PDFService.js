@@ -40,6 +40,7 @@ module.exports = {
             {
                 invoiceDueDate: paidDateTime,
                 invoiceDate: paidDateTime,
+                companyName: cart.buyer.dataExtra.companyName,
                 buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
                 buyerContactPostalAddress: `${cart.shippingAddress.address} ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
                 contactAccountNumber: '100552524900003',
@@ -88,6 +89,7 @@ module.exports = {
             {
                 invoiceDueDate: paidDateTime,
                 invoiceDate: paidDateTime,
+                companyName: cart.buyer.dataExtra.companyName,
                 buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
                 buyerContactPostalAddress: `${cart.shippingAddress.address} ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
                 contactAccountNumber: '100552524900003',
@@ -134,6 +136,7 @@ module.exports = {
             {
                 invoiceDueDate: paidDateTime,
                 invoiceDate: paidDateTime,
+                companyName: cart.buyer.dataExtra.companyName,
                 buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
                 buyerContactPostalAddress: `${cart.shippingAddress.address} ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
                 contactAccountNumber: '100552524900003',
