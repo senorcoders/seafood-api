@@ -966,15 +966,16 @@ module.exports = {
                             req_minimumOrder <= (fish['minBox'] * fish.boxWeight)
                         ) {
                             productos.push(m);
-                        }
+                        } 
+
                     } else if (req_maximumOrder !== '0') {
                         if (
                             req_maximumOrder <= (fish['maxBox'] * fish.boxWeight)
                         ) {
                             productos.push(m);
-                        }
+                        }                        
+                    } else {  productos.push(m); }// else we do nothing
 
-                    } // else we do nothing
                     // end of min max filter
                 } else if (!variation.outOfStock) { // if is per KG
                     console.log('per kg');
@@ -1000,7 +1001,7 @@ module.exports = {
                         ) {
                             productos.push(m);
                         }
-                    } // else we do nothing
+                    } else {  productos.push(m); } // else we do nothing
                     // end of min max filter
                 } else if (fish['cooming_soon'] && fish_where['cooming_soon']) {
                     productos.push(m);

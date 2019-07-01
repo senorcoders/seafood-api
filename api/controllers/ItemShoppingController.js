@@ -6,9 +6,11 @@ const concatNameVariation = async function (item) {
         let variation = await Variations.findOne({ id: item.variation })
             .populate("fishPreparation").populate("wholeFishWeight");
         if (variation.wholeFishWeight !== undefined && variation.wholeFishWeight !== null)
-            item.fish.name += ", " + variation.wholeFishWeight.name;
+            if (item.fish && item.wholeFishWeight)
+                item.fish.name += ", " + variation.wholeFishWeight.name;
         else {
-            item.fish.name += ", " + variation.fishPreparation.name;
+            if (item.fish && item.fishPreparation)
+                item.fish.name += ", " + variation.fishPreparation.name;
         }
     }
     return item;
@@ -354,7 +356,7 @@ module.exports = {
 
                     if (item.hasOwnProperty('inventory')) { //backwards compatibility for old products
                         let inventory = await FishStock.findOne({ id: item.inventory });
-                        await FishStock.update( { id: item.inventory } ).set({
+                        await FishStock.update({ id: item.inventory }).set({
                             purchased: inventory.purchased - parseFloat(item['quantity']['value'])
                         })
                     }
@@ -380,7 +382,7 @@ module.exports = {
                     //returning inventory
                     if (item.hasOwnProperty('inventory')) { //backwards compatibility for old products
                         let inventory = await FishStock.findOne({ id: item.inventory });
-                        await FishStock.update( { id: item.inventory } ).set({
+                        await FishStock.update({ id: item.inventory }).set({
                             purchased: inventory.purchased - parseFloat(item['quantity']['value'])
                         })
                     }
@@ -470,7 +472,7 @@ module.exports = {
     },
 
     updateItemPaymentStatus: async (req, res) => {
-        try { 
+        try {
             let id = req.param("id");
             let status = req.param("status");
             let userEmail = req.body.userEmail;
@@ -528,28 +530,28 @@ module.exports = {
                     orderStatus: '5c40b364970dc99bb06bed6a',
                     status: 'closed'
                 });
-                if(cart.isCOD === true){
+                if (cart.isCOD === true) {
                     let available = Number(cart.buyer.cod.available) + Number(cart.total);
-                    if(cart.buyer.cod.limit < available) available = cart.buyer.cod.limit;
+                    if (cart.buyer.cod.limit < available) available = cart.buyer.cod.limit;
                     cart.buyer.cod.available = available;
-                    await User.update({id:cart.buyer.id},{cod:cart.buyer.cod});
+                    await User.update({ id: cart.buyer.id }, { cod: cart.buyer.cod });
 
                     //cargamos los items para enviarlos en el invoice
                     let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id }).populate("fish");
-                    itemsShopping = await Promise.all(itemsShopping.map(async function(it){
+                    itemsShopping = await Promise.all(itemsShopping.map(async function (it) {
                         it = await concatNameVariation(it);
                         it.description = await getDescription(it);
                         return it;
                     }));
-        
+
                     //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
                     let itemsStore = [];
                     for (let item of itemsShopping) {
-                        
+
                         let index = itemsStore.findIndex(function (it) {
                             return it[0].fish.store.id === item.fish.store.id;
                         });
-        
+
                         if (index === -1) {
                             itemsStore.push([item]);
                         } else {
@@ -558,7 +560,7 @@ module.exports = {
                     }
                     let uaeTaxes = await PricingCharges.find({ where: { type: 'uaeTaxes' } }).sort('updatedAt DESC').limit(1);
                     await PDFService.buyerInvoiceCODPaid(itemsShopping, cart, cart.orderNumber, [], uaeTaxes[0].price)
-                }else
+                } else
                     await MailerService.buyerRefund(name, cart, store, item);
             }
 
