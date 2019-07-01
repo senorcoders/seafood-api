@@ -352,6 +352,7 @@ module.exports = {
             }
             let unixNow = Math.floor(new Date());
             let variations = await Variations.find(variation_where).populate('fishPreparation').populate('wholeFishWeight');
+            let fishVariations = await Variations.find( { 'fish': fish.id } ).populate('fishPreparation').populate('wholeFishWeight');
 
             let useOne = false;
             if (variations.length == 0) {
@@ -514,6 +515,7 @@ module.exports = {
             fish["weightsTrim"] = weightsTrim;
             fish["weightsFilleted"] = weightsFilleted;
             fish['variations'] = variations;
+            fish['fishVariations'] = fishVariations;
             fish["isTrimms"] = isTrimms;
 
             res.status(200).json(fish);
