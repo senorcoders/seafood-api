@@ -126,10 +126,10 @@ module.exports = {
                 shippingItems = [];
                 await Promise.all(cart.items.map(async item => {
                     let itemStore = await Fish.findOne({ id: item.fish }).populate('store');
-                    let boxesNumbers =  item.quantity.value;
+                    let boxesNumbers = item.quantity.value;
                     if (itemStore.hasOwnProperty("perBox")) {
-                        if ( itemStore.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
-                            boxesNumbers = item.quantity.value / itemStore.boxWeight ;
+                        if (itemStore.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
+                            boxesNumbers = item.quantity.value / itemStore.boxWeight;
                         }
                     }
                     let fishCharges = await sails.helpers.fishPricing(item.fish, boxesNumbers, currentAdminCharges, item.variation, in_AED)
@@ -190,7 +190,7 @@ module.exports = {
                     }))
                     return store;
                 }))
-		let unixNow = Math.floor(new Date());
+                let unixNow = Math.floor(new Date());
                 //setting min dalivery date for each item
                 await Promise.all(cart.items.map(async function (it) {
                     it.fish = await Fish.findOne({ id: it.fish.id }).populate("type").populate("store");
@@ -215,12 +215,12 @@ module.exports = {
                         let inventory = await FishStock.find().where({
                             "date": { '>': unixNow },
                             "variations": itVariation[0].id
-                        } ).sort( 'date DESC' ).populate('variations');                    
-                        
+                        }).sort('date DESC').populate('variations');
+
                         let minMaxInventory = [];
-                        inventory.map( item => {
-                            minMaxInventory.push( (item.quantity - item.purchased) );
-                        } )
+                        inventory.map(item => {
+                            minMaxInventory.push((item.quantity - item.purchased));
+                        })
                         it['maxAvailableInventory'] = Math.max.apply(null, minMaxInventory);
                     }
                     //console.log( 'fp', it['fishPreparation'] );
@@ -301,7 +301,7 @@ module.exports = {
                     it.sfsMargin = it.fishCharges.sfsMarginCost;
                     it.customs = it.fishCharges.customsFee;
                     it.uaeTaxes = it.fishCharges.uaeTaxesFee;
-                    
+
 
                     await ItemShopping.update({ id: it.id }, {
                         currentCharges: it.currentCharges,
@@ -459,7 +459,7 @@ module.exports = {
             //itemCharges = await sails.helpers.fishPricing( req.param("fish"), req.param("quantity"), currentAdminCharges, req.param('variation_id'), in_AED );
             let id = req.param("id")
 
-            variation_id = req.body.variation_id,
+            let variation_id = req.body.variation_id,
                 item = {
                     shoppingCart: id,
                     fish: req.body.fish,
@@ -570,29 +570,29 @@ module.exports = {
                 return res.status(500).send("invalid parameter items");
             }
 
-            await Promise.all( items.map( async ( it ) => {
+            await Promise.all(items.map(async (it) => {
                 let id = it.id;
-                let bdtem = await ItemShopping.findOne( { id: id } );
+                let bdtem = await ItemShopping.findOne({ id: id });
                 /*delete it.id;
                 await ItemShopping.update({ id }, it);*/
-		/******************************/
+                /******************************/
 
-		let itemStore = await Fish.findOne({ id: bdtem.fish }).populate('store');
-                let boxesNumbers =  parseFloat(it['quantity']['value']);
+                let itemStore = await Fish.findOne({ id: bdtem.fish }).populate('store');
+                let boxesNumbers = parseFloat(it['quantity']['value']);
                 if (itemStore.hasOwnProperty("perBox")) {
-                    if ( itemStore.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
-                        boxesNumbers = boxesNumbers / itemStore.boxWeight ;
+                    if (itemStore.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
+                        boxesNumbers = boxesNumbers / itemStore.boxWeight;
                     }
                 }
-		/******************************/
+                /******************************/
                 variation_id = bdtem.variation,
-                item = {
-                    quantity: { "type": "kg", "value": parseFloat(it['quantity']['value']) },
-                    price: bdtem.price
-                };
-		console.log( 'it', it['quantity']['value'] );
-		console.log( 'bd', bdtem.quantity );
-                let stock = await sails.helpers.getEtaStock(variation_id, parseFloat(it['quantity']['value']) );
+                    item = {
+                        quantity: { "type": "kg", "value": parseFloat(it['quantity']['value']) },
+                        price: bdtem.price
+                    };
+                console.log('it', it['quantity']['value']);
+                console.log('bd', bdtem.quantity);
+                let stock = await sails.helpers.getEtaStock(variation_id, parseFloat(it['quantity']['value']));
                 console.log('stock', stock)
                 if (stock === 0) {
                     return res.status(400).json({ message: "The product is not available" })
@@ -600,7 +600,7 @@ module.exports = {
 
                 itemCharges = await sails.helpers.fishPricing(bdtem.fish, boxesNumbers, currentAdminCharges, variation_id, in_AED);
                 item['inventory'] = stock.id;
-		item['itemCharges'] = itemCharges;
+                item['itemCharges'] = itemCharges;
                 let itemShopping;
                 let fishInfo = await Fish.findOne({ id: bdtem.fish });
 
@@ -608,12 +608,12 @@ module.exports = {
                 if (fishInfo.minimumOrder > item.quantity.value) {
                     return res.status(400).json({ message: "Order is below the minimum" })
                 } else {
-                    let item_id = it.id;                    
+                    let item_id = it.id;
                     itemShopping = await ItemShopping.update({ id: item_id }, item);
                 }
-                    
 
-            } ) )
+
+            }))
 
             /*for (let it of items) {
                 let id = it.id;
