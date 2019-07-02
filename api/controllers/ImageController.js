@@ -77,7 +77,7 @@ const uploadWithPromise = function (req, name, dirname, sizeCompress, entity, fi
                     } else {
                         entity[field] = dirs;
                     }
-                }else{
+                } else {
                     entity[field] = dirs;
                 }
 
@@ -216,7 +216,7 @@ function getMimeFile(dirname) {
     return new Promise(function (resolve, reject) {
         var magic = new Magic(mmm.MAGIC_MIME_TYPE);
         magic.detectFile(dirname, function (err, result) {
-            if (err) { return reject(err); };
+            if (err) { return reject(err); }
             console.log(result);
             resolve(result);
         });
@@ -580,7 +580,8 @@ module.exports = {
                     }
 
                     let dir = "";
-                    for (let file of uploadedFiles) { console.log('\n\n', file, '\n\n');
+                    for (let file of uploadedFiles) {
+                        console.log('\n\n', file, '\n\n');
                         if (file.type.includes("image/") && file["status"] === "finished") {
                             dir = "/api/store/images/logo/" + file.fd.split('/').pop() + "/" + idStore
                         }

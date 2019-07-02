@@ -679,17 +679,23 @@ module.exports = {
     // getFishWithVariations by weight, price, category, sub category, specie
     filterFishWithVariations: async (req, res) => {
         try {
+            var today = new Date();
+            var outOfStockDate = new Date();
+            var coomingSoonDate = new Date();
+            outOfStockDate.setDate(today.getDate()+150);
+            coomingSoonDate.setDate(today.getDate()+200);
             filterByPricesVariations = false;
             filterByVariations = false;
             filterByFish = false;
             let prices_fishes_ids = [];
             let variations_fishes_ids = [];
             let fishes_ids = [];
-
             let fish_where = {};
             let variation_where = {}; // variation where
             let price_where = {}; // variation price where
             // start variation price filters
+            let currentCharges = await sails.helpers.currentCharges();
+            let minMaxVariationPrices = [];
             if (req.body.hasOwnProperty('minPrice') && req.body.hasOwnProperty('maxPrice')) {
                 let req_min_price = req.body.minPrice;
                 let req_max_price = req.body.maxPrice;
@@ -908,7 +914,7 @@ module.exports = {
                 let inventory = await FishStock.find().where({
                     "date": { '>': unixNow },
                     "variations": m.id
-                }).sort('date DESC').populate('variations');
+                }).sort('date ASC').populate('variations');
 
                 let minMaxInventory = [];
                 inventory.map(item => {
@@ -922,6 +928,7 @@ module.exports = {
                 priceVariation.map((pv) => {
                     minMax.push(pv.min);
                     minMax.push(pv.max);
+                    minMaxVariationPrices.push(pv.price);
                 })
 
                 // checking if is in kg or lbs
@@ -938,9 +945,17 @@ module.exports = {
                     m['max'] = Math.max.apply(null, minMaxInventory) // 4
                     m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
                     m['outOfStock'] = false;
+                    let dateParts = inventory[0].short_date.split('/');
+                    m.fish['minInventoryDate'] = new Date( dateParts[2], dateParts[0] - 1, dateParts[1] ) ;//inventory[0].short_date;
                 } else {
                     m['outOfStock'] = true;
+                    m.fish['minInventoryDate'] = outOfStockDate;
                 }
+
+                let minPrice = await sails.helpers.fishPricing(m.fish.id, m['min'], currentCharges, m.id, true);
+                let maxPrice = await sails.helpers.fishPricing(m.fish.id, m['max'], currentCharges, m.id, true);
+                m['minPrice'] = minPrice;//Math.min.apply(null, minMaxVariationPrices);
+                m['maxPrice'] = maxPrice;
                 console.log('out of stock validation')
                 //lets recreate old json format with Fish at the top and inside the variations
                 let fish = m.fish;
@@ -1008,6 +1023,7 @@ module.exports = {
                     } else {  productos.push(m); } // else we do nothing
                     // end of min max filter
                 } else if (fish['cooming_soon'] && fish_where['cooming_soon']) {
+                    m['minInventoryDate'] = coomingSoonDate;
                     productos.push(m);
                 }
 
@@ -1050,15 +1066,20 @@ module.exports = {
 
     getAllPagination: async function (req, res) {
         try {
+            var today = new Date();
+            var outOfStockDate = new Date();
+            var coomingSoonDate = new Date();
+            outOfStockDate.setDate(today.getDate()+150);
+            coomingSoonDate.setDate(today.getDate()+200);
             let start = Number(req.params.page);
             --start;
             let publishedProducts = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' }).sort('name ASC').paginate({ page: start, limit: req.params.limit });
+            let currentCharges = await sails.helpers.currentCharges();
             let products_ids = [];
             publishedProducts.map((item) => {
                 products_ids.push(item.id);
             });
-            console.log('products_ids', products_ids);
-            //let productos = await Fish.find( {status: '5c0866f9a0eda00b94acbdc2'} ).populate("type").populate("store").populate('status').paginate({ page: start, limit: req.params.limit });
+            let minMaxVariationPrices = [];           
             let productos = [];
             let variations = await Variations.find({ fish: products_ids }).populate('fish').populate('fishPreparation').populate('wholeFishWeight');
             console.log('variations', variations.length);
@@ -1067,7 +1088,7 @@ module.exports = {
                 let inventory = await FishStock.find().where({
                     "date": { '>': unixNow },
                     "variations": m.id
-                }).sort('date DESC').populate('variations');
+                }).sort('date ASC').populate('variations');
 
                 let minMaxInventory = [];
                 inventory.map(item => {
@@ -1080,8 +1101,9 @@ module.exports = {
                 priceVariation.map((pv) => {
                     minMax.push(pv.min);
                     minMax.push(pv.max);
+                    minMaxVariationPrices.push(pv.price);
                 })
-                m['inventory'] = inventory;
+                m['inventory'] = inventory;                
 
                 if (m.fish.hasOwnProperty('unitOfSale') && m.fish.unitOfSale === 'lbs') {
                     m['max'] = Math.max.apply(null, minMax) / 2.205 // 4
@@ -1089,17 +1111,20 @@ module.exports = {
                 } else {
                     m['max'] = Math.max.apply(null, minMax) // 4
                     m['min'] = Math.min.apply(null, minMax) // 1
-                }
+                }                
 
                 if (minMaxInventory.length > 0) {
                     m['max'] = Math.max.apply(null, minMaxInventory) // 4
                     m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
                     m['outOfStock'] = false;
+                    let dateParts = inventory[0].short_date.split('/');
+                    m.fish['minInventoryDate'] = new Date( dateParts[2], dateParts[0] - 1, dateParts[1] ) ;//inventory[0].short_date;
                 } else {
                     /*m['max'] = 0;
                     m['min'] = 0;*/
                     //m['cooming_soon'] = '1';
                     m['outOfStock'] = true;
+                    m.fish['minInventoryDate'] = outOfStockDate;
                 }
 
                 //lets recreate old json format with Fish at the top and inside the variations
@@ -1114,9 +1139,13 @@ module.exports = {
                         /*m['maxBox'] = 0;
                         m['minBox'] = 0;*/
                         m['cooming_soon'] = '1';
+                        fish['minInventoryDate'] = coomingSoonDate;
                     }
                 }
-
+                let minPrice = await sails.helpers.fishPricing(m.fish.id, m['min'], currentCharges, m.id, true);
+                let maxPrice = await sails.helpers.fishPricing(m.fish.id, m['max'], currentCharges, m.id, true);
+                m['minPrice'] = minPrice;//Math.min.apply(null, minMaxVariationPrices);
+                m['maxPrice'] = maxPrice;//Math.max.apply(null, minMaxVariationPrices);
 
                 let variation = m;
                 delete variation.fish;
@@ -1134,8 +1163,8 @@ module.exports = {
                 return m;
             }));
             productos = productos.sort(function IHaveAName(a, b) { // non-anonymous as you ordered...
-                return b.name < a.name ? 1 // if b should come earlier, push a to end
-                    : b.name > a.name ? -1 // if b should come later, push a to begin
+                return b.minInventoryDate < a.minInventoryDate ? 1 // if b should come earlier, push a to end
+                    : b.minInventoryDate > a.minInventoryDate ? -1 // if b should come later, push a to begin
                         : -1;                   // a and b are equal
             });
 

@@ -552,6 +552,8 @@ module.exports.routes = {
    */
   "GET /api/v2/user": "UserController.getUsers",
 
+  'PUT /api/v2/user/update/:id': 'UserController.updateUserWithCOD',
+
   //for logos sellers
   "POST /api/v2/seller/logos/:id": "ImageController.uploadLogosSellers",
 

@@ -349,7 +349,7 @@ module.exports = {
   ***************************************************************************/
   custom: {
     baseUrl: 'http://13.232.66.55:80',
-    webappUrl: 'https://platform.seafoodsouq.com',
+    webappUrl: 'https://seafoodsouq.com',
     internalEmailAddress: 'support@example.com',
 
     // mailgunDomain: 'mg.example.com',
