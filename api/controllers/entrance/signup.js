@@ -50,12 +50,6 @@ if (!fs.existsSync(IMAGES)) {
   fs.mkdirSync(IMAGES);
 }
 
-let sen = async ()=> {
-  let newUserRecord = await User.findOne({ email: 'jos.ojiron@gmail.com' });
-  await MailerService.registerNewUser(newUserRecord);
-}
-sen();
-
 module.exports = {
 
 
