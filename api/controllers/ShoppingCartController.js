@@ -720,6 +720,10 @@ module.exports = {
                 it = await concatNameVariation(it);
                 it.description = await getDescription(it);
 
+                //add fish current to item
+                await ItemShopping.update({ id: it.id }, { fishCurrent: it.fish });
+                it.fishCurrent = it.fish;
+
                 //let update fish stock
                 if (it.hasOwnProperty('inventory')) {
                     let inventory = await FishStock.findOne({ id: it.inventory });

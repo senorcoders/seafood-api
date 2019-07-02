@@ -111,7 +111,7 @@ module.exports = {
     let fishPrice = Number(parseFloat(variation.price).toFixed(2));
 
     //chaging price to AED
-    fishPrice = fishPrice * currentAdminCharges['exchangeRates'];
+    fishPrice = Number(parseFloat(fishPrice * currentAdminCharges['exchangeRates']).toFixed(2));
     variation.price = fishPrice; //actualizamos el valor en variation
     // getting shipping rate from that city in AED
     shipping = await sails.helpers.shippingByCity(fish.city, weight);
@@ -156,14 +156,14 @@ module.exports = {
     //calculate cost using seafoodsouq formula
     let fishCost = Number(parseFloat(fishPrice * weight).toFixed(2)); // A
 
-    let sfsMarginCost = (sfsMargin / 100) * fishCost; // D= SFS Fee A //calculated from the total amount of the the product sales excluding shipping fees and taxes.
+    let sfsMarginCost = Number(parseFloat((sfsMargin / 100) * fishCost).toFixed(2) ) ; // D= SFS Fee A //calculated from the total amount of the the product sales excluding shipping fees and taxes.
     let customsFee = currentAdminCharges.customs; //E= Customs rate * A  //Customs in the UAE are 5% on the Seller’s invoice (The seller’s Sale excluding additional Costs
     if (!is_flat_custom) { // if is not flat custom then we use the percentaje;
-      customsFee = (currentAdminCharges.customs / 100) * fishCost
+      customsFee = Number(parseFloat((currentAdminCharges.customs / 100) * fishCost).toFixed(2));
     }
-    let exchangeRateCommission = (fishCost + shippingFees.firstMileFee) * (currentAdminCharges.exchangeRateCommission / 100);
-    let uaeTaxesFee = (fishCost + shippingFees.shippingCost + customsFee + sfsMarginCost) * (currentAdminCharges.uaeTaxes / 100); //F = (A+C+D+E) Tax
-    let finalPrice = fishCost + exchangeRateCommission + shippingFees.shippingCost + sfsMarginCost + customsFee + uaeTaxesFee;
+    let exchangeRateCommission = Number(parseFloat((fishCost + shippingFees.firstMileFee) * (currentAdminCharges.exchangeRateCommission / 100)).toFixed(2));
+    let uaeTaxesFee = Number(parseFloat((fishCost + shippingFees.shippingCost + customsFee + sfsMarginCost) * (currentAdminCharges.uaeTaxes / 100)).toFixed(2)); //F = (A+C+D+E) Tax
+    let finalPrice = Number(parseFloat(fishCost + exchangeRateCommission + shippingFees.shippingCost + sfsMarginCost + customsFee + uaeTaxesFee).toFixed(2));
 
     if (inputs.in_AED) {
       exchangeRates = 1;

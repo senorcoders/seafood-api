@@ -2,16 +2,21 @@ const favoriteFsihCtrl = require("./FavoriteFishController");
 const fs = require('fs');
 const path = require('path');
 const concatNameVariation = async function (item) {
-    if (item.variation !== null && item.variation !== undefined) {
-        let variation = await Variations.findOne({ id: item.variation })
-            .populate("fishPreparation").populate("wholeFishWeight");
-        if (variation.wholeFishWeight !== undefined && variation.wholeFishWeight !== null)
-            if (item.fish && item.wholeFishWeight)
-                item.fish.name += ", " + variation.wholeFishWeight.name;
-        else {
-            if (item.fish && item.fishPreparation)
-                item.fish.name += ", " + variation.fishPreparation.name;
+    try {
+        if (item.variation !== null && item.variation !== undefined) {
+            let variation = await Variations.findOne({ id: item.variation })
+                .populate("fishPreparation").populate("wholeFishWeight");
+            if (variation.wholeFishWeight !== undefined && variation.wholeFishWeight !== null)
+                if (item.fish && item.wholeFishWeight)
+                    item.fish.name += ", " + variation.wholeFishWeight.name;
+                else {
+                    if (item.fish && item.fishPreparation)
+                        item.fish.name += ", " + variation.fishPreparation.name;
+                }
         }
+    }
+    catch (e) {
+        console.error(e);
     }
     return item;
 }
@@ -429,7 +434,7 @@ module.exports = {
                     await User.update({ id: cart.buyer.id }, { cod: cart.buyer.cod });
 
                     //cargamos los items para enviarlos en el invoice
-                    let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id }).populate("fish");
+                    let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id });
                     itemsShopping = await Promise.all(itemsShopping.map(async function (it) {
                         if (it.inventory)
                             it.inventory = await FishStock.findOne({ id: it.inventory });
