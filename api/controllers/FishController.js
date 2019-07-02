@@ -914,7 +914,7 @@ module.exports = {
                 let inventory = await FishStock.find().where({
                     "date": { '>': unixNow },
                     "variations": m.id
-                }).sort('date DESC').populate('variations');
+                }).sort('date ASC').populate('variations');
 
                 let minMaxInventory = [];
                 inventory.map(item => {
@@ -1088,7 +1088,7 @@ module.exports = {
                 let inventory = await FishStock.find().where({
                     "date": { '>': unixNow },
                     "variations": m.id
-                }).sort('date DESC').populate('variations');
+                }).sort('date ASC').populate('variations');
 
                 let minMaxInventory = [];
                 inventory.map(item => {
