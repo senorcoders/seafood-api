@@ -83,7 +83,7 @@ module.exports = {
       `
     },
 
-    verfication: {
+    verification: {
       type: "boolean",
       required: false
     },
