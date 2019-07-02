@@ -10,7 +10,7 @@ module.exports = {
 
             if (us.code === code) {
                 us = await User.update({ id }, { verification: true }).fetch();
-                res.json({ message: "valid", url: webappUrl + '/verification/' + id + "/" + code, user: us });
+                res.json({ message: "valid" });
             } else {
                 res.json({ message: "The code entered is incorrect" });
             }
