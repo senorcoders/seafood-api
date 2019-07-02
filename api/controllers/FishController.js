@@ -1057,6 +1057,11 @@ module.exports = {
 
     getAllPagination: async function (req, res) {
         try {
+            var today = new Date();
+            var outOfStockDate = new Date();
+            var coomingSoonDate = new Date();
+            outOfStockDate.setDate(today.getDate()+150);
+            coomingSoonDate.setDate(today.getDate()+200);
             let start = Number(req.params.page);
             --start;
             let publishedProducts = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' }).sort('name ASC').paginate({ page: start, limit: req.params.limit });
@@ -1065,7 +1070,7 @@ module.exports = {
             publishedProducts.map((item) => {
                 products_ids.push(item.id);
             });
-            let minMaxVariationPrices = [];            
+            let minMaxVariationPrices = [];           
             let productos = [];
             let variations = await Variations.find({ fish: products_ids }).populate('fish').populate('fishPreparation').populate('wholeFishWeight');
             console.log('variations', variations.length);
@@ -1103,11 +1108,14 @@ module.exports = {
                     m['max'] = Math.max.apply(null, minMaxInventory) // 4
                     m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
                     m['outOfStock'] = false;
+                    let dateParts = inventory[0].short_date.split('/');
+                    m.fish['minInventoryDate'] = new Date( dateParts[2], dateParts[0], dateParts[1] ) ;//inventory[0].short_date;
                 } else {
                     /*m['max'] = 0;
                     m['min'] = 0;*/
                     //m['cooming_soon'] = '1';
                     m['outOfStock'] = true;
+                    m.fish['minInventoryDate'] = outOfStockDate;
                 }
 
                 //lets recreate old json format with Fish at the top and inside the variations
@@ -1122,6 +1130,7 @@ module.exports = {
                         /*m['maxBox'] = 0;
                         m['minBox'] = 0;*/
                         m['cooming_soon'] = '1';
+                        fish['minInventoryDate'] = coomingSoonDate;
                     }
                 }
                 let minPrice = await sails.helpers.fishPricing(m.fish.id, m['min'], currentCharges, m.id, true);
@@ -1145,8 +1154,8 @@ module.exports = {
                 return m;
             }));
             productos = productos.sort(function IHaveAName(a, b) { // non-anonymous as you ordered...
-                return b.name < a.name ? 1 // if b should come earlier, push a to end
-                    : b.name > a.name ? -1 // if b should come later, push a to begin
+                return b.minInventoryDate < a.minInventoryDate ? 1 // if b should come earlier, push a to end
+                    : b.minInventoryDate > a.minInventoryDate ? -1 // if b should come later, push a to begin
                         : -1;                   // a and b are equal
             });
 
