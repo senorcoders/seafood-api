@@ -679,6 +679,11 @@ module.exports = {
     // getFishWithVariations by weight, price, category, sub category, specie
     filterFishWithVariations: async (req, res) => {
         try {
+            var today = new Date();
+            var outOfStockDate = new Date();
+            var coomingSoonDate = new Date();
+            outOfStockDate.setDate(today.getDate()+150);
+            coomingSoonDate.setDate(today.getDate()+200);
             filterByPricesVariations = false;
             filterByVariations = false;
             filterByFish = false;
@@ -940,8 +945,11 @@ module.exports = {
                     m['max'] = Math.max.apply(null, minMaxInventory) // 4
                     m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
                     m['outOfStock'] = false;
+                    let dateParts = inventory[0].short_date.split('/');
+                    m.fish['minInventoryDate'] = new Date( dateParts[2], dateParts[0] - 1, dateParts[1] ) ;//inventory[0].short_date;
                 } else {
                     m['outOfStock'] = true;
+                    m.fish['minInventoryDate'] = outOfStockDate;
                 }
 
                 let minPrice = await sails.helpers.fishPricing(m.fish.id, m['min'], currentCharges, m.id, true);
@@ -1015,6 +1023,7 @@ module.exports = {
                     } else {  productos.push(m); } // else we do nothing
                     // end of min max filter
                 } else if (fish['cooming_soon'] && fish_where['cooming_soon']) {
+                    m['minInventoryDate'] = coomingSoonDate;
                     productos.push(m);
                 }
 
@@ -1109,7 +1118,7 @@ module.exports = {
                     m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
                     m['outOfStock'] = false;
                     let dateParts = inventory[0].short_date.split('/');
-                    m.fish['minInventoryDate'] = new Date( dateParts[2], dateParts[0], dateParts[1] ) ;//inventory[0].short_date;
+                    m.fish['minInventoryDate'] = new Date( dateParts[2], dateParts[0] - 1, dateParts[1] ) ;//inventory[0].short_date;
                 } else {
                     /*m['max'] = 0;
                     m['min'] = 0;*/
