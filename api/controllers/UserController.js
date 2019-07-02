@@ -364,6 +364,46 @@ module.exports = {
             let user = await User.findOne({ email: req.param('email') });
             await MailerService.registerNewUser(user);
             res.v2('success');
+        } catch (e) {
+            console.error(e);
+            res.v2(e);
+        }
+    },
+
+    updateUserWithCOD: async (req, res) => {
+        try {
+            let user = await User.findOne({ id: req.param('id') });
+            if (user === undefined) return res.v2(new Error('not found user'));
+            let data = req.body;
+            if (data.updateCOD.usage === true) {
+                let limit = Number(data.updateCOD.limit);
+                let available = user.cod && user.cod.limit ? Number(user.cod.limit) - Number(limit) : limit;
+                console.log(limit, available);
+                if (user.cod && user.cod.available && limit < Number(user.cod.available)) {
+                    available = limit;
+                } else {
+                    if (available < 0)
+                        available = user.cod && user.cod.available ? (available * -1) + Number(user.cod.available) : available * -1;
+                    else
+                        available = user.cod && user.cod.available ? available - Number(user.cod.available) : available;
+
+                    if (available < 0) {
+                        available = 0;
+                    }
+                }
+                // disp = Number(parseFloat(disp.toString()).toFixed(2));
+                const cod = { usage: data.updateCOD.usage, limit, available };
+                console.log(cod);
+                data.cod = cod;
+            } else {
+                if (user.cod) {
+                    data.cod = user.cod;
+                    data.cod.usage = false;
+                }
+            }
+            delete data.updateCOD;
+            let users = await User.update({ id: req.param('id') }, data).fetch();
+            res.v2(users);
         }
         catch (e) {
             console.error(e);
