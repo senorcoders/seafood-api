@@ -24,6 +24,13 @@ module.exports = {
       required: false
     },
 
+    sfsMargin: {
+      type: 'number',
+      example: '5 this are pecentage',
+      description: 'used for exworks margin',
+      defaultsTo: 0
+    },
+
     level: {
       type: 'number',
       required: false,
