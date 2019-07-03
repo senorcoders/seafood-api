@@ -23,7 +23,7 @@ module.exports = {
       columnType: "array",
       required: false
     },
-    
+
     level: {
       type: 'number',
       required: false,
