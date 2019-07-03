@@ -63,7 +63,7 @@ module.exports = {
     if (variation.length == 0) {
       variation = await VariationPrices.find().where({
         variation: inputs.variation_id
-      }).populate('variation').limit(1);
+      }).populate('variation').sort("max DESC").limit(1);
     }
 
     variation = variation[0];
