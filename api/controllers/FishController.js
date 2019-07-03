@@ -1133,7 +1133,7 @@ module.exports = {
                     m.fish['minInventoryDate'] = outOfStockDate;
                 }
                 if( m['outOfStock']  )
-                    fish['minInventoryDate'] = coomingSoonDate;
+                    m.fish['minInventoryDate'] = coomingSoonDate;
                 //lets recreate old json format with Fish at the top and inside the variations
                 let fish = m.fish;
                 if (fish.hasOwnProperty('perBox') && fish.perBox === true) { // adding min/max boxes 
