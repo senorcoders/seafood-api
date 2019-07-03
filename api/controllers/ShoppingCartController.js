@@ -52,37 +52,42 @@ module.exports = {
             let itemsDeleted = [];
             //checking if products are still available, if not, we delete them
             await Promise.all(cart.items.map(async it => {
-                let stock = await sails.helpers.getEtaStock(it.variation, parseFloat(it['quantity']['value']));
-                console.log('stock', stock)
-                if (stock === 0 || it.inventory !== stock.id) {
+                if( it.hasOwnProperty( 'variation' ) && it.variation !== undefined ) {
+                    let stock = await sails.helpers.getEtaStock(it.variation, parseFloat(it['quantity']['value']));
+                    console.log('stock', stock)
+                    if (stock === 0 || it.inventory !== stock.id) {
 
 
-                    it.fish = await Fish.findOne({ id: it.fish }).populate("type");
-                    it.fishCharges = it.fishCharges;// await sails.helpers.fishPricing(it.fish.id, it.quantity.value, currentAdminCharges)
-                    /*it.fish['price']['value'] = it.fishCharges.variation.price;
-    
-                    if( it.fish.hasOwnProperty('perBox') && it.fish.perBox === true) { // adding min/max boxes 
-                        it.fish['minBox'] = it.fish.minimumOrder / it.fish.boxWeight;
-                        it.fish['maxBox'] = it.fish.maximumOrder / it.fish.boxWeight;
-                    }*/
+                        it.fish = await Fish.findOne({ id: it.fish }).populate("type");
+                        it.fishCharges = it.fishCharges;// await sails.helpers.fishPricing(it.fish.id, it.quantity.value, currentAdminCharges)
+                        /*it.fish['price']['value'] = it.fishCharges.variation.price;
+        
+                        if( it.fish.hasOwnProperty('perBox') && it.fish.perBox === true) { // adding min/max boxes 
+                            it.fish['minBox'] = it.fish.minimumOrder / it.fish.boxWeight;
+                            it.fish['maxBox'] = it.fish.maximumOrder / it.fish.boxWeight;
+                        }*/
 
-                    //console.log('it', it.fishCharges.variation.id);
-                    //console.log('it 2', it.variation);
-                    // itVariationPrice = await VariationPrices.find({ id: it.fishCharges.variation.id }).populate('variation');
-                    let itVariation = await Variations.find({ id: it.variation });
-                    // get fish Preparation  of each item   
-                    //console.log('itVariationPrice', itVariationPrice);
-                    it['fishPreparation'] = await FishPreparation.find({ id: itVariation[0].fishPreparation });
-                    //console.log( 'fp', it['fishPreparation'] );
-                    if (itVariation[0].fishPreparation === '5c93bff065e25a011eefbcc2' || itVariation[0].fishPreparation === '5c93c00465e25a011eefbcc3') {
-                        // get whole fish weight of each item
-                        //  console.log( 'ww',  itVariationPrice[0].variation.wholeFishWeight );
-                        it['wholeFishWeight'] = await WholeFishWeight.find({ id: itVariation[0].wholeFishWeight });
+                        //console.log('it', it.fishCharges.variation.id);
+                        //console.log('it 2', it.variation);
+                        // itVariationPrice = await VariationPrices.find({ id: it.fishCharges.variation.id }).populate('variation');
+                        let itVariation = await Variations.find({ id: it.variation });
+                        // get fish Preparation  of each item   
+                        //console.log('itVariationPrice', itVariationPrice);
+                        it['fishPreparation'] = await FishPreparation.find({ id: itVariation[0].fishPreparation });
+                        //console.log( 'fp', it['fishPreparation'] );
+                        if (itVariation[0].fishPreparation === '5c93bff065e25a011eefbcc2' || itVariation[0].fishPreparation === '5c93c00465e25a011eefbcc3') {
+                            // get whole fish weight of each item
+                            //  console.log( 'ww',  itVariationPrice[0].variation.wholeFishWeight );
+                            it['wholeFishWeight'] = await WholeFishWeight.find({ id: itVariation[0].wholeFishWeight });
+                        }
+
+                        await ItemShopping.destroy({ id: it.id });
+                        itemsDeleted.push(it);
                     }
-
-                    await ItemShopping.destroy({ id: it.id });
+                } else {
                     itemsDeleted.push(it);
                 }
+                
             }));
 
             if (itemsDeleted.length > 0) {
