@@ -1212,7 +1212,9 @@ module.exports = {
                     maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maximumOrder ).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
 
                 }
-
+                if (m.max === 0)
+                    maxPrice = minPrice;
+                    
                 if (minPrice.finalPrice > maxPrice.finalPrice) {
                     m['minPrice'] = maxPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
                     m['maxPrice'] = minPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
