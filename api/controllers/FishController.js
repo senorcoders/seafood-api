@@ -1096,12 +1096,18 @@ module.exports = {
                 })
 
                 //get min max price
-                let priceVariation = await VariationPrices.find({ variation: m.id });
+                let priceVariation = await VariationPrices.find({ variation: m.id }).sort('price ASC');
                 let minMax = [];
-                priceVariation.map((pv) => {
+                let minPriceVar = {};
+                let maxPriceVar = {};
+                priceVariation.map((pv, index) => {
                     minMax.push(pv.min);
                     minMax.push(pv.max);
-                    minMaxVariationPrices.push(pv.price);
+                    
+                    if( index == 0 )
+                        minPriceVar = pv;
+
+                    maxPriceVar = pv;
                 })
                 m['inventory'] = inventory;                
 
@@ -1126,7 +1132,8 @@ module.exports = {
                     m['outOfStock'] = true;
                     m.fish['minInventoryDate'] = outOfStockDate;
                 }
-
+                if( m['outOfStock']  )
+                    fish['minInventoryDate'] = coomingSoonDate;
                 //lets recreate old json format with Fish at the top and inside the variations
                 let fish = m.fish;
                 if (fish.hasOwnProperty('perBox') && fish.perBox === true) { // adding min/max boxes 
@@ -1142,10 +1149,32 @@ module.exports = {
                         fish['minInventoryDate'] = coomingSoonDate;
                     }
                 }
-                let minPrice = await sails.helpers.fishPricing(m.fish.id, m['min'], currentCharges, m.id, true);
-                let maxPrice = await sails.helpers.fishPricing(m.fish.id, m['max'], currentCharges, m.id, true);
-                m['minPrice'] = minPrice;//Math.min.apply(null, minMaxVariationPrices);
-                m['maxPrice'] = maxPrice;//Math.max.apply(null, minMaxVariationPrices);
+                console.log( 'min', minPriceVar );
+                let minPrice, maxPrice;
+                if (fish.hasOwnProperty('perBox') && fish.perBox === true) {
+                    //for price range, we look for the higher and minimum price
+                    minPrice = await sails.helpers.fishPricing(m.fish.id, minPriceVar.min, currentCharges, m.id, true);
+                    maxPrice = await sails.helpers.fishPricing(m.fish.id, maxPriceVar.max-1, currentCharges, m.id, true);
+                    minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / minPriceVar.min / fish.boxWeight).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / maxPriceVar.max / fish.boxWeight).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                } else {
+                    //for price range, we look for the higher and minimum price
+                    minPrice = await sails.helpers.fishPricing(m.fish.id, minPriceVar.min, currentCharges, m.id, true);
+                    maxPrice = await sails.helpers.fishPricing(m.fish.id, maxPriceVar.max, currentCharges, m.id, true);
+                    minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                    
+                }
+
+                if( minPrice.finalPrice > maxPrice.finalPrice ) {
+                    m['minPrice'] = maxPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    m['maxPrice'] = minPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                } else {
+                    m['minPrice'] = minPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    m['maxPrice'] = maxPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                }
+                
+
 
                 let variation = m;
                 delete variation.fish;
