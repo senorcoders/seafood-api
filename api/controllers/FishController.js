@@ -1132,7 +1132,7 @@ module.exports = {
                     m['outOfStock'] = true;
                     m.fish['minInventoryDate'] = outOfStockDate;
                 }
-                if( m['outOfStock']  )
+                if( m['outOfStock'] || m.fish['stock'] == 0 )
                     m.fish['minInventoryDate'] = coomingSoonDate;
                 //lets recreate old json format with Fish at the top and inside the variations
                 let fish = m.fish;
@@ -1184,7 +1184,7 @@ module.exports = {
 
                 if (m.store === null)
                     return m;
-
+                
                 m.store = await Store.findOne({ id: m.store }).populate('owner');
                 //m.store.owner = await User.findOne({ id: m.store.owner });            
                 //m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
