@@ -951,14 +951,40 @@ module.exports = {
                     m['outOfStock'] = true;
                     m.fish['minInventoryDate'] = outOfStockDate;
                 }
-
-                let minPrice = await sails.helpers.fishPricing(m.fish.id, m['min'], currentCharges, m.id, true);
-                let maxPrice = await sails.helpers.fishPricing(m.fish.id, m['max'], currentCharges, m.id, true);
-                m['minPrice'] = minPrice;//Math.min.apply(null, minMaxVariationPrices);
-                m['maxPrice'] = maxPrice;
-                console.log('out of stock validation')
-                //lets recreate old json format with Fish at the top and inside the variations
+                
                 let fish = m.fish;
+                // adding price range to filters response
+                let minPrice, maxPrice;
+                if (fish.hasOwnProperty('perBox') && fish.perBox === true) {
+                    fish['minBox'] = fish.minimumOrder / fish.boxWeight;
+                    fish['maxBox'] = fish.maximumOrder / fish.boxWeight;
+                    //for price range, we look for the higher and minimum price
+                    minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minBox, currentCharges, m.id, true);
+                    maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maxBox, currentCharges, m.id, true);
+                    minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minBox / fish.boxWeight).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maxBox / fish.boxWeight).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                } else {
+                    //for price range, we look for the higher and minimum price
+                    minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minimumOrder, currentCharges, m.id, true);
+                    maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maximumOrder, currentCharges, m.id, true);
+                    minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minimumOrder).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maximumOrder ).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                    
+                }
+                if( minPrice.finalPrice > maxPrice.finalPrice ) {
+                    m['minPrice'] = maxPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    m['maxPrice'] = minPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                } else {
+                    m['minPrice'] = minPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    m['maxPrice'] = maxPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                }
+                    /*let minPrice = await sails.helpers.fishPricing(m.fish.id, m['min'], currentCharges, m.id, true);
+                    let maxPrice = await sails.helpers.fishPricing(m.fish.id, m['max'], currentCharges, m.id, true);
+                    m['minPrice'] = minPrice;//Math.min.apply(null, minMaxVariationPrices);
+                    m['maxPrice'] = maxPrice;
+                      */    
+                //lets recreate old json format with Fish at the top and inside the variations
+                
 
                 let req_minimumOrder = req.body.minimumOrder;
                 let req_maximumOrder = req.body.maximumOrder;
@@ -1159,10 +1185,10 @@ module.exports = {
                     maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maxBox / fish.boxWeight).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
                 } else {
                     //for price range, we look for the higher and minimum price
-                    minPrice = await sails.helpers.fishPricing(m.fish.id, minPriceVar.min, currentCharges, m.id, true);
-                    maxPrice = await sails.helpers.fishPricing(m.fish.id, maxPriceVar.max, currentCharges, m.id, true);
-                    minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
-                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                    minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minimumOrder, currentCharges, m.id, true);
+                    maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maximumOrder, currentCharges, m.id, true);
+                    minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minimumOrder).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maximumOrder ).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
                     
                 }
 
