@@ -1150,8 +1150,8 @@ module.exports = {
                 priceVariation.map((pv, index) => {
                     minMax.push(pv.min);
                     minMax.push(pv.max);
-
-                    if (index == 0)
+                    
+                    if( index == 0 )
                         minPriceVar = pv;
 
                     maxPriceVar = pv;
@@ -1196,7 +1196,7 @@ module.exports = {
                         fish['minInventoryDate'] = coomingSoonDate;
                     }
                 }
-                console.log('min', minPriceVar);
+                console.log( 'min', minPriceVar );
                 let minPrice, maxPrice;
                 if (fish.hasOwnProperty('perBox') && fish.perBox === true) {
                     //for price range, we look for the higher and minimum price
@@ -1210,8 +1210,8 @@ module.exports = {
                     maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maximumOrder, currentCharges, m.id, true);
                     minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minimumOrder).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
                     maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maximumOrder ).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                    
 
-                }
                 if (m.max === 0)
                     maxPrice = minPrice;
                     
@@ -1222,7 +1222,7 @@ module.exports = {
                     m['minPrice'] = minPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
                     m['maxPrice'] = maxPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
                 }
-
+                
 
 
                 let variation = m;
@@ -1233,7 +1233,7 @@ module.exports = {
 
                 if (m.store === null)
                     return m;
-
+                
                 m.store = await Store.findOne({ id: m.store }).populate('owner');
                 //m.store.owner = await User.findOne({ id: m.store.owner });            
                 //m.shippingCost =  await require('./ShippingRatesController').getShippingRateByCities( m.city, m.weight.value ); 
