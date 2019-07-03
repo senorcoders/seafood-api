@@ -1153,10 +1153,10 @@ module.exports = {
                 let minPrice, maxPrice;
                 if (fish.hasOwnProperty('perBox') && fish.perBox === true) {
                     //for price range, we look for the higher and minimum price
-                    minPrice = await sails.helpers.fishPricing(m.fish.id, minPriceVar.min, currentCharges, m.id, true);
-                    maxPrice = await sails.helpers.fishPricing(m.fish.id, maxPriceVar.max-1, currentCharges, m.id, true);
-                    minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / minPriceVar.min / fish.boxWeight).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
-                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / maxPriceVar.max / fish.boxWeight).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                    minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minBox, currentCharges, m.id, true);
+                    maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maxBox, currentCharges, m.id, true);
+                    minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minBox / fish.boxWeight).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maxBox / fish.boxWeight).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
                 } else {
                     //for price range, we look for the higher and minimum price
                     minPrice = await sails.helpers.fishPricing(m.fish.id, minPriceVar.min, currentCharges, m.id, true);
