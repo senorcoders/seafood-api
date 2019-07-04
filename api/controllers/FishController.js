@@ -117,6 +117,9 @@ module.exports = {
                     } else if (variation.hasOwnProperty('fishPreparation') === true && variation.fishPreparation === "5c93c01465e25a011eefbcc4") {
                         //Para fillete
                         skuVar += "-" + 1;
+                    } else if (variation.hasOwnProperty('fishPreparation') === true && variation.fishPreparation === "5d1cc9cd29dc5790fa2537f3") {
+                        //Para packaged
+                        skuVar += "-" + 1;
                     } else if (variation.hasOwnProperty('fishPreparation') === true) {
                         //Para trimmings salmon
                         let trimm = await TrimmingType.findOne({ id: variation.fishPreparation });
@@ -239,6 +242,9 @@ module.exports = {
                     } else if (variation.hasOwnProperty('fishPreparation') === true && variation.fishPreparation === "5c93c01465e25a011eefbcc4") {
                         //Para fillete
                         skuVar += "-" + 1;
+                    } else if (variation.hasOwnProperty('fishPreparation') === true && variation.fishPreparation === "5d1cc9cd29dc5790fa2537f3") {
+                        //Para packaged
+                        skuVar += "-" + 1;
                     } else if (variation.hasOwnProperty('fishPreparation') === true) {
                         //Para trimmings salmon
                         let trimm = await TrimmingType.findOne({ id: variation.fishPreparation });
@@ -294,7 +300,7 @@ module.exports = {
                     }
                 }
             }
-            // console.log('no deletes \n\n', variationsNoDelete, pricesNoDeletes);
+            console.log('no deletes \n\n', variationsNoDelete, pricesNoDeletes);
 
             //let delete variation
             if (body.hasOwnProperty('pricesDeleted')) {
@@ -302,7 +308,7 @@ module.exports = {
                     id: {
                         in: body.pricesDeleted.filter((it) => {
                             let index = pricesNoDeletes.findIndex(itt => { return itt === it; });
-                            return index !== -1;
+                            return index === -1;
                         })
                     }
                 });
@@ -331,12 +337,12 @@ module.exports = {
     getFishWithVariations: async (req, res) => {
         try {
             let fishID = req.param('id');
-            let variation_where = {};            
+            let variation_where = {};
             let fish = await Fish.findOne({ id: fishID }).populate('status').populate('store').populate('type').populate('treatment').populate('raised');//.populate('descriptor')
-            
+
             variation_where['fish'] = fish.id;
-            if ( req.param('variation') !==  undefined ) {
-                variation_where['id'] = req.param( 'variation' );
+            if (req.param('variation') !== undefined) {
+                variation_where['id'] = req.param('variation');
             }
             console.log(variation_where);
 
@@ -352,7 +358,7 @@ module.exports = {
             }
             let unixNow = Math.floor(new Date());
             let variations = await Variations.find(variation_where).populate('fishPreparation').populate('wholeFishWeight');
-            let fishVariations = await Variations.find( { 'fish': fish.id } ).populate('fishPreparation').populate('wholeFishWeight');
+            let fishVariations = await Variations.find({ 'fish': fish.id }).populate('fishPreparation').populate('wholeFishWeight');
 
             let useOne = false;
             if (variations.length == 0) {
@@ -375,7 +381,8 @@ module.exports = {
             let weightsTrim = {};
             let isTrimms = useOne === true ? false : (variations[0].wholeFishWeight === undefined || variations[0].wholeFishWeight === null) && fish.type.parent === '5bda361c78b3140ef5d31fa4';
             let weightsFilleted = [];
-
+            let weightsPackaged = [];
+            let wholeFishAction = '';
             await Promise.all(
                 variations.map(async variation => {
 
@@ -469,6 +476,11 @@ module.exports = {
                                 weights.on[variation.wholeFishWeight.id].push(sld);
                             else if (variation['fishPreparation']['id'] === '5c93c00465e25a011eefbcc3') //head off
                                 weights.off[variation.wholeFishWeight.id].push(sld);
+                            else if (variation['fishPreparation']['id'] === '5d1cc9cd29dc5790fa2537f3') //packaged
+                            {
+                                weightsPackaged.push(sld);
+                                wholeFishAction = 'packaged';
+                            }
                             else { //este es para filleted no es trimms y es wholeFishAction false
                                 weightsFilleted.push(sld);
                             }
@@ -510,10 +522,11 @@ module.exports = {
                 return weights.off[it] !== undefined && weights.off[it] !== null && weights.off[it].length > 0;
             });
             fish['headAction'] = headAction;
-            fish['wholeFishAction'] = headAction;
+            fish['wholeFishAction'] = wholeFishAction === '' ? headAction === true ? 'si' : 'no' : wholeFishAction;
             fish['weights'] = weights;
             fish["weightsTrim"] = weightsTrim;
             fish["weightsFilleted"] = weightsFilleted;
+            fish["weightsPackaged"] = weightsPackaged;
             fish['variations'] = variations;
             fish['fishVariations'] = fishVariations;
             fish["isTrimms"] = isTrimms;
@@ -564,6 +577,8 @@ module.exports = {
             let weightsTrim = {};
             let isTrimms = useOne === true ? false : (variations[0].wholeFishWeight === undefined || variations[0].wholeFishWeight === null) && fish.type.parent === '5bda361c78b3140ef5d31fa4';
             let weightsFilleted = [];
+            let weightsPackaged = [];
+            let wholeFishAction = '';
 
             let minLimit = fish.minimunOrder;
             let maxLimit = fish.maximumOrder;;
@@ -618,6 +633,11 @@ module.exports = {
                                 weights.on[variation.wholeFishWeight.id].push(sld);
                             else if (variation['fishPreparation']['id'] === '5c93c00465e25a011eefbcc3') //head off
                                 weights.off[variation.wholeFishWeight.id].push(sld);
+                            else if (variation['fishPreparation']['id'] === '5d1cc9cd29dc5790fa2537f3') //packaged
+                            {
+                                weightsPackaged.push(sld);
+                                wholeFishAction = 'packaged';
+                            }
                             else { //este es para filleted no es trimms y es wholeFishAction false
                                 weightsFilleted.push(sld);
                             }
@@ -662,10 +682,11 @@ module.exports = {
                 return weights.off[it] !== undefined && weights.off[it] !== null && weights.off[it].length > 0;
             });
             fish['headAction'] = headAction;
-            fish['wholeFishAction'] = headAction;
+            fish['wholeFishAction'] = wholeFishAction === '' ? headAction === true ? 'si' : 'no' : wholeFishAction;
             fish['weights'] = weights;
             fish["weightsTrim"] = weightsTrim;
             fish["weightsFilleted"] = weightsFilleted;
+            fish["weightsPackaged"] = weightsPackaged;
             fish['variations'] = variations;
             fish["isTrimms"] = isTrimms;
 
@@ -682,8 +703,8 @@ module.exports = {
             var today = new Date();
             var outOfStockDate = new Date();
             var coomingSoonDate = new Date();
-            outOfStockDate.setDate(today.getDate()+150);
-            coomingSoonDate.setDate(today.getDate()+200);
+            outOfStockDate.setDate(today.getDate() + 150);
+            coomingSoonDate.setDate(today.getDate() + 200);
             filterByPricesVariations = false;
             filterByVariations = false;
             filterByFish = false;
@@ -946,19 +967,45 @@ module.exports = {
                     m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
                     m['outOfStock'] = false;
                     let dateParts = inventory[0].short_date.split('/');
-                    m.fish['minInventoryDate'] = new Date( dateParts[2], dateParts[0] - 1, dateParts[1] ) ;//inventory[0].short_date;
+                    m.fish['minInventoryDate'] = new Date(dateParts[2], dateParts[0] - 1, dateParts[1]);//inventory[0].short_date;
                 } else {
                     m['outOfStock'] = true;
                     m.fish['minInventoryDate'] = outOfStockDate;
                 }
-
-                let minPrice = await sails.helpers.fishPricing(m.fish.id, m['min'], currentCharges, m.id, true);
-                let maxPrice = await sails.helpers.fishPricing(m.fish.id, m['max'], currentCharges, m.id, true);
-                m['minPrice'] = minPrice;//Math.min.apply(null, minMaxVariationPrices);
-                m['maxPrice'] = maxPrice;
-                console.log('out of stock validation')
-                //lets recreate old json format with Fish at the top and inside the variations
+                
                 let fish = m.fish;
+                // adding price range to filters response
+                let minPrice, maxPrice;
+                if (fish.hasOwnProperty('perBox') && fish.perBox === true) {
+                    fish['minBox'] = fish.minimumOrder / fish.boxWeight;
+                    fish['maxBox'] = fish.maximumOrder / fish.boxWeight;
+                    //for price range, we look for the higher and minimum price
+                    minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minBox, currentCharges, m.id, true);
+                    maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maxBox, currentCharges, m.id, true);
+                    minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minBox / fish.boxWeight).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maxBox / fish.boxWeight).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                } else {
+                    //for price range, we look for the higher and minimum price
+                    minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minimumOrder, currentCharges, m.id, true);
+                    maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maximumOrder, currentCharges, m.id, true);
+                    minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minimumOrder).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maximumOrder ).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                    
+                }
+                if( minPrice.finalPrice > maxPrice.finalPrice ) {
+                    m['minPrice'] = maxPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    m['maxPrice'] = minPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                } else {
+                    m['minPrice'] = minPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    m['maxPrice'] = maxPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                }
+                    /*let minPrice = await sails.helpers.fishPricing(m.fish.id, m['min'], currentCharges, m.id, true);
+                    let maxPrice = await sails.helpers.fishPricing(m.fish.id, m['max'], currentCharges, m.id, true);
+                    m['minPrice'] = minPrice;//Math.min.apply(null, minMaxVariationPrices);
+                    m['maxPrice'] = maxPrice;
+                      */    
+                //lets recreate old json format with Fish at the top and inside the variations
+                
 
                 let req_minimumOrder = req.body.minimumOrder;
                 let req_maximumOrder = req.body.maximumOrder;
@@ -985,15 +1032,15 @@ module.exports = {
                             req_minimumOrder <= (fish['minBox'] * fish.boxWeight)
                         ) {
                             productos.push(m);
-                        } 
+                        }
 
                     } else if (req_maximumOrder !== '0') {
                         if (
                             req_maximumOrder <= (fish['maxBox'] * fish.boxWeight)
                         ) {
                             productos.push(m);
-                        }                        
-                    } else {  productos.push(m); }// else we do nothing
+                        }
+                    } else { productos.push(m); }// else we do nothing
 
                     // end of min max filter
                 } else if (!variation.outOfStock) { // if is per KG
@@ -1020,7 +1067,7 @@ module.exports = {
                         ) {
                             productos.push(m);
                         }
-                    } else {  productos.push(m); } // else we do nothing
+                    } else { productos.push(m); } // else we do nothing
                     // end of min max filter
                 } else if (fish['cooming_soon'] && fish_where['cooming_soon']) {
                     m['minInventoryDate'] = coomingSoonDate;
@@ -1069,8 +1116,8 @@ module.exports = {
             var today = new Date();
             var outOfStockDate = new Date();
             var coomingSoonDate = new Date();
-            outOfStockDate.setDate(today.getDate()+150);
-            coomingSoonDate.setDate(today.getDate()+200);
+            outOfStockDate.setDate(today.getDate() + 150);
+            coomingSoonDate.setDate(today.getDate() + 200);
             let start = Number(req.params.page);
             --start;
             let publishedProducts = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' }).sort('name ASC').paginate({ page: start, limit: req.params.limit });
@@ -1079,7 +1126,7 @@ module.exports = {
             publishedProducts.map((item) => {
                 products_ids.push(item.id);
             });
-            let minMaxVariationPrices = [];           
+            let minMaxVariationPrices = [];
             let productos = [];
             let variations = await Variations.find({ fish: products_ids }).populate('fish').populate('fishPreparation').populate('wholeFishWeight');
             console.log('variations', variations.length);
@@ -1096,14 +1143,20 @@ module.exports = {
                 })
 
                 //get min max price
-                let priceVariation = await VariationPrices.find({ variation: m.id });
+                let priceVariation = await VariationPrices.find({ variation: m.id }).sort('price ASC');
                 let minMax = [];
-                priceVariation.map((pv) => {
+                let minPriceVar = {};
+                let maxPriceVar = {};
+                priceVariation.map((pv, index) => {
                     minMax.push(pv.min);
                     minMax.push(pv.max);
-                    minMaxVariationPrices.push(pv.price);
+
+                    if (index == 0)
+                        minPriceVar = pv;
+
+                    maxPriceVar = pv;
                 })
-                m['inventory'] = inventory;                
+                m['inventory'] = inventory;
 
                 if (m.fish.hasOwnProperty('unitOfSale') && m.fish.unitOfSale === 'lbs') {
                     m['max'] = Math.max.apply(null, minMax) / 2.205 // 4
@@ -1111,14 +1164,14 @@ module.exports = {
                 } else {
                     m['max'] = Math.max.apply(null, minMax) // 4
                     m['min'] = Math.min.apply(null, minMax) // 1
-                }                
+                }
 
                 if (minMaxInventory.length > 0) {
                     m['max'] = Math.max.apply(null, minMaxInventory) // 4
                     m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
                     m['outOfStock'] = false;
                     let dateParts = inventory[0].short_date.split('/');
-                    m.fish['minInventoryDate'] = new Date( dateParts[2], dateParts[0] - 1, dateParts[1] ) ;//inventory[0].short_date;
+                    m.fish['minInventoryDate'] = new Date(dateParts[2], dateParts[0] - 1, dateParts[1]);//inventory[0].short_date;
                 } else {
                     /*m['max'] = 0;
                     m['min'] = 0;*/
@@ -1126,7 +1179,8 @@ module.exports = {
                     m['outOfStock'] = true;
                     m.fish['minInventoryDate'] = outOfStockDate;
                 }
-
+                if( m['outOfStock'] || m.fish['maximumOrder'] == 0 )
+                    m.fish['minInventoryDate'] = coomingSoonDate;
                 //lets recreate old json format with Fish at the top and inside the variations
                 let fish = m.fish;
                 if (fish.hasOwnProperty('perBox') && fish.perBox === true) { // adding min/max boxes 
@@ -1142,10 +1196,34 @@ module.exports = {
                         fish['minInventoryDate'] = coomingSoonDate;
                     }
                 }
-                let minPrice = await sails.helpers.fishPricing(m.fish.id, m['min'], currentCharges, m.id, true);
-                let maxPrice = await sails.helpers.fishPricing(m.fish.id, m['max'], currentCharges, m.id, true);
-                m['minPrice'] = minPrice;//Math.min.apply(null, minMaxVariationPrices);
-                m['maxPrice'] = maxPrice;//Math.max.apply(null, minMaxVariationPrices);
+                console.log('min', minPriceVar);
+                let minPrice, maxPrice;
+                if (fish.hasOwnProperty('perBox') && fish.perBox === true) {
+                    //for price range, we look for the higher and minimum price
+                    minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minBox, currentCharges, m.id, true);
+                    maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maxBox, currentCharges, m.id, true);
+                    minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minBox / fish.boxWeight).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maxBox / fish.boxWeight).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                } else {
+                    //for price range, we look for the higher and minimum price
+                    minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minimumOrder, currentCharges, m.id, true);
+                    maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maximumOrder, currentCharges, m.id, true);
+                    minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minimumOrder).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maximumOrder ).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+
+                }
+                if (m.max === 0)
+                    maxPrice = minPrice;
+                    
+                if (minPrice.finalPrice > maxPrice.finalPrice) {
+                    m['minPrice'] = maxPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    m['maxPrice'] = minPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                } else {
+                    m['minPrice'] = minPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                    m['maxPrice'] = maxPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                }
+
+
 
                 let variation = m;
                 delete variation.fish;
