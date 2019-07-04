@@ -537,7 +537,7 @@ module.exports = {
                 });
                 if (cart.isCOD === true) {
                     let available = Number(cart.buyer.cod.available) + Number(cart.total);
-                    if (cart.buyer.cod.limit < available) available = cart.buyer.cod.limit;
+                    //if (cart.buyer.cod.limit < available) available = cart.buyer.cod.limit; remove because we don't use anymore july 4 MREC Kharron 
                     cart.buyer.cod.available = available;
                     await User.update({ id: cart.buyer.id }, { cod: cart.buyer.cod });
 
