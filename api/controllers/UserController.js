@@ -377,15 +377,18 @@ module.exports = {
             let data = req.body;
             let updateInfo = {
                 "usage": data.updateCOD.usage,
+                "available": 0
             };            
             //console.info( data );
-            if (data.updateCOD.usage === true) {
-                //console.info(user);
-                updateInfo['available'] = user.hasOwnProperty('cod') && user.cod.available ? user.cod.available + Number(data.updateCOD.limit) : Number(data.updateCOD.limit);           
-                console.info( 'data', updateInfo );
-            }                        
-            
-            let users = await User.update({ id: req.param('id') }, { "cod": updateInfo }).fetch();
+            if (data.updateCOD.usage === true) {                
+                if( user.cod !== null && user.hasOwnProperty('cod')  ) // if is not first time
+                    updateInfo['available'] = user.cod.available ? user.cod.available + Number(data.updateCOD.limit) : Number(data.updateCOD.limit);                               
+                else
+                    updateInfo['available'] = Number(data.updateCOD.limit);                           
+            }
+            delete data.updateCOD;
+            data['cod'] = updateInfo;
+            let users = await User.update({ id: req.param('id') }, data).fetch();
             res.v2(users);
         }
         catch (e) {
