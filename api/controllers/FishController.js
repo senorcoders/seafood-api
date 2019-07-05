@@ -1122,6 +1122,7 @@ module.exports = {
             --start;
             let publishedProducts = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' }).sort('name ASC').paginate({ page: start, limit: req.params.limit });
             let currentCharges = await sails.helpers.currentCharges();
+	    let originalCharges = currentCharges;
             let products_ids = [];
             publishedProducts.map((item) => {
                 products_ids.push(item.id);
@@ -1129,9 +1130,11 @@ module.exports = {
             let minMaxVariationPrices = [];
             let productos = [];
             let variations = await Variations.find({ fish: products_ids }).populate('fish').populate('fishPreparation').populate('wholeFishWeight');
-            console.log('variations', variations.length);
+            //console.log('variations', variations.length);
             let unixNow = Math.floor(new Date());
             await Promise.all(variations.map(async function (m) {
+		currentCharges = originalCharges;
+		let currentVariationID = m.id;
                 let inventory = await FishStock.find().where({
                     "date": { '>': unixNow },
                     "variations": m.id
@@ -1196,18 +1199,20 @@ module.exports = {
                         fish['minInventoryDate'] = coomingSoonDate;
                     }
                 }
-                console.log('min', minPriceVar);
+                //console.log('min', minPriceVar);
                 let minPrice, maxPrice;
+		currentCharges = originalCharges;
+		console.log('current variation id', currentVariationID);
                 if (fish.hasOwnProperty('perBox') && fish.perBox === true) {
                     //for price range, we look for the higher and minimum price
-                    minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minBox, currentCharges, m.id, true);
-                    maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maxBox, currentCharges, m.id, true);
+                    minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minBox, currentCharges, currentVariationID, true);
+                    maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maxBox, currentCharges, currentVariationID, true);
                     minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minBox / fish.boxWeight).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
                     maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maxBox / fish.boxWeight).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
                 } else {
                     //for price range, we look for the higher and minimum price
-                    minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minimumOrder, currentCharges, m.id, true);
-                    maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maximumOrder, currentCharges, m.id, true);
+                    minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minimumOrder, currentCharges, currentVariationID, true);
+                    maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maximumOrder, currentCharges, currentVariationID, true);
                     minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minimumOrder).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
                     maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maximumOrder ).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
 
@@ -1257,7 +1262,7 @@ module.exports = {
 
             let arr = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' }).sort('name ASC'),
                 page_size = Number(req.params.limit), pages = 0;
-            console.log(arr.length, Number(arr.length / page_size));
+            //console.log(arr.length, Number(arr.length / page_size));
             if (parseInt(arr.length / page_size, 10) < Number(arr.length / page_size)) {
                 pages = parseInt(arr.length / page_size, 10) + 1;
             } else {

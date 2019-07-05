@@ -28,10 +28,20 @@ module.exports = {
     try {
       let city = inputs.city;
       let weight = inputs.weight;
-      shippingRate = 0;
+      let shippingRate = 0;
+      let lastRate = 0, founded = false;
       shipping = await ShippingRates.find( { sellerCity: city } )
-          .sort( [{ weight: 'ASC' }] )
-          .then( 
+          .sort( [{ weight: 'ASC' }] );
+      shipping.map( row =>{
+	lastRate = row.cost;
+	if( weight < row.weight ){
+	  shippingRate = row.cost;
+	  founded = true;
+        }
+      } );
+      if ( !founded )
+	shippingRate = lastRate;
+          /*.then( 
               result => {
                   var BreakException = {};
                   try {
@@ -62,7 +72,8 @@ module.exports = {
               error => {
                   console.log(error);
               }
-          )
+          )*/
+	  
           return exits.success(shippingRate);
       }
       catch (e) {
