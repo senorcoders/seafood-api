@@ -31,11 +31,11 @@ module.exports = {
       let shippingRate = 0;
       let lastRate = 0, founded = false;
       shipping = await ShippingRates.find( { sellerCity: city } )
-          .sort( [{ weight: 'ASC' }] );
+          .sort('weight ASC'  );
       
       shipping.map( row =>{
         lastRate = row.cost;
-        if( weight < row.weight ){
+        if( weight < row.weight && !founded ){
 	        shippingRate = row.cost;
 	        founded = true;
         }
