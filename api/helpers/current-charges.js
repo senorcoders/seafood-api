@@ -27,11 +27,9 @@ module.exports = {
       let data = {};
       await Promise.all( types.map( async ( type ) => {
         let value = await PricingCharges.find( { where: { "type": type } } ).sort( 'createdAt DESC' );
-//        console.log( 'current charges', value );
         data[type] = value[0].price;
       })
       )
-      //console.log( 'current charges', data );
       return exits.success(data);
     } catch (error) {
         return  exits.success(error);
