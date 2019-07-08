@@ -28,47 +28,26 @@ module.exports = {
     try {
       let city = inputs.city;
       let weight = inputs.weight;
-      shippingRate = 0;
+      let shippingRate = 0;
+      let lastRate = 0, founded = false;
       shipping = await ShippingRates.find( { sellerCity: city } )
-          .sort( [{ weight: 'ASC' }] )
-          .then( 
-              result => {
-                  var BreakException = {};
-                  try {
-                      let resultSize = Object.keys(result).length ;
-                      let resultCount = 0;
-                      result.forEach( row => {
-                          resultCount +=1 ;
-                          if( weight < row.weight  ){                                    
-                              shippingRate = row.cost;
-                              throw BreakException;
-                          }else {
-                              if( resultCount == resultSize ){
-                                  shippingRate = row.cost;
-                                  throw BreakException;
-                              }
-                          }
-                          
-                          
-                      });
-                      //shippingRate = shippingRate;
-                  } catch (e) {
-                      
-                      return shippingRate;
-                      if (e !== BreakException) throw e;
-                  }
-                  
-              },
-              error => {
-                  console.log(error);
-              }
-          )
-          return exits.success(shippingRate);
-      }
-      catch (e) {
-          console.error(e);
-          return e;
-      }
+          .sort( [{ weight: 'ASC' }] );
+      
+      shipping.map( row =>{
+        lastRate = row.cost;
+        if( weight < row.weight ){
+	        shippingRate = row.cost;
+	        founded = true;
+        }
+      } );
+      if ( !founded ) //if the weight is over the last range of prices we use the last price
+	      shippingRate = lastRate;
+	  
+      return exits.success(shippingRate);
+    } catch (e) {
+      console.error(e);
+      return e;
+    }
     // All done.
   }
 };
