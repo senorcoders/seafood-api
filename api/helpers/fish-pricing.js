@@ -42,12 +42,9 @@ module.exports = {
     let id = inputs.id; //Fish ID 
     let weight = inputs.weight; // Weight to query
     let currentAdminCharges = await sails.helpers.currentCharges();//inputs.currentCharges; // charges manages by admin
-    let is_flat_custom = false;
-    if( inputs.variation_id === '5d1a37e81290ee42efd93887' )
-    console.log( 'inputs',  inputs )
+    let is_flat_custom = false;    
     // getting the fish information
-    let fish = await Fish.findOne({ where: { id: id } }).populate('type').populate('store').populate('descriptor');
-    //console.log('fish', fish);
+    let fish = await Fish.findOne({ where: { id: id } }).populate('type').populate('store').populate('descriptor');    
     if (fish.hasOwnProperty("perBox")) {
       if (fish.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
         weight = fish.boxWeight * weight;
@@ -71,26 +68,13 @@ module.exports = {
 
     variation = variation[0];
 
-   let fishVariation = await Variations.findOne({ "id": inputs.variation_id }).populate('fishPreparation');
-   //variation.variation.fishPreparation = fishVariation.fishPreparation;
-    //if is not filleted ( include trims ) we use a flat rate for customs
-//   console.log( 'flat customs',  { "is_flat": is_flat_custom, "customs": currentAdminCharges.customs, "flat": currentAdminCharges.flatCustoms });
     if ( variation.variation.fishPreparation !== '5c93c01465e25a011eefbcc4' && variation.variation.fishPreparation !== '5c4b9b8e23a9a60223553d04' && variation.variation.fishPreparation !== '5c4b9ba023a9a60223553d05' && variation.variation.fishPreparation !== '5c4b9ba523a9a60223553d06' && variation.variation.fishPreparation !== '5c4b9baa23a9a60223553d07' && variation.variation.fishPreparation !== '5c4b9bae23a9a60223553d08') {
-    if( inputs.variation_id === '5d1a37e81290ee42efd93887' )
-     console.log('Imm here');
       is_flat_custom = false;
-    } //else { currentAdminCharges['selectedCustoms'] = currentAdminCharges.customs;  }
+      currentAdminCharges['selectedCustoms'] = currentAdminCharges.customs;  
+    }  else {
+      currentAdminCharges['selectedCustoms'] = currentAdminCharges.flatCustoms;
+    }
   
-if( inputs.variation_id === '5d1a37e81290ee42efd93887' ){ 
-        //console.log('fishPrep', variation.variation.fishPreparation);
-}
-if( !fishVariation.fishPreparation.isTrimming ) //is_flat_custom )
-	currentAdminCharges['selectedCustoms'] = currentAdminCharges.flatCustoms;
-   else 
-	currentAdminCharges['selectedCustoms'] = currentAdminCharges.customs;  
-//    if( inputs.variation_id === '5d1a37e81290ee42efd93887' )
-//    console.log( 'flat customs',  { "is_flat": is_flat_custom, "customs": currentAdminCharges.customs, "flat": currentAdminCharges.flatCustoms, "selected": currentAdminCharges.selectedCustoms });
-
     if (fish.foreign_fish && fish.foreign_fish === true) {
       currentAdminCharges.selectedCustoms = 0;
     }
@@ -214,12 +198,8 @@ if( !fishVariation.fishPreparation.isTrimming ) //is_flat_custom )
       finalPrice: Number(parseFloat(finalPrice / exchangeRates).toFixed(2)),
       marginPercentage,
       variation,
-      preparation: variation.variation.fishPreparation
     }
-//oif( inputs.variation_id === '5d1a37e81290ee42efd93887' )
-  //console.log('type', fishVariation);
-  //console.log('is flat', typeof is_flat_custom );
-//    console.log( 'flat customs',  { "charges": charges,  "is_flat": is_flat_custom, "customs": currentAdminCharges.customs, "flat": currentAdminCharges.flatCustoms, "selected": currentAdminCharges.selectedCustoms });
+
     // All done.
     return exits.success(charges);
 
