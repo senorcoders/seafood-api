@@ -1181,6 +1181,7 @@ module.exports = {
 
             let items = await ItemShopping.find({ where, skip: skip, limit, })
                 .populate('fish')
+                .populate('variation')
                 .populate('shoppingCart')
                 .populate('status')
                 .sort('createdAt DESC');
