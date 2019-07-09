@@ -1070,7 +1070,7 @@ module.exports = {
                     variationsGrouped[String(row.id)] = { variations: [], count: 0 }; 
 
                     variationsGrouped[ String(row.id) ].variations.push( row );
-                    variationsGrouped[ String(row.id) ].count += 1;//variationsGrouped[ String(row.id) ].variations.count + 1;
+                    variationsGrouped[ String(row.id) ].count += 1;
             } );
 
             return res.json(variationsGrouped)
@@ -1239,7 +1239,7 @@ module.exports = {
                     variationsGrouped[String(row.id)] = { variations: [], count: 0 }; 
 
                     variationsGrouped[ String(row.id) ].variations.push( row );
-                    variationsGrouped[ String(row.id) ].count += 1;//variationsGrouped[ String(row.id) ].variations.count + 1;
+                    variationsGrouped[ String(row.id) ].count += 1;
             } );
             
 
