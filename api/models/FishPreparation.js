@@ -23,7 +23,19 @@ module.exports = {
     defaultProccessingParts: {
       type: 'json',
       required: false
-    }
+    },
+    prepType: {
+      type: 'json',
+      required: false
+    },
+    variations: {
+      type: 'json',
+      required: false
+    },    
+    parent: {
+      type: 'string',
+      required: false
+    },
     
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
