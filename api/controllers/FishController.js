@@ -1063,7 +1063,17 @@ module.exports = {
                 return m;
             }));
 
-            return res.json(productos)
+            let variationsGrouped = {}; //let's joing the variation by product
+            productos.map( row => {
+                console.info( String(row.id) );
+                if ( !variationsGrouped.hasOwnProperty( String(row.id) ) )
+                    variationsGrouped[String(row.id)] = { variations: [], count: 0 }; 
+
+                    variationsGrouped[ String(row.id) ].variations.push( row );
+                    variationsGrouped[ String(row.id) ].count += 1;
+            } );
+
+            return res.json(variationsGrouped)
 
 
         } catch (error) {
@@ -1221,8 +1231,19 @@ module.exports = {
             } else {
                 pages = parseInt(arr.length / page_size, 10)
             }
+            
+            let variationsGrouped = {}; //let's joing the variation by product
+            productos.map( row => {
+                console.info( String(row.id) );
+                if ( !variationsGrouped.hasOwnProperty( String(row.id) ) )
+                    variationsGrouped[String(row.id)] = { variations: [], count: 0 }; 
 
-            res.json({ productos, pagesNumber: pages });
+                    variationsGrouped[ String(row.id) ].variations.push( row );
+                    variationsGrouped[ String(row.id) ].count += 1;
+            } );
+            
+
+            res.json({ variationsGrouped, pagesNumber: pages });
         }
         catch (e) {
             res.serverError(e);
