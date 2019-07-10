@@ -297,6 +297,44 @@ module.exports = {
         } catch (error) {
             res.serverError(error)
         }
+    },
+    getCategoryInfo: async ( req, res ) => {
+        try {
+            let category_id = req.param( 'category_id' );
+
+            let categories = await FishType.findOne().where( { id: category_id } );
+             
+            if ( categories.hasOwnProperty('fishPreparation') ) {
+                let fishPreparationInfo = [];
+                await Promise.all( Object.keys( categories.fishPreparation ).map( async ( category, index ) => {
+                    let preparation = await FishPreparation.findOne().where( { id: category } );
+                    fishPreparationInfo.push( preparation );
+                } ));
+                categories['fishPreparationInfo'] = fishPreparationInfo;
+            }
+
+            if( categories.hasOwnProperty( 'raised' ) ) {
+                let fishRaisedInfo = [];
+                await Promise.all( categories.raised.map( async item => {
+                    fishRaisedInfo.push( await Raised.findOne().where({ id: item }) );
+                } ) )
+                categories['raisedInfo'] = fishRaisedInfo;
+            }
+
+            if( categories.hasOwnProperty('treatment') ) {
+                let treatmentInfo = [];
+                await Promise.all( categories.treatment.map( async item => {
+                    treatmentInfo.push( await Treatment.findOne().where( { id: item } ) )
+                } ) )
+                categories['treatmentInfo'] = treatmentInfo;
+            }
+
+
+            res.json( categories );
+            
+        } catch (error) {
+            res.serverError( error );
+        }
     }
 };
 
