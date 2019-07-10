@@ -274,6 +274,29 @@ module.exports = {
         } catch (error) {
             res.serverError( error );
         }
+    },
+    saveCategorySetup: async (req, res) => {
+        try {
+            let category_id = req.param('category_id');
+            let body = req.body;
+            let fishPreparationTree = {};
+
+            body.fishPreparationChilds.map( row => {
+                fishPreparationTree[ row.fishParent ] = row.fishPreparationChild;
+            })
+
+            let updateJSON = {
+                fishPreparation: fishPreparationTree,
+                raised: body.raised,
+                treatment: body.treatment
+            }
+
+            let updatedCategory = await FishType.update({ id: category_id }, updateJSON).fetch();
+
+            res.json( updatedCategory );
+        } catch (error) {
+            res.serverError(error)
+        }
     }
 };
 

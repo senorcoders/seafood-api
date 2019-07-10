@@ -520,6 +520,12 @@ module.exports.routes = {
    // Fish Preparation
 
   'GET /fishpreparation': 'FishPreparation.getFishPreparation',
+
+  'GET /fishpreparation/parents/:parent_id': 'FishPreparation.getFishPreparationParents',
+
+  'GET /fishpreparation/childs': 'FishPreparation.getFishPreparationChilds',
+
+  'POST /fishtype/:category_id/setup': 'FishType.saveCategorySetup',
   /*****
    * 
    * DOSUSIGN
