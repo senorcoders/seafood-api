@@ -48,6 +48,18 @@ module.exports = {
       type: 'number',
       required: false
     },
+    fishPreparation: {
+      type: 'json',
+      required: false
+    },  
+    raised: {
+      type: 'json',
+      required: false
+    },  
+    treatment: {
+      type: 'json',
+      required: false
+    },  
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗

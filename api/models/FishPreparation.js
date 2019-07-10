@@ -27,11 +27,7 @@ module.exports = {
     prepType: {
       type: 'json',
       required: false
-    },
-    variations: {
-      type: 'json',
-      required: false
-    },    
+    },  
     parent: {
       type: 'string',
       required: false
