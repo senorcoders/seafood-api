@@ -224,7 +224,7 @@
           <th style="font-size: 11px;">Country of Origin</th>
           <th style="font-size: 11px;">Quantity</th>
           <th style="font-size: 11px;">U/M</th>
-          <th style="font-size: 11px;">Unit Price</th>
+          <th style="font-size: 11px;">Price Delivered</th>
           <!-- <th style="font-size: 11px;">Tax Rate</th> -->
           <th style="font-size: 11px;">Amount AED</th>
         </tr>
@@ -242,19 +242,19 @@
             <%= it.fishCurrent.country %>
           </td>
           <td class="col col-1">
-            <%= it.fishCurrent.perBox === true ? parseFloat(Number(it.itemCharges.weight) / Number(it.fishCurrent.boxWeight)).toFixed(2) : it.itemCharges.weight %>
+            <%=(Number(it.currentPrices.quantity)).toFixed(2) %>
           </td>
           <td class="col col-1">
-            <%=it.fishCurrent.perBox===true? parseInt(Number(it.itemCharges.weight) / Number(it.fishCurrent.boxWeight)) > 1 ? 'BOXES' : 'BOX':'KG' %>
+            KG
           </td>
           <td class="col col-1">
-            <%=it.fishCurrent.perBox === true ? parseFloat(Number(it.itemCharges.price) * Number(it.fishCurrent.boxWeight)).toFixed(2) : it.itemCharges.price %>
+            <%=(Number(it.currentPrices.priceDelivered)).toFixed(2) %>
           </td>
           <!-- <td class="col col-1">
               5%
             </td> -->
           <td class="col col-2" style="text-align: right;">
-            <%= parseFloat(Number(it.itemCharges.fishCost)).toFixed(2) %>
+            <%=(Number(it.currentPrices.amountEAD)).toFixed(2) %>
           </td>
         </tr>
         <% } ); %>
@@ -266,31 +266,15 @@
       <span>Subtotal</span>
     </div>
     <div class="col col-1">
-      <span><%= subTotal  %></span>
+      <span><%=(Number(cart.currentPrices.subtotal)).toFixed(2)  %></span>
     </div>
   </div>
   <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
     <div class="col col-90 padding-right">
-      <span>Shipping Fees</span>
+      <span>VAT(5%)</span>
     </div>
     <div class="col col-1">
-      <span><%=shippingFees %></span>
-    </div>
-  </div>
-  <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
-    <div class="col col-90 padding-right">
-      <span>Customs and Handling Fees</span>
-    </div>
-    <div class="col col-1">
-      <span><%= customHandlingFee %></span>
-    </div>
-  </div>
-  <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
-    <div class="col col-90 padding-right">
-      <span>VAT(<%= uaeTaxes %>%)</span>
-    </div>
-    <div class="col col-1">
-      <span><%=vatuaeTaxes %></span>
+      <span><%=(Number(cart.currentPrices.vat)).toFixed(2) %></span>
     </div>
   </div>
 
@@ -330,7 +314,7 @@
     </table>-->
 
   <div class="align-right clear" style="font-size: 10px;font-family: arial">
-    <p><b>Grand Total AED <%= total %></b></p>
+    <p><b>Grand Total AED <%=(Number(cart.currentPrices.total)).toFixed(2) %></b></p>
   </div>
   <div style="margin-top: 40px">
     <p><b>Due Date: <%= invoiceDueDate %></b></p>

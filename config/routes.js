@@ -582,6 +582,8 @@ module.exports.routes = {
   // Shipping
 
   'GET /api/v2/countriesWithShipping': "ShippingRatesController.getCountriesWithShippings",
+  
+  'POST /api/v2/ammend-invoice': 'ShoppingCartController.ammendInvoice',
 
   /****
    * 
@@ -613,6 +615,8 @@ module.exports.routes = {
   'GET /api/v2/orderStatus/payments': 'OrderStatus.getPaymentOrderstatusPagination',
 
   'GET /api/v2/shoppingcart/orderlogistic': 'ShoppingCartController.getOrderLogisticPagination',
+
+  'GET /api/v2/order-full/:id': 'ShoppingCartController.getFullOrder',
 
 
   'GET /api/v2/itemshopping/payed': 'ItemShoppingController.getPayedItemsPagination',
