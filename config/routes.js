@@ -182,6 +182,8 @@ module.exports.routes = {
   //Para obtener los productos
   'GET /api/fish/:page/:limit': 'FishController.getAllPagination',
 
+  'GET /api/fish/:page/:limit/:is_product_list': 'FishController.getAllPagination',
+
   //GET pending fishes
   'GET /api/fish/pending': 'FishController.getPendingProducts',
 
