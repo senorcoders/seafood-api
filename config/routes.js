@@ -204,6 +204,8 @@ module.exports.routes = {
 
   "GET /fishtype/:category_id/setup": "FishTypeController.getCategoryInfo",
 
+  'GET /fishtype/:id/preparation/:preprarationID/childs': 'FishTypeController.getChildPreparationForCategory',
+
   //Para guardar images en las categorias (FishType)
   'POST /api/fishtype/images/:id': "ImageController.multipleImagesCategory",
 

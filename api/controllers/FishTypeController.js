@@ -335,6 +335,33 @@ module.exports = {
         } catch (error) {
             res.serverError( error );
         }
+    },
+
+    getChildPreparationForCategory: async ( req, res ) => {
+        try {
+            let fisTypeID = req.param('id');
+            let fishPreparationID = req.param('preprarationID')
+
+            let categories = await FishType.findOne().where( { id: fisTypeID } );
+             
+            let fishPreparationInfo = [];
+            if ( categories.hasOwnProperty('fishPreparation') ) {
+                await Promise.all( Object.keys( categories.fishPreparation ).map( async ( category, index ) => {
+                    if( category == fishPreparationID ) { //is this fish preparation the one we are looking for
+                        //let's check all child preparation
+                        await Promise.all( categories.fishPreparation[category].map ( async child => {
+                            let preparation = await FishPreparation.findOne().where( { id: child } );
+                            fishPreparationInfo.push( preparation );
+                        } ) ) 
+                    
+                    }
+                } ));
+                categories['fishPreparationInfo'] = fishPreparationInfo;
+            }
+            res.json(fishPreparationInfo)
+        } catch (error) {
+            res.serverError(error)
+        }
     }
 };
 
