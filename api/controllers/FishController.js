@@ -1232,15 +1232,16 @@ module.exports = {
                 pages = parseInt(arr.length / page_size, 10)
             }
             
+            // product list in admin still show not grouped variations
             if ( !req.allParams().hasOwnProperty( 'is_product_list' ) ) {
                 let variationsGrouped = {}; //let's joing the variation by product
+                // grouping variations
                 productos.map( row => {
-                    console.info( String(row.id) );
                     if ( !variationsGrouped.hasOwnProperty( String(row.id) ) )
                         variationsGrouped[String(row.id)] = { variations: [], count: 0 }; 
 
-                        variationsGrouped[ String(row.id) ].variations.push( row );
-                        variationsGrouped[ String(row.id) ].count += 1;
+                    variationsGrouped[ String(row.id) ].variations.push( row );
+                    variationsGrouped[ String(row.id) ].count += 1;
                 } );
                 
 
@@ -2088,11 +2089,11 @@ module.exports = {
             charges['fishCostPerKG'] = charges.fishCost;
             //checking if the product is per box
             let varFish = await Variations.findOne({ id: variation_id }).populate("fish");
-            /*if (varFish.fish.hasOwnProperty('perBox') && varFish.fish.perBox) {
+            if (varFish.fish.hasOwnProperty('perBox') && varFish.fish.perBox) {
                 weight = weight * varFish.fish.boxWeight;
-                charges['finalPricePerKG'] = charges.finalPrice / varFish.fish.boxWeight;
-                charges['fishCostPerKG'] = charges.fishCost / varFish.fish.boxWeight;
-            }*/
+                charges['finalPricePerKG'] = Number(parseFloat(charges.finalPrice / varFish.fish.boxWeight).toFixed(2));
+                charges['fishCostPerKG'] = Number(parseFloat(charges.fishCost / varFish.fish.boxWeight).toFixed(2));
+            }
 
             let stock = await sails.helpers.getEtaStock(variation_id, weight);
             charges['eta'] = stock;
