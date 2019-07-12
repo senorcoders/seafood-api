@@ -170,8 +170,8 @@ module.exports = {
                     subject: 'Welcome Onboard, Getting Started with Seafood Souq !',
                     html: res, // html body
                     attachments: [{
-                        filename: 'welcome_buyer.pdf',
-                        path: `pdf_templates/welcome_buyer.pdf`
+                        filename: 'welcome_buyer_.pdf',
+                        path: `pdf_templates/welcome_buyer_.pdf`
                     }]
                 }, (error, info) => {
                     if (error) {
