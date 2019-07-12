@@ -231,7 +231,7 @@
       </thead>
       <tbody>
         <% items.forEach(function(it,index){ %>
-        <tr style="border-bottom: gray 1px solid;">
+        <tr style="border-bottom: gray 1px solid;"> 
           <td class="col col-2">
             <%= it.description %>
           </td>
@@ -261,25 +261,27 @@
       </tbody>
     </table>
   </div>
+  <!-- <% items.forEach(function(it,index){ %>
+    <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
+      <div class="col col-90 padding-right">
+        <span><%=it.fish.name %>(Seller Price/kg)</span>
+      </div>
+      <div class="col col-1">
+        <span><%=it.price  %></span>
+      </div>
+    </div>
+    <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
+      <div class="col col-90 padding-right">
+        <span><%=it.fish.name %>(Subtotal price/kg)</span>
+      </div>
+      <div class="col col-1">
+        <span><%=it.subtotal  %></span>
+      </div>
+    </div>
+  <% }) %> -->
   <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
     <div class="col col-90 padding-right">
-      <span>Subtotal</span>
-    </div>
-    <div class="col col-1">
-      <span><%= subTotal  %></span>
-    </div>
-  </div>
-  <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
-    <div class="col col-90 padding-right">
-      <span>Shipping Fees</span>
-    </div>
-    <div class="col col-1">
-      <span><%=shippingFees %></span>
-    </div>
-  </div>
-  <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
-    <div class="col col-90 padding-right">
-      <span>Customs and Handling Fees</span>
+      <span>Taxes and Customs</span>
     </div>
     <div class="col col-1">
       <span><%= customHandlingFee %></span>
@@ -287,10 +289,27 @@
   </div>
   <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
     <div class="col col-90 padding-right">
+      <span>Shipping, Handling and fees</span>
+    </div>
+    <div class="col col-1">
+      <span><%=shippingFees %></span>
+    </div>
+  </div>
+  
+  <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
+    <div class="col col-90 padding-right">
       <span>VAT(<%= uaeTaxes %>%)</span>
     </div>
     <div class="col col-1">
       <span><%=vatuaeTaxes %></span>
+    </div>
+  </div>
+  <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
+    <div class="col col-90 padding-right">
+      <span>Subtotal</span>
+    </div>
+    <div class="col col-1">
+      <span><%= subTotal  %></span>
     </div>
   </div>
 

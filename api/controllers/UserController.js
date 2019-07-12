@@ -341,15 +341,33 @@ module.exports = {
                 where.skip = skip;
             }
 
+            //get with info the last login
+            let getLast;
+            if (req.param('infoLoginLast')) {
+                //function for get info last login for each user
+                getLast = async (datas) => {
+                    return await Promise.all(datas.map((async it => {
+                        let lastLogins = await LoginPrint.find({ user: it.id }).sort('dateTime DESC').limit(1);
+                        it.lastLogin = lastLogins[0] || undefined;
+                        return it;
+                    })));
+                };
+            }
+
             if (_.isUndefined(where.limit) === false && _.isUndefined(where.skip) === false) {
                 response.totalResults = await User.count({ where: where.where });
                 response.datas = await User.find(where);
+                if (req.param('infoLoginLast'))
+                    response.datas = await getLast(response.datas);
                 response.page = Number(req.param("page"));
                 response.limit = where.limit;
                 return res.pagination(response);
             }
 
             response = await User.find(where);
+            if (req.param('infoLoginLast'))
+                response = await getLast(response);
+
             res.v2(response);
 
         }
@@ -378,13 +396,13 @@ module.exports = {
             let updateInfo = {
                 "usage": data.updateCOD.usage,
                 "available": 0
-            };            
+            };
             //console.info( data );
-            if (data.updateCOD.usage === true) {                
-                if( user.cod !== null && user.hasOwnProperty('cod')  ) // if is not first time
-                    updateInfo['available'] = user.cod.available ? user.cod.available + Number(data.updateCOD.limit) : Number(data.updateCOD.limit);                               
+            if (data.updateCOD.usage === true) {
+                if (user.cod !== null && user.hasOwnProperty('cod')) // if is not first time
+                    updateInfo['available'] = user.cod.available ? user.cod.available + Number(data.updateCOD.limit) : Number(data.updateCOD.limit);
                 else
-                    updateInfo['available'] = Number(data.updateCOD.limit);                           
+                    updateInfo['available'] = Number(data.updateCOD.limit);
             }
             delete data.updateCOD;
             data['cod'] = updateInfo;

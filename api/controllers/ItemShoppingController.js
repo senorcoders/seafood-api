@@ -6,7 +6,8 @@ const concatNameVariation = async function (item) {
         if (item.variation !== null && item.variation !== undefined) {
             let variation = await Variations.findOne({ id: item.variation })
                 .populate("fishPreparation").populate("wholeFishWeight");
-            if (variation.wholeFishWeight !== undefined && variation.wholeFishWeight !== null)
+                //for concat in the name the wholeFishName for details in the name
+            if (variation && variation.wholeFishWeight !== undefined && variation.wholeFishWeight !== null)
                 if (item.fish && item.wholeFishWeight)
                     item.fish.name += ", " + variation.wholeFishWeight.name;
                 else {
@@ -1181,6 +1182,7 @@ module.exports = {
 
             let items = await ItemShopping.find({ where, skip: skip, limit, })
                 .populate('fish')
+                .populate('variation')
                 .populate('shoppingCart')
                 .populate('status')
                 .sort('createdAt DESC');

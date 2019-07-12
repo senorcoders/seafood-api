@@ -182,6 +182,8 @@ module.exports.routes = {
   //Para obtener los productos
   'GET /api/fish/:page/:limit': 'FishController.getAllPagination',
 
+  'GET /api/fish/:page/:limit/:is_product_list': 'FishController.getAllPagination',
+
   //GET pending fishes
   'GET /api/fish/pending': 'FishController.getPendingProducts',
 
@@ -201,6 +203,10 @@ module.exports.routes = {
   'GET /api/fish-ids/:ids': 'FishController.getXMultipleID',
 
   "GET /fishtype": "FishController.getFishs",
+
+  "GET /fishtype/:category_id/setup": "FishTypeController.getCategoryInfo",
+
+  'GET /fishtype/:id/preparation/:preprarationID/childs': 'FishTypeController.getChildPreparationForCategory',
 
   //Para guardar images en las categorias (FishType)
   'POST /api/fishtype/images/:id': "ImageController.multipleImagesCategory",
@@ -517,6 +523,12 @@ module.exports.routes = {
    // Fish Preparation
 
   'GET /fishpreparation': 'FishPreparation.getFishPreparation',
+
+  'GET /fishpreparation/parents/:parent_id': 'FishPreparation.getFishPreparationParents',
+
+  'GET /fishpreparation/childs': 'FishPreparation.getFishPreparationChilds',
+
+  'POST /fishtype/:category_id/setup': 'FishType.saveCategorySetup',
   /*****
    * 
    * DOSUSIGN
@@ -573,7 +585,11 @@ module.exports.routes = {
   // Shipping
 
   'GET /api/v2/countriesWithShipping': "ShippingRatesController.getCountriesWithShippings",
+  
+  'POST /api/v2/ammend-invoice': 'ShoppingCartController.ammendInvoice',
 
+  // Fish Variations
+  'GET /fishvariations/type/:typeID/preparation/:preparationID': 'FishVariationsController.getFishVariationByPreparation',
   /****
    * 
    * 
@@ -604,6 +620,8 @@ module.exports.routes = {
   'GET /api/v2/orderStatus/payments': 'OrderStatus.getPaymentOrderstatusPagination',
 
   'GET /api/v2/shoppingcart/orderlogistic': 'ShoppingCartController.getOrderLogisticPagination',
+
+  'GET /api/v2/order-full/:id': 'ShoppingCartController.getFullOrder',
 
 
   'GET /api/v2/itemshopping/payed': 'ItemShoppingController.getPayedItemsPagination',

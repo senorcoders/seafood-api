@@ -62,7 +62,7 @@ module.exports = {
       type: "string",
       columnType: "datetime",
       required: false
-    },        
+    },
     orderNumber: {
       type: "number",
       required: false
@@ -81,7 +81,7 @@ module.exports = {
       required: false
     },
 
-    isCOD:{
+    isCOD: {
       type: "boolean",
       required: false
     },
@@ -103,9 +103,13 @@ module.exports = {
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-    buyer:{
+    buyer: {
       model: "user",
       required: true
+    },
+    clones: {
+      collection: 'shoppingcartclone',
+      via: 'shoppingCart'
     },
     items: {
       collection: "itemshopping",

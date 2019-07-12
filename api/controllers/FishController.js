@@ -1063,7 +1063,17 @@ module.exports = {
                 return m;
             }));
 
-            return res.json(productos)
+            let variationsGrouped = {}; //let's joing the variation by product
+            productos.map( row => {
+                console.info( String(row.id) );
+                if ( !variationsGrouped.hasOwnProperty( String(row.id) ) )
+                    variationsGrouped[String(row.id)] = { variations: [], count: 0 }; 
+
+                    variationsGrouped[ String(row.id) ].variations.push( row );
+                    variationsGrouped[ String(row.id) ].count += 1;
+            } );
+
+            return res.json(variationsGrouped)
 
 
         } catch (error) {
@@ -1221,8 +1231,25 @@ module.exports = {
             } else {
                 pages = parseInt(arr.length / page_size, 10)
             }
+            
+            // product list in admin still show not grouped variations
+            if ( !req.allParams().hasOwnProperty( 'is_product_list' ) ) {
+                let variationsGrouped = {}; //let's joing the variation by product
+                // grouping variations
+                productos.map( row => {
+                    if ( !variationsGrouped.hasOwnProperty( String(row.id) ) )
+                        variationsGrouped[String(row.id)] = { variations: [], count: 0 }; 
 
-            res.json({ productos, pagesNumber: pages });
+                    variationsGrouped[ String(row.id) ].variations.push( row );
+                    variationsGrouped[ String(row.id) ].count += 1;
+                } );
+                
+
+                res.json({ variationsGrouped, pagesNumber: pages });
+            } else {
+                res.json({ productos, pagesNumber: pages });
+            }
+            
         }
         catch (e) {
             res.serverError(e);

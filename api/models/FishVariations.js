@@ -1,7 +1,7 @@
 /**
- * FishPreparation.js
+ * FishVariations.js
  *
- * @description :: A model definition.  Represents a database table/collection/etc.
+ * @description :: A model definition represents a database table/collection.
  * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
  */
 
@@ -12,27 +12,10 @@ module.exports = {
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
-    name: {
-      type: "string",
+    variations: {
+      type: 'json',
       required: true
     },
-    isTrimming: {
-      type: "boolean",
-      defaultsTo : false
-    },
-    defaultProccessingParts: {
-      type: 'json',
-      required: false
-    },
-    prepType: {
-      type: 'json',
-      required: false
-    },  
-    parent: {
-      type: 'string',
-      required: false
-    },
-    
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
@@ -42,7 +25,14 @@ module.exports = {
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-
+    fishPreparation: {
+      model: "fishPreparation",
+      required: true
+    },
+    fishType: {
+      model: "fishType",
+      required: true
+    }    
   },
 
 };
