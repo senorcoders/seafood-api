@@ -589,6 +589,8 @@ module.exports.routes = {
 
   'GET /api/v2/countriesWithShipping': "ShippingRatesController.getCountriesWithShippings",
 
+  // Fish Variations
+  'GET /fishvariations/type/:typeID/preparation/:preparationID': 'FishVariationsController.getFishVariationByPreparation',
   /****
    * 
    * 
