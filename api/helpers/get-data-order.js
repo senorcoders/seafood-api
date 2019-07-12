@@ -108,6 +108,7 @@ module.exports = {
       let sellers = "";
       for (let i = 0; i < _stores.length; i++) {
         let space = (i + 1) === _stores.length ? '' : (i + 1) === (_stores.length - 1) ? ' and ' : ', ';
+        //for get names of the owners of stores and show in invoice o PO
         if (_stores[i] && _stores[i].isDefined("owner") === true && _stores[i].owner.typeObject() === "object")
           sellers += _stores[i].owner.firstName + " " + _stores[i].owner.lastName + space;
       }
