@@ -542,6 +542,44 @@ module.exports = {
                 console.error
             )
     },
+    sendCartPaidBuyerNotifiedRe: async (items, cart, orderNumber, pdf_invoice) => {
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: cart.buyer.firstName + " " + cart.buyer.lastName,
+            cart,
+            items,
+            orderNumber,
+            type: "sendCartPaidBuyerNotified"
+        });
+        email.render('../email_templates/cart_paid_buyer_notified',
+            await applyExtend(data)
+        )
+            .then(res => {
+                transporter.sendMail({
+                    from: emailSender,
+                    // to: cart.buyer.email,
+                    to: 'jos.ojiron@gmail.com',
+                    subject: `Order #${orderNumber} is Placed`,
+                    html: res, // html body
+                    attachments: [
+                        {
+                            filename: pdf_invoice,
+                            path: `pdf_invoices/${pdf_invoice}`
+                        }
+                    ]
+                }, (error, info) => {
+                    if (error) {
+                        return console.log(error);
+                    }
+                    console.log('Message sent: %s', info.messageId);
+                    return 'Message sent: %s', info.messageId;
+                })
+
+            })
+            .catch(
+                console.error
+            )
+    },
     sendCartPaidBuyerNotifiedCOD: async (items, cart, orderNumber, stores, pdf_invoice, invoiceNumber) => {
         let store, storeLng = stores.length;
         for (let [index, value] of stores.entries()) {
