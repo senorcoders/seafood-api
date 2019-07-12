@@ -591,6 +591,8 @@ module.exports.routes = {
   
   'POST /api/v2/ammend-invoice': 'ShoppingCartController.ammendInvoice',
 
+  // Fish Variations
+  'GET /fishvariations/type/:typeID/preparation/:preparationID': 'FishVariationsController.getFishVariationByPreparation',
   /****
    * 
    * 

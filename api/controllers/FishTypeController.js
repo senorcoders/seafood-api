@@ -285,13 +285,28 @@ module.exports = {
                 fishPreparationTree[ row.fishParent ] = row.fishPreparationChild;
             })
 
-            let updateJSON = {
+            // updating fishtype with preparation, raised and treatment
+            let updateTypeJSON = {
                 fishPreparation: fishPreparationTree,
                 raised: body.raised,
                 treatment: body.treatment
             }
 
-            let updatedCategory = await FishType.update({ id: category_id }, updateJSON).fetch();
+            // updating variations related to this fishPreparation
+            // first delete existing vartiations for this fishtype
+            await FishVariations.destroy( { fishType: category_id } )
+
+            await Promise.all( body.fishVariations.map ( async row => {
+                let createVariations = {
+                    variations: row.variations,
+                    fishType: row.type,
+                    fishPreparation: row.preparation
+                }
+
+                await FishVariations.create( createVariations )
+            } ) )
+
+            let updatedCategory = await FishType.update({ id: category_id }, updateTypeJSON).fetch();
 
             res.json( updatedCategory );
         } catch (error) {
@@ -306,11 +321,26 @@ module.exports = {
              
             if ( categories.hasOwnProperty('fishPreparation') ) {
                 let fishPreparationInfo = [];
+                let fishVariations = [];
                 await Promise.all( Object.keys( categories.fishPreparation ).map( async ( category, index ) => {
                     let preparation = await FishPreparation.findOne().where( { id: category } );
+
+                    //let's check all child preparation
+                    await Promise.all( categories.fishPreparation[category].map ( async child => {
+                        //let preparation = await FishPreparation.findOne().where( { id: child } );
+                        // now let's check if this child prepraration have Variations
+                        let variations = await sails.helpers.fishVariationByPreparation.with({
+                            type: category_id,
+                            preparation: child
+                        });
+                        if ( variations !== null )
+                            fishVariations.push( variations );
+                    } ) ) 
+
                     fishPreparationInfo.push( preparation );
                 } ));
                 categories['fishPreparationInfo'] = fishPreparationInfo;
+                categories['variations'] = fishVariations;
             }
 
             if( categories.hasOwnProperty( 'raised' ) ) {
@@ -339,18 +369,25 @@ module.exports = {
 
     getChildPreparationForCategory: async ( req, res ) => {
         try {
-            let fisTypeID = req.param('id');
+            let fishTypeID = req.param('id');
             let fishPreparationID = req.param('preprarationID')
 
-            let categories = await FishType.findOne().where( { id: fisTypeID } );
+            let categories = await FishType.findOne().where( { id: fishTypeID } );
              
             let fishPreparationInfo = [];
             if ( categories.hasOwnProperty('fishPreparation') ) {
                 await Promise.all( Object.keys( categories.fishPreparation ).map( async ( category, index ) => {
+                    console.info( 'info', { category, fishPreparationID } )
                     if( category == fishPreparationID ) { //is this fish preparation the one we are looking for
                         //let's check all child preparation
                         await Promise.all( categories.fishPreparation[category].map ( async child => {
                             let preparation = await FishPreparation.findOne().where( { id: child } );
+                            // now let's check if this child prepraration have Variations
+                            let variations = await sails.helpers.fishVariationByPreparation.with({
+                                type: fishTypeID,
+                                preparation: child
+                            });
+                            preparation['variations'] = variations;
                             fishPreparationInfo.push( preparation );
                         } ) ) 
                     
