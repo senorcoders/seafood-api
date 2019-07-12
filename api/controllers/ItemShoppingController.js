@@ -6,7 +6,7 @@ const concatNameVariation = async function (item) {
         if (item.variation !== null && item.variation !== undefined) {
             let variation = await Variations.findOne({ id: item.variation })
                 .populate("fishPreparation").populate("wholeFishWeight");
-            if (variation.wholeFishWeight !== undefined && variation.wholeFishWeight !== null)
+            if (variation && variation.wholeFishWeight !== undefined && variation.wholeFishWeight !== null)
                 if (item.fish && item.wholeFishWeight)
                     item.fish.name += ", " + variation.wholeFishWeight.name;
                 else {
