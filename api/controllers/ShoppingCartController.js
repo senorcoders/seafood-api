@@ -814,7 +814,7 @@ module.exports = {
             if (cart.isCOD === true) {
                 await PDFService.buyerInvoiceCOD(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price);
             } else
-                await PDFService.buyerInvoice(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price);
+                await PDFService.buyerInvoice(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price, false);
 
 
             res.json(cartUpdated);
@@ -930,6 +930,7 @@ module.exports = {
                 if (item.inventory !== null && item.inventory !== undefined)
                     item.inventory = await FishStock.findOne({ id: item.inventory });
                 let fishItem = await Fish.findOne({ id: item.fish }).populate('store').populate('type').populate('status');
+                item.status = await OrderStatus.findOne({ id: item.status });
                 item.fishItem = fishItem;
                 item.fish = fishItem;
                 item = await concatNameVariation(item);

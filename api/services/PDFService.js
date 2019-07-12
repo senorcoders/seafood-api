@@ -25,7 +25,7 @@ const verifiedWholeFishWeight = function (items) {
 };
 
 module.exports = {
-    buyerInvoice: async (itemsShopping, cart, OrderNumber, storeName, uaeTaxes) => {
+    buyerInvoice: async (itemsShopping, cart, OrderNumber, storeName, uaeTaxes, paid) => {
         itemsShopping = verifiedWholeFishWeight(itemsShopping);
         console.log('dir name', __dirname);
         var compiled = await ejs.compile(fs.readFileSync(__dirname + '/../../pdf_templates/invoice.html', 'utf8'));
@@ -36,13 +36,16 @@ module.exports = {
         // date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
         date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
         let paidDateTime = date;
+        let buyerContactPostalAddress = '';
+        if (cart.shippingAddress !== null && cart.shippingAddress !== undefined)
+            buyerContactPostalAddress = `${cart.shippingAddress.address} ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`;
         var html = await compiled(
             {
                 invoiceDueDate: paidDateTime,
                 invoiceDate: paidDateTime,
                 companyName: cart.buyer.dataExtra.companyName,
                 buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
-                buyerContactPostalAddress: `${cart.shippingAddress.address} ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
+                buyerContactPostalAddress,
                 contactAccountNumber: '100552524900003',
                 InvoiceNumber: 'InvoiceNumber',
                 vat: cart.buyer.dataExtra.vat || 0,
@@ -58,7 +61,8 @@ module.exports = {
                 total: cart.total,
                 uaeTaxes: uaeTaxes,
                 vatuaeTaxes: cart.uaeTaxes,
-                api_url: api_url
+                api_url: api_url,
+                paid
             }
         );
         let pdf_name = `invoice-order-${OrderNumber}.pdf`;
