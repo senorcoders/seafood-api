@@ -106,11 +106,6 @@ module.exports = {
 
             let mainFish = await Fish.create(newProduct).fetch();
 
-            //send Email
-            let _store = await Store.findOne(newProduct.store).populate('owner')
-            await MailerService.newProductAddedAdminNotified(newProduct, _store.owner);
-            await MailerService.newProductAddedSellerNotified(newProduct, _store.owner);
-
             if (mainFish) {
                 await Promise.all(body.variations.map(async (variation, index) => {
                     let skuVar = `${seafood_sku}`;
@@ -173,7 +168,7 @@ module.exports = {
             //let variations = json.stringfy( req.body.variations ) ;
             mainFish = await getTRW(mainFish);
             let store = await Store.findOne(mainFish.store).populate('owner')
-            if (body.role == 0) { // if admin add the product is not needed to sent email for new product
+            if (body.role !== 0) { // if admin add the product is not needed to sent email for new product
                 await MailerService.newProductAddedSellerNotified(mainFish, store.owner);
                 await MailerService.newProductAddedAdminNotified(mainFish, store.owner);
             }
