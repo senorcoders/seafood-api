@@ -274,6 +274,131 @@ module.exports = {
         } catch (error) {
             res.serverError( error );
         }
+    },
+    saveCategorySetup: async (req, res) => {
+        try {
+            let category_id = req.param('category_id');
+            let body = req.body;
+            let fishPreparationTree = {};
+
+            body.fishPreparationChilds.map( row => {
+                fishPreparationTree[ row.fishParent ] = row.fishPreparationChild;
+            })
+
+            // updating fishtype with preparation, raised and treatment
+            let updateTypeJSON = {
+                fishPreparation: fishPreparationTree,
+                raised: body.raised,
+                treatment: body.treatment
+            }
+
+            // updating variations related to this fishPreparation
+            // first delete existing vartiations for this fishtype
+            await FishVariations.destroy( { fishType: category_id } )
+
+            await Promise.all( body.fishVariations.map ( async row => {
+                let createVariations = {
+                    variations: row.variations,
+                    fishType: row.type,
+                    fishPreparation: row.preparation
+                }
+
+                await FishVariations.create( createVariations )
+            } ) )
+
+            let updatedCategory = await FishType.update({ id: category_id }, updateTypeJSON).fetch();
+
+            res.json( updatedCategory );
+        } catch (error) {
+            res.serverError(error)
+        }
+    },
+    getCategoryInfo: async ( req, res ) => {
+        try {
+            let category_id = req.param( 'category_id' );
+
+            let categories = await FishType.findOne().where( { id: category_id } );
+             
+            if ( categories.hasOwnProperty('fishPreparation') ) {
+                let fishPreparationInfo = [];
+                let fishVariations = [];
+                await Promise.all( Object.keys( categories.fishPreparation ).map( async ( category, index ) => {
+                    let preparation = await FishPreparation.findOne().where( { id: category } );
+
+                    //let's check all child preparation
+                    await Promise.all( categories.fishPreparation[category].map ( async child => {
+                        //let preparation = await FishPreparation.findOne().where( { id: child } );
+                        // now let's check if this child prepraration have Variations
+                        let variations = await sails.helpers.fishVariationByPreparation.with({
+                            type: category_id,
+                            preparation: child
+                        });
+                        if ( variations !== null )
+                            fishVariations.push( variations );
+                    } ) ) 
+
+                    fishPreparationInfo.push( preparation );
+                } ));
+                categories['fishPreparationInfo'] = fishPreparationInfo;
+                categories['variations'] = fishVariations;
+            }
+
+            if( categories.hasOwnProperty( 'raised' ) ) {
+                let fishRaisedInfo = [];
+                await Promise.all( categories.raised.map( async item => {
+                    fishRaisedInfo.push( await Raised.findOne().where({ id: item }) );
+                } ) )
+                categories['raisedInfo'] = fishRaisedInfo;
+            }
+
+            if( categories.hasOwnProperty('treatment') ) {
+                let treatmentInfo = [];
+                await Promise.all( categories.treatment.map( async item => {
+                    treatmentInfo.push( await Treatment.findOne().where( { id: item } ) )
+                } ) )
+                categories['treatmentInfo'] = treatmentInfo;
+            }
+
+
+            res.json( categories );
+            
+        } catch (error) {
+            res.serverError( error );
+        }
+    },
+
+    getChildPreparationForCategory: async ( req, res ) => {
+        try {
+            let fishTypeID = req.param('id');
+            let fishPreparationID = req.param('preprarationID')
+
+            let categories = await FishType.findOne().where( { id: fishTypeID } );
+             
+            let fishPreparationInfo = [];
+            if ( categories.hasOwnProperty('fishPreparation') ) {
+                await Promise.all( Object.keys( categories.fishPreparation ).map( async ( category, index ) => {
+                    console.info( 'info', { category, fishPreparationID } )
+                    if( category == fishPreparationID ) { //is this fish preparation the one we are looking for
+                        //let's check all child preparation
+                        await Promise.all( categories.fishPreparation[category].map ( async child => {
+                            let preparation = await FishPreparation.findOne().where( { id: child } );
+                            // now let's check if this child prepraration have Variations
+                            let variations = await sails.helpers.fishVariationByPreparation.with({
+                                type: fishTypeID,
+                                preparation: child
+                            });
+                            preparation['variations'] = variations;
+                            fishPreparationInfo.push( preparation );
+                        } ) ) 
+                    
+                    }
+                } ));
+                categories['fishPreparationInfo'] = fishPreparationInfo;
+            }
+            res.json(fishPreparationInfo)
+        } catch (error) {
+            res.serverError(error)
+        }
     }
 };
 

@@ -52,7 +52,7 @@ module.exports = {
             let itemsDeleted = [];
             //checking if products are still available, if not, we delete them
             await Promise.all(cart.items.map(async it => {
-                if( it.hasOwnProperty( 'variation' ) && it.variation !== undefined ) {
+                if (it.hasOwnProperty('variation') && it.variation !== undefined) {
                     let stock = await sails.helpers.getEtaStock(it.variation, parseFloat(it['quantity']['value']));
                     console.log('stock', stock)
                     if (stock === 0 || it.inventory !== stock.id) {
@@ -87,7 +87,7 @@ module.exports = {
                 } else {
                     itemsDeleted.push(it);
                 }
-                
+
             }));
 
             if (itemsDeleted.length > 0) {
@@ -814,7 +814,7 @@ module.exports = {
             if (cart.isCOD === true) {
                 await PDFService.buyerInvoiceCOD(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price);
             } else
-                await PDFService.buyerInvoice(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price);
+                await PDFService.buyerInvoice(itemsShopping, cart, OrderNumber, storeName, uaeTaxes[0].price, false);
 
 
             res.json(cartUpdated);
@@ -893,7 +893,7 @@ module.exports = {
                         arr = arr.map(it => { return it._id.toString(); });
                         let orders = [];
                         for (let id of arr) {
-                            let order = await ShoppingCart.findOne({ id }).populate('buyer').populate('orderStatus').populate('items');
+                            let order = await ShoppingCart.findOne({ id }).populate('buyer').populate('orderStatus').populate('items').populate('clones');
                             let items = [];
                             await Promise.all(order.items.map(async item => {
                                 if (item.inventory !== null && item.inventory !== undefined)
@@ -916,6 +916,51 @@ module.exports = {
 
         } catch (error) {
             res.status(400).json(error);
+        }
+
+    },
+
+    getFullOrder: async function (req, res) {
+        try {
+            // var db = ShoppingCart.getDatastore().manager;
+            // var _shopping = db.collection(ShoppingCart.tableName);
+            let order = await ShoppingCart.findOne({ id: req.param('id') }).populate('buyer').populate('orderStatus').populate('items');
+            let items = [];
+            await Promise.all(order.items.map(async item => {
+                if (item.inventory !== null && item.inventory !== undefined)
+                    item.inventory = await FishStock.findOne({ id: item.inventory });
+                let fishItem = await Fish.findOne({ id: item.fish }).populate('store').populate('type').populate('status');
+                item.status = await OrderStatus.findOne({ id: item.status });
+                item.fishItem = fishItem;
+                item.fish = fishItem;
+                item = await concatNameVariation(item);
+                item.description = await getDescription(item);
+                items.push(item);
+
+            }))
+            order.items = items;
+            res.v2(order);
+        }
+        catch (e) {
+            console.error(e);
+            res.v2(e);
+        }
+    },
+
+    ammendInvoice: async (req, res) => {
+        try {
+            let cartClone = req.param('cart');
+            let items = req.param('items');
+            let dateTime = req.param('dateTime');
+            let shoppingCart = cartClone.id;
+            let sh = await ShoppingCartClone.create({ cartClone, items, dateTime, shoppingCart }).fetch();
+            let version = await ShoppingCartClone.count({ shoppingCart });
+            await PDFService.newVersionBuyerInvoice(items, cartClone, cartClone.orderNumber, version, sh.id);
+            res.v2(sh);
+        }
+        catch (e) {
+            console.error(e);
+            res.v2(e);
         }
 
     },

@@ -1,7 +1,7 @@
 /**
- * FishPreparation.js
+ * ShoppingCartClone.js
  *
- * @description :: A model definition.  Represents a database table/collection/etc.
+ * @description :: A model definition represents a database table/collection.
  * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
  */
 
@@ -12,37 +12,37 @@ module.exports = {
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
-    name: {
-      type: "string",
+    dateTime: {
+      type: 'number',
       required: true
     },
-    isTrimming: {
-      type: "boolean",
-      defaultsTo : false
-    },
-    defaultProccessingParts: {
-      type: 'json',
-      required: false
-    },
-    prepType: {
-      type: 'json',
-      required: false
-    },  
-    parent: {
+
+    invoice_pdf: {
       type: 'string',
       required: false
     },
-    
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
     //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
+    cartClone: {
+      type: 'json',
+      required: false
+    },
 
+    items: {
+      type: 'json',
+      columnType: 'array',
+      required: true
+    },
 
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-
+    shoppingCart: {
+      model: 'shoppingcart',
+      required: true
+    }
   },
 
 };

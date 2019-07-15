@@ -170,8 +170,8 @@ module.exports = {
                     subject: 'Welcome Onboard, Getting Started with Seafood Souq !',
                     html: res, // html body
                     attachments: [{
-                        filename: 'welcome_buyer.pdf',
-                        path: `pdf_templates/welcome_buyer.pdf`
+                        filename: 'welcome_buyer_.pdf',
+                        path: `pdf_templates/welcome_buyer_.pdf`
                     }]
                 }, (error, info) => {
                     if (error) {
@@ -526,6 +526,44 @@ module.exports = {
                     attachments: [
                         {
                             filename: `seafood-invoice-${orderNumber}.pdf`,
+                            path: `pdf_invoices/${pdf_invoice}`
+                        }
+                    ]
+                }, (error, info) => {
+                    if (error) {
+                        return console.log(error);
+                    }
+                    console.log('Message sent: %s', info.messageId);
+                    return 'Message sent: %s', info.messageId;
+                })
+
+            })
+            .catch(
+                console.error
+            )
+    },
+    sendCartPaidBuyerNotifiedRe: async (items, cart, orderNumber, pdf_invoice) => {
+        let data = await sails.helpers.getDataOrder.with({
+            URL,
+            sellerName: cart.buyer.firstName + " " + cart.buyer.lastName,
+            cart,
+            items,
+            orderNumber,
+            type: "sendCartPaidBuyerNotified"
+        });
+        email.render('../email_templates/cart_paid_buyer_notified',
+            await applyExtend(data)
+        )
+            .then(res => {
+                transporter.sendMail({
+                    from: emailSender,
+                    // to: cart.buyer.email,
+                    to: 'jos.ojiron@gmail.com',
+                    subject: `Order #${orderNumber} is Placed`,
+                    html: res, // html body
+                    attachments: [
+                        {
+                            filename: pdf_invoice,
                             path: `pdf_invoices/${pdf_invoice}`
                         }
                     ]

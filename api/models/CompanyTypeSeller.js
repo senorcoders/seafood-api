@@ -1,7 +1,7 @@
 /**
- * FishPreparation.js
+ * CompanyTypeSeller.js
  *
- * @description :: A model definition.  Represents a database table/collection/etc.
+ * @description :: A model definition represents a database table/collection.
  * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
  */
 
@@ -12,27 +12,16 @@ module.exports = {
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
-    name: {
-      type: "string",
+    name : {
+      type: 'string',
       required: true
     },
-    isTrimming: {
-      type: "boolean",
-      defaultsTo : false
-    },
-    defaultProccessingParts: {
-      type: 'json',
-      required: false
-    },
-    prepType: {
-      type: 'json',
-      required: false
-    },  
-    parent: {
-      type: 'string',
-      required: false
-    },
     
+    val:{
+      type: 'string',
+      required: true,
+      unique: true
+    }
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗

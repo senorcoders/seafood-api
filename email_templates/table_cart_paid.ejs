@@ -73,9 +73,10 @@
                                                         <td
                                                             style="border-top-width: 0 !important; vertical-align: top;">
                                                             <% if(it.fish.wholeFishWeight!==undefined&&it.fish.wholeFishWeight!==null&&it.fish.wholeFishWeight!==''){ %>
-                                                                <%=it.fish.name %>, Whole Fish Weight <%=it.fish.wholeFishWeight %>
+                                                            <%=it.fish.name %>, Whole Fish Weight
+                                                            <%=it.fish.wholeFishWeight %>
                                                             <% }else{ %>
-                                                                <%=it.fish.name %>
+                                                            <%=it.fish.name %>
                                                             <% } %>
                                                         </td>
                                                     </tr>
@@ -87,39 +88,54 @@
                                             <td style="border-top-width: 0 !important;">
                                                 <%=it.fish.processingCountry %>
                                                 <span
-                                                    style="display: block; padding:5px; padding-right: 0px; width: 100%; font-size: 12px;">Shipping
-                                                    fees</span>
+                                                    style="display: block; padding:5px; padding-right: 0px; width: 100%; font-size: 12px;">Seller
+                                                    Price/kg</span>
                                                 <span
-                                                    style="display: block; padding:5px; padding-right: 0px; width: 100%; font-size: 12px;">VAT</span>
+                                                    style="display: block; padding:5px; padding-right: 0px; width: 100%; font-size: 12px;">Subtotal
+                                                    price/kg</span>
+                                                    <span
+                                                    style="display: block; padding:5px; padding-right: 0px; width: 100%; font-size: 12px;">Taxes and Customs</span>
                                                 <span
-                                                    style="display: block; padding:5px; padding-right: 0px; width: 100%; font-size: 12px;">Customs</span>
+                                                    style="display: block; padding:5px; padding-right: 0px; width: 100%; font-size: 12px;">Shipping, Handling and fees</span>
                                                 <span
-                                                    style="display: block; padding:5px; padding-right: 0px; width: 100%; font-size: 12px;">Charges</span>
+                                                    style="display: block; padding:5px; padding-right: 0px; width: 100%; font-size: 12px;">VAT (5%)</span>
+                                                
+                                                <!-- <span
+                                                    style="display: block; padding:5px; padding-right: 0px; width: 100%; font-size: 12px;">Charges</span> -->
                                             </td>
                                             <td style="border-top-width: 0 !important;">
                                                 <%=it.quantity.value %>
                                             </td>
                                             <td style="border-top-width: 0 !important;">
+                                                <span> &nbsp;&nbsp;&nbsp;&nbsp; </span>
+                                                <span
+                                                    style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
+                                                    <%=it.price %>
+                                                </span>
                                                 <span
                                                     style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
                                                     <%=it.subtotal %>
                                                 </span>
                                                 <span
                                                     style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
-                                                    <%=it.shipping %>
+                                                    <%=(Number(it.itemCharges.customsFee) + Number(it.itemCharges.exchangeRateCommission) + Number(it.itemCharges.sfsMarginCost)).toFixed(2) %>
                                                 </span>
                                                 <span
                                                     style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
-                                                    <%=it.uaeTaxes %>
+                                                    <%=it.itemCharges.shippingCost.cost %>
                                                 </span>
                                                 <span
+                                                    style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
+                                                    <%=it.itemCharges.uaeTaxesFee %>
+                                                </span>
+                                                <!-- <span
                                                     style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
                                                     <%=it.customs %>
                                                 </span>
                                                 <span
                                                     style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
                                                     <%=it.sfsMargin %>
-                                                </span>
+                                                </span> -->
                                             </td>
                                         </tr>
                                         <% }) %>

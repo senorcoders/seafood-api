@@ -1,7 +1,7 @@
 /**
- * FishPreparation.js
+ * LoginPrint.js
  *
- * @description :: A model definition.  Represents a database table/collection/etc.
+ * @description :: A model definition represents a database table/collection.
  * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
  */
 
@@ -12,27 +12,20 @@ module.exports = {
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
-    name: {
-      type: "string",
+    userAgent: {
+      type: 'string',
       required: true
     },
-    isTrimming: {
-      type: "boolean",
-      defaultsTo : false
-    },
-    defaultProccessingParts: {
-      type: 'json',
-      required: false
-    },
-    prepType: {
-      type: 'json',
-      required: false
-    },  
-    parent: {
+
+    ip: {
       type: 'string',
-      required: false
+      required: true
     },
-    
+
+    dateTime: {
+      type: 'number',
+      required: true
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
@@ -42,7 +35,10 @@ module.exports = {
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-
+    user: {
+      model: 'user',
+      required: true
+    }
   },
 
 };

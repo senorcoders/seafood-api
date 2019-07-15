@@ -32,6 +32,10 @@ module.exports = {
       unique: true,
       required: true
     },
+    pickupCost: {
+      type: 'number',
+      required: true
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗

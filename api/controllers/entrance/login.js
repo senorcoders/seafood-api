@@ -101,6 +101,8 @@ and exposed as \`req.me\`.)`
     // Look up by the email address.
     // (note that we lowercase it to ensure the lookup is always case-insensitive,
     // regardless of which database we're using)
+    // console.log(this.req.headers);
+
     var userRecord = await User.findOne({
       email: inputs.email.toLowerCase(),
       status: "accepted"
@@ -141,6 +143,15 @@ and exposed as \`req.me\`.)`
 
     //Agregar token security
     userRecord = await token(userRecord);
+
+    //save this login info
+    let loginPrint = {
+      userAgent: this.req.headers['user-agent'] || '',
+      ip: this.req.ip,
+      dateTime : new Date().getTime(),
+      user: userRecord.id
+    };
+    await LoginPrint.create(loginPrint);
 
     // Send success response (this is where the session actually gets persisted)
     return exits.success(userRecord);

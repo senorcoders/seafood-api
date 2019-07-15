@@ -41,7 +41,7 @@ module.exports.policies = {
     emailExist: true,
     verificationCode: true,
     resetEmail: true,
-    updatePassword: true,    
+    updatePassword: true,
     changePassword: true,
     getPublicIp: true,
     getLogoSeller: true,
@@ -67,6 +67,9 @@ module.exports.policies = {
   },
   FishStockController: {
     outOfStockNotification: true
+  },
+  CompanyTypeSeller: {
+    '*': true
   },
   /*  FeaturedProductsController: {
       "*": true

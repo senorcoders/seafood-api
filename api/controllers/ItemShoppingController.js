@@ -6,7 +6,8 @@ const concatNameVariation = async function (item) {
         if (item.variation !== null && item.variation !== undefined) {
             let variation = await Variations.findOne({ id: item.variation })
                 .populate("fishPreparation").populate("wholeFishWeight");
-            if (variation.wholeFishWeight !== undefined && variation.wholeFishWeight !== null)
+            //for concat in the name the wholeFishName for details in the name
+            if (variation && variation.wholeFishWeight !== undefined && variation.wholeFishWeight !== null)
                 if (item.fish && item.wholeFishWeight)
                     item.fish.name += ", " + variation.wholeFishWeight.name;
                 else {
@@ -249,8 +250,10 @@ module.exports = {
                 }
             )
             let store = await Store.findOne({ id: item.fish.store }).populate("owner")
-            let cart = await ShoppingCart.findOne({ id: item.shoppingCart.id }).populate("buyer")
-            let name = cart.buyer.firstName + ' ' + cart.buyer.lastName;
+            let cart = await ShoppingCart.findOne({ id: item.shoppingCart.id }).populate("buyer");
+            let name = '';
+            if (cart.buyer !== null && cart.buyer !== undefined)
+                name = cart.buyer.firstName + ' ' + cart.buyer.lastName;
             if (status == '5c017af047fb07027943a405') {//update to pending seller fulfillment
 
                 //checking if item still pending seller confirmation
@@ -412,13 +415,16 @@ module.exports = {
             // check if order is closed
             let orderItems = await ItemShopping.find({ where: { shoppingCart: item.shoppingCart.id } });
 
-            let isClose = true;
+            let isClose = true, allDelivered = true, idDelivered = "5c017b3c47fb07027943a409";
             console.log('status');
             orderItems.map(itemOrder => {
                 console.log(itemOrder.status);
                 if (itemOrder.status !== '5c06f4bf7650a503f4b731fd' && itemOrder.status !== '5c017b5a47fb07027943a40c' && itemOrder.status !== '5c017b3c47fb07027943a409' && itemOrder.paymentStatus !== '5c017b7047fb07027943a40e' && itemOrder.paymentStatus !== '5c017b4f47fb07027943a40b') {
                     isClose = false;
                 }
+
+                if (itemOrder.status !== idDelivered)
+                    allDelivered = false;
             })
             // all items are delivered or refunded, so let's update the order status
 
@@ -427,43 +433,46 @@ module.exports = {
                     orderStatus: '5c40b364970dc99bb06bed6a',
                     status: 'closed'
                 });
-                if (cart.isCOD === true) {
-                    let available = Number(cart.buyer.cod.available) + Number(cart.total);
-                    if (cart.buyer.cod.limit < available) available = cart.buyer.cod.limit;
-                    cart.buyer.cod.available = available;
-                    await User.update({ id: cart.buyer.id }, { cod: cart.buyer.cod });
-
-                    //cargamos los items para enviarlos en el invoice
-                    let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id });
-                    itemsShopping = await Promise.all(itemsShopping.map(async function (it) {
-                        if (it.inventory)
-                            it.inventory = await FishStock.findOne({ id: it.inventory });
-                        it = await concatNameVariation(it);
-                        it.description = await getDescription(it);
-                        return it;
-                    }));
-
-                    //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
-                    let itemsStore = [];
-                    for (let item of itemsShopping) {
-
-                        let index = itemsStore.findIndex(function (it) {
-                            return it[0].fish.store.id === item.fish.store.id;
-                        });
-
-                        if (index === -1) {
-                            itemsStore.push([item]);
-                        } else {
-                            itemsStore[index].push(item);
-                        }
-                    }
-                    let uaeTaxes = await PricingCharges.find({ where: { type: 'uaeTaxes' } }).sort('updatedAt DESC').limit(1);
-                    cart = await sails.helpers.propMap(cart, ["vat", "zipCode"]);
-                    await PDFService.buyerInvoiceCODPaid(itemsShopping, cart, cart.orderNumber, [], uaeTaxes[0].price)
-                } else
-                    await MailerService.buyerRefund(name, cart, store, item);
+                //this email send when moment no correct, i need check in the future
+                // await MailerService.buyerRefund(name, cart, store, item);
             }
 
+            console.log('defeef', allDelivered, cart.isCOD);
+            if (allDelivered == true) {
+                let available = Number(cart.buyer.cod.available) + Number(cart.total);
+                //if (cart.buyer.cod.limit < available) available = cart.buyer.cod.limit; remove because we don't use anymore july 4 MREC Kharron 
+                cart.buyer.cod.available = available;
+                await User.update({ id: cart.buyer.id }, { cod: cart.buyer.cod });
+
+                //cargamos los items para enviarlos en el invoice
+                let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id }).populate("fish");
+                itemsShopping = await Promise.all(itemsShopping.map(async function (it) {
+                    it = await concatNameVariation(it);
+                    it.description = await getDescription(it);
+                    return it;
+                }));
+
+                //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
+                let itemsStore = [];
+                for (let item of itemsShopping) {
+
+                    let index = itemsStore.findIndex(function (it) {
+                        return it[0].fish.store.id === item.fish.store.id;
+                    });
+
+                    if (index === -1) {
+                        itemsStore.push([item]);
+                    } else {
+                        itemsStore[index].push(item);
+                    }
+                }
+                let uaeTaxes = await PricingCharges.find({ where: { type: 'uaeTaxes' } }).sort('updatedAt DESC').limit(1);
+                if (cart.isCOD === true)
+                    await PDFService.buyerInvoiceCODPaid(itemsShopping, cart, cart.orderNumber, [], uaeTaxes[0].price)
+                else {
+                    await PDFService.buyerInvoice(itemsShopping, cart, cart.orderNumber, [], uaeTaxes[0].price, true);
+                }
+            }
 
             res.status(200).json({ "message": "status updated", item: data });
 
@@ -513,20 +522,24 @@ module.exports = {
             )
             let store = await Store.findOne({ id: item.fish.store }).populate("owner")
             let cart = await ShoppingCart.findOne({ id: item.shoppingCart.id }).populate("buyer")
-            let name = cart.buyer.firstName + ' ' + cart.buyer.lastName;
+            let name = '';
+            if (cart.buyer !== null && cart.buyer !== undefined)
+                name = cart.buyer.firstName + ' ' + cart.buyer.lastName;
             data = await ItemShopping.update({ id }, { paymentStatus: status, updateInfo: currentUpdateDates }).fetch();
             data = await ItemShopping.find({ id }).populate('status');
 
             // check if order is closed
             let orderItems = await ItemShopping.find({ where: { shoppingCart: item.shoppingCart.id } });
 
-            let isClose = true;
+            let isClose = true, allDelivered = true, idDelivered = "5c017b3c47fb07027943a409";
             console.log('status');
             orderItems.map(itemOrder => {
                 console.log(itemOrder.status);
                 if (itemOrder.status !== '5c06f4bf7650a503f4b731fd' && itemOrder.status !== '5c017b5a47fb07027943a40c' && itemOrder.status !== '5c017b3c47fb07027943a409' && itemOrder.paymentStatus !== '5c017b7047fb07027943a40e' && itemOrder.paymentStatus !== '5c017b4f47fb07027943a40b') {
                     isClose = false;
                 }
+                if (itemOrder.status !== idDelivered)
+                    allDelivered = false;
             })
             // all items are delivered or refunded, so let's update the order status
 
@@ -535,38 +548,45 @@ module.exports = {
                     orderStatus: '5c40b364970dc99bb06bed6a',
                     status: 'closed'
                 });
-                if (cart.isCOD === true) {
-                    let available = Number(cart.buyer.cod.available) + Number(cart.total);
-                    //if (cart.buyer.cod.limit < available) available = cart.buyer.cod.limit; remove because we don't use anymore july 4 MREC Kharron 
-                    cart.buyer.cod.available = available;
-                    await User.update({ id: cart.buyer.id }, { cod: cart.buyer.cod });
+                //this email send when moment no correct, i need check in the future
+                // await MailerService.buyerRefund(name, cart, store, item);
+            }
 
-                    //cargamos los items para enviarlos en el invoice
-                    let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id }).populate("fish");
-                    itemsShopping = await Promise.all(itemsShopping.map(async function (it) {
-                        it = await concatNameVariation(it);
-                        it.description = await getDescription(it);
-                        return it;
-                    }));
+            console.log('defeef', allDelivered, cart.isCOD);
+            if (allDelivered == true) {
+                let available = Number(cart.buyer.cod.available) + Number(cart.total);
+                //if (cart.buyer.cod.limit < available) available = cart.buyer.cod.limit; remove because we don't use anymore july 4 MREC Kharron 
+                cart.buyer.cod.available = available;
+                await User.update({ id: cart.buyer.id }, { cod: cart.buyer.cod });
 
-                    //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
-                    let itemsStore = [];
-                    for (let item of itemsShopping) {
+                //cargamos los items para enviarlos en el invoice
+                let itemsShopping = await ItemShopping.find({ shoppingCart: cart.id }).populate("fish");
+                itemsShopping = await Promise.all(itemsShopping.map(async function (it) {
+                    it = await concatNameVariation(it);
+                    it.description = await getDescription(it);
+                    return it;
+                }));
 
-                        let index = itemsStore.findIndex(function (it) {
-                            return it[0].fish.store.id === item.fish.store.id;
-                        });
+                //Ahora agrupamos los compras por store para avisar a sus dueños de las ventas
+                let itemsStore = [];
+                for (let item of itemsShopping) {
 
-                        if (index === -1) {
-                            itemsStore.push([item]);
-                        } else {
-                            itemsStore[index].push(item);
-                        }
+                    let index = itemsStore.findIndex(function (it) {
+                        return it[0].fish.store.id === item.fish.store.id;
+                    });
+
+                    if (index === -1) {
+                        itemsStore.push([item]);
+                    } else {
+                        itemsStore[index].push(item);
                     }
-                    let uaeTaxes = await PricingCharges.find({ where: { type: 'uaeTaxes' } }).sort('updatedAt DESC').limit(1);
+                }
+                let uaeTaxes = await PricingCharges.find({ where: { type: 'uaeTaxes' } }).sort('updatedAt DESC').limit(1);
+                if (cart.isCOD === true)
                     await PDFService.buyerInvoiceCODPaid(itemsShopping, cart, cart.orderNumber, [], uaeTaxes[0].price)
-                } else
-                    await MailerService.buyerRefund(name, cart, store, item);
+                else {
+                    await PDFService.buyerInvoice(itemsShopping, cart, cart.orderNumber, [], uaeTaxes[0].price, true);
+                }
             }
 
 
@@ -1181,6 +1201,7 @@ module.exports = {
 
             let items = await ItemShopping.find({ where, skip: skip, limit, })
                 .populate('fish')
+                .populate('variation')
                 .populate('shoppingCart')
                 .populate('status')
                 .sort('createdAt DESC');
