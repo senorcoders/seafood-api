@@ -18,11 +18,11 @@ module.exports = {
     },
     min: {
       type: 'number',
-      required: true
+      required: false
     },
     max: {
       type: 'number',
-      required: true
+      required: false
     }
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
