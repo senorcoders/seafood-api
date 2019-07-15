@@ -297,13 +297,16 @@ module.exports = {
             await FishVariations.destroy( { fishType: category_id } )
 
             await Promise.all( body.fishVariations.map ( async row => {
-                let createVariations = {
-                    variations: row.variations,
-                    fishType: row.type,
-                    fishPreparation: row.preparation
+                if( row.variations !== "" || row.variations.length !== 0 ) {                    
+                    let createVariations = {
+                        variations: row.variations,
+                        fishType: row.type,
+                        fishPreparation: row.preparation
+                    }
+    
+                    await FishVariations.create( createVariations )
                 }
-
-                await FishVariations.create( createVariations )
+                
             } ) )
 
             let updatedCategory = await FishType.update({ id: category_id }, updateTypeJSON).fetch();
