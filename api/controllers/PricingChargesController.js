@@ -31,9 +31,13 @@ module.exports = {
 
             let handlingFees = await PricingCharges.find( { where: { type: 'handlingFees' } } ).sort( 'updatedAt DESC' );
             
+            let flatHandlingFees = await PricingCharges.find( { where: { type: 'flatHandlingFees' } } ).sort( 'updatedAt DESC' );
+            
             let exchangeRates = await PricingCharges.find( { where: { type: 'exchangeRates' } } ).sort( 'updatedAt DESC' );
 
             let exchangeRateCommission = await PricingCharges.find( { where: { type: 'exchangeRateCommission' } } ).sort( 'updatedAt DESC' );
+
+            let pickupLogistics = await PricingCharges.find( { where: { type: 'pickupLogistics' } } ).sort( 'updatedAt DESC' );
             
             let data = {
                 "flatCustoms": flatCustoms,
@@ -41,8 +45,10 @@ module.exports = {
                 "lastMileCost": lastMileCost,
                 "uaeTaxes": uaeTaxes,
                 "handlingFees": handlingFees,
+                "flatHandlingFees": flatHandlingFees,
                 "exchangeRates": exchangeRates,
-                "exchangeRateCommission": exchangeRateCommission
+                "exchangeRateCommission": exchangeRateCommission,
+                "pickupLogistics": pickupLogistics
             }
             
             res.status(200).json( data );
@@ -70,8 +76,11 @@ module.exports = {
                 "flatCustoms": currentCharges.flatCustoms,
                 "sfsMargin": fish.type.sfsMargin,
                 "handlingFees": currentChargesprice,
+                "flatHandlingFees": flatHandlingFees,
                 "exchangeRates": currentCharges.exchangeRates,
-                "exchangeRateCommission": currentCharges.exchangeRateCommission
+                "exchangeRateCommission": currentCharges.exchangeRateCommission,
+                "pickupLogistics": currentCharges.pickupLogistics
+                
             }
 
             res.status(200).json( data );

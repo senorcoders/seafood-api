@@ -20,11 +20,11 @@ module.exports = {
         fishes_ids.push( fish.id );
     } );
 
-    let variations = await Variations.find( { fish: fishes_ids } );
+    let variations = await Variations.find( { fish: fishes_ids } ).populate('fish');
     
     let skus = [];
     variations.map( variation => {
-        skus.push( { id: variation.id, sku: variation.sku } );
+        skus.push( { id: variation.id, sku: variation.fish.name + ' - ' +variation.sku } );
     } );
     return res.status(200).json(skus);
   }
