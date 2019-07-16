@@ -269,14 +269,14 @@
       <span><%=(Number(cart.currentPrices.subtotal)).toFixed(2)  %></span>
     </div>
   </div>
-  <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
+  <!-- <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
     <div class="col col-90 padding-right">
       <span>VAT(5%)</span>
     </div>
     <div class="col col-1">
       <span><%=(Number(cart.currentPrices.vat)).toFixed(2) %></span>
     </div>
-  </div>
+  </div> -->
 
   <!--<table style="float: right; width: 500px;font-size: 10px;font-family: arial" class="col-5 align-right">
       <tr class="subtotal">
@@ -314,7 +314,11 @@
     </table>-->
 
   <div class="align-right clear" style="font-size: 10px;font-family: arial">
-    <p><b>Grand Total AED <%=(Number(cart.currentPrices.total)).toFixed(2) %></b></p>
+    <p>
+      <b>Grand Total AED <%=(Number(cart.currentPrices.total)).toFixed(2) %></b>
+      <br>
+      <span class="cite-text">VAT included in total</span>
+    </p>
   </div>
   <div style="margin-top: 40px">
     <p><b>Due Date: <%= invoiceDueDate %></b></p>
