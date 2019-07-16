@@ -220,7 +220,7 @@ module.exports = {
         return pdf_name;
     },
 
-    sellerPurchaseOrder: async (fullName, cart, itemsShopping, orderNumber, sellerAddress, counter, currentExchangeRate, buyerETA, incoterms, subTotal, total, currency) => {
+    sellerPurchaseOrder: async (fullName, cart, itemsShopping, orderNumber, sellerAddress, counter, currentExchangeRate, buyerETA, incoterms, subTotal, total) => {
         itemsShopping = verifiedWholeFishWeight(itemsShopping);
         var compiled = await ejs.compile(fs.readFileSync(__dirname + '/../../pdf_templates/PurchaseOrder.html', 'utf8'));
         //console.log( 'cart', cart );
@@ -239,49 +239,19 @@ module.exports = {
         let paidDateTime = date; //new Date().toISOString();
 
         //for currency of seller, change prices
-        let exchangeRate = Number(cart.currentCharges.exchangeRates);
-        itemsShopping = itemsShopping.map(it => {
-            let quantity = 0, price = 0, subtotal = 0, taxesAndCustoms = 0, shippingHandles = 0,
-                vat = 0, amount = 0;
-            quantity = it.itemCharges.weight;
-            //if for seller email
-            switch (currency) {
-                case 'USD':
-                    price = (Number(it.price) / exchangeRate).toFixed(2);
-                    subtotal = it.subtotal;
-                    taxesAndCustoms = (
-                        (Number(it.itemCharges.customsFee) + Number(it.itemCharges.exchangeRateCommission) + Number(it.itemCharges.sfsMarginCost)) / exchangeRate
-                    ).toFixed(2);
-                    shippingHandles = (Number(it.itemCharges.shippingCost.cost) / exchangeRate).toFixed(2);
-                    vat = (Number(it.itemCharges.uaeTaxesFee) / exchangeRate).toFixed(2);
-                    amount = ((it.itemCharges.weight * it.itemCharges.price) / currentExchangeRate).toFixed(2);
-                    break;
-                default: //for AED
-                    price = it.price;
-                    subtotal = it.subtotal;
-                    taxesAndCustoms = (Number(it.itemCharges.customsFee) + Number(it.itemCharges.exchangeRateCommission) + Number(it.itemCharges.sfsMarginCost)).toFixed(2),
-                        shippingHandles = it.itemCharges.shippingCost.cost;
-                    vat = it.itemCharges.uaeTaxesFee;
-                    amount = (it.itemCharges.weight * it.itemCharges.price).toFixed(2);
-                    break
-            }
-
-            it.pricesCalc = {
-                quantity,
-                price,
-                subtotal,
-                taxesAndCustoms,
-                shippingHandles,
-                vat,
-                amount
-            }
-
-            return it;
+        let exchangeRates = Number(cart.currentCharges.exchangeRates);
+        let currency = '';
+        let calcs = await sails.helpers.calcsPrices.with({
+            items: itemsShopping,
+            exchangeRates,
+            forSeller: true
         });
+        currency = calcs.currency;
+        itemsShopping = calcs.items;
 
         //Para obtener el total y parsiar la fecha de pago
-        subTotal = currency === 'AED' ? Number(subTotal).toFixed(2) : (Number(subTotal) / exchangeRate).toFixed(2);
-        total = currency === 'AED' ? Number(total).toFixed(2) : (Number(total) / exchangeRate).toFixed(2);
+        subTotal = currency === 'AED' ? Number(subTotal).toFixed(2) : (Number(subTotal) / exchangeRates).toFixed(2);
+        total = currency === 'AED' ? Number(total).toFixed(2) : (Number(total) / exchangeRates).toFixed(2);
 
         var html = await compiled(
             {

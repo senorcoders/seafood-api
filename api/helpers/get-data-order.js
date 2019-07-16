@@ -65,66 +65,17 @@ module.exports = {
 
       //check if emails is for seller user
       let forSeller = typesEmailSeller.findIndex(it => { return type === it; }) !== -1;
+      let currency = '', grandTotal = 0;
+      let exchangeRates = Number(cart.currentCharges.exchangeRates);
+      let calcs = await sails.helpers.calcsPrices.with({
+        items,
+        exchangeRates,
+        forSeller
+      });
+      currency = calcs.currency;
+      items = calcs.items;
+      grandTotal = currency === 'AED' ? Number(cart.total).toFixed(2) : (Number(cart.total) / exchangeRates).toFixed(2);
 
-      //for add price of item and calculate depending of currency
-      let owners = {}; //check if all owners or seller these are same
-      let currency = 'AED';
-      //type change
-      let exchangeRate = Number(cart.currentCharges.exchangeRates);
-      items = await Promise.all(items.map(async it => {
-        //load store with owner == seller
-        if (it.fishCurrent) { console.log(it.fishCurrent);
-          let st = await Store.findOne({ id: typeof it.fishCurrent.store === 'string' ? it.fishCurrent.store : it.fishCurrent.store.id }).populate('owner');
-          if (st.owner) {
-            currency = st.owner.dataExtra.currencyTrade || 'AED';
-
-            //add id seller for know if there are more than one seller
-            if (owners[st.owner.id] !== true)
-              owners[st.owner.id] = true;
-          }
-          let quantity = 0, price = 0, subtotal = 0, taxesAndCustoms = 0, shippingHandles = 0,
-            vat = 0;
-          quantity = it.itemCharges.weight;
-          //if for seller email
-          if (forSeller === true && currency !== 'AED') {
-            switch(currency){
-              case 'USD':
-                  price = (Number(it.price) / exchangeRate).toFixed(2);
-                  subtotal = it.subtotal;
-                  taxesAndCustoms = (
-                    (Number(it.itemCharges.customsFee) + Number(it.itemCharges.exchangeRateCommission) + Number(it.itemCharges.sfsMarginCost)) / exchangeRate
-                  ).toFixed(2);
-                  shippingHandles = (Number(it.itemCharges.shippingCost.cost) / exchangeRate).toFixed(2);
-                  vat = (Number(it.itemCharges.uaeTaxesFee) / exchangeRate).toFixed(2);
-                  break;
-            }
-          }
-          else {
-            price = it.price;
-            subtotal = it.subtotal;
-            taxesAndCustoms = (Number(it.itemCharges.customsFee) + Number(it.itemCharges.exchangeRateCommission) + Number(it.itemCharges.sfsMarginCost)).toFixed(2),
-              shippingHandles = it.itemCharges.shippingCost.cost;
-            vat = it.itemCharges.uaeTaxesFee;
-          }
-
-          it.pricesCalc = {
-            quantity,
-            price,
-            subtotal,
-            taxesAndCustoms,
-            shippingHandles,
-            vat
-          }
-        }
-
-        return it;
-      }));
-      console.log('/n/n', owners, currency, '/n/n');
-      //if owners === 1 currency no change if more than 1 is AED
-      if (Object.keys(owners).length > 1) currency = 'AED';
-
-      //Para obtener el total y parsiar la fecha de pago
-      let grandTotal = currency === 'AED' ? Number(cart.total).toFixed(2) : (Number(cart.total) /exchangeRate).toFixed(2);
 
       let paidDateTime = "";
       if (cart.isDefined("paidDateTime") && cart.paidDateTime !== '') {
@@ -139,7 +90,7 @@ module.exports = {
         let it = items[i];
         if (it.fish.imagePrimary && it.fish.imagePrimary !== '') {
           it.fish.imagePrimary = URL + it.fish.imagePrimary;
-        } 
+        }
         if (it.isDefined('buyerExpectedDeliveryDate') === true && it.buyerExpectedDeliveryDate !== '' &&
           /[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/.test(it.buyerExpectedDeliveryDate) === true) {
           it.buyerExpectedDeliveryDate = moment(it.buyerExpectedDeliveryDate, "MM/DD/YYYY").format("MM/DD/YYYY");
