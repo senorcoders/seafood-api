@@ -289,7 +289,8 @@ module.exports = {
             let updateTypeJSON = {
                 fishPreparation: fishPreparationTree,
                 raised: body.raised,
-                treatment: body.treatment
+                treatment: body.treatment,
+                unitOfMeasure: body.unitOfMeasure
             }
 
             // updating variations related to this fishPreparation
