@@ -1,4 +1,10 @@
 const moment = require("moment");
+const typesEmailSeller = [
+  'sendCartPaidSellerNotified',
+  'orderSellerPaid',
+  'orderArrivedSeller',
+  'sellerCancelledOrderSeller'
+];
 
 module.exports = {
 
@@ -52,27 +58,24 @@ module.exports = {
       items = inputs.items,
       orderNumber = inputs.orderNumber,
       type = inputs.type, URL = inputs.URL;
-    items = JSON.parse( JSON.stringify(items) );
+    items = JSON.parse(JSON.stringify(items));
     try {
       //Perder la referencia de la variable
       items = JSON.parse(JSON.stringify(items));
-      //Para obtener el total y parsiar la fecha de pago
-      let grandTotal = 0;
-      for (let it of items) {
-        if(it.isDefined("total"))
-        if (it.isDefined("subtotal") === true)
-          grandTotal += Number(it.subtotal);
-        else
-          grandTotal += Number(parseFloat(Number(it.quantity.value) * Number(it.price.value)).toFixed(2));
-        grandTotal += Number(it.shipping);
-        grandTotal += Number(it.uaeTaxes);
-        grandTotal += Number(it.customs);
-        grandTotal += Number(it.sfsMargin);
-      }
-      grandTotal = Number((grandTotal).toFixed(2));
-      if(cart.isDefined("total") === true){
-        grandTotal = cart.total;
-      }
+
+      //check if emails is for seller user
+      let forSeller = typesEmailSeller.findIndex(it => { return type === it; }) !== -1;
+      let currency = '', grandTotal = 0;
+      let exchangeRates = Number(cart.currentCharges.exchangeRates);
+      let calcs = await sails.helpers.calcsPrices.with({
+        items,
+        exchangeRates,
+        forSeller
+      });
+      currency = calcs.currency;
+      items = calcs.items;
+      grandTotal = currency === 'AED' ? Number(cart.total).toFixed(2) : (Number(cart.total) / exchangeRates).toFixed(2);
+
 
       let paidDateTime = "";
       if (cart.isDefined("paidDateTime") && cart.paidDateTime !== '') {
@@ -87,7 +90,7 @@ module.exports = {
         let it = items[i];
         if (it.fish.imagePrimary && it.fish.imagePrimary !== '') {
           it.fish.imagePrimary = URL + it.fish.imagePrimary;
-        } console.log("\n\n", it.buyerExpectedDeliveryDate, "\n\n");
+        }
         if (it.isDefined('buyerExpectedDeliveryDate') === true && it.buyerExpectedDeliveryDate !== '' &&
           /[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/.test(it.buyerExpectedDeliveryDate) === true) {
           it.buyerExpectedDeliveryDate = moment(it.buyerExpectedDeliveryDate, "MM/DD/YYYY").format("MM/DD/YYYY");
@@ -116,7 +119,7 @@ module.exports = {
         if (_stores[0].isDefined("owner") === true && _stores[0].owner.typeObject() === "object")
           sellers = _stores[0].owner.firstName + " " + _stores[0].owner.lastName;
       }
-      // console.log(type, items, "\n\n");
+
       return exits.success({
         name: sellerName,
         sellerName: sellerName,
@@ -126,7 +129,8 @@ module.exports = {
         orderNumber: orderNumber,
         url: URL,
         paidDateTime,
-        grandTotal
+        grandTotal,
+        currency
       });
     }
     catch (e) {
