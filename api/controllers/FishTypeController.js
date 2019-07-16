@@ -289,7 +289,8 @@ module.exports = {
             let updateTypeJSON = {
                 fishPreparation: fishPreparationTree,
                 raised: body.raised,
-                treatment: body.treatment
+                treatment: body.treatment,
+                unitOfMeasure: body.unitOfMeasure
             }
 
             // updating variations related to this fishPreparation
@@ -332,12 +333,14 @@ module.exports = {
                     await Promise.all( categories.fishPreparation[category].map ( async child => {
                         //let preparation = await FishPreparation.findOne().where( { id: child } );
                         // now let's check if this child prepraration have Variations
-                        let variations = await sails.helpers.fishVariationByPreparation.with({
-                            type: category_id,
-                            preparation: child
-                        });
-                        if ( variations !== null )
-                            fishVariations.push( variations );
+                        if( child !== null ) {
+                            let variations = await sails.helpers.fishVariationByPreparation.with({
+                                type: category_id,
+                                preparation: child
+                            });
+                            if ( variations !== null )
+                                fishVariations.push( variations );
+                        }
                     } ) ) 
 
                     fishPreparationInfo.push( preparation );
