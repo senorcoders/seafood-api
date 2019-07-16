@@ -1,4 +1,10 @@
 const moment = require("moment");
+const typesEmailSeller = [
+  'sendCartPaidSellerNotified',
+  'orderSellerPaid',
+  'orderArrivedSeller',
+  'sellerCancelledOrderSeller'
+];
 
 module.exports = {
 
@@ -52,27 +58,73 @@ module.exports = {
       items = inputs.items,
       orderNumber = inputs.orderNumber,
       type = inputs.type, URL = inputs.URL;
-    items = JSON.parse( JSON.stringify(items) );
+    items = JSON.parse(JSON.stringify(items));
     try {
       //Perder la referencia de la variable
       items = JSON.parse(JSON.stringify(items));
+
+      //check if emails is for seller user
+      let forSeller = typesEmailSeller.findIndex(it => { return type === it; }) !== -1;
+
+      //for add price of item and calculate depending of currency
+      let owners = {}; //check if all owners or seller these are same
+      let currency = 'AED';
+      //type change
+      let exchangeRate = Number(cart.currentCharges.exchangeRates);
+      items = await Promise.all(items.map(async it => {
+        //load store with owner == seller
+        if (it.fishCurrent) { console.log(it.fishCurrent);
+          let st = await Store.findOne({ id: typeof it.fishCurrent.store === 'string' ? it.fishCurrent.store : it.fishCurrent.store.id }).populate('owner');
+          if (st.owner) {
+            currency = st.owner.dataExtra.currencyTrade || 'AED';
+
+            //add id seller for know if there are more than one seller
+            if (owners[st.owner.id] !== true)
+              owners[st.owner.id] = true;
+          }
+          let quantity = 0, price = 0, subtotal = 0, taxesAndCustoms = 0, shippingHandles = 0,
+            vat = 0;
+          quantity = it.itemCharges.weight;
+          //if for seller email
+          if (forSeller === true && currency !== 'AED') {
+            switch(currency){
+              case 'USD':
+                  price = (Number(it.price) / exchangeRate).toFixed(2);
+                  subtotal = it.subtotal;
+                  taxesAndCustoms = (
+                    (Number(it.itemCharges.customsFee) + Number(it.itemCharges.exchangeRateCommission) + Number(it.itemCharges.sfsMarginCost)) / exchangeRate
+                  ).toFixed(2);
+                  shippingHandles = (Number(it.itemCharges.shippingCost.cost) / exchangeRate).toFixed(2);
+                  vat = (Number(it.itemCharges.uaeTaxesFee) / exchangeRate).toFixed(2);
+                  break;
+            }
+          }
+          else {
+            price = it.price;
+            subtotal = it.subtotal;
+            taxesAndCustoms = (Number(it.itemCharges.customsFee) + Number(it.itemCharges.exchangeRateCommission) + Number(it.itemCharges.sfsMarginCost)).toFixed(2),
+              shippingHandles = it.itemCharges.shippingCost.cost;
+            vat = it.itemCharges.uaeTaxesFee;
+          }
+
+          it.pricesCalc = {
+            quantity,
+            price,
+            subtotal,
+            taxesAndCustoms,
+            shippingHandles,
+            vat
+          }
+        }
+
+        return it;
+      }));
+      console.log('/n/n', owners, currency, '/n/n');
+      //if owners === 1 currency no change if more than 1 is AED
+      if (Object.keys(owners).length > 1) currency = 'AED';
+
       //Para obtener el total y parsiar la fecha de pago
-      let grandTotal = 0;
-      for (let it of items) {
-        if(it.isDefined("total"))
-        if (it.isDefined("subtotal") === true)
-          grandTotal += Number(it.subtotal);
-        else
-          grandTotal += Number(parseFloat(Number(it.quantity.value) * Number(it.price.value)).toFixed(2));
-        grandTotal += Number(it.shipping);
-        grandTotal += Number(it.uaeTaxes);
-        grandTotal += Number(it.customs);
-        grandTotal += Number(it.sfsMargin);
-      }
-      grandTotal = Number((grandTotal).toFixed(2));
-      if(cart.isDefined("total") === true){
-        grandTotal = cart.total;
-      }
+      let grandTotal = currency === 'AED' ? Number(cart.total).toFixed(2) : (Number(cart.total) /exchangeRate).toFixed(2);
 
       let paidDateTime = "";
       if (cart.isDefined("paidDateTime") && cart.paidDateTime !== '') {
@@ -87,7 +139,7 @@ module.exports = {
         let it = items[i];
         if (it.fish.imagePrimary && it.fish.imagePrimary !== '') {
           it.fish.imagePrimary = URL + it.fish.imagePrimary;
-        } console.log("\n\n", it.buyerExpectedDeliveryDate, "\n\n");
+        } 
         if (it.isDefined('buyerExpectedDeliveryDate') === true && it.buyerExpectedDeliveryDate !== '' &&
           /[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/.test(it.buyerExpectedDeliveryDate) === true) {
           it.buyerExpectedDeliveryDate = moment(it.buyerExpectedDeliveryDate, "MM/DD/YYYY").format("MM/DD/YYYY");
@@ -116,7 +168,7 @@ module.exports = {
         if (_stores[0].isDefined("owner") === true && _stores[0].owner.typeObject() === "object")
           sellers = _stores[0].owner.firstName + " " + _stores[0].owner.lastName;
       }
-      // console.log(type, items, "\n\n");
+
       return exits.success({
         name: sellerName,
         sellerName: sellerName,
@@ -126,7 +178,8 @@ module.exports = {
         orderNumber: orderNumber,
         url: URL,
         paidDateTime,
-        grandTotal
+        grandTotal,
+        currency
       });
     }
     catch (e) {

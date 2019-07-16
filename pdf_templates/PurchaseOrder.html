@@ -230,10 +230,10 @@
     <% }else{ %>
     <div class="col col-1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
     <% } %>
-    <div class="col col-1"><%= it.itemCharges.weight %></div>
+    <div class="col col-1"><%= it.pricesCalc.quantity %></div>
     <div class="col col-1">KG</div>
-    <div class="col col-2"><%= ( it.itemCharges.price / currentExchangeRate ).toFixed(2) %> </div>
-    <div class="col col-1"><%= ( (it.itemCharges.weight * it.itemCharges.price) / currentExchangeRate ).toFixed(2)  %>
+    <div class="col col-2"><%= it.pricesCalc.price %> </div>
+    <div class="col col-1"><%=it.pricesCalc.amount  %>
     </div>
   </div>
   <%  } ) %>
@@ -242,7 +242,7 @@
       <span>Subtotal USD</span>
     </div>
     <div class="col col-5">
-      <span><%= ( Number(subTotal) / currentExchangeRate ).toFixed(2)  %></span>
+      <span><%=subTotal  %></span>
     </div>
   </div>
   <div class="subtotal" style="font-family: 'Arial';font-size: 10px">
@@ -250,7 +250,7 @@
       <span class="border"><b>TOTAL USD</b></span>
     </div>
     <div class="col col-5">
-      <span class="border"><%= ( Number(subTotal) / currentExchangeRate ).toFixed(2)  %></span>
+      <span class="border"><%=total %></span>
       <!-- <span class="border"><b>< ( Number(total) / currentExchangeRate ).toFixed(2) ></b></span> -->
     </div>
   </div>
