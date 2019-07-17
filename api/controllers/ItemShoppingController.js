@@ -1213,6 +1213,8 @@ module.exports = {
                         it.store = await Store.findOne({ id: it.fish.store });
                     }
                 }
+                if (typeof it.shoppingCart === 'object')
+                    it.shoppingCart = await ShoppingCart.findOne({ id: it.shoppingCart.id }).populate('clones');
                 return it;
             }));
 
