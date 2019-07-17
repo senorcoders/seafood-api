@@ -82,7 +82,7 @@ module.exports = {
     },
 
     newVersionBuyerInvoice: async (itemsShopping, cart, OrderNumber, version, id) => {
-        let _orderNumber = parseInt(OrderNumber.toString().replace(/,/g, '')) + 'R' +version;
+        let _orderNumber = parseInt(OrderNumber.toString().replace(/,/g, '')) + '-R' +version;
         let html = await processData(itemsShopping, cart, _orderNumber, 0, false, 'invoice_rx');
         let pdf_name = `invoice-order-${OrderNumber}-R${version}.pdf`;
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
