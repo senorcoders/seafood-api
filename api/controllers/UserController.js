@@ -151,8 +151,7 @@ module.exports = {
 
             let users = await User.find({ role: 1, status: "accepted" });
             users = users.map(user => {
-                delete user.token;
-                delete user.dataExtra;
+                delete user.token;                
                 delete user.certifications;
                 delete user.logos;
                 return user;
