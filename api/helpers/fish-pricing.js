@@ -132,14 +132,14 @@ module.exports = {
     console.info( 'current', currentAdminCharges );
     let fixedHanlingFees = currentAdminCharges.flatHandlingFees; // X
     let pickupLogistic = currentAdminCharges.pickupLogistics; // Y
+    let partnerFreightCost = currentAdminCharges.partnerFreightCosts; // Z
     let stock = await sails.helpers.getEtaStock( inputs.variation_id, weight ); // S | here we have the stock record plus available field = quantity - purchased
-    let partnerFreightCost = 0; // Z
     if( stock === 0 ) { // is out of stock
       partnerFreightCost = 0; 
       stock = { available: 1 };
     } else {
-      if( stock.hasOwnProperty( 'pickupCost' ) ) // for backwards compatibility, if no stock, then use 0
-        partnerFreightCost = stock.pickupCost
+      //if( stock.hasOwnProperty( 'pickupCost' ) ) // for backwards compatibility, if no stock, then use 0
+        //partnerFreightCost = stock.pickupCost
     }
 
     let inventoryFee = 0; // H
@@ -204,6 +204,9 @@ module.exports = {
         inventoryFeeByWeight,        
         marginPercentage,
         variation,
+        fixedHanlingFees,
+        pickupLogistic,
+        partnerFreightCost
       }
     } else {  // international products
       // inventory fee
@@ -288,6 +291,9 @@ module.exports = {
         inventoryFeeByWeight,   
         marginPercentage,
         variation,
+        fixedHanlingFees,
+        pickupLogistic,
+        partnerFreightCost
       }
     } // end international product
     

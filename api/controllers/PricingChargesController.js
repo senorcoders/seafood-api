@@ -38,6 +38,9 @@ module.exports = {
             let exchangeRateCommission = await PricingCharges.find( { where: { type: 'exchangeRateCommission' } } ).sort( 'updatedAt DESC' );
 
             let pickupLogistics = await PricingCharges.find( { where: { type: 'pickupLogistics' } } ).sort( 'updatedAt DESC' );
+
+            let partnerFreightCosts = await PricingCharges.find( { where: { type: 'partnerFreightCosts' } } ).sort( 'updatedAt DESC' );
+
             
             let data = {
                 "flatCustoms": flatCustoms,
@@ -48,7 +51,8 @@ module.exports = {
                 "flatHandlingFees": flatHandlingFees,
                 "exchangeRates": exchangeRates,
                 "exchangeRateCommission": exchangeRateCommission,
-                "pickupLogistics": pickupLogistics
+                "pickupLogistics": pickupLogistics,
+                "partnerFreightCosts": partnerFreightCosts
             }
             
             res.status(200).json( data );
@@ -79,7 +83,8 @@ module.exports = {
                 "flatHandlingFees": flatHandlingFees,
                 "exchangeRates": currentCharges.exchangeRates,
                 "exchangeRateCommission": currentCharges.exchangeRateCommission,
-                "pickupLogistics": currentCharges.pickupLogistics
+                "pickupLogistics": currentCharges.pickupLogistics,
+                "partnerFreightCosts": currentCharges.partnerFreightCosts
                 
             }
 
