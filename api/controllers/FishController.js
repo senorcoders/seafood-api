@@ -183,6 +183,9 @@ module.exports = {
     updateFishWithVariations: async (req, res) => {
         try {
             let body = req.body;
+            
+            if ( !body.hasOwnProperty( 'idProduct' ) || body.idProduct === undefined || body.idProduct === null || body.idProduct === '' )
+                res.json( { message: 'Product id not found' } );
 
             // let update fish information
             let fishBody = {
