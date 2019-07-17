@@ -62,7 +62,8 @@ const processData = async function (itemsShopping, cart, OrderNumber, uaeTaxes, 
             uaeTaxes: uaeTaxes,
             vatuaeTaxes: cart.uaeTaxes,
             api_url: api_url,
-            paid
+            paid,
+            cart
         }
     );
     return html;
@@ -81,7 +82,8 @@ module.exports = {
     },
 
     newVersionBuyerInvoice: async (itemsShopping, cart, OrderNumber, version, id) => {
-        let html = await processData(itemsShopping, cart, OrderNumber, 0, false, 'invoice_rx');
+        let _orderNumber = parseInt(OrderNumber.toString().replace(/,/g, '')) + 'R' +version;
+        let html = await processData(itemsShopping, cart, _orderNumber, 0, false, 'invoice_rx');
         let pdf_name = `invoice-order-${OrderNumber}-R${version}.pdf`;
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
