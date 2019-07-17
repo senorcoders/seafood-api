@@ -27,7 +27,10 @@ module.exports = {
       let data = {};
       await Promise.all( types.map( async ( type ) => {
         let value = await PricingCharges.find( { where: { "type": type } } ).sort( 'createdAt DESC' );
-        data[type] = value[0].price;
+        if( value.length > 0 )
+          data[type] = value[0].price;
+        else
+          data[type] = 0;
       })
       )
       return exits.success(data);
