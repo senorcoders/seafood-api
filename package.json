@@ -45,7 +45,7 @@
     "sails-hook-grunt": "^3.0.2"
   },
   "scripts": {
-    "start": "NODE_ENV=development sails_environment=prod node app.js",
+    "start": "NODE_ENV=development sails_environment=development node app.js",
     "staging": "NODE_ENV=development sails_environment=staging node app.js --port=8080",
     "dev": "NODE_ENV=development sails_environment=development node app.js --port=8000",
     "qa": "NODE_ENV=development sails_environment=qa node app.js --port=8081",
