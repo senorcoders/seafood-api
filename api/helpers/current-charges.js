@@ -22,7 +22,7 @@ module.exports = {
   fn: async function (inputs, exits) {
     try {
       
-      let types = [ 'flatCustoms', 'customs', 'lastMileCost', 'uaeTaxes', 'handlingFees', 'flatHandlingFees', 'exchangeRates', 'exchangeRateCommission', 'pickupLogistics' ];
+      let types = [ 'flatCustoms', 'customs', 'lastMileCost', 'uaeTaxes', 'handlingFees', 'flatHandlingFees', 'exchangeRates', 'exchangeRateCommission', 'pickupLogistics', 'partnerFreightCosts' ];
 
       let data = {};
       await Promise.all( types.map( async ( type ) => {

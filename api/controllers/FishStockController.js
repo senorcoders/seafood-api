@@ -36,8 +36,7 @@ module.exports = {
         let uVariation = {            
             date : req.body.unixDate,            
             short_date: req.body.etaDate,
-            quantity : req.body.quantity,
-            pickupCost : req.body.pickupCost           
+            quantity : req.body.quantity      
         };
         let fishStockID = req.body.fishStockID;
 
@@ -56,8 +55,7 @@ module.exports = {
             variations: req.body.sku,
             date : req.body.date,            
             short_date: req.body.short_date,
-            quantity : req.body.quantity,  
-            pickupCost : req.body.pickupCost          
+            quantity : req.body.quantity
         };
         let unixNow = Math.floor(new Date());
         let alreadyLive = await FishStock.find().where({
