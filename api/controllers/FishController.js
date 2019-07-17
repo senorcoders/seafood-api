@@ -168,7 +168,7 @@ module.exports = {
             //let variations = json.stringfy( req.body.variations ) ;
             mainFish = await getTRW(mainFish);
             let store = await Store.findOne(mainFish.store).populate('owner')
-            if (body.role == 0) { // if admin add the product is not needed to sent email for new product
+            if (body.role !== 0) { // if admin add the product is not needed to sent email for new product
                 await MailerService.newProductAddedSellerNotified(mainFish, store.owner);
                 await MailerService.newProductAddedAdminNotified(mainFish, store.owner);
             }
@@ -956,7 +956,7 @@ module.exports = {
                     m['outOfStock'] = true;
                     m.fish['minInventoryDate'] = outOfStockDate;
                 }
-                
+
                 let fish = m.fish;
                 // adding price range to filters response
                 let minPrice, maxPrice;
@@ -973,17 +973,17 @@ module.exports = {
                     minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minimumOrder, currentCharges, m.id, true);
                     maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maximumOrder, currentCharges, m.id, true);
                     minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minimumOrder).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
-                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maximumOrder ).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
-                    
+                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maximumOrder).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+
                 }
-                if( minPrice.finalPrice > maxPrice.finalPrice ) {
+                if (minPrice.finalPrice > maxPrice.finalPrice) {
                     m['minPrice'] = maxPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
                     m['maxPrice'] = minPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
                 } else {
                     m['minPrice'] = minPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
                     m['maxPrice'] = maxPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
-                }                   
-                
+                }
+
 
                 let req_minimumOrder = req.body.minimumOrder;
                 let req_maximumOrder = req.body.maximumOrder;
@@ -1051,7 +1051,7 @@ module.exports = {
                     m['minInventoryDate'] = coomingSoonDate;
                     productos.push(m);
                 }
-                
+
                 if (m.store === null)
                     return m;
 
@@ -1112,7 +1112,7 @@ module.exports = {
             //console.log('variations', variations.length);
             let unixNow = Math.floor(new Date());
             await Promise.all(variations.map(async function (m) {
-		    let currentVariationID = m.id;
+                let currentVariationID = m.id;
                 let inventory = await FishStock.find().where({
                     "date": { '>': unixNow },
                     "variations": m.id
@@ -1160,7 +1160,7 @@ module.exports = {
                     m['outOfStock'] = true;
                     m.fish['minInventoryDate'] = outOfStockDate;
                 }
-                if( m['outOfStock'] || m.fish['maximumOrder'] == 0 )
+                if (m['outOfStock'] || m.fish['maximumOrder'] == 0)
                     m.fish['minInventoryDate'] = coomingSoonDate;
                 //lets recreate old json format with Fish at the top and inside the variations
                 let fish = m.fish;
@@ -1188,12 +1188,14 @@ module.exports = {
                     minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minimumOrder, currentCharges, currentVariationID, true);
                     maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maximumOrder, currentCharges, currentVariationID, true);
                     minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minimumOrder).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
-                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maximumOrder ).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maximumOrder).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
 
                 }
+
                 //if (m.max === 0)
                     //maxPrice = minPrice;
                     
+
                 if (minPrice.finalPrice > maxPrice.finalPrice) {
                     m['minPrice'] = maxPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
                     m['maxPrice'] = minPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
@@ -1213,7 +1215,7 @@ module.exports = {
                 if (m.store === null)
                     return m;
 
-                m.store = await Store.findOne({ id: m.store }).populate('owner');                
+                m.store = await Store.findOne({ id: m.store }).populate('owner');
                 productos.push(m);
                 return m;
             }));
@@ -1221,7 +1223,7 @@ module.exports = {
                 return b.minInventoryDate < a.minInventoryDate ? 1 // if b should come earlier, push a to end
                     : b.minInventoryDate > a.minInventoryDate ? -1 // if b should come later, push a to begin
                         : -1;                   // a and b are equal
-            });            
+            });
 
             let arr = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' }).sort('name ASC'),
                 page_size = Number(req.params.limit), pages = 0;

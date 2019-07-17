@@ -237,6 +237,22 @@ module.exports = {
         let portOfLoading = await sails.helpers.portOfLoadingByCode(itemsShopping[0].fish.processingCountry, itemsShopping[0].fish.city);
         console.log(portOfLoading, "\n\n verver", subTotal, total);
         let paidDateTime = date; //new Date().toISOString();
+
+        //for currency of seller, change prices
+        let exchangeRates = Number(cart.currentCharges.exchangeRates);
+        let currency = '';
+        let calcs = await sails.helpers.calcsPrices.with({
+            items: itemsShopping,
+            exchangeRates,
+            forSeller: true
+        });
+        currency = calcs.currency;
+        itemsShopping = calcs.items;
+
+        //Para obtener el total y parsiar la fecha de pago
+        subTotal = currency === 'AED' ? Number(subTotal).toFixed(2) : (Number(subTotal) / exchangeRates).toFixed(2);
+        total = currency === 'AED' ? Number(total).toFixed(2) : (Number(total) / exchangeRates).toFixed(2);
+
         var html = await compiled(
             {
                 invoiceDueDate: date2,
@@ -258,7 +274,8 @@ module.exports = {
                 port_of_loading: portOfLoading.name,
                 incoterms,
                 subTotal,
-                total
+                total,
+                currency
             }
         );
         let pdf_name = `purchase-order-${orderNumber}-${date_name}-${counter}.pdf`;

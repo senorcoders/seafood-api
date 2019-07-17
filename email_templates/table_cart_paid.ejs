@@ -46,7 +46,7 @@
                                             <td>Origin</td>
                                             <td>Processing</td>
                                             <td>Qty (KG)</td>
-                                            <td>Total (AED)</td>
+                                            <td>Total (<%=currency %>)</td>
                                         </tr>
                                         <% items.forEach(function(it,index){ %>
                                         <tr>
@@ -104,29 +104,29 @@
                                                     style="display: block; padding:5px; padding-right: 0px; width: 100%; font-size: 12px;">Charges</span> -->
                                             </td>
                                             <td style="border-top-width: 0 !important;">
-                                                <%=it.quantity.value %>
+                                                <%=it.pricesCalc.quantity %>
                                             </td>
                                             <td style="border-top-width: 0 !important;">
                                                 <span> &nbsp;&nbsp;&nbsp;&nbsp; </span>
                                                 <span
                                                     style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
-                                                    <%=it.price %>
+                                                    <%=it.pricesCalc.price %>
                                                 </span>
                                                 <span
                                                     style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
-                                                    <%=it.subtotal %>
+                                                    <%=it.pricesCalc.subtotal %>
                                                 </span>
                                                 <span
                                                     style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
-                                                    <%=(Number(it.itemCharges.customsFee) + Number(it.itemCharges.exchangeRateCommission) + Number(it.itemCharges.sfsMarginCost)).toFixed(2) %>
+                                                    <%=it.pricesCalc.taxesAndCustoms %>
                                                 </span>
                                                 <span
                                                     style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
-                                                    <%=it.itemCharges.shippingCost.cost %>
+                                                    <%=it.pricesCalc.shippingHandles %>
                                                 </span>
                                                 <span
                                                     style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
-                                                    <%=it.itemCharges.uaeTaxesFee %>
+                                                    <%=it.pricesCalc.vat %>
                                                 </span>
                                                 <!-- <span
                                                     style="display: block; padding:5px; padding-right: 0px; margin-bottom: 1px; width: 100%; font-size: 12px; background-color: #d2d2d2;">
@@ -141,7 +141,7 @@
                                         <% }) %>
                                         <tr>
                                             <td colspan="3"></td>
-                                            <td>Grand Total (AED)</td>
+                                            <td>Grand Total (<%=currency %>)</td>
                                             <td>
                                                 <%=grandTotal %>
                                             </td>

@@ -60,6 +60,10 @@ module.exports = {
       type: 'json',
       required: false
     },  
+    unitOfMeasure: {
+      type: 'string',
+      required: false
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
