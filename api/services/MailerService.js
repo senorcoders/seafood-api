@@ -557,8 +557,7 @@ module.exports = {
             .then(res => {
                 transporter.sendMail({
                     from: emailSender,
-                    // to: cart.buyer.email,
-                    to: 'jos.ojiron@gmail.com',
+                    to: cart.buyer.email,
                     subject: `Order #${orderNumber} is Placed`,
                     html: res, // html body
                     attachments: [
