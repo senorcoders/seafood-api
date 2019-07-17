@@ -282,7 +282,9 @@ module.exports = {
             let fishPreparationTree = {};
 
             body.fishPreparationChilds.map( row => {
-                fishPreparationTree[ row.fishParent ] = row.fishPreparationChild;
+                if( row.fishPreparationChild !== null && row.fishPreparationChild !== undefined && row.fishPreparationChild !== '' ){
+                    fishPreparationTree[ row.fishParent ] = row.fishPreparationChild;
+                }
             })
 
             // updating fishtype with preparation, raised and treatment
