@@ -62,7 +62,8 @@ const processData = async function (itemsShopping, cart, OrderNumber, uaeTaxes, 
             uaeTaxes: uaeTaxes,
             vatuaeTaxes: cart.uaeTaxes,
             api_url: api_url,
-            paid
+            paid,
+            cart
         }
     );
     return html;
