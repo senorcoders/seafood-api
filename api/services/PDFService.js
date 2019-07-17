@@ -24,197 +24,90 @@ const verifiedWholeFishWeight = function (items) {
     return items;
 };
 
+//for process the html template to pdf
+const processData = async function (itemsShopping, cart, OrderNumber, uaeTaxes, paid, namePdf) {
+    itemsShopping = verifiedWholeFishWeight(itemsShopping);
+    var compiled = await ejs.compile(fs.readFileSync(__dirname + `/../../pdf_templates/${namePdf}.html`, 'utf8'));
+    console.log('cart', cart);
+    let today = new Date();
+    let date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
+    let paidDateTime = date;
+    let buyerContactPostalAddress = '';
+    //to get all data of postal and check if is defined
+    if (cart.shippingAddress !== null && cart.shippingAddress !== undefined)
+        buyerContactPostalAddress = `${cart.shippingAddress.address} ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`;
+    //vat, some times have ',', so quit ',' for that working well parseInt
+    let vat = cart.buyer.dataExtra.vat || 0;
+    vat = vat.toString().replace(/,/g, '');
+    var html = await compiled(
+        {
+            invoiceDueDate: paidDateTime,
+            invoiceDate: paidDateTime,
+            companyName: cart.buyer.dataExtra.companyName,
+            buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
+            buyerContactPostalAddress,
+            contactAccountNumber: '100552524900003',
+            InvoiceNumber: 'InvoiceNumber',
+            vat,
+            purchase_order_date: paidDateTime,
+            delivery_order_date: paidDateTime,
+            invoice_number: OrderNumber,
+            orderNumber: OrderNumber,
+            items: itemsShopping,
+            subTotal: cart.subTotal,
+            customHandlingFee: cart.totalOtherFees,
+            uaeTaxesFee: cart.uaeTaxes,
+            shippingFees: cart.shipping,
+            total: cart.total,
+            uaeTaxes: uaeTaxes,
+            vatuaeTaxes: cart.uaeTaxes,
+            api_url: api_url,
+            paid
+        }
+    );
+    return html;
+}
+
 module.exports = {
     buyerInvoice: async (itemsShopping, cart, OrderNumber, storeName, uaeTaxes, paid) => {
-        itemsShopping = verifiedWholeFishWeight(itemsShopping);
-        console.log('dir name', __dirname);
-        var compiled = await ejs.compile(fs.readFileSync(__dirname + '/../../pdf_templates/invoice.html', 'utf8'));
-        console.log('cart', cart);
-        //console.log( 'itemsShopping', itemsShopping );
-        //let today = cart.paidDatetime;
-        let today = new Date();
-        // date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-        date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
-        let paidDateTime = date;
-        let buyerContactPostalAddress = '';
-        if (cart.shippingAddress !== null && cart.shippingAddress !== undefined)
-            buyerContactPostalAddress = `${cart.shippingAddress.address} ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`;
-        var html = await compiled(
-            {
-                invoiceDueDate: paidDateTime,
-                invoiceDate: paidDateTime,
-                companyName: cart.buyer.dataExtra.companyName,
-                buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
-                buyerContactPostalAddress,
-                contactAccountNumber: '100552524900003',
-                InvoiceNumber: 'InvoiceNumber',
-                vat: cart.buyer.dataExtra.vat || 0,
-                purchase_order_date: paidDateTime,
-                delivery_order_date: paidDateTime,
-                invoice_number: OrderNumber,
-                orderNumber: OrderNumber,
-                items: itemsShopping,
-                subTotal: cart.subTotal,
-                customHandlingFee: cart.totalOtherFees,
-                uaeTaxesFee: cart.uaeTaxes,
-                shippingFees: cart.shipping,
-                total: cart.total,
-                uaeTaxes: uaeTaxes,
-                vatuaeTaxes: cart.uaeTaxes,
-                api_url: api_url,
-                paid
-            }
-        );
+        let html = await processData(itemsShopping, cart, OrderNumber, uaeTaxes, paid, 'invoice');
         let pdf_name = `invoice-order-${OrderNumber}.pdf`;
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
             MailerService.sendCartPaidBuyerNotified(itemsShopping, cart, OrderNumber, storeName, `invoice-order-${OrderNumber}.pdf`, OrderNumber);
-            let pdf_updated_1 = await ShoppingCart.update({ id: cart.id }, { invoice_pdf: pdf_name });
+            await ShoppingCart.update({ id: cart.id }, { invoice_pdf: pdf_name });
         });
-
         return pdf_name;
-
-
     },
 
     newVersionBuyerInvoice: async (itemsShopping, cart, OrderNumber, version, id) => {
-        itemsShopping = verifiedWholeFishWeight(itemsShopping);
-        console.log('dir name', __dirname);
-        var compiled = await ejs.compile(fs.readFileSync(__dirname + '/../../pdf_templates/invoice_rx.html', 'utf8'));
-        console.log('cart', cart);
-        //console.log( 'itemsShopping', itemsShopping );
-        //let today = cart.paidDatetime;
-        let today = new Date();
-        // date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-        date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
-        let paidDateTime = date;
-        var html = await compiled(
-            {
-                invoiceDueDate: paidDateTime,
-                invoiceDate: paidDateTime,
-                companyName: cart.buyer.dataExtra.companyName,
-                buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
-                buyerContactPostalAddress: `${cart.shippingAddress.address} ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
-                contactAccountNumber: '100552524900003',
-                InvoiceNumber: 'InvoiceNumber',
-                vat: cart.buyer.dataExtra.vat || 0,
-                purchase_order_date: paidDateTime,
-                delivery_order_date: paidDateTime,
-                invoice_number: OrderNumber,
-                orderNumber: OrderNumber,
-                items: itemsShopping,
-                subTotal: cart.subTotal,
-                customHandlingFee: cart.totalOtherFees,
-                uaeTaxesFee: cart.uaeTaxes,
-                shippingFees: cart.shipping,
-                total: cart.total,
-                uaeTaxes: 0,
-                vatuaeTaxes: cart.uaeTaxes,
-                api_url: api_url,
-                cart
-            }
-        );
+        let html = await processData(itemsShopping, cart, OrderNumber, 0, false, 'invoice_rx');
         let pdf_name = `invoice-order-${OrderNumber}-R${version}.pdf`;
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
             MailerService.sendCartPaidBuyerNotifiedRe(itemsShopping, cart, OrderNumber, pdf_name);
-            let pdf_updated_1 = await ShoppingCartClone.update({ id }, { invoice_pdf: pdf_name });
+            await ShoppingCartClone.update({ id }, { invoice_pdf: pdf_name });
         });
-
         return pdf_name;
-
-
     },
 
     buyerInvoiceCOD: async (itemsShopping, cart, OrderNumber, storeName, uaeTaxes) => {
-        itemsShopping = verifiedWholeFishWeight(itemsShopping);
-        console.log('dir name', __dirname);
-        var compiled = await ejs.compile(fs.readFileSync(__dirname + '/../../pdf_templates/invoice_cod.html', 'utf8'));
-        console.log('cart', cart);
-        //console.log( 'itemsShopping', itemsShopping );
-        //let today = cart.paidDatetime;
-        let today = new Date();
-        // date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-        date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
-
-        let paidDateTime = date;
-        var html = await compiled(
-            {
-                invoiceDueDate: paidDateTime,
-                invoiceDate: paidDateTime,
-                companyName: cart.buyer.dataExtra.companyName,
-                buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
-                buyerContactPostalAddress: `${cart.shippingAddress.address} ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
-                contactAccountNumber: '100552524900003',
-                InvoiceNumber: 'InvoiceNumber',
-                vat: cart.buyer.dataExtra.vat || 0,
-                purchase_order_date: paidDateTime,
-                delivery_order_date: paidDateTime,
-                invoice_number: OrderNumber,
-                orderNumber: OrderNumber,
-                items: itemsShopping,
-                subTotal: cart.subTotal,
-                customHandlingFee: cart.totalOtherFees,
-                uaeTaxesFee: cart.uaeTaxes,
-                shippingFees: cart.shipping,
-                total: cart.total,
-                uaeTaxes: uaeTaxes,
-                vatuaeTaxes: cart.uaeTaxes,
-                api_url: api_url
-            }
-        );
-
+        let html = await processData(itemsShopping, cart, OrderNumber, uaeTaxes, false, 'invoice_cod');
         let pdf_name = `invoice-order-${OrderNumber}.pdf`;
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
             MailerService.sendCartPaidBuyerNotified(itemsShopping, cart, OrderNumber, storeName, `invoice-order-${OrderNumber}.pdf`, OrderNumber);
-            let pdf_updated_1 = await ShoppingCart.update({ id: cart.id }, { invoice_pdf: pdf_name });
+            await ShoppingCart.update({ id: cart.id }, { invoice_pdf: pdf_name });
         });
-
         return pdf_name;
     },
     buyerInvoiceCODPaid: async (itemsShopping, cart, OrderNumber, storeName, uaeTaxes) => {
-        itemsShopping = verifiedWholeFishWeight(itemsShopping);
-        console.log('dir name', __dirname);
-        var compiled = await ejs.compile(fs.readFileSync(__dirname + '/../../pdf_templates/invoice_cod_paid.html', 'utf8'));
-
-        console.log('cart', cart);
-        //console.log( 'itemsShopping', itemsShopping );
-        //let today = cart.paidDatetime;
-        let today = new Date();
-        // date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-        date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
-        let paidDateTime = date;
-        var html = await compiled(
-            {
-                invoiceDueDate: paidDateTime,
-                invoiceDate: paidDateTime,
-                companyName: cart.buyer.dataExtra.companyName,
-                buyerContactName: cart.buyer.firstName + ' ' + cart.buyer.lastName,
-                buyerContactPostalAddress: `${cart.shippingAddress.address} ${cart.shippingAddress.city}, ${cart.shippingAddress.country}`,
-                contactAccountNumber: '100552524900003',
-                InvoiceNumber: 'InvoiceNumber',
-                vat: cart.buyer.dataExtra.vat || 0,
-                purchase_order_date: paidDateTime,
-                delivery_order_date: paidDateTime,
-                invoice_number: OrderNumber,
-                orderNumber: OrderNumber,
-                items: itemsShopping,
-                subTotal: cart.subTotal,
-                customHandlingFee: cart.totalOtherFees,
-                uaeTaxesFee: cart.uaeTaxes,
-                shippingFees: cart.shipping,
-                total: cart.total,
-                uaeTaxes: uaeTaxes,
-                vatuaeTaxes: cart.uaeTaxes,
-                api_url: api_url
-            }
-        );
+        let html = await processData(itemsShopping, cart, OrderNumber, uaeTaxes, false, 'invoice_cod_paid');
         let pdf_name = `invoice-order-cod-delivered-${OrderNumber}.pdf`;
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
             MailerService.sendCartPaidBuyerNotifiedCOD(itemsShopping, cart, OrderNumber, storeName, pdf_name, OrderNumber);
-            let pdf_updated_1 = await ShoppingCart.update({ id: cart.id }, { invoice_pdf: pdf_name });
+            await ShoppingCart.update({ id: cart.id }, { invoice_pdf: pdf_name });
         });
 
         return pdf_name;
