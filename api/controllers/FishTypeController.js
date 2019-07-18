@@ -330,9 +330,10 @@ module.exports = {
             if ( categories.hasOwnProperty('fishPreparation') ) {
                 let fishPreparationInfo = [];
                 let fishVariations = [];
+                categories['hasPreparation'] = false;
                 await Promise.all( Object.keys( categories.fishPreparation ).map( async ( category, index ) => {
                     let preparation = await FishPreparation.findOne().where( { id: category } );
-
+                    let hasPreparation = false;
                     //let's check all child preparation
                     await Promise.all( categories.fishPreparation[category].map ( async child => {
                         //let preparation = await FishPreparation.findOne().where( { id: child } );
@@ -342,15 +343,21 @@ module.exports = {
                                 type: category_id,
                                 preparation: child
                             });
-                            if ( variations !== null )
+                            if ( variations !== null ) {
                                 fishVariations.push( variations );
+                                hasPreparation = true;
+                            }
                         }
                     } ) ) 
+                    
+                    categories['hasPreparation'] = hasPreparation;
 
                     fishPreparationInfo.push( preparation );
                 } ));
                 categories['fishPreparationInfo'] = fishPreparationInfo;
                 categories['variations'] = fishVariations;
+            } else {
+                categories['hasPreparation'] = false;
             }
 
             if( categories.hasOwnProperty( 'raised' ) ) {
@@ -359,6 +366,9 @@ module.exports = {
                     fishRaisedInfo.push( await Raised.findOne().where({ id: item }) );
                 } ) )
                 categories['raisedInfo'] = fishRaisedInfo;
+                categories['hasRaised'] = true;
+            } else {
+                categories['hasRaised'] = false;
             }
 
             if( categories.hasOwnProperty('treatment') ) {
@@ -367,9 +377,16 @@ module.exports = {
                     treatmentInfo.push( await Treatment.findOne().where( { id: item } ) )
                 } ) )
                 categories['treatmentInfo'] = treatmentInfo;
+                categories['hasTreatment'] = true;
+            } else {
+                categories['hasTreatment'] = false;
             }
 
-
+            if( !categories['hasPreparation'] || !categories['hasTreatment'] || !categories['hasRaised'] )
+                categories['hasSetup'] = false;
+            else 
+                categories['hasSetup'] = true;
+            
             res.json( categories );
             
         } catch (error) {
