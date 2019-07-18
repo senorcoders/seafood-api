@@ -731,10 +731,7 @@ module.exports = {
             itemsShopping = await Promise.all(itemsShopping.map(async function (it) {
                 it = await concatNameVariation(it);
                 it.description = await getDescription(it);
-                result = await sails.helpers.updateFishStatus.with({
-                    id: it.fish.id,
-                    is_cron: false
-                });
+                
 
                 //add fish current to item
                 await ItemShopping.update({ id: it.id }, { fishCurrent: it.fish });
