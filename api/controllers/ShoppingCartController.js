@@ -129,7 +129,7 @@ module.exports = {
 
                 //group items by seller
                 shippingItems = [];
-                await Promise.all(cart.items.map(async item => {
+                await Promise.all(cart.items.map(async (item, indexItem) => {
 
                     if ( item.variation ) { // validate variation still exists
                         let itemStore = await Fish.findOne({ id: item.fish }).populate('store');
@@ -164,6 +164,7 @@ module.exports = {
                         }
                     } else {
                         await ItemShopping.destroy( { id: item.id } );
+                        delete cart.items[indexItem]
                     }
 
                     
