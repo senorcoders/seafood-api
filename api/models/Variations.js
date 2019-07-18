@@ -17,6 +17,21 @@ module.exports = {
       unique: true,
       required: true
     },
+    stockStatus: {
+      type: "string",
+      description: `
+        inStock
+        outOfStock,        
+      `
+    },
+    minDeliveryUnixDate: {
+      type: 'number',
+      required: false
+    },
+    orderStatus: {
+      type: 'number',
+      required: false
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
