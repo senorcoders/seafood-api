@@ -130,36 +130,43 @@ module.exports = {
                 //group items by seller
                 shippingItems = [];
                 await Promise.all(cart.items.map(async item => {
-                    let itemStore = await Fish.findOne({ id: item.fish }).populate('store');
-                    let boxesNumbers = item.quantity.value;
-                    if (itemStore.hasOwnProperty("perBox")) {
-                        if (itemStore.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
-                            boxesNumbers = item.quantity.value / itemStore.boxWeight;
-                        }
-                    }
-                    let fishCharges = await sails.helpers.fishPricing(item.fish, boxesNumbers, currentAdminCharges, item.variation, in_AED)
-                    item.fish = itemStore;
-                    item.store = itemStore.store.id;
-                    item.country = itemStore.country;
-                    item.city = itemStore.city;
-                    item.fishCharges = fishCharges;
 
-                    //order items by store and putting them into shippingItems
-                    let storeIsThere = false
-                    let storeIndex = 0;
-                    await Promise.all(shippingItems.map((shippingItem, index) => {
-                        if (shippingItem.store == itemStore.store.id) {
-                            storeIsThere = true;
-                            storeIndex = index;
+                    if ( item.variation ) { // validate variation still exists
+                        let itemStore = await Fish.findOne({ id: item.fish }).populate('store');
+                        let boxesNumbers = item.quantity.value;
+                        if (itemStore.hasOwnProperty("perBox")) {
+                            if (itemStore.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
+                                boxesNumbers = item.quantity.value / itemStore.boxWeight;
+                            }
                         }
-                        return shippingItem;
-                    }))
-                    if (!storeIsThere) {
-                        shippingItems.push({ store: itemStore.store.id, items: [] });
-                        shippingItems[shippingItems.length - 1].items.push(item);
+                        let fishCharges = await sails.helpers.fishPricing(item.fish, boxesNumbers, currentAdminCharges, item.variation, in_AED)
+                        item.fish = itemStore;
+                        item.store = itemStore.store.id;
+                        item.country = itemStore.country;
+                        item.city = itemStore.city;
+                        item.fishCharges = fishCharges;
+    
+                        //order items by store and putting them into shippingItems
+                        let storeIsThere = false
+                        let storeIndex = 0;
+                        await Promise.all(shippingItems.map((shippingItem, index) => {
+                            if (shippingItem.store == itemStore.store.id) {
+                                storeIsThere = true;
+                                storeIndex = index;
+                            }
+                            return shippingItem;
+                        }))
+                        if (!storeIsThere) {
+                            shippingItems.push({ store: itemStore.store.id, items: [] });
+                            shippingItems[shippingItems.length - 1].items.push(item);
+                        } else {
+                            shippingItems[storeIndex].items.push(item);
+                        }
                     } else {
-                        shippingItems[storeIndex].items.push(item);
+                        await ItemShopping.delete( { id: item.id } );
                     }
+
+                    
 
                 }))
 
@@ -724,6 +731,10 @@ module.exports = {
             itemsShopping = await Promise.all(itemsShopping.map(async function (it) {
                 it = await concatNameVariation(it);
                 it.description = await getDescription(it);
+                result = await sails.helpers.updateFishStatus.with({
+                    id: it.fish.id,
+                    is_cron: false
+                });
 
                 //add fish current to item
                 await ItemShopping.update({ id: it.id }, { fishCurrent: it.fish });
