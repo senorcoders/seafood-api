@@ -156,6 +156,20 @@ module.exports = {
       type: "boolean",
       defaultsTo: false
     },
+    stockStatus: {
+      type: "string",
+      description: `
+        inStock: 1
+        outOfStock: 2,
+        comingSoo: 3
+      `
+    },
+    orderStatus: {
+      type: 'number'
+    },
+    minDeliveryUnixDate: {
+      type: 'number'
+    },
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝

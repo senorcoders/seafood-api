@@ -732,8 +732,7 @@ module.exports = {
             itemsShopping = await Promise.all(itemsShopping.map(async function (it) {
                 it = await concatNameVariation(it);
                 it.description = await getDescription(it);
-                
-
+                                
                 //add fish current to item
                 await ItemShopping.update({ id: it.id }, { fishCurrent: it.fish });
                 it.fishCurrent = it.fish;
@@ -744,13 +743,19 @@ module.exports = {
                     await FishStock.update({ id: it.inventory }).set({
                         purchased: inventory.purchased + parseFloat(it['quantity']['value'])
                     });
-                    let stock = await sails.helpers.getEtaStock(it.variation, 1);
 
-                    if (stock === 0) {
+                    // let's update fish stock status
+                    await sails.helpers.updateFishStatus.with({
+                        id: it.fish.id,
+                        is_cron: false
+                    });
+                    let stock = await sails.helpers.getEtaStock(it.variation, it.fish.minimumOrder);
+
+                    if (stock === 0) {                        
                         fish = await Variations.findOne({ id: it.variation }).populate('fish').populate('fishPreparation');
                         await MailerService.outOfStockNotification([fish]);
                     }
-                    it.inventory = inventory;
+                    it.inventory = inventory;                    
                 }
 
                 return it;

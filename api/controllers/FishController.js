@@ -902,7 +902,7 @@ module.exports = {
             fish_where['status'] = '5c0866f9a0eda00b94acbdc2'; // just published products please
             // end fish filters
             console.log('fish_where', fish_where);
-            let fishes = await Fish.find(fish_where);
+            let fishes = await Fish.find(fish_where).sort( [ { orderStatus: 'ASC' }, { minDeliveryUnixDate: 'ASC' } ] );
 
             let products_ids = [];
             fishes.map((item) => {
@@ -911,7 +911,7 @@ module.exports = {
 
             let productos = [];
             variation_where['fish'] = products_ids;
-            let res_variations = await Variations.find(variation_where).populate('fish').populate('fishPreparation').populate('wholeFishWeight');
+            let res_variations = await Variations.find(variation_where).populate('fish').populate('fishPreparation').populate('wholeFishWeight').sort( 'minDeliveryUnixDate ASC' );
             console.log('variations', res_variations.length);
             let unixNow = Math.floor(new Date());
 
@@ -947,7 +947,8 @@ module.exports = {
                 }
 
                 m['outOfStock'] = false;
-                if (minMaxInventory.length > 0) {
+                //if (minMaxInventory.length > 0) {
+                if (minMaxInventory.length > 0 && Math.max.apply(null, minMaxInventory) > 0 ) { 
                     if(  Math.max.apply(null, minMaxInventory) > 0 ) {
                         m['max'] = Math.max.apply(null, minMaxInventory) // 4
                         m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
@@ -1103,7 +1104,9 @@ module.exports = {
             coomingSoonDate.setDate(today.getDate() + 200);
             let start = Number(req.params.page);
             --start;
-            let publishedProducts = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' }).sort('name ASC').paginate({ page: start, limit: req.params.limit });
+            let publishedProducts = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' })
+            .sort( 'minDeliveryUnixDate ASC' )
+            .paginate({ page: start, limit: req.params.limit })
             let currentCharges = await sails.helpers.currentCharges();
             let products_ids = [];
             publishedProducts.map((item) => {
@@ -1111,7 +1114,7 @@ module.exports = {
             });
             let minMaxVariationPrices = [];
             let productos = [];
-            let variations = await Variations.find({ fish: products_ids }).populate('fish').populate('fishPreparation').populate('wholeFishWeight');
+            let variations = await Variations.find().where({ fish: products_ids }).populate('fish').populate('fishPreparation').populate('wholeFishWeight').sort( 'minDeliveryUnixDate DESC' );
             //console.log('variations', variations.length);
             let unixNow = Math.floor(new Date());
             await Promise.all(variations.map(async function (m) {
@@ -1150,7 +1153,7 @@ module.exports = {
                     m['min'] = Math.min.apply(null, minMax) // 1
                 }
 
-                if (minMaxInventory.length > 0 ) {
+                if (minMaxInventory.length > 0 && Math.max.apply(null, minMaxInventory) > 0 ) {                    
                     if(  Math.max.apply(null, minMaxInventory) > 0 ) {
                         m['max'] = Math.max.apply(null, minMaxInventory) // 4
                         m.fish['maximumOrder'] = Math.max.apply(null, minMaxInventory);
@@ -1222,13 +1225,14 @@ module.exports = {
                 productos.push(m);
                 return m;
             }));
+            // the sort is in the database now
             productos = productos.sort(function IHaveAName(a, b) { // non-anonymous as you ordered...
-                return b.minInventoryDate < a.minInventoryDate ? 1 // if b should come earlier, push a to end
-                    : b.minInventoryDate > a.minInventoryDate ? -1 // if b should come later, push a to begin
+                return b.minDeliveryUnixDate < a.minDeliveryUnixDate ? 1 // if b should come earlier, push a to end
+                    : b.minDeliveryUnixDate > a.minDeliveryUnixDate ? -1 // if b should come later, push a to begin
                         : -1;                   // a and b are equal
             });
 
-            let arr = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' }).sort('name ASC'),
+            let arr = await Fish.find({ status: '5c0866f9a0eda00b94acbdc2' }).sort( 'minDeliveryUnixDate ASC' ),
                 page_size = Number(req.params.limit), pages = 0;
             //console.log(arr.length, Number(arr.length / page_size));
             if (parseInt(arr.length / page_size, 10) < Number(arr.length / page_size)) {
