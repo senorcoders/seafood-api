@@ -163,7 +163,7 @@ module.exports = {
                             shippingItems[storeIndex].items.push(item);
                         }
                     } else {
-                        await ItemShopping.delete( { id: item.id } );
+                        await ItemShopping.destroy( { id: item.id } );
                     }
 
                     
