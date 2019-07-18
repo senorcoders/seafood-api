@@ -22,9 +22,14 @@ module.exports = {
                 .populate('wholeFishWeight')
 
             stock['variations'] = variation;
+            // let's update fish stock status
+            await sails.helpers.updateFishStatus.with({
+                id: variation.fish.id,
+                is_cron: false
+            });
             return stock;
         } ) )
-
+        
         return res.status(200).json( stocks );
     },     
     testETAStock: async (req, res) => {
