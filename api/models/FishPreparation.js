@@ -45,5 +45,17 @@ module.exports = {
 
   },
 
+  beforeCreate: async (fishpreparation, next) => {
+    try {
+      let identifier = fishpreparation.name.toLowerCase().replace(/[/()]/g, '').replace(/ /g, '_');
+      fishpreparation.identifier = identifier;
+      next();
+    }
+    catch (e) {
+      console.error(e);
+      next(e);
+    }
+  }
+
 };
 

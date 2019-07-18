@@ -46,5 +46,17 @@ module.exports = {
 
   },
 
+  beforeCreate: async (orderstatus, next) => {
+    try {
+      let identifier = orderstatus.status.toLowerCase().replace(/[/()]/g, '').replace(/ /g, '_');
+      orderstatus.identifier = identifier;
+      next();
+    }
+    catch (e) {
+      console.error(e);
+      next(e);
+    }
+  }
+
 };
 
