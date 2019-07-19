@@ -32,6 +32,10 @@ module.exports = {
       type: 'string',
       required: false
     },
+    isActive: {
+      type: 'boolean',
+      defaultsTo : true
+    },
 
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗

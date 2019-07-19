@@ -529,6 +529,15 @@ module.exports.routes = {
   'GET /fishpreparation/childs': 'FishPreparation.getFishPreparationChilds',
 
   'POST /fishtype/:category_id/setup': 'FishType.saveCategorySetup',
+
+  'DELETE /api/fishpreparation/:id': 'FishPreparation.delete',
+  'DELETE /api/raised/:id': 'Raised.delete',
+
+  'DELETE /api/treatment/:id': 'Treatment.delete',
+  
+  'DELETE /api/fishvariations/:id': 'FishVariations.delete',
+  'DELETE /api/wholefishweight/:id': 'WholeFishWeight.delete',
+  
   /*****
    * 
    * DOSUSIGN
