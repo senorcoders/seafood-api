@@ -39,6 +39,9 @@ module.exports = {
   beforeCreate: async (wholefishweight, next) => {
     try {
       let identifier = wholefishweight.name.toLowerCase().replace(/[/()]/g, '').replace(/ /g, '_');
+      let counts = await WholeFishWeight.count({ identifier });
+      if (counts > 0)
+        identifier += '_' + counts;
       wholefishweight.identifier = identifier;
       next();
     }
