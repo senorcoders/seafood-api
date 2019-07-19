@@ -36,5 +36,17 @@ module.exports = {
 
   },
 
+  beforeCreate: async (wholefishweight, next) => {
+    try {
+      let identifier = wholefishweight.name.toLowerCase().replace(/[/()]/g, '').replace(/ /g, '_');
+      wholefishweight.identifier = identifier;
+      next();
+    }
+    catch (e) {
+      console.error(e);
+      next(e);
+    }
+  }
+
 };
 

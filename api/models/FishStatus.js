@@ -31,5 +31,17 @@ module.exports = {
 
   },
 
+  beforeCreate: async (fishstatus, next) => {
+    try {
+      let identifier = fishstatus.status.toLowerCase().replace(/[/()]/g, '').replace(/ /g, '_');
+      fishstatus.identifier = identifier;
+      next();
+    }
+    catch (e) {
+      console.error(e);
+      next(e);
+    }
+  }
+
 };
 
