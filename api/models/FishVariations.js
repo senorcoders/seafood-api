@@ -16,6 +16,10 @@ module.exports = {
       type: 'json',
       required: true
     },
+    isActive: {
+      type: 'boolean',      
+      defaultsTo : true
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
