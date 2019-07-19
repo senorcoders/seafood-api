@@ -75,7 +75,7 @@ module.exports = {
       currency = calcs.currency;
       items = calcs.items;
       grandTotal = currency === 'AED' ? Number(cart.total).toFixed(2) : (Number(cart.total) / exchangeRates).toFixed(2);
-
+      console.log('\n\n currency', currency, '\n\n');
 
       let paidDateTime = "";
       if (cart.isDefined("paidDateTime") && cart.paidDateTime !== '') {
@@ -129,7 +129,7 @@ module.exports = {
         orderNumber: orderNumber,
         url: URL,
         paidDateTime,
-        grandTotal,
+        grandTotal, 
         currency
       });
     }
