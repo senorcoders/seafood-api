@@ -71,7 +71,9 @@ const processData = async function (itemsShopping, cart, OrderNumber, uaeTaxes, 
 
 module.exports = {
     buyerInvoice: async (itemsShopping, cart, OrderNumber, storeName, uaeTaxes, paid) => {
+        console.log('\n\n total', JSON.parse( JSON.stringify(cart) ).total);
         let html = await processData(itemsShopping, cart, OrderNumber, uaeTaxes, paid, 'invoice');
+        console.log('\n\n total__', JSON.parse( JSON.stringify(cart) ).total);
         let pdf_name = `invoice-order-${OrderNumber}.pdf`;
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
