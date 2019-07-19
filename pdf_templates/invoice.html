@@ -184,14 +184,16 @@
     <img src="<%= api_url %>/seafood-black.png" alt="">
   </div>
   <div class="align-right" style="font-size: 10px;font-family: arial">
+    <% if(paid===true){ %>
     <h1 class="paid" style="font-size: 24px;">PAID</h1>
+    <% } %>
   </div>
   <div class="row" style="font-size: 10px;font-family: arial">
     <div class="col col-5">
       <% if(paid!==true){ %>
-      <h3 style="font-size: 20px">TAX INVOICE</h3>
-      <% } else{ %>
       <h3 style="font-size: 20px">PROFORMA INVOICE</h3>
+      <% } else{ %>
+      <h3 style="font-size: 20px">TAX INVOICE</h3>
       <% } %>
       <p><%= companyName %><br>
         <%= buyerContactName %><br>
@@ -235,7 +237,7 @@
       </thead>
       <tbody>
         <% items.forEach(function(it,index){ %>
-        <tr style="border-bottom: gray 1px solid;"> 
+        <tr style="border-bottom: gray 1px solid;">
           <td class="col col-2">
             <%= it.description %>
           </td>
@@ -299,7 +301,7 @@
       <span><%=shippingFees %></span>
     </div>
   </div>
-  
+
   <div class="subtotal" style="font-family: 'Arial';font-size: 10px;">
     <div class="col col-90 padding-right">
       <span>VAT(<%= uaeTaxes %>%)</span>
