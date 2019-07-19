@@ -632,5 +632,8 @@ module.exports.routes = {
   // 'GET /api/v2/itemshopping/payed/:orderNumber': 'ItemShoppingController.getPayedItemsByOrderNumber',
   'PUT /user/resendemail': 'UserController.resendEmail',
 
+  //get data of data is important fron front-end, is necesary for indicate id y types
+  'GET /api/v2/get-data': { action: 'get-data' },
+
   //#endregion
 };

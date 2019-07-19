@@ -85,5 +85,17 @@ module.exports = {
 
   },
 
+  beforeCreate: async (fishtype, next) => {
+    try {
+      let identifier = fishtype.name.toLowerCase().replace(/[/()]/g, '').replace(/ /g, '_');
+      fishtype.identifier = identifier;
+      next();
+    }
+    catch (e) {
+      console.error(e);
+      next(e);
+    }
+  }
+
 };
 

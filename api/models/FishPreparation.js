@@ -18,7 +18,7 @@ module.exports = {
     },
     isTrimming: {
       type: "boolean",
-      defaultsTo : false
+      defaultsTo: false
     },
     defaultProccessingParts: {
       type: 'json',
@@ -27,12 +27,12 @@ module.exports = {
     prepType: {
       type: 'json',
       required: false
-    },  
+    },
     parent: {
       type: 'string',
       required: false
     },
-    
+
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
@@ -44,6 +44,21 @@ module.exports = {
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
 
   },
+
+  beforeCreate: async (fishpreparation, next) => {
+    try {
+      let identifier = fishpreparation.name.toLowerCase().replace(/[/()]/g, '').replace(/ /g, '_');
+      let counts = await FishPreparation.count({ identifier });
+      if (counts > 0)
+        identifier += '_' + counts;
+      fishpreparation.identifier = identifier;
+      next();
+    }
+    catch (e) {
+      console.error(e);
+      next(e);
+    }
+  }
 
 };
 
