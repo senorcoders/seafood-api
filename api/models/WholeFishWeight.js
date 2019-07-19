@@ -14,7 +14,7 @@ module.exports = {
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
     name: {
       type: 'string',
-      required: true
+      required: false
     },
     min: {
       type: 'number',
@@ -23,6 +23,10 @@ module.exports = {
     max: {
       type: 'number',
       required: false
+    },
+    isActive: {
+      type: 'boolean',
+      defaultsTo : true
     }
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗

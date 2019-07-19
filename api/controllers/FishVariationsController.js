@@ -22,6 +22,16 @@ module.exports = {
         } catch (error) {
             res.serverError( error );
         }
+    },
+    delete: async (req, res) => {
+        try {
+            let id = req.param('id');
+
+            await FishVariations.update( { id }, { isActive: false } )
+            return res.send( { "message": "Raise deleted" } )
+        } catch (error) {
+            res.serverError(error)
+        }
     }
 };
 

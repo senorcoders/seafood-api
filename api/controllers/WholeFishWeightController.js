@@ -7,6 +7,15 @@
 
 module.exports = {
   
+    delete: async (req, res) => {
+        try {
+            let id = req.param('id');
 
+            await WholeFishWeight.update( { id }, { isActive: false } )
+            return res.send( { "message": "Variation deleted" } )
+        } catch (error) {
+            res.serverError(error)
+        }
+    }
 };
 
