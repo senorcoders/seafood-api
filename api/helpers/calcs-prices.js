@@ -51,7 +51,7 @@ module.exports = {
         quantity = it.itemCharges.weight;
 
         //if currency is AED, is no necesary calc
-        if (currency === 'AED') currency = 1;
+        if (currency === 'AED') exchangeRate = 1;
 
         price = (Number(it.price) / exchangeRate).toFixed(2);
         subtotal = (Number(it.subtotal) / exchangeRate).toFixed(2);;
