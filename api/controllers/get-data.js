@@ -1,4 +1,3 @@
-
 module.exports = {
 
 
@@ -37,11 +36,11 @@ module.exports = {
           continue;
         else if (indicates.length === 1) //if is just name so get all data of model
           data[indicates[0]] = await sails.models[indicates[0]].find();
-        else if (indicates.length === 2){ //if is length get only one document
+        else if (indicates.length === 2) { //if is length get only one document
           data[indicates[0]] = {
             [indicates[1]]: await sails.models[indicates[0]].findOne({ identifier: indicates[1] })
           };
-        }else if (indicates.length > 2) { //major than 2 get more one
+        } else if (indicates.length > 2) { //major than 2 get more one
           data[indicates[0]] = {};
           for (let i = 1; i < indicates.length; i++) {
             data[indicates[0]][indicates[i]] = await sails.models[indicates[0]].findOne({ identifier: indicates[i] })
