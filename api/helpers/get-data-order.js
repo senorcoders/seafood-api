@@ -74,8 +74,8 @@ module.exports = {
       });
       currency = calcs.currency;
       items = calcs.items;
-      grandTotal = currency === 'AED' ? Number(cart.total).toFixed(2) : (Number(cart.total) / exchangeRates).toFixed(2);
-      console.log('\n\n currency', currency, '\n\n');
+      let total_ = cart.total.toString().replace(/,/g, '');
+      grandTotal = currency === 'AED' ? Number(total_).toFixed(2) : (Number(total_) / exchangeRates).toFixed(2);
 
       let paidDateTime = "";
       if (cart.isDefined("paidDateTime") && cart.paidDateTime !== '') {
