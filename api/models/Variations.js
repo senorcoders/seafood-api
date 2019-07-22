@@ -45,6 +45,10 @@ module.exports = {
       model: "fishPreparation",
       required: true
     },
+    parentFishPreparation: {
+      model: "fishPreparation",
+      required: true
+    },
     fish: {
       model: "fish",
       required: true
