@@ -129,7 +129,7 @@ module.exports = {
 
                     let newVariation = {
                         sku: skuVar,
-                        fishPreparation: variation.parentFishPreparation,
+                        parentFishPreparation: variation.parentFishPreparation,
                         fishPreparation: variation.fishPreparation,
                         fish: mainFish.id
                     }
@@ -367,11 +367,18 @@ module.exports = {
 
             // sort fish variations for app
             fishVariations = fishVariations.sort( (a, b) => { // non-anonymous as you ordered...
-                return b.fishPreparation.name < a.fishPreparation.name ? 1 // if b should come earlier, push a to end
-                    : b.fishPreparation.name > a.fishPreparation.name ? -1 // if b should come later, push a to begin
-                        : -1;                   // a and b are equal
+                var textA = a.wholeFishWeight.name.toUpperCase();
+                var textB = b.wholeFishWeight.name.toUpperCase();
+                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+                
             });
-
+            variations = variations.sort( (a, b) => { // non-anonymous as you ordered...
+                var textA = a.wholeFishWeight.name.toUpperCase();
+                var textB = b.wholeFishWeight.name.toUpperCase();
+                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+                
+            });
+            fishVariations = []
 
             let useOne = false;
             if (variations.length == 0) {
@@ -1095,6 +1102,26 @@ module.exports = {
                     variationsGrouped[ String(row.id) ].count += 1;
             } );
 
+            // let's order the group of variations in each product
+            Object.keys(variationsGrouped).map( (product) => {                                            
+                if (variationsGrouped[product].variations.length >= 1 ){                
+                    variationsGrouped[product].variations = variationsGrouped[product].variations.sort( (a, b) => { // non-anonymous as you ordered...
+                        // ordernamos por whole fish weight, in old product could not have a wholeFishWeight
+                        if( a.variation.wholeFishWeight !== undefined && a.variation.wholeFishWeight !== null && b.variation.wholeFishWeight !== undefined && b.variation.wholeFishWeight !== null  ) {
+                            var textA = a.variation.wholeFishWeight.name.toUpperCase();
+                            var textB = b.variation.wholeFishWeight.name.toUpperCase();
+                            return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+    
+                        } else {
+                            var textA = a.variation.fishPreparation.name.toUpperCase();
+                            var textB = b.variation.fishPreparation.name.toUpperCase();
+                            return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+                        }
+                        
+                    });
+                }                    
+              } )
+
             return res.json(variationsGrouped)
 
 
@@ -1270,6 +1297,26 @@ module.exports = {
                     variationsGrouped[ String(row.id) ].variations.push( row );
                     variationsGrouped[ String(row.id) ].count += 1;
                 } );
+                // let's order the group of variations in each product
+                Object.keys(variationsGrouped).map( (product) => {                                            
+                        if (variationsGrouped[product].variations.length >= 1 ){                
+                            variationsGrouped[product].variations = variationsGrouped[product].variations.sort( (a, b) => { // non-anonymous as you ordered...
+                                // ordernamos por whole fish weight, in old product could not have a wholeFishWeight
+                                if( a.variation.wholeFishWeight !== undefined && a.variation.wholeFishWeight !== null && b.variation.wholeFishWeight !== undefined && b.variation.wholeFishWeight !== null  ) {
+                                    var textA = a.variation.wholeFishWeight.name.toUpperCase();
+                                    var textB = b.variation.wholeFishWeight.name.toUpperCase();
+                                    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+            
+                                } else {
+                                    var textA = a.variation.fishPreparation.name.toUpperCase();
+                                    var textB = b.variation.fishPreparation.name.toUpperCase();
+                                    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+                                }
+                                
+                            });
+                        }                    
+                } )
+                
                 
 
                 res.json({ variationsGrouped, pagesNumber: pages });
