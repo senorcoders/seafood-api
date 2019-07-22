@@ -7,6 +7,15 @@
 
 module.exports = {
   
+    delete: async (req, res) => {
+        try {
+            let id = req.param('id');
 
+            await UnitOfMeasure.update( { id }, { isActive: false } )
+            return res.send( { "message": "Unit Of Measure Deleted" } )
+        } catch (error) {
+            res.serverError(error)
+        }
+    }
 };
 
