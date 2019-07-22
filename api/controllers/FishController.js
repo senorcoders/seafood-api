@@ -826,7 +826,7 @@ module.exports = {
             // start fish filters
             if (req.body.hasOwnProperty('country')) {
                 if (req.body.country !== '0')
-                    fish_where['country'] = req.body.country;
+                    fish_where['processingCountry'] = req.body.country;
             }
             if (req.body.hasOwnProperty('raised')) {
                 if (req.body.raised.length > 0)
@@ -1739,7 +1739,7 @@ module.exports = {
             var fish = db.collection(Fish.tableName);
             //.find({
             let fishs = await new Promise((resolve, reject) => {
-                fish.distinct("country", { status: new ObjectId('5c0866f9a0eda00b94acbdc2') },
+                fish.distinct("processingCountry", { status: new ObjectId('5c0866f9a0eda00b94acbdc2') },
                     function (err, docs) {
                         if (err) {
                             return reject(err);
