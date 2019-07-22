@@ -129,6 +129,7 @@ module.exports = {
 
                     let newVariation = {
                         sku: skuVar,
+                        parentFishPreparation: variation.parentFishPreparation,
                         fishPreparation: variation.fishPreparation,
                         fish: mainFish.id
                     }
@@ -257,6 +258,7 @@ module.exports = {
                     let sku = `${fishUpdated[0].seafood_sku}`;
                     variationBody['sku'] = skuVar;
                     variationBody['fish'] = body.idProduct;
+                    variationBody['parentFishPreparation'] = body.parentFishPreparation;
                     newVariation = await Variations.create(variationBody).fetch();
                 }
 
@@ -362,6 +364,21 @@ module.exports = {
             let unixNow = Math.floor(new Date());
             let variations = await Variations.find(variation_where).populate('fishPreparation').populate('wholeFishWeight');
             let fishVariations = await Variations.find({ 'fish': fish.id }).populate('fishPreparation').populate('wholeFishWeight');
+
+            // sort fish variations for app
+            fishVariations = fishVariations.sort( (a, b) => { // non-anonymous as you ordered...
+                var textA = a.wholeFishWeight.name.toUpperCase();
+                var textB = b.wholeFishWeight.name.toUpperCase();
+                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+                
+            });
+            variations = variations.sort( (a, b) => { // non-anonymous as you ordered...
+                var textA = a.wholeFishWeight.name.toUpperCase();
+                var textB = b.wholeFishWeight.name.toUpperCase();
+                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+                
+            });
+            fishVariations = []
 
             let useOne = false;
             if (variations.length == 0) {
@@ -475,10 +492,18 @@ module.exports = {
                                 options: optionSlides
                             };
                         if (isTrimms == false) {
-                            if (variation['fishPreparation']['id'] === '5c93bff065e25a011eefbcc2') //head on
+                            if (variation['fishPreparation']['id'] === '5c93bff065e25a011eefbcc2') { //head on
+                                if ( weights.on[variation.wholeFishWeight.id] === undefined )
+                                    weights.on[variation.wholeFishWeight.id]= []
+
                                 weights.on[variation.wholeFishWeight.id].push(sld);
-                            else if (variation['fishPreparation']['id'] === '5c93c00465e25a011eefbcc3') //head off
+                            }
+                            else if (variation['fishPreparation']['id'] === '5c93c00465e25a011eefbcc3') { //head off
+                                if ( weights.off[variation.wholeFishWeight.id] === undefined )
+                                    weights.off[variation.wholeFishWeight.id] = [];
+
                                 weights.off[variation.wholeFishWeight.id].push(sld);
+                            }
                             else if (variation['fishPreparation']['id'] === '5d1cc9cd29dc5790fa2537f3') //packaged
                             {
                                 weightsPackaged.push(sld);
@@ -801,7 +826,7 @@ module.exports = {
             // start fish filters
             if (req.body.hasOwnProperty('country')) {
                 if (req.body.country !== '0')
-                    fish_where['country'] = req.body.country;
+                    fish_where['processingCountry'] = req.body.country;
             }
             if (req.body.hasOwnProperty('raised')) {
                 if (req.body.raised.length > 0)
@@ -1077,6 +1102,26 @@ module.exports = {
                     variationsGrouped[ String(row.id) ].count += 1;
             } );
 
+            // let's order the group of variations in each product
+            Object.keys(variationsGrouped).map( (product) => {                                            
+                if (variationsGrouped[product].variations.length >= 1 ){                
+                    variationsGrouped[product].variations = variationsGrouped[product].variations.sort( (a, b) => { // non-anonymous as you ordered...
+                        // ordernamos por whole fish weight, in old product could not have a wholeFishWeight
+                        if( a.variation.wholeFishWeight !== undefined && a.variation.wholeFishWeight !== null && b.variation.wholeFishWeight !== undefined && b.variation.wholeFishWeight !== null  ) {
+                            var textA = a.variation.wholeFishWeight.name.toUpperCase();
+                            var textB = b.variation.wholeFishWeight.name.toUpperCase();
+                            return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+    
+                        } else {
+                            var textA = a.variation.fishPreparation.name.toUpperCase();
+                            var textB = b.variation.fishPreparation.name.toUpperCase();
+                            return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+                        }
+                        
+                    });
+                }                    
+              } )
+
             return res.json(variationsGrouped)
 
 
@@ -1252,6 +1297,26 @@ module.exports = {
                     variationsGrouped[ String(row.id) ].variations.push( row );
                     variationsGrouped[ String(row.id) ].count += 1;
                 } );
+                // let's order the group of variations in each product
+                Object.keys(variationsGrouped).map( (product) => {                                            
+                        if (variationsGrouped[product].variations.length >= 1 ){                
+                            variationsGrouped[product].variations = variationsGrouped[product].variations.sort( (a, b) => { // non-anonymous as you ordered...
+                                // ordernamos por whole fish weight, in old product could not have a wholeFishWeight
+                                if( a.variation.wholeFishWeight !== undefined && a.variation.wholeFishWeight !== null && b.variation.wholeFishWeight !== undefined && b.variation.wholeFishWeight !== null  ) {
+                                    var textA = a.variation.wholeFishWeight.name.toUpperCase();
+                                    var textB = b.variation.wholeFishWeight.name.toUpperCase();
+                                    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+            
+                                } else {
+                                    var textA = a.variation.fishPreparation.name.toUpperCase();
+                                    var textB = b.variation.fishPreparation.name.toUpperCase();
+                                    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+                                }
+                                
+                            });
+                        }                    
+                } )
+                
                 
 
                 res.json({ variationsGrouped, pagesNumber: pages });
@@ -1674,7 +1739,7 @@ module.exports = {
             var fish = db.collection(Fish.tableName);
             //.find({
             let fishs = await new Promise((resolve, reject) => {
-                fish.distinct("country", { status: new ObjectId('5c0866f9a0eda00b94acbdc2') },
+                fish.distinct("processingCountry", { status: new ObjectId('5c0866f9a0eda00b94acbdc2') },
                     function (err, docs) {
                         if (err) {
                             return reject(err);
