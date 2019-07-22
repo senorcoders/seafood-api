@@ -129,6 +129,7 @@ module.exports = {
 
                     let newVariation = {
                         sku: skuVar,
+                        fishPreparation: variation.parentFishPreparation,
                         fishPreparation: variation.fishPreparation,
                         fish: mainFish.id
                     }
@@ -257,6 +258,7 @@ module.exports = {
                     let sku = `${fishUpdated[0].seafood_sku}`;
                     variationBody['sku'] = skuVar;
                     variationBody['fish'] = body.idProduct;
+                    variationBody['parentFishPreparation'] = body.parentFishPreparation;
                     newVariation = await Variations.create(variationBody).fetch();
                 }
 
@@ -362,6 +364,14 @@ module.exports = {
             let unixNow = Math.floor(new Date());
             let variations = await Variations.find(variation_where).populate('fishPreparation').populate('wholeFishWeight');
             let fishVariations = await Variations.find({ 'fish': fish.id }).populate('fishPreparation').populate('wholeFishWeight');
+
+            // sort fish variations for app
+            fishVariations = fishVariations.sort( (a, b) => { // non-anonymous as you ordered...
+                return b.fishPreparation.name < a.fishPreparation.name ? 1 // if b should come earlier, push a to end
+                    : b.fishPreparation.name > a.fishPreparation.name ? -1 // if b should come later, push a to begin
+                        : -1;                   // a and b are equal
+            });
+
 
             let useOne = false;
             if (variations.length == 0) {
@@ -475,10 +485,18 @@ module.exports = {
                                 options: optionSlides
                             };
                         if (isTrimms == false) {
-                            if (variation['fishPreparation']['id'] === '5c93bff065e25a011eefbcc2') //head on
+                            if (variation['fishPreparation']['id'] === '5c93bff065e25a011eefbcc2') { //head on
+                                if ( weights.on[variation.wholeFishWeight.id] === undefined )
+                                    weights.on[variation.wholeFishWeight.id]= []
+
                                 weights.on[variation.wholeFishWeight.id].push(sld);
-                            else if (variation['fishPreparation']['id'] === '5c93c00465e25a011eefbcc3') //head off
+                            }
+                            else if (variation['fishPreparation']['id'] === '5c93c00465e25a011eefbcc3') { //head off
+                                if ( weights.off[variation.wholeFishWeight.id] === undefined )
+                                    weights.off[variation.wholeFishWeight.id] = [];
+
                                 weights.off[variation.wholeFishWeight.id].push(sld);
+                            }
                             else if (variation['fishPreparation']['id'] === '5d1cc9cd29dc5790fa2537f3') //packaged
                             {
                                 weightsPackaged.push(sld);
