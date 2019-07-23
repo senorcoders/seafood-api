@@ -582,7 +582,7 @@ module.exports = {
                 delete fish['maxBox'];
             }
             let unixNow = Math.floor(new Date());
-            let variations = await Variations.find({ 'fish': fish.id }).populate('fishPreparation').populate('wholeFishWeight');
+            let variations = await Variations.find({ 'fish': fish.id }).populate('fishPreparation').populate('parentFishPreparation').populate('wholeFishWeight');
 
             let useOne = false;
             if (variations.length == 0) {
