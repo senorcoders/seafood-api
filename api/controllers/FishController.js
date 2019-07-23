@@ -937,7 +937,7 @@ module.exports = {
             let productos = [];
             variation_where['fish'] = products_ids;
             let res_variations = await Variations.find(variation_where).populate('fish').populate('fishPreparation').populate('wholeFishWeight').sort( 'minDeliveryUnixDate ASC' );
-            console.log('variations', res_variations.length);
+            //console.log('variations', res_variations.length);
             let unixNow = Math.floor(new Date());
 
             await Promise.all(res_variations.map(async function (m) {
@@ -1078,6 +1078,8 @@ module.exports = {
                     // end of min max filter
                 } else if (fish['cooming_soon'] && fish_where['cooming_soon']) {
                     m['minInventoryDate'] = coomingSoonDate;
+                    productos.push(m);
+                } else {
                     productos.push(m);
                 }
 
