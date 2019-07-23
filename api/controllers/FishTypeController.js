@@ -323,61 +323,75 @@ module.exports = {
     },
     getCategoryInfo: async ( req, res ) => {
         try {
+           
             let category_id = req.param( 'category_id' );
 
             let categories = await FishType.findOne().where( { id: category_id } );
-             
+            
+            if( !categories ) {
+                return res.json( { hasSetup: false, hasPreparation: false, hasRaised: false, hasTreatment: false } );
+            }
+
             if ( categories.hasOwnProperty('fishPreparation') ) {
                 let fishPreparationInfo = [];
                 let fishVariations = [];
                 categories['hasPreparation'] = false;
-                await Promise.all( Object.keys( categories.fishPreparation ).map( async ( category, index ) => {
-                    let preparation = await FishPreparation.findOne().where( { id: category } );
-                    let hasPreparation = false;
-                    //let's check all child preparation
-                    await Promise.all( categories.fishPreparation[category].map ( async child => {
-                        //let preparation = await FishPreparation.findOne().where( { id: child } );
-                        // now let's check if this child prepraration have Variations
-                        if( child !== null ) {
-                            let variations = await sails.helpers.fishVariationByPreparation.with({
-                                type: category_id,
-                                preparation: child
-                            });
-                            if ( variations !== null ) {
-                                fishVariations.push( variations );
-                                hasPreparation = true;
+                if( categories.fishPreparation !== null && categories.fishPreparation !== undefined ) {
+                    await Promise.all( Object.keys( categories.fishPreparation ).map( async ( category, index ) => {
+                        let preparation = await FishPreparation.findOne().where( { id: category } );
+                        let hasPreparation = false;
+                        //let's check all child preparation
+                        await Promise.all( categories.fishPreparation[category].map ( async child => {
+                            //let preparation = await FishPreparation.findOne().where( { id: child } );
+                            // now let's check if this child prepraration have Variations
+                            if( child !== null ) {
+                                let variations = await sails.helpers.fishVariationByPreparation.with({
+                                    type: category_id,
+                                    preparation: child
+                                });
+                                if ( variations !== null ) {
+                                    fishVariations.push( variations );
+                                    hasPreparation = true;
+                                }
                             }
-                        }
-                    } ) ) 
-                    
-                    categories['hasPreparation'] = hasPreparation;
-
-                    fishPreparationInfo.push( preparation );
-                } ));
-                categories['fishPreparationInfo'] = fishPreparationInfo;
-                categories['variations'] = fishVariations;
+                        } ) ) 
+                        
+                        categories['hasPreparation'] = hasPreparation;
+                        fishPreparationInfo.push( preparation );
+                    } ));
+                    categories['fishPreparationInfo'] = fishPreparationInfo;
+                    categories['variations'] = fishVariations;
+                }
+                
             } else {
                 categories['hasPreparation'] = false;
             }
 
+            categories['hasRaised'] = false;
             if( categories.hasOwnProperty( 'raised' ) ) {
                 let fishRaisedInfo = [];
-                await Promise.all( categories.raised.map( async item => {
-                    fishRaisedInfo.push( await Raised.findOne().where({ id: item }) );
-                } ) )
-                categories['raisedInfo'] = fishRaisedInfo;
-                categories['hasRaised'] = true;
+                if( categories.raised !== undefined && categories.raised !== null ) {
+                    await Promise.all( categories.raised.map( async item => {
+                        fishRaisedInfo.push( await Raised.findOne().where({ id: item }) );
+                    } ) )
+                    categories['raisedInfo'] = fishRaisedInfo;
+                    categories['hasRaised'] = true;            
+                }
             } else {
                 categories['hasRaised'] = false;
             }
 
+            categories['hasTreatment'] = false;
             if( categories.hasOwnProperty('treatment') ) {
                 let treatmentInfo = [];
-                await Promise.all( categories.treatment.map( async item => {
-                    treatmentInfo.push( await Treatment.findOne().where( { id: item } ) )
-                } ) )
-                categories['treatmentInfo'] = treatmentInfo;
-                categories['hasTreatment'] = true;
+                if ( categories.treatment !== undefined && categories.treatment !== null ) {
+                    await Promise.all( categories.treatment.map( async item => {
+                        treatmentInfo.push( await Treatment.findOne().where( { id: item } ) )
+                    } ) )
+                    categories['treatmentInfo'] = treatmentInfo;
+                    categories['hasTreatment'] = true;
+                }
+                
             } else {
                 categories['hasTreatment'] = false;
             }
@@ -403,23 +417,26 @@ module.exports = {
              
             let fishPreparationInfo = [];
             if ( categories.hasOwnProperty('fishPreparation') ) {
-                await Promise.all( Object.keys( categories.fishPreparation ).map( async ( category, index ) => {
-                    console.info( 'info', { category, fishPreparationID } )
-                    if( category == fishPreparationID ) { //is this fish preparation the one we are looking for
-                        //let's check all child preparation
-                        await Promise.all( categories.fishPreparation[category].map ( async child => {
-                            let preparation = await FishPreparation.findOne().where( { id: child } );
-                            // now let's check if this child prepraration have Variations
-                            let variations = await sails.helpers.fishVariationByPreparation.with({
-                                type: fishTypeID,
-                                preparation: child
-                            });
-                            preparation['variations'] = variations;
-                            fishPreparationInfo.push( preparation );
-                        } ) ) 
-                    
-                    }
-                } ));
+                if( categories.fishPreparation !== null && categories.fishPreparation !== undefined ) {
+                    await Promise.all( Object.keys( categories.fishPreparation ).map( async ( category, index ) => {
+                        console.info( 'info', { category, fishPreparationID } )
+                        if( category == fishPreparationID ) { //is this fish preparation the one we are looking for
+                            //let's check all child preparation
+                            await Promise.all( categories.fishPreparation[category].map ( async child => {
+                                let preparation = await FishPreparation.findOne().where( { id: child } );
+                                // now let's check if this child prepraration have Variations
+                                let variations = await sails.helpers.fishVariationByPreparation.with({
+                                    type: fishTypeID,
+                                    preparation: child
+                                });
+                                preparation['variations'] = variations;
+                                fishPreparationInfo.push( preparation );
+                            } ) ) 
+                        
+                        }
+                    } ));
+                }
+                
                 categories['fishPreparationInfo'] = fishPreparationInfo;
             }
             res.json(fishPreparationInfo)
