@@ -611,10 +611,19 @@ module.exports = {
             let minLimit = fish.minimunOrder;
             let maxLimit = fish.maximumOrder;;
             await Promise.all(
-                variations.map(async variation => {
-                    console.log(variation.id);
+                variations.map(async (variation, variationIndex) => {
+                    if( variation.parentFishPreparation === null ) {
+                        if( variation.fishPreparation.parent == "0" ) {
+                            variations[variationIndex]['parentFishPreparation'] = variation.fishPreparation;
+                        } else {
+                            let fishPreparationParent = await FishPreparation.findOne( { id: variation.fishPreparation.parent } );
+                            variations[variationIndex]['parentFishPreparation'] = fishPreparationParent;
 
-                    console.log(variation['fishPreparation']);
+                        }
+                    }
+                    //console.log('parent', fishPreparationParent);
+
+                    //console.log(variation['fishPreparation']);
                     if (isTrimms === false) {
                         if (variation['fishPreparation']['id'] === '5c93bff065e25a011eefbcc2') {
                             headAction = true;
