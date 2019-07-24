@@ -619,6 +619,7 @@ module.exports = {
             let maxLimit = fish.maximumOrder;;
             await Promise.all(
                 variations.map(async (variation, variationIndex) => {
+                    fish['kgConversionRate'] = variation.kgConversionRate;
                     if( variation.parentFishPreparation === null ) {
                         if( variation.fishPreparation.parent == "0" ) {
                             variations[variationIndex]['parentFishPreparation'] = variation.fishPreparation;
