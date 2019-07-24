@@ -32,6 +32,10 @@ module.exports = {
       type: 'number',
       required: false
     },
+    kgConversionRate: {
+      type: 'number',
+      required: false
+    },
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗

@@ -16,6 +16,9 @@ module.exports = {
       type: 'string',
       required: true
     },
+    kgConversionRate: {
+      type: 'number'
+    },
     isActive: {
       type: 'boolean',
       defaultsTo : true
