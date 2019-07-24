@@ -51,11 +51,13 @@ module.exports = {
     await Promise.all( unitOfMeasureFound.map( async unit => {
       
       if(unit.kgConversionRate == undefined || unit.kgConversionRate == null || !unit.hasOwnProperty('kgConversionRate') ) {
-        if( unit.name === "LBS" ) {
+        if( unit.name === "LBS" ) 
           unit['kgConversionRate'] = 0.4535;
-        } else {
+        else if ( unit.name === 'grams' )
+          unit['kgConversionRate'] = 0.001;
+        else 
           unit['kgConversionRate'] = 1;
-        }
+        
         await UnitOfMeasure.update({ id: unit.id }, { kgConversionRate: unit.kgConversionRate });
       } 
     } ) )
@@ -114,7 +116,9 @@ module.exports = {
         }
         //console.log( fish.unitOfSale );
         let unitOfMeasureFound = await UnitOfMeasure.find( { name: fish.unitOfSale } ).limit(1);
-        categorySetup.unitOfMeasure = unitOfMeasureFound[0].name;
+        if( unitOfMeasureFound.length > 0 ) {
+          categorySetup.unitOfMeasure = unitOfMeasureFound[0].name;
+        }
       }
 
       // check if raised is there

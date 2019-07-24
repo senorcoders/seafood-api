@@ -167,9 +167,9 @@ module.exports = {
 
       let uaeTaxesFee = Number(parseFloat((fishCost + lastMileCost + sfsMarginCost + inventoryFeeByWeight  ) * (currentAdminCharges.uaeTaxes / 100)).toFixed(2)); //F = (A+C+D+E) Tax // MREC  adding inventory fee taxable inventoryFeeByWeight
       // ask about this because is local
-      let exchangeRateCommission = 0; // Number(parseFloat((fishCost + shippingFees.firstMileFee) * (currentAdminCharges.exchangeRateCommission / 100)).toFixed(2));
+      let exchangeRateCommission = Number(parseFloat((fishCost) * (currentAdminCharges.exchangeRateCommission / 100)).toFixed(2));
 
-      let finalPrice = Number(parseFloat(fishCost + lastMileCost +sfsMarginCost + uaeTaxesFee + inventoryFeeByWeight ).toFixed(2));
+      let finalPrice = Number(parseFloat(fishCost + lastMileCost +sfsMarginCost + uaeTaxesFee + inventoryFeeByWeight + exchangeRateCommission ).toFixed(2));
 
       if (inputs.in_AED) {
         exchangeRates = 1;
@@ -196,7 +196,7 @@ module.exports = {
           cost: Number(parseFloat(currentAdminCharges.lastMileCost / exchangeRates).toFixed(2)),
           include: 'first mile cost + shipping fee + handling fee + last mile cost'
         },
-        exchangeRateCommission: 0,
+        exchangeRateCommission: Number(parseFloat(exchangeRateCommission / exchangeRates).toFixed(2)),
         sfsMarginCost: Number(parseFloat(sfsMarginCost / exchangeRates).toFixed(2)),
         uaeTaxesFee: Number(parseFloat(uaeTaxesFee / exchangeRates).toFixed(2)),
         finalPrice: Number(parseFloat(finalPrice / exchangeRates).toFixed(2)),
