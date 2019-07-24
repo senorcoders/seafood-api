@@ -412,7 +412,7 @@ module.exports = {
             let wholeFishAction = '';
             await Promise.all(
                 variations.map(async variation => {
-
+                    fish['kgConversionRate'] = variation.kgConversionRate;
                     let inventory = await FishStock.find().where({
                         "date": { '>': unixNow },
                         "variations": variation.id
