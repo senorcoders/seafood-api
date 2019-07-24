@@ -42,6 +42,12 @@ module.exports = {
     let firstMileCost;
     let firstMileFee;
   
+    // let's convert the unit of measure of the product
+    inputs.weight = await sails.helpers.kgConversionRate.with({
+      fish: inputs.fish,
+      weight: inputs.weight
+    });
+
     // getting shipping rate from that city
     shipping = await sails.helpers.shippingByCity( inputs.fish.city, inputs.weight );
 
