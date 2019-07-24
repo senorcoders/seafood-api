@@ -57,6 +57,7 @@ module.exports = {
     addFishWithVariations: async (req, res) => {
         try {
             let body = req.body;
+
             let seafood_sku = await sails.helpers.generateSku(
                 body.store,
                 body.parentType,
@@ -131,7 +132,8 @@ module.exports = {
                         sku: skuVar,
                         parentFishPreparation: variation.parentFishPreparation,
                         fishPreparation: variation.fishPreparation,
-                        fish: mainFish.id
+                        fish: mainFish.id,
+                        kgConversionRate: body.kgConversionRate
                     }
 
                     if (variation.hasOwnProperty('wholeFishWeight')) {
@@ -232,6 +234,10 @@ module.exports = {
                     variationBody['wholeFishWeight'] = variation.wholeFishWeight;
                 }
                 let newVariation;
+
+                if( body.hasOwnProperty('kgConversionRate') ) {
+                    variationBody['kgConversionRate'] = body.kgConversionRate;
+                }
                 if (variation.hasOwnProperty('idVariation')) {
                     // update
                     newVariation = await Variations.update({ id: variation.idVariation }).set(variationBody).fetch();
@@ -259,6 +265,7 @@ module.exports = {
                     variationBody['sku'] = skuVar;
                     variationBody['fish'] = body.idProduct;
                     variationBody['parentFishPreparation'] = body.parentFishPreparation;
+                    
                     newVariation = await Variations.create(variationBody).fetch();
                 }
 

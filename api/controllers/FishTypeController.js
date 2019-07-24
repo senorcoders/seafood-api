@@ -396,7 +396,17 @@ module.exports = {
                 categories['hasTreatment'] = false;
             }
 
-            if( !categories['hasPreparation'] || !categories['hasTreatment'] || !categories['hasRaised'] )
+            categories['hasUnitOfMeasure'] = false;
+            if( categories.hasOwnProperty('unitOfMeasure') ) {
+                let unitOfMeasureInfo = null;
+                if( categories.unitOfMeasure !== undefined && categories.unitOfMeasure !== null ) {
+                    unitOfMeasureInfo = await UnitOfMeasure.find( { name: categories.unitOfMeasure } );
+                }
+                categories['unitOfMeasureInfo'] = unitOfMeasureInfo;
+                categories['hasUnitOfMeasure'] = true;
+            }
+
+            if( !categories['hasUnitOfMeasure'] || !categories['hasPreparation'] || !categories['hasTreatment'] || !categories['hasRaised'] )
                 categories['hasSetup'] = false;
             else 
                 categories['hasSetup'] = true;
