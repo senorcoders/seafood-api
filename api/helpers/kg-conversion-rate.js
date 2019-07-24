@@ -53,10 +53,3 @@ module.exports = {
 
 
 };
-
-/*
- await sails.helpers.kgConversionRate.with({
-            someInput: …,
-            someOtherInput: …
-          });
-*/
