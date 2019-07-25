@@ -43,11 +43,11 @@ module.exports = {
     let weight = inputs.weight; // Weight to query
     let currentAdminCharges = await sails.helpers.currentCharges();//inputs.currentCharges; // charges manages by admin
     let is_flat_custom = false;    
-    let foreign_fish = false;
+    let is_domestic = false; // TODO: we had to change this because the name in the database is foreign fish and should be is_domestic
     // getting the fish information
     let fish = await Fish.findOne({ where: { id: id } }).populate('type').populate('store').populate('descriptor');    
     if ( fish.hasOwnProperty( 'foreign_fish' ) )
-    foreign_fish = fish.foreign_fish; // verificamos si el fish es local
+    is_domestic = fish.foreign_fish; // verificamos si el fish es local
 
     if (fish.hasOwnProperty("perBox")) {
       if (fish.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
@@ -79,7 +79,7 @@ module.exports = {
       currentAdminCharges['selectedCustoms'] = currentAdminCharges.customs;
     }
   
-    if (fish.foreign_fish && fish.foreign_fish === true) {
+    if (is_domestic && is_domestic === true) {
       currentAdminCharges.selectedCustoms = 0;
     }
 
@@ -145,8 +145,8 @@ module.exports = {
     let inventoryFee = 0; // H
     let inventoryFeeByWeight = 0; // I
     let charges = {};
-    if ( !foreign_fish ) { // if the fish is from uae we use CIP and we don't include handling fees
-      console.log( 'is foreign', foreign_fish );
+    if ( is_domestic ) { // if the fish is from uae we use CIP and we don't include handling fees
+      console.log( 'is_domestic', is_domestic );
       //calculate cost using seafoodsouq formula
       let fishCost = Number(parseFloat(fishPrice * weight).toFixed(2)); // A
       let lastMileCost = Number(parseFloat(currentAdminCharges.lastMileCost).toFixed(2)); // C
@@ -208,7 +208,7 @@ module.exports = {
         fixedHanlingFees,
         pickupLogistic,
         partnerFreightCost,
-        foreign_fish
+        is_domestic
       }
     } else {  // international products
       // inventory fee
@@ -296,7 +296,7 @@ module.exports = {
         fixedHanlingFees,
         pickupLogistic,
         partnerFreightCost,
-        foreign_fish        
+        is_domestic        
       }
     } // end international product
     
