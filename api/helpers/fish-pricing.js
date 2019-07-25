@@ -43,11 +43,11 @@ module.exports = {
     let weight = inputs.weight; // Weight to query
     let currentAdminCharges = await sails.helpers.currentCharges();//inputs.currentCharges; // charges manages by admin
     let is_flat_custom = false;    
-    let is_domestic = false;
+    let foreign_fish = false;
     // getting the fish information
     let fish = await Fish.findOne({ where: { id: id } }).populate('type').populate('store').populate('descriptor');    
     if ( fish.hasOwnProperty( 'foreign_fish' ) )
-      is_domestic = !fish.foreign_fish; // verificamos si el fish es local
+    foreign_fish = fish.foreign_fish; // verificamos si el fish es local
 
     if (fish.hasOwnProperty("perBox")) {
       if (fish.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
@@ -145,7 +145,8 @@ module.exports = {
     let inventoryFee = 0; // H
     let inventoryFeeByWeight = 0; // I
     let charges = {};
-    if ( is_domestic ) { // if the fish is from uae we use CIP and we don't include handling fees
+    if ( !foreign_fish ) { // if the fish is from uae we use CIP and we don't include handling fees
+      console.log( 'is foreign', foreign_fish );
       //calculate cost using seafoodsouq formula
       let fishCost = Number(parseFloat(fishPrice * weight).toFixed(2)); // A
       let lastMileCost = Number(parseFloat(currentAdminCharges.lastMileCost).toFixed(2)); // C
@@ -206,7 +207,8 @@ module.exports = {
         variation,
         fixedHanlingFees,
         pickupLogistic,
-        partnerFreightCost
+        partnerFreightCost,
+        foreign_fish
       }
     } else {  // international products
       // inventory fee
@@ -293,7 +295,8 @@ module.exports = {
         variation,
         fixedHanlingFees,
         pickupLogistic,
-        partnerFreightCost
+        partnerFreightCost,
+        foreign_fish        
       }
     } // end international product
     
