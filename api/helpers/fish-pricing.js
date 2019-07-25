@@ -43,11 +43,11 @@ module.exports = {
     let weight = inputs.weight; // Weight to query
     let currentAdminCharges = await sails.helpers.currentCharges();//inputs.currentCharges; // charges manages by admin
     let is_flat_custom = false;    
-    let is_domestic = false;
+    let is_domestic = false; // TODO: we had to change this because the name in the database is foreign fish and should be is_domestic
     // getting the fish information
     let fish = await Fish.findOne({ where: { id: id } }).populate('type').populate('store').populate('descriptor');    
     if ( fish.hasOwnProperty( 'foreign_fish' ) )
-      is_domestic = !fish.foreign_fish; // verificamos si el fish es local
+    is_domestic = fish.foreign_fish; // verificamos si el fish es local
 
     if (fish.hasOwnProperty("perBox")) {
       if (fish.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
@@ -79,7 +79,7 @@ module.exports = {
       currentAdminCharges['selectedCustoms'] = currentAdminCharges.customs;
     }
   
-    if (fish.foreign_fish && fish.foreign_fish === true) {
+    if (is_domestic && is_domestic === true) {
       currentAdminCharges.selectedCustoms = 0;
     }
 
@@ -146,6 +146,7 @@ module.exports = {
     let inventoryFeeByWeight = 0; // I
     let charges = {};
     if ( is_domestic ) { // if the fish is from uae we use CIP and we don't include handling fees
+      console.log( 'is_domestic', is_domestic );
       //calculate cost using seafoodsouq formula
       let fishCost = Number(parseFloat(fishPrice * weight).toFixed(2)); // A
       let lastMileCost = Number(parseFloat(currentAdminCharges.lastMileCost).toFixed(2)); // C
@@ -167,9 +168,9 @@ module.exports = {
 
       let uaeTaxesFee = Number(parseFloat((fishCost + lastMileCost + sfsMarginCost + inventoryFeeByWeight  ) * (currentAdminCharges.uaeTaxes / 100)).toFixed(2)); //F = (A+C+D+E) Tax // MREC  adding inventory fee taxable inventoryFeeByWeight
       // ask about this because is local
-      let exchangeRateCommission = 0; // Number(parseFloat((fishCost + shippingFees.firstMileFee) * (currentAdminCharges.exchangeRateCommission / 100)).toFixed(2));
+      let exchangeRateCommission = Number(parseFloat((fishCost) * (currentAdminCharges.exchangeRateCommission / 100)).toFixed(2));
 
-      let finalPrice = Number(parseFloat(fishCost + lastMileCost +sfsMarginCost + uaeTaxesFee + inventoryFeeByWeight ).toFixed(2));
+      let finalPrice = Number(parseFloat(fishCost + lastMileCost +sfsMarginCost + uaeTaxesFee + inventoryFeeByWeight + exchangeRateCommission ).toFixed(2));
 
       if (inputs.in_AED) {
         exchangeRates = 1;
@@ -196,7 +197,7 @@ module.exports = {
           cost: Number(parseFloat(currentAdminCharges.lastMileCost / exchangeRates).toFixed(2)),
           include: 'first mile cost + shipping fee + handling fee + last mile cost'
         },
-        exchangeRateCommission: 0,
+        exchangeRateCommission: Number(parseFloat(exchangeRateCommission / exchangeRates).toFixed(2)),
         sfsMarginCost: Number(parseFloat(sfsMarginCost / exchangeRates).toFixed(2)),
         uaeTaxesFee: Number(parseFloat(uaeTaxesFee / exchangeRates).toFixed(2)),
         finalPrice: Number(parseFloat(finalPrice / exchangeRates).toFixed(2)),
@@ -206,7 +207,8 @@ module.exports = {
         variation,
         fixedHanlingFees,
         pickupLogistic,
-        partnerFreightCost
+        partnerFreightCost,
+        is_domestic
       }
     } else {  // international products
       // inventory fee
@@ -293,7 +295,8 @@ module.exports = {
         variation,
         fixedHanlingFees,
         pickupLogistic,
-        partnerFreightCost
+        partnerFreightCost,
+        is_domestic        
       }
     } // end international product
     
