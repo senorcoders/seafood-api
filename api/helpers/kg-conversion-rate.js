@@ -38,8 +38,8 @@ module.exports = {
       if( inputs.fish.type.hasOwnProperty( 'id' ) ) {
         fishType = inputs.fish.type.id;
       }
-      let fishInformation = await FishType.findOne( { id: fishType } );
-      let unitOfMeasure = await UnitOfMeasure.findOne( { name: fishInformation.unitOfMeasure, isActive: true } )
+      //let fishInformation = await FishType.findOne( { id: fishType } ); // we are getting the unit of measure 
+      let unitOfMeasure = await UnitOfMeasure.findOne( { name: inputs.fish.unitOfSale, isActive: true } )
       kgConversionRate = unitOfMeasure.kgConversionRate;
     } else {
       kgConversionRate = variation.kgConversionRate;
