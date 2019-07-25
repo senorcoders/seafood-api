@@ -33,7 +33,7 @@ module.exports = {
     let variation = await Variations.find( { fish: inputs.fish.id } ).limit(1);
     let kgConversionRate = 0;
     
-    if( !variation.hasOwnProperty('kgConversionRate') || variation.kgConversionRate == undefined || variation.kgConversionRate == null ) {
+    if( !variation[0].hasOwnProperty('kgConversionRate') || variation[0].kgConversionRate == undefined || variation[0].kgConversionRate == null ) {
       let fishType = inputs.fish.type;
       if( inputs.fish.type.hasOwnProperty( 'id' ) ) {
         fishType = inputs.fish.type.id;
@@ -42,7 +42,7 @@ module.exports = {
       let unitOfMeasure = await UnitOfMeasure.findOne( { name: inputs.fish.unitOfSale, isActive: true } )
       kgConversionRate = unitOfMeasure.kgConversionRate;
     } else {
-      kgConversionRate = variation.kgConversionRate;
+      kgConversionRate = variation[0].kgConversionRate;
     }
     
 
