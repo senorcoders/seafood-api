@@ -40,6 +40,20 @@ module.exports = {
 
     sails.log('Running custom shell script... (`sails run basic-info-migration`)');
 
+    let fishes = await Fish.find().populate('type');
+    await Promise.all( fishes.map( async fish => {
+      let categorySetup = {
+        unitOfMeasure: fish.type.unitOfSale !== undefined ? fish.type.unitOfMeasure :  '',        
+      }
+
+      // let's check the unit of measure
+      if( categorySetup.unitOfMeasure === '' ) { // if not founded, let's use the one in the fish
+        if( fish.unitOfSale == undefined || fish.unitOfSale == null || !fish.hasOwnProperty('unitOfSale') || fish.unitOfSale == '' )  {
+          await Fish.update( { id: fish.id } ).set( { unitOfSale: 'kg' } )
+          fish['unitOfSale'] = 'kg';
+        }        
+      }
+    }));
 
     // let set all basic info as active
     await Raised.update({}).set({ isActive: true });
