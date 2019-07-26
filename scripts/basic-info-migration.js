@@ -40,6 +40,27 @@ module.exports = {
 
     sails.log('Running custom shell script... (`sails run basic-info-migration`)');
 
+    //adding basic unit of measure
+    let unitOfMeasureFound = await UnitOfMeasure.find({});
+
+    if( unitOfMeasureFound.length == 0 ) {      
+      await UnitOfMeasure.create({
+        name: "kg",
+        kgConversionRate: 1,
+        isActive: true
+      })
+      await UnitOfMeasure.create({
+        name: "lbs",
+        kgConversionRate: 1,
+        isActive: true
+      })
+      await UnitOfMeasure.create({
+        name: "grams",
+        kgConversionRate: 0.001,
+        isActive: true
+      })
+    }
+
     let fishes = await Fish.find().populate('type');
     await Promise.all( fishes.map( async fish => {
       let categorySetup = {
@@ -51,7 +72,9 @@ module.exports = {
         if( fish.unitOfSale == undefined || fish.unitOfSale == null || !fish.hasOwnProperty('unitOfSale') || fish.unitOfSale == '' )  {
           await Fish.update( { id: fish.id } ).set( { unitOfSale: 'kg' } )
           fish['unitOfSale'] = 'kg';
-        }        
+        } else {
+          await Fish.update( { id: fish.id } ).set( { unitOfSale: fish.unitOfSale.toLowerCase() } )
+        }     
       }
     }));
 
@@ -66,20 +89,11 @@ module.exports = {
     await FishPreparation.update( { name: ['Head Off Gutted', 'Head On Gutted'] } ).set( { parent: "5d128316ce26cbab9c23e52e" } );
     
 
-    //adding basic unit of measure
-    let unitOfMeasureFound = await UnitOfMeasure.find();
-
-    if( unitOfMeasureFound.length == 0 ) {
-      UnitOfMeasure.create({
-        name: "KG",
-        kgConversionRate: 1,
-        isActive: true
-      })
-    }
+    
     await Promise.all( unitOfMeasureFound.map( async unit => {
       
       if(unit.kgConversionRate == undefined || unit.kgConversionRate == null || !unit.hasOwnProperty('kgConversionRate') ) {
-        if( unit.name === "LBS" ) 
+        if( unit.name === "lbs" ) 
           unit['kgConversionRate'] = 0.4535;
         else if ( unit.name === 'grams' )
           unit['kgConversionRate'] = 0.001;
