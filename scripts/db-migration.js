@@ -161,40 +161,41 @@ module.exports = {
         //let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
 
 
-      // if is filleted or trim wholeFishWeight is going to be null so let's insert and  put same child preparation
-      if( typeof variation !== 'object' || variation == null )  {
-        //look for the child in whole fish weight
-        let childPrep = await FishPreparation.findOne({ id: variation.fishPreparation.id });
-        let fishVar = await WholeFishWeight.findOne({ name: childPrep.name })
-        /*if( fishVar == undefined ) { // not exists so let's created
-          fishVar = await WholeFishWeight.create({ name: childPrep.name, isActive: true }).fetch();
-        }*/
-       variation.wholeFishWeight = fishVar.id;
-      }
+        // if is filleted or trim wholeFishWeight is going to be null so let's insert and  put same child preparation
+        if( typeof variation !== 'object' || variation == null )  {
+          //look for the child in whole fish weight
+          let childPrep = await FishPreparation.findOne({ id: variation.fishPreparation.id });
+          let fishVar = await WholeFishWeight.findOne({ name: childPrep.name })
+          /*if( fishVar == undefined ) { // not exists so let's created
+            fishVar = await WholeFishWeight.create({ name: childPrep.name, isActive: true }).fetch();
+          }*/
+        variation.wholeFishWeight = fishVar.id;
+        }
+        
+        // now let's look for the variations (wholefishweight)
+        let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
 
-	    // now let's look for the variations (wholefishweight)
-      let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
-
-      console.log('exists', variationExists);
-        // if variation not exists, let's create it
-      if( variation.wholeFishWeight !== null ){
-        if( typeof variationExists !== 'object' || variationExists == null ) {
-          await FishVariations.create( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id, variations: [ variation.wholeFishWeight ] } )
-          console.log( 'inserted' )
-        } else {
-          console.log( 'updated' );
-          // the fish has variations, but let's check if it have the current one
-          if( !variationExists.variations.includes( variation.wholeFishWeight ) ) {
-            variationExists.variations.push( variation.wholeFishWeight );
-            await FishVariations.update( { id: variationExists.id } ).set( { variations: variationExists.variations } )
+        console.log('exists', variationExists);
+          // if variation not exists, let's create it
+        if( variation.wholeFishWeight !== null ){
+          if( typeof variationExists !== 'object' || variationExists == null ) {
+            await FishVariations.create( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id, variations: [ variation.wholeFishWeight ] } )
+            console.log( 'inserted' )
+          } else {
+            console.log( 'updated' );
+            // the fish has variations, but let's check if it have the current one
+            if( !variationExists.variations.includes( variation.wholeFishWeight ) ) {
+              variationExists.variations.push( variation.wholeFishWeight );
+              await FishVariations.update( { id: variationExists.id } ).set( { variations: variationExists.variations } )
+            }
           }
         }
-      }
-	return true;
+        return Promise.resolve('ok');
       } ) )
       //console.log('--------------------------------------------------------------------------');
       //console.log( 'beforeSetup', categorySetup );
-	return await FishType.update({ id: fish.type.id }).set( categorySetup );
+      await FishType.update({ id: fish.type.id }).set( categorySetup );
+      return Promise.resolve('ok');
     } ) );
 
 
