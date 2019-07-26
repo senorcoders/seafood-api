@@ -100,7 +100,7 @@ module.exports = {
     }
 //return true;
     let fishes = await Fish.find().populate('type');
-
+    let newFishVariations = [];
     await Promise.all( fishes.map( async fish => {
       let categorySetup = {
         unitOfMeasure: fish.type.unitOfSale !== undefined ? fish.type.unitOfMeasure :  '',
@@ -136,6 +136,7 @@ module.exports = {
       // first let's look for the variations of this fish
 
       let variations = await Variations.find( { fish: fish.id } ).populate('fishPreparation')
+      
       await Promise.all( variations.map( async variation => {
         let isParentFishPreparationAlreadyInSetup = false;
         let isFishPreparationAlreadyInSetup = false;
@@ -157,28 +158,39 @@ module.exports = {
           categorySetup.fishPreparation[ variation.fishPreparation.parent ] = [ variation.fishPreparation.id ]
         }
 
-        // now let's look for the variations (wholefishweight)
-        //let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
-
-
         // if is filleted or trim wholeFishWeight is going to be null so let's insert and  put same child preparation
         if( typeof variation !== 'object' || variation == null )  {
           //look for the child in whole fish weight
           let childPrep = await FishPreparation.findOne({ id: variation.fishPreparation.id });
           let fishVar = await WholeFishWeight.findOne({ name: childPrep.name })
-          /*if( fishVar == undefined ) { // not exists so let's created
+          if( typeof fishVar !== 'object' || fishVar == null ) { // not exists so let's created
             fishVar = await WholeFishWeight.create({ name: childPrep.name, isActive: true }).fetch();
-          }*/
+          }
         variation.wholeFishWeight = fishVar.id;
         }
         
         // now let's look for the variations (wholefishweight)
-        let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
+        //let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
 
         console.log('exists', variationExists);
           // if variation not exists, let's create it
         if( variation.wholeFishWeight !== null ){
-          if( typeof variationExists !== 'object' || variationExists == null ) {
+          let newFishVariationExist = false;
+          newFishVariations.map( (newFishVariation, newFishVariationIndex) => {
+            if( newFishVariation.fishType == fish.type.id && newFishVariation.fishPreparation == variation.fishPreparation.id ){
+              if( !newFishVariation[newFishVariationIndex].variations.includes( variation.wholeFishWeight ) ) {
+                newFishVariations[newFishVariationIndex].variations.push( variation.wholeFishWeight )
+                newFishVariationExist = true;
+              }
+            } 
+          } )
+          if ( !newFishVariationExist ) {
+            newFishVariations.push( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id, variations: [ variation.wholeFishWeight ] } );
+            
+          }
+
+
+          /*if( typeof variationExists !== 'object' || variationExists == null ) {
             await FishVariations.create( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id, variations: [ variation.wholeFishWeight ] } )
             console.log( 'inserted' )
           } else {
@@ -188,12 +200,15 @@ module.exports = {
               variationExists.variations.push( variation.wholeFishWeight );
               await FishVariations.update( { id: variationExists.id } ).set( { variations: variationExists.variations } )
             }
-          }
+          }*/
         }
         return Promise.resolve('ok');
       } ) )
       //console.log('--------------------------------------------------------------------------');
       //console.log( 'beforeSetup', categorySetup );
+      await Promise.all( newFishVariations.map( async newVariation => {
+        await newFishVariations.create( newVariation )
+      } ) )
       await FishType.update({ id: fish.type.id }).set( categorySetup );
       return Promise.resolve('ok');
     } ) );
