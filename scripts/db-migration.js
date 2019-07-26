@@ -181,9 +181,9 @@ module.exports = {
           await FishVariations.create( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id, variations: [ variation.wholeFishWeight ] } )
         } else {
           // the fish has variations, but let's check if it have the current one
-          if( !variationExists[0].variations.includes( variation.wholeFishWeight ) ) {
-            variationExists[0].variations.push( variation.wholeFishWeight );
-	   await FishVariations.update( { id: variationExists[0].id } ).set( { variations: variationExists[0].variations } )
+          if( !variationExists.variations.includes( variation.wholeFishWeight ) ) {
+            variationExists.variations.push( variation.wholeFishWeight );
+	   await FishVariations.update( { id: variationExists.id } ).set( { variations: variationExists.variations } )
           }
         }
 	}
