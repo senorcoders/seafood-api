@@ -180,7 +180,9 @@ module.exports = {
       if( variation.wholeFishWeight !== null ){
         if( typeof variationExists !== 'object' || variationExists == null ) {
           await FishVariations.create( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id, variations: [ variation.wholeFishWeight ] } )
+          console.log( 'inserted' )
         } else {
+          console.log( 'updated' );
           // the fish has variations, but let's check if it have the current one
           if( !variationExists.variations.includes( variation.wholeFishWeight ) ) {
             variationExists.variations.push( variation.wholeFishWeight );
