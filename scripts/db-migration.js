@@ -172,21 +172,22 @@ module.exports = {
        variation.wholeFishWeight = fishVar.id;
       }
 
-	// now let's look for the variations (wholefishweight)
-        let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
+	    // now let's look for the variations (wholefishweight)
+      let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
 
         // if variation not exists, let's create it
-        if( variation.wholeFishWeight !== null ){
-        if( typeof variationExists !== 'object' || variationExists == null ) {
-          await FishVariations.create( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id, variations: [ variation.wholeFishWeight ] } )
-        } else {
-          // the fish has variations, but let's check if it have the current one
-          if( !variationExists.variations.includes( variation.wholeFishWeight ) ) {
-            variationExists.variations.push( variation.wholeFishWeight );
-	   await FishVariations.update( { id: variationExists.id } ).set( { variations: variationExists.variations } )
-          }
+    if( variation.wholeFishWeight !== null ){
+      console.log('exists', variationExists);
+      if( typeof variationExists !== 'object' || variationExists == null ) {
+        await FishVariations.create( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id, variations: [ variation.wholeFishWeight ] } )
+      } else {
+        // the fish has variations, but let's check if it have the current one
+        if( !variationExists.variations.includes( variation.wholeFishWeight ) ) {
+          variationExists.variations.push( variation.wholeFishWeight );
+          await FishVariations.update( { id: variationExists.id } ).set( { variations: variationExists.variations } )
         }
-	}
+      }
+    }
 	return true;
       } ) )
       //console.log('--------------------------------------------------------------------------');
