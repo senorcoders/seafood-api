@@ -117,7 +117,7 @@ module.exports = {
     //let's add variations for trims and packages
     let fishPreparations = await FishPreparation.find({ parent: { '!=': "0" } });
     await Promise.all( fishPreparations.map( async preparation => {
-      await WholeFishWeight.find( { name: preparation.name }, { name: preparation.name, isActive: true } )
+      await WholeFishWeight.findOrCreate( { name: preparation.name }, { name: preparation.name, isActive: true } )
     } ) )
 
   }
