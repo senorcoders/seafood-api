@@ -206,15 +206,34 @@ module.exports = {
       } ) )
       //console.log('--------------------------------------------------------------------------');
       //console.log( 'beforeSetup', categorySetup );
-      /*await Promise.all( newFishVariations.map( async newVariation => {
-        await FishVariations.create( newVariation )
-      } ) )*/
-      console.log('fish variations', newFishVariations );
       await FishType.update({ id: fish.type.id }).set( categorySetup );
       return Promise.resolve('ok');
     } ) );
+    
+    //console.log('fish variations', newFishVariations );
+    //let's fix newFishVariations array
+    let newArray = [];
+    newFishVariations.map( fishVariation => {
+      let newVariationExists = false;
+      newArray.map( (item, newArrayIndex ) =>  {
+        if( fishVariation.fishPreparation == item.fishPreparation && fishVariation.fishType == item.fishType ) {
+          newVariationExists = true;
+          fishVariation.variations.map( variation => {
+            if( !item.variations.includes( variation ) ) {
+              newArrayIndex[newArrayIndex].push( variation );
+            }
+          } ) 
+        }
+      } )
+      if( !newVariationExists ){
+        newArray.push( { fishPreparation: fishVariation.fishPreparation, fishType: fishVariation.fishType, variations: fishVariation.variations } )
+      }
+    } )
 
-
+    await Promise.all( newArray.map( async newVariation => {
+      await FishVariations.create( newVariation )
+    } ) )
+    
 
   }
 
