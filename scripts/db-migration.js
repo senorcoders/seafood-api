@@ -159,7 +159,7 @@ module.exports = {
         }
 
         // if is filleted or trim wholeFishWeight is going to be null so let's insert and  put same child preparation
-        if( typeof variation !== 'object' || variation == null )  {
+        if( typeof variation !== 'object' || variation == null || variation == undefined || variation == '' )  {
           //look for the child in whole fish weight
           let childPrep = await FishPreparation.findOne({ id: variation.fishPreparation.id });
           let fishVar = await WholeFishWeight.findOne({ name: childPrep.name })
