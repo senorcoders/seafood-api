@@ -207,7 +207,7 @@ module.exports = {
       //console.log('--------------------------------------------------------------------------');
       //console.log( 'beforeSetup', categorySetup );
       await Promise.all( newFishVariations.map( async newVariation => {
-        await newFishVariations.create( newVariation )
+        await FishVariations.create( newVariation )
       } ) )
       await FishType.update({ id: fish.type.id }).set( categorySetup );
       return Promise.resolve('ok');
