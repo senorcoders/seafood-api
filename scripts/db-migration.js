@@ -39,66 +39,6 @@ module.exports = {
 
     sails.log('Running custom shell script... (`sails run db-migration`)');
 
-    //adding basic unit of measure
-    let unitOfMeasureFound = await UnitOfMeasure.find();
-
-    if( unitOfMeasureFound.length == 0 ) {
-      UnitOfMeasure.create({
-        name: "KG",
-        kgConversionRate: 1,
-        isActive: true
-      })
-    }
-    await Promise.all( unitOfMeasureFound.map( async unit => {
-      
-      if(unit.kgConversionRate == undefined || unit.kgConversionRate == null || !unit.hasOwnProperty('kgConversionRate') ) {
-        if( unit.name === "LBS" ) 
-          unit['kgConversionRate'] = 0.4535;
-        else if ( unit.name === 'grams' )
-          unit['kgConversionRate'] = 0.001;
-        else 
-          unit['kgConversionRate'] = 1;
-        
-        await UnitOfMeasure.update({ id: unit.id }, { kgConversionRate: unit.kgConversionRate });
-      } 
-    } ) )
-
-    //add parent category for fillete fishpreparation
-    
-    //fillete and package
-    let fillete = await FishPreparation.findOne( { id: '5c93c01465e25a011eefbcc4', parent: '0' } );
-    let package = await FishPreparation.findOne( { id: '5d1cc9cd29dc5790fa2537f3', parent: '0' } );
-
-    if( fillete ){
-      // creating the parent for the current fillete
-      let parentFillete = await FishPreparation.create( {
-        "name" : "Filleted",
-        "isTrimming" : false,
-        "defaultProccessingParts" : null,
-        "parent" : "0",
-        "identifier" : "filleted_parent",
-        "isActive" : true
-      } ).fetch();
-      // update fillete with the parent what we just create
-      await FishPreparation.update( { id: fillete.id } ).set( { parent: parentFillete.id } );
-      await FishPreparation.update( { parent: fillete.id } ).set( { parent: parentFillete.id } );
-
-    }
-
-    if( package ) {
-      let parentPackage = await FishPreparation.create( {
-        "name" : "Package",
-        "isTrimming" : false,
-        "defaultProccessingParts" : null,
-        "parent" : "0",
-        "identifier" : "package_parent",
-        "isActive" : true
-      } ).fetch();
-      // update fillete with the parent what we just create
-      await FishPreparation.update( { id: package.id } ).set( { parent: parentPackage.id } );
-      await FishPreparation.update( { parent: package.id } ).set( { parent: parentPackage.id } );
-    }
-//return true;
     let fishes = await Fish.find().populate('type');
     let newFishVariations = [];
     await Promise.all( fishes.map( async fish => {
