@@ -132,9 +132,13 @@ module.exports = {
                         sku: skuVar,
                         parentFishPreparation: variation.parentFishPreparation,
                         fishPreparation: variation.fishPreparation,
-                        fish: mainFish.id,
-                        kgConversionRate: body.kgConversionRate
+                        fish: mainFish.id
                     }
+
+                    if( body.hasOwnProperty('kgConversionRate') ) {
+                        newVariation['kgConversionRate'] = body.kgConversionRate;
+                    }
+
 
                     if (variation.hasOwnProperty('wholeFishWeight')) {
                         newVariation['wholeFishWeight'] = variation.wholeFishWeight;

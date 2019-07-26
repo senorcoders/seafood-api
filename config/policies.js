@@ -51,6 +51,7 @@ module.exports.policies = {
   StoreController: {
     save: true,
     update: true,
+    getForSlug: true,
     get: true,
     getWithTypes: true,
     getBrandsAndCertifications: true
