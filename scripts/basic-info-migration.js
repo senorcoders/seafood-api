@@ -46,6 +46,11 @@ module.exports = {
     await Treatment.update({}).set({ isActive: true });
     await FishPreparation.update({}).set({ isActive: true });
     await UnitOfMeasure.update({}).set({ isActive: true });
+    await WholeFishWeight.update({}).set({ isActive: true });
+
+    await FishPreparation.update( { name: ['Filleted', 'Whole', 'Packaged'] } ).set( { parent: "0" } );
+    await FishPreparation.update( { name: ['Head Off Gutted', 'Head On Gutted'] } ).set( { parent: "5d128316ce26cbab9c23e52e" } );
+    
 
     //adding basic unit of measure
     let unitOfMeasureFound = await UnitOfMeasure.find();
@@ -90,6 +95,7 @@ module.exports = {
       // update fillete with the parent what we just create
       await FishPreparation.update( { id: fillete.id } ).set( { parent: parentFillete.id } );
       await FishPreparation.update( { parent: fillete.id } ).set( { parent: parentFillete.id } );
+      await FishPreparation.update( { name: { contains: 'Trim' } } ).set( { parent: parentFillete.id } );
 
     }
 
@@ -106,6 +112,13 @@ module.exports = {
       await FishPreparation.update( { id: package.id } ).set( { parent: parentPackage.id } );
       await FishPreparation.update( { parent: package.id } ).set( { parent: parentPackage.id } );
     }
+
+
+    //let's add variations for trims and packages
+    let fishPreparations = await FishPreparation.find({ parent: { '!=': "0" } });
+    await Promise.all( fishPreparations.map( async preparation => {
+      await WholeFishWeight.find( { name: preparation.name }, { name: preparation.name, isActive: true } )
+    } ) )
 
   }
 
