@@ -1,3 +1,4 @@
+
 catchErrors = callback => {
 
   return async function (req, res) {
@@ -38,68 +39,8 @@ module.exports = {
 
     sails.log('Running custom shell script... (`sails run db-migration`)');
 
-    //adding basic unit of measure
-    let unitOfMeasureFound = await UnitOfMeasure.find();
-
-    if( unitOfMeasureFound.length == 0 ) {
-      UnitOfMeasure.create({
-        name: "KG",
-        kgConversionRate: 1,
-        isActive: true
-      })
-    }
-    await Promise.all( unitOfMeasureFound.map( async unit => {
-      
-      if(unit.kgConversionRate == undefined || unit.kgConversionRate == null || !unit.hasOwnProperty('kgConversionRate') ) {
-        if( unit.name === "LBS" ) 
-          unit['kgConversionRate'] = 0.4535;
-        else if ( unit.name === 'grams' )
-          unit['kgConversionRate'] = 0.001;
-        else 
-          unit['kgConversionRate'] = 1;
-        
-        await UnitOfMeasure.update({ id: unit.id }, { kgConversionRate: unit.kgConversionRate });
-      } 
-    } ) )
-
-    //add parent category for fillete fishpreparation
-    
-    //fillete and package
-    let fillete = await FishPreparation.findOne( { id: '5c93c01465e25a011eefbcc4', parent: '0' } );
-    let package = await FishPreparation.findOne( { id: '5d1cc9cd29dc5790fa2537f3', parent: '0' } );
-
-    if( fillete ){
-      // creating the parent for the current fillete
-      let parentFillete = await FishPreparation.create( {
-        "name" : "Filleted",
-        "isTrimming" : false,
-        "defaultProccessingParts" : null,
-        "parent" : "0",
-        "identifier" : "filleted_parent",
-        "isActive" : true
-      } ).fetch();
-      // update fillete with the parent what we just create
-      await FishPreparation.update( { id: fillete.id } ).set( { parent: parentFillete.id } );
-      await FishPreparation.update( { parent: fillete.id } ).set( { parent: parentFillete.id } );
-
-    }
-
-    if( package ) {
-      let parentPackage = await FishPreparation.create( {
-        "name" : "Package",
-        "isTrimming" : false,
-        "defaultProccessingParts" : null,
-        "parent" : "0",
-        "identifier" : "package_parent",
-        "isActive" : true
-      } ).fetch();
-      // update fillete with the parent what we just create
-      await FishPreparation.update( { id: package.id } ).set( { parent: parentPackage.id } );
-      await FishPreparation.update( { parent: package.id } ).set( { parent: parentPackage.id } );
-    }
-
     let fishes = await Fish.find().populate('type');
-
+    let newFishVariations = [];
     await Promise.all( fishes.map( async fish => {
       let categorySetup = {
         unitOfMeasure: fish.type.unitOfSale !== undefined ? fish.type.unitOfMeasure :  '',
@@ -111,8 +52,8 @@ module.exports = {
       // let's check the unit of measure
       if( categorySetup.unitOfMeasure === '' ) { // if not founded, let's use the one in the fish
         if( fish.unitOfSale == undefined || fish.unitOfSale == null || !fish.hasOwnProperty('unitOfSale') || fish.unitOfSale == '' )  {
-          await Fish.update( { id: fish.id } ).set( { unitOfSale: 'KG' } )
-          fish['unitOfSale'] = 'KG';
+          await Fish.update( { id: fish.id } ).set( { unitOfSale: 'kg' } )
+          fish['unitOfSale'] = 'kg';
         }
         //console.log( fish.unitOfSale );
         let unitOfMeasureFound = await UnitOfMeasure.find( { name: fish.unitOfSale } ).limit(1);
@@ -135,6 +76,7 @@ module.exports = {
       // first let's look for the variations of this fish
 
       let variations = await Variations.find( { fish: fish.id } ).populate('fishPreparation')
+      
       await Promise.all( variations.map( async variation => {
         let isParentFishPreparationAlreadyInSetup = false;
         let isFishPreparationAlreadyInSetup = false;
@@ -156,25 +98,82 @@ module.exports = {
           categorySetup.fishPreparation[ variation.fishPreparation.parent ] = [ variation.fishPreparation.id ]
         }
 
-        // now let's look for the variations (wholefishweight)
-        let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
-
-        // if variation not exists, let's create it
-        if( !variationExists ) {
-          //await FishVariations.create( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id, variations: [ variation.wholeFishWeight ] } )
-        } else {
-          // the fish has variations, but let's check if it have the current one
-          if( !variationExists.variations.includes( variation.wholeFishWeight ) ) {
-            variationExists.variations.push( variation.wholeFishWeight );
+        // if is filleted or trim wholeFishWeight is going to be null so let's insert and  put same child preparation
+        if( typeof variation.wholeFishWeight !== 'string' || variation.wholeFishWeight == null || variation.wholeFishWeight == undefined || variation.wholeFishWeight == '' )  {
+          //look for the child in whole fish weight
+          let childPrep = await FishPreparation.findOne({ id: variation.fishPreparation.id });
+          let fishVar = await WholeFishWeight.findOne({ name: childPrep.name })
+          if( typeof fishVar !== 'object' || fishVar == null ) { // not exists so let's created
+            fishVar = await WholeFishWeight.create({ name: childPrep.name, isActive: true }).fetch();
           }
+        variation.wholeFishWeight = fishVar.id;
         }
+        
+        // now let's look for the variations (wholefishweight)
+        //let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
 
+        //console.log('exists', variationExists);
+          // if variation not exists, let's create it
+        if( variation.wholeFishWeight !== null ){
+          let newFishVariationExist = false;
+          newFishVariations.map( (newFishVariation, newFishVariationIndex) => {
+            if( newFishVariation.fishType == fish.type.id && newFishVariation.fishPreparation == variation.fishPreparation.id ){
+              if( !newFishVariations[newFishVariationIndex].variations.includes( variation.wholeFishWeight ) ) {
+                newFishVariations[newFishVariationIndex].variations.push( variation.wholeFishWeight )
+                newFishVariationExist = true;
+              }
+            } 
+          } )
+          if ( !newFishVariationExist ) {
+            newFishVariations.push( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id, variations: [ variation.wholeFishWeight ] } );
+            
+          }
+
+
+          /*if( typeof variationExists !== 'object' || variationExists == null ) {
+            await FishVariations.create( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id, variations: [ variation.wholeFishWeight ] } )
+            console.log( 'inserted' )
+          } else {
+            console.log( 'updated' );
+            // the fish has variations, but let's check if it have the current one
+            if( !variationExists.variations.includes( variation.wholeFishWeight ) ) {
+              variationExists.variations.push( variation.wholeFishWeight );
+              await FishVariations.update( { id: variationExists.id } ).set( { variations: variationExists.variations } )
+            }
+          }*/
+        }
+        return Promise.resolve('ok');
       } ) )
-      console.log('--------------------------------------------------------------------------');
-      console.log( 'beforeSetup', categorySetup );
+      //console.log('--------------------------------------------------------------------------');
+      //console.log( 'beforeSetup', categorySetup );
+      await FishType.update({ id: fish.type.id }).set( categorySetup );
+      return Promise.resolve('ok');
     } ) );
+    
+    //console.log('fish variations', newFishVariations );
+    //let's fix newFishVariations array
+    let newArray = [];
+    newFishVariations.map( fishVariation => {
+      let newVariationExists = false;
+      newArray.map( (item, newArrayIndex ) =>  {
+        if( fishVariation.fishPreparation == item.fishPreparation && fishVariation.fishType == item.fishType ) {
+          newVariationExists = true;
+          fishVariation.variations.map( variation => {
+            if( !item.variations.includes( variation ) ) {
+              newArrayIndex[newArrayIndex].push( variation );
+            }
+          } ) 
+        }
+      } )
+      if( !newVariationExists ){
+        newArray.push( { fishPreparation: fishVariation.fishPreparation, fishType: fishVariation.fishType, variations: fishVariation.variations } )
+      }
+    } )
 
-
+    await Promise.all( newArray.map( async newVariation => {
+      await FishVariations.create( newVariation )
+    } ) )
+    
 
   }
 
