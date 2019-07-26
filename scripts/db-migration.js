@@ -158,26 +158,26 @@ module.exports = {
         }
 
         // now let's look for the variations (wholefishweight)
-        //let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
+        let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
 
 
-        // if is filleted or trim wholeFishWeight is going to be null so let's insert and  put same child preparation
-	if( variation.wholeFishWeight == null )  {
-	  //look for the child in whole fish weight
-	  let childPrep = await FishPreparation.findOne({ id: variation.fishPreparation.id });
-	  let fishVar = await WholeFishWeight.findOne({ name: childPrep.name })
-	  /*if( fishVar == undefined ) { // not exists so let's created
-	    fishVar = await WholeFishWeight.create({ name: childPrep.name, isActive: true }).fetch();
-	  }*/
-	 variation.wholeFishWeight = fishVar.id;
-	}
+      // if is filleted or trim wholeFishWeight is going to be null so let's insert and  put same child preparation
+      if( typeof variation !== 'object' || variation == null )  {
+        //look for the child in whole fish weight
+        let childPrep = await FishPreparation.findOne({ id: variation.fishPreparation.id });
+        let fishVar = await WholeFishWeight.findOne({ name: childPrep.name })
+        /*if( fishVar == undefined ) { // not exists so let's created
+          fishVar = await WholeFishWeight.create({ name: childPrep.name, isActive: true }).fetch();
+        }*/
+       variation.wholeFishWeight = fishVar.id;
+      }
 
 	// now let's look for the variations (wholefishweight)
-        let variationExists = await FishVariations.find( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
+        let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
 
         // if variation not exists, let's create it
         if( variation.wholeFishWeight !== null ){
-        if( variationExists.length == 0 || variationExists[0] == undefined ) {
+        if( typeof variationExists !== 'object' || variationExists == null ) {
           await FishVariations.create( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id, variations: [ variation.wholeFishWeight ] } )
         } else {
           // the fish has variations, but let's check if it have the current one
