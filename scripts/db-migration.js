@@ -158,7 +158,7 @@ module.exports = {
         }
 
         // now let's look for the variations (wholefishweight)
-        let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
+        //let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
 
 
       // if is filleted or trim wholeFishWeight is going to be null so let's insert and  put same child preparation
