@@ -44,7 +44,7 @@ module.exports = {
     // let set all basic info as active
     await Raised.update({}).set({ isActive: true });
     await Treatment.update({}).set({ isActive: true });
-    await FishPrepraration.update({}).set({ isActive: true });
+    await FishPreparation.update({}).set({ isActive: true });
     await UnitOfMeasure.update({}).set({ isActive: true });
 
     //adding basic unit of measure
