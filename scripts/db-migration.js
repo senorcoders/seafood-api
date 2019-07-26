@@ -172,7 +172,7 @@ module.exports = {
         // now let's look for the variations (wholefishweight)
         //let variationExists = await FishVariations.findOne( { fishType: fish.type.id, fishPreparation: variation.fishPreparation.id } )
 
-        console.log('exists', variationExists);
+        //console.log('exists', variationExists);
           // if variation not exists, let's create it
         if( variation.wholeFishWeight !== null ){
           let newFishVariationExist = false;
