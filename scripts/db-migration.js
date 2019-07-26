@@ -178,7 +178,7 @@ module.exports = {
           let newFishVariationExist = false;
           newFishVariations.map( (newFishVariation, newFishVariationIndex) => {
             if( newFishVariation.fishType == fish.type.id && newFishVariation.fishPreparation == variation.fishPreparation.id ){
-              if( !newFishVariation[newFishVariationIndex].variations.includes( variation.wholeFishWeight ) ) {
+              if( !newFishVariations[newFishVariationIndex].variations.includes( variation.wholeFishWeight ) ) {
                 newFishVariations[newFishVariationIndex].variations.push( variation.wholeFishWeight )
                 newFishVariationExist = true;
               }
