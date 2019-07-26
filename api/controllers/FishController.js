@@ -135,7 +135,7 @@ module.exports = {
                         fish: mainFish.id
                     }
 
-                    if( body.hasOwnProperty('kgConversionRate') ) {
+                    if( body.hasOwnProperty('kgConversionRate') && body.kgConversionRate !== null ) {
                         newVariation['kgConversionRate'] = body.kgConversionRate;
                     }
 
@@ -239,7 +239,7 @@ module.exports = {
                 }
                 let newVariation;
 
-                if( body.hasOwnProperty('kgConversionRate') ) {
+                if( body.hasOwnProperty('kgConversionRate') && body.kgConversionRate !== null ) {                    
                     variationBody['kgConversionRate'] = body.kgConversionRate;
                 }
                 if (variation.hasOwnProperty('idVariation')) {
