@@ -108,7 +108,7 @@ module.exports = {
           }
         variation.wholeFishWeight = fishVar.id;
         // now lets update the id of the trim or package
-        await Variation.update( { id: variation.id } ).set( { wholeFishWeight: fishVar.id } )
+        await Variations.update( { id: variation.id } ).set( { wholeFishWeight: fishVar.id } )
         }
         
         // now let's look for the variations (wholefishweight)
