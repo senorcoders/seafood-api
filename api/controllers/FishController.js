@@ -233,6 +233,7 @@ module.exports = {
             await Promise.all(body.variations.map(async variation => {
                 let variationBody = {
                     fishPreparation: variation.fishPreparation,
+                    parentFishPreparation: variation.parentFishPreparation
                 }
                 if (variation.hasOwnProperty('wholeFishWeight')) {
                     variationBody['wholeFishWeight'] = variation.wholeFishWeight;
@@ -416,7 +417,20 @@ module.exports = {
             let wholeFishAction = '';
             await Promise.all(
                 variations.map(async variation => {
-                    fish['kgConversionRate'] = variation.kgConversionRate;
+                    let fishType;
+                    let kgConversionRate;
+                    if( !variation.hasOwnProperty('kgConversionRate') || variation.kgConversionRate == undefined || variation.kgConversionRate == null || variation.kgConversionRate == 0 ) {                        
+                        if( fish.type.hasOwnProperty( 'id' ) ) {
+                          fishType = inputs.fish.type.id;
+                        }
+                        //let fishInformation = await FishType.findOne( { id: fishType } ); // we are getting the unit of measure 
+                        let unitOfMeasure = await UnitOfMeasure.findOne( { name: inputs.fish.unitOfSale, isActive: true } )
+                        kgConversionRate = unitOfMeasure.kgConversionRate;
+                      } else {
+                        kgConversionRate = variation[0].kgConversionRate;
+                      }
+
+                    fish['kgConversionRate'] = kgConversionRate;
                     let inventory = await FishStock.find().where({
                         "date": { '>': unixNow },
                         "variations": variation.id
