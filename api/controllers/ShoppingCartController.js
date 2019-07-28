@@ -645,7 +645,7 @@ module.exports = {
 
     getPopulateXID: async function (req, res) {
         try {
-
+            
             let id = req.param("id");
             let cart = await ShoppingCart.findOne().where({ id }).populate("items");
             if (cart === undefined) {

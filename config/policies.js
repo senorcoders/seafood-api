@@ -15,12 +15,12 @@ module.exports.policies = {
   // Bypass the `is-logged-in` policy for:
   'user/verificationCode': true,
 
-  // 'FishController': {
-  //   getAllPagination: true,
+  'FishController': {
+    getAllPagination: true,
   //   customWhere: true,
   //   search: true,
   //   getXMultipleID: true
-  // },
+  },
 
   // FishTypeController: {
   //   getXNamePagination: true
