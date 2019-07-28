@@ -53,6 +53,11 @@ module.exports = {
 
         let updatedStock = await FishStock.update( { id: fishStockID } ).set( uVariation ).fetch();
 
+	await sails.helpers.updateFishStatus.with({
+      	  id: 0,
+      	  is_cron: true
+    	});
+
         return res.status(200).json( updatedStock )
     },
     saveETA: async ( req, res ) => {
@@ -90,6 +95,11 @@ module.exports = {
             }
             stock = await FishStock.update( exists[0].id ).set( uVariation ).fetch();
         }
+
+	await sails.helpers.updateFishStatus.with({
+      	  id: 0,
+      	  is_cron: true
+    	});
         return res.status(200).json( { stock, uVariation, exists } );
     },
     outOfStockNotification: async ( req, res ) => {
