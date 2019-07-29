@@ -258,7 +258,7 @@ module.exports = {
                 }
                 let newVariation;
 
-                if (body.hasOwnProperty('kgConversionRate')) {
+                if (body.hasOwnProperty('kgConversionRate') && body.kgConversionRate !== null ) {
                     variationBody['kgConversionRate'] = body.kgConversionRate;
                 }
                 if (variation.hasOwnProperty('idVariation')) {
@@ -287,7 +287,7 @@ module.exports = {
                     let sku = `${fishUpdated[0].seafood_sku}`;
                     variationBody['sku'] = skuVar;
                     variationBody['fish'] = body.idProduct;
-                    variationBody['parentFishPreparation'] = body.parentFishPreparation;
+                    variationBody['parentFishPreparation'] = variation.parentFishPreparation;
 
                     newVariation = await Variations.create(variationBody).fetch();
                 }
