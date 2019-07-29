@@ -15,12 +15,15 @@ module.exports.policies = {
   // Bypass the `is-logged-in` policy for:
   'user/verificationCode': true,
 
-  // 'FishController': {
-  //   getAllPagination: true,
-  //   customWhere: true,
-  //   search: true,
-  //   getXMultipleID: true
-  // },
+  'FishController': {
+    getAllPagination: true,
+    getDistinctCountry: true,
+    getItemCharges: true,
+    getFishWithVariations: true
+    //   customWhere: true,
+    //   search: true,
+    //   getXMultipleID: true
+  },
 
   // FishTypeController: {
   //   getXNamePagination: true
@@ -70,6 +73,27 @@ module.exports.policies = {
   },
   CompanyTypeSeller: {
     '*': true
+  },
+  FishPreparation: {
+    getFishPreparation: true
+  },
+  FishTypeController: {
+    getParentsWithFishes: true,
+    getParentLevel: true
+  },
+  // 'raised/get': true,
+  // 'treatment/get': true,
+  Treatment: {
+    '*': true
+  },
+  Raised: {
+    '*': true
+  },
+  reviewsstore: {
+    '*': true,
+  },
+  PricingCharges: {
+    getCurrentPricingCharges: true
   },
   /*  FeaturedProductsController: {
       "*": true
