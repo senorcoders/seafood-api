@@ -28,6 +28,24 @@ const getTRW = async mainFish => {
     return mainFish;
 }
 
+//mixed with underscore for prop numbers to 'n/a', omits:array for ignore prop
+//if in the future it is used in another file se convert to helpers
+_.mixin({
+    numbersToNA: function (o, omits) {
+        omits = omits || [];
+        let clone = _.clone(o);
+        _.each(clone, function (value, name) {
+            console.log(omits, name, omits.includes(name), 'omits');
+            if ((typeof value === 'number' || isNaN(value) === false) && omits.includes(name) === false) {
+                clone[name] = 'n/a';
+            } else if (typeof value === 'object')
+                clone[name] = _.numbersToNA(value, omits);
+        });
+        return clone;
+    }
+});
+
+
 module.exports = {
 
     getTRW,
@@ -353,6 +371,7 @@ module.exports = {
 
     getFishWithVariations: async (req, res) => {
         try {
+            let auth = await sails.helpers.isAuthenticated.with({ req });
             let fishID = req.param('id');
             let variation_where = {};
             let fish = await Fish.findOne({ id: fishID }).populate('status').populate('store').populate('type').populate('treatment').populate('raised');//.populate('descriptor')
@@ -518,7 +537,7 @@ module.exports = {
                                 id: row.id,
                                 min: row.min,
                                 max: maxLimit ? maxLimit : row.max,//row.max,
-                                price: row.price,
+                                price: auth === true ? row.price : 'n/a',
                                 options: optionSlides
                             };
                         if (isTrimms == false) {
@@ -550,7 +569,12 @@ module.exports = {
                         minLimit = row.max;
                         return row;
                     })
-                    variation['prices'] = prices;
+                    variation['prices'] = prices.map(pr => {
+                        if (auth === false) {
+                            pr.price = 'n/a';
+                        }
+                        return pr;
+                    });
                 })
             );
 
@@ -589,8 +613,11 @@ module.exports = {
             fish['fishVariations'] = fishVariations;
             fish["isTrimms"] = isTrimms;
 
+            if (auth === false) {
+                if (fish.price && fish.price.value)
+                    fish.price.value = 'n/a';
+            }
             res.status(200).json(fish);
-
         } catch (error) {
             res.serverError(error);
         }
@@ -1183,9 +1210,8 @@ module.exports = {
     },
 
     getAllPagination: async function (req, res) {
-        console.log(req.headers);
         try {
-            let atuh = await sails.helpers.isAuthenticated.with({ req, res });
+            let auth = await sails.helpers.isAuthenticated.with({ req });
             var today = new Date();
             var outOfStockDate = new Date();
             var coomingSoonDate = new Date();
@@ -1270,36 +1296,37 @@ module.exports = {
                         fish['minInventoryDate'] = coomingSoonDate;
                     }
                 }
-                let minPrice, maxPrice;
+                if (auth === true) {
+                    let minPrice, maxPrice;
 
-                if (fish.hasOwnProperty('perBox') && fish.perBox === true) {
-                    //for price range, we look for the higher and minimum price
-                    minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minBox, currentCharges, currentVariationID, true);
-                    maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maxBox, currentCharges, currentVariationID, true);
-                    minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minBox / fish.boxWeight).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
-                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maxBox / fish.boxWeight).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                    if (fish.hasOwnProperty('perBox') && fish.perBox === true) {
+                        //for price range, we look for the higher and minimum price
+                        minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minBox, currentCharges, currentVariationID, true);
+                        maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maxBox, currentCharges, currentVariationID, true);
+                        minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minBox / fish.boxWeight).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                        maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maxBox / fish.boxWeight).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                    } else {
+                        //for price range, we look for the higher and minimum price
+                        minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minimumOrder, currentCharges, currentVariationID, true);
+                        maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maximumOrder, currentCharges, currentVariationID, true);
+                        minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minimumOrder).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                        maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maximumOrder).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+
+                    }
+
+                    //if (m.max === 0)
+                    //maxPrice = minPrice;
+                    if (minPrice.finalPrice > maxPrice.finalPrice) {
+                        m['minPrice'] = maxPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                        m['maxPrice'] = minPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                    } else {
+                        m['minPrice'] = minPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
+                        m['maxPrice'] = maxPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
+                    }
                 } else {
-                    //for price range, we look for the higher and minimum price
-                    minPrice = await sails.helpers.fishPricing(m.fish.id, fish.minimumOrder, currentCharges, currentVariationID, true);
-                    maxPrice = await sails.helpers.fishPricing(m.fish.id, fish.maximumOrder, currentCharges, currentVariationID, true);
-                    minPrice.finalPrice = Number(parseFloat(minPrice.finalPrice / fish.minimumOrder).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
-                    maxPrice.finalPrice = Number(parseFloat(maxPrice.finalPrice / fish.maximumOrder).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
-
+                    m['minPrice'] = { finalPrice: 'n/a' };
+                    m['maxPrice'] = { finalPrice: 'n/a' };
                 }
-
-                //if (m.max === 0)
-                //maxPrice = minPrice;
-
-
-                if (minPrice.finalPrice > maxPrice.finalPrice) {
-                    m['minPrice'] = maxPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
-                    m['maxPrice'] = minPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
-                } else {
-                    m['minPrice'] = minPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
-                    m['maxPrice'] = maxPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
-                }
-
-
 
                 let variation = m;
                 delete variation.fish;
@@ -2194,6 +2221,7 @@ module.exports = {
     },
     getItemCharges: async (req, res) => {
         try {
+            let auth = await sails.helpers.isAuthenticated.with({ req });
             let currentAdminCharges = await sails.helpers.currentCharges();
             let id = req.param('id');
             let variation_id = req.param('variation_id');
@@ -2202,19 +2230,29 @@ module.exports = {
             console.log('in_AED', in_AED);
             console.log('in_AED2', req.param('in_AED'));
             let charges = await sails.helpers.fishPricing(id, weight, currentAdminCharges, variation_id, in_AED);
-
-            charges['finalPricePerKG'] = charges.finalPrice;
-            charges['fishCostPerKG'] = charges.fishCost;
-            //checking if the product is per box
-            let varFish = await Variations.findOne({ id: variation_id }).populate("fish");
-            if (varFish.fish.hasOwnProperty('perBox') && varFish.fish.perBox) {
-                weight = weight * varFish.fish.boxWeight;
-                charges['finalPricePerKG'] = Number(parseFloat(charges.finalPrice / varFish.fish.boxWeight).toFixed(2));
-                charges['fishCostPerKG'] = Number(parseFloat(charges.fishCost / varFish.fish.boxWeight).toFixed(2));
+            if (auth === true) {
+                charges['finalPricePerKG'] = charges.finalPrice;
+                charges['fishCostPerKG'] = charges.fishCost;
+                //checking if the product is per box
+                let varFish = await Variations.findOne({ id: variation_id }).populate("fish");
+                if (varFish.fish.hasOwnProperty('perBox') && varFish.fish.perBox) {
+                    weight = weight * varFish.fish.boxWeight;
+                    charges['finalPricePerKG'] = Number(parseFloat(charges.finalPrice / varFish.fish.boxWeight).toFixed(2));
+                    charges['fishCostPerKG'] = Number(parseFloat(charges.fishCost / varFish.fish.boxWeight).toFixed(2));
+                }
+            } else {
+                charges['finalPricePerKG'] = 'n/a';
+                charges['fishCostPerKG'] = 'n/a';
             }
 
             let stock = await sails.helpers.getEtaStock(variation_id, weight);
             charges['eta'] = stock;
+            if (auth === false) {
+                charges = _.numbersToNA(charges,
+                    ['createdAt', 'updatedAt', 'inventoryFeeByWeight', 'inventoryFee', 'min', 'max', 'orderStatus',
+                        'minDeliveryUnixDate', 'purchased', 'quantity', 'available', 'date']
+                )
+            }
             res.status(200).json(charges);
 
         } catch (error) {

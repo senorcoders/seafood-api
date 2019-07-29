@@ -1,3 +1,4 @@
+const isLogged = require("./../policies/is-logged-in");
 module.exports = {
 
 
@@ -8,7 +9,10 @@ module.exports = {
 
 
   inputs: {
-
+    req: {
+      type: 'ref',
+      required: true
+    }
   },
 
 
@@ -21,8 +25,17 @@ module.exports = {
   },
 
 
-  fn: async function (inputs) {
-    // TODO
+  fn: async function (inputs, exits) {
+    //for delete refence
+    let auth = await new Promise((resolve, reject) => {
+      let res = {
+        send: function () { resolve(false) }, status: console.log
+      };
+      //for re-use function for validate 
+      isLogged(inputs.req, res, function () { resolve(true); });
+    });
+
+    exits.success(auth);
   }
 
 

@@ -150,7 +150,7 @@ let fishType;
     let partnerFreightCost = currentAdminCharges.partnerFreightCosts; // Z
     let stock = await sails.helpers.getEtaStock( inputs.variation_id, weight ); // S | here we have the stock record plus available field = quantity - purchased
     if( stock === 0 ) { // is out of stock
-      partnerFreightCost = 0; 
+      partnerFreightCost = 0;  
       stock = { available: 1 };
     } else {
       //if( stock.hasOwnProperty( 'pickupCost' ) ) // for backwards compatibility, if no stock, then use 0

@@ -17,9 +17,12 @@ module.exports.policies = {
 
   'FishController': {
     getAllPagination: true,
-  //   customWhere: true,
-  //   search: true,
-  //   getXMultipleID: true
+    getDistinctCountry: true,
+    getItemCharges: true,
+    getFishWithVariations: true
+    //   customWhere: true,
+    //   search: true,
+    //   getXMultipleID: true
   },
 
   // FishTypeController: {
@@ -70,6 +73,27 @@ module.exports.policies = {
   },
   CompanyTypeSeller: {
     '*': true
+  },
+  FishPreparation: {
+    getFishPreparation: true
+  },
+  FishTypeController: {
+    getParentsWithFishes: true,
+    getParentLevel: true
+  },
+  // 'raised/get': true,
+  // 'treatment/get': true,
+  Treatment: {
+    '*': true
+  },
+  Raised: {
+    '*': true
+  },
+  reviewsstore: {
+    '*': true,
+  },
+  PricingCharges: {
+    getCurrentPricingCharges: true
   },
   /*  FeaturedProductsController: {
       "*": true
