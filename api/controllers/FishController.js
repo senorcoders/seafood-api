@@ -229,6 +229,10 @@ module.exports = {
             let fishUpdated = await Fish.update({ id: body.idProduct }).set(
                 fishBody
             ).fetch();
+
+            let bodyVariationsID = []; //let's save the variation id of the variation in the json // if one is not here we should deleted
+            let bodyPricesID = []; // id's of the prices in the json
+            let currentFishVariations = await Variations.find( { fish: body.idProduct } ); // if a variation is not in the request body we should delete them
             // let go variations information
             await Promise.all(body.variations.map(async variation => {
                 let variationBody = {
@@ -243,8 +247,11 @@ module.exports = {
                 if( body.hasOwnProperty('kgConversionRate') && body.kgConversionRate !== null ) {                    
                     variationBody['kgConversionRate'] = body.kgConversionRate;
                 }
+
+                
                 if (variation.hasOwnProperty('idVariation')) {
                     // update
+                    bodyVariationsID.push( variation.idVariation );
                     newVariation = await Variations.update({ id: variation.idVariation }).set(variationBody).fetch();
                 } else {
                     //create
@@ -272,10 +279,11 @@ module.exports = {
                     variationBody['parentFishPreparation'] = variation.parentFishPreparation;
                     
                     newVariation = await Variations.create(variationBody).fetch();
+                    //currentFishVariations.push( newVariation.id );
                 }
 
                 // let update pricing information
-                await Promise.all(variation.prices.map(async price => {
+                await Promise.all(variation.prices.map(async price => {                    
                     let priceBody = {
 
                         min: price.min,
@@ -283,6 +291,7 @@ module.exports = {
                         price: price.price
                     }
                     if (price.hasOwnProperty('id')) {
+                        bodyPricesID.push( price.id );
                         // lets update
                         await VariationPrices.update({ id: price.id }).set(priceBody);
                     } else {
@@ -295,55 +304,36 @@ module.exports = {
                             idVar = newVariation.id ? newVariation.id : variation.id;
                         }
                         priceBody['variation'] = idVar;
-                        await VariationPrices.create(priceBody);
+                        let newVariationPrice = await VariationPrices.create(priceBody).fetch();
+                        bodyPricesID.push( newVariationPrice.id )
                     }
 
                 }))
 
 
-            }))
+            })) 
 
-            //check if the id variations 
-            let variationsNoDelete = [], pricesNoDeletes = [];
-            if (body.hasOwnProperty('variationsDeleted')) {
-                for (let vari of body.variationsDeleted) {
-                    let itemss = await ItemShopping.find({
-                        variation: vari
-                    });
-                    if (itemss.length > 0) {
-                        variationsNoDelete.push(vari);
-                        let prices = await VariationPrices.find({ variation: vari });
-                        pricesNoDeletes = pricesNoDeletes.concat(prices.map(it => { return it.id; }));
-                    }
+            // deleting variations and prices that are not in the body json
+            await Promise.all( currentFishVariations.map( async dbVariation => {                
+                if ( !bodyVariationsID.includes( dbVariation.id ) && dbVariation.id !== undefined ) {
+                    console.log( 'delete variation ', { bodyVariationsID, idDelete: dbVariation.id } );
+                   await VariationPrices.destroy( { variation: dbVariation.id } );
+                   await Variations.destroy( { id: dbVariation.id } )
+                } else {
+                    //let's check if we need to delete a price of the existing variations
+                    let variationPrices = await VariationPrices.find( { variation: dbVariation.id } )
+                    await Promise.all( variationPrices.map( async dbPrice => {
+                        if( !bodyPricesID.includes( dbPrice.id ) && dbPrice.id !== undefined ) { //if is not there let's destroy the record
+                        console.log( 'delete price', {bodyPricesID , pricDelete: dbPrice.id } );
+                            await VariationPrices.destroy( { id: dbPrice.id } )
+                        }
+                    } ) )
                 }
-            }
-            console.log('no deletes \n\n', variationsNoDelete, pricesNoDeletes);
-
-            //let delete variation
-            if (body.hasOwnProperty('pricesDeleted')) {
-                await VariationPrices.destroy({
-                    id: {
-                        in: body.pricesDeleted.filter((it) => {
-                            let index = pricesNoDeletes.findIndex(itt => { return itt === it; });
-                            return index === -1;
-                        })
-                    }
-                });
-            }
-
-            //let delete variation
-            if (body.hasOwnProperty('variationsDeleted')) {
-                await Variations.destroy({
-                    id: {
-                        in: body.variationsDeleted.filter((it) => {
-                            let index = variationsNoDelete.findIndex(itt => { return itt === it; });
-                            return index === -1;
-                        })
-                    }
-                });
-            }
+            } ) )
 
 
+
+          
             res.json(fishUpdated);
 
         } catch (error) {
