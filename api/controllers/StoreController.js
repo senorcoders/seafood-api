@@ -39,7 +39,7 @@ module.exports = {
                 location: "",
 
             };
-            for(let name of Object.keys(store)){
+            for (let name of Object.keys(store)) {
                 store[name] = req.param(name);
             }
             store.slug = slug;
@@ -56,20 +56,20 @@ module.exports = {
         }
     },
 
-    getForSlug: async (req, res) => {	
-        try {	
-            let slug = req.param("slug");	
-            let store = await Store.findOne({ slug });	
-            if (store === undefined) {	
-                return res.status(400).send('not found');	
-            }	
+    getForSlug: async (req, res) => {
+        try {
+            let slug = req.param("slug");
+            let store = await Store.findOne({ slug });
+            if (store === undefined) {
+                return res.status(400).send('not found');
+            }
 
-             res.json(store);	
-        }	
-        catch (e) {	
-            console.error(e);	
-            res.serverError(e);	
-        }	
+            res.json(store);
+        }
+        catch (e) {
+            console.error(e);
+            res.serverError(e);
+        }
     },
 
     getXUser: async (req, res) => {
@@ -109,17 +109,29 @@ module.exports = {
             let id = req.param("id");
             console.log(id);
             let store = await Store.findOne({ id });
-            store.fishs = await Fish.find({ store: store.id, status:['5c0866e4a0eda00b94acbdc0', '5c0866f2a0eda00b94acbdc1', '5c0866f9a0eda00b94acbdc2', '5c3fc078970dc99bb06bed69'] }).populate("type").populate("status")
+            store.fishs = await Fish.find({ store: store.id, status: ['5c0866e4a0eda00b94acbdc0', '5c0866f2a0eda00b94acbdc1', '5c0866f9a0eda00b94acbdc2', '5c3fc078970dc99bb06bed69'] }).populate("type").populate("status")
 
             //fish['variations'] = [];
             await Promise.all(store.fishs.map(async (fish) => {
-                let variations = await Variations.find({ fish: fish.id });
+                let variations = await Variations.find({ fish: fish.id }).populate('fishPreparation').populate('wholeFishWeight').populate('parentFishPreparation');
 
 
                 await Promise.all(variations.map(async (variation, index) => {
 
                     variations[index]['prices'] = await VariationPrices.find({ variation: variation.id });
+                    let minPrice = variations[index]['prices'].sort((a, b) => {
+                        return a.price - b.price;
+                    })[0];
 
+                    let maxPrice = variations[index]['prices'].sort((a, b) => {
+                        return b.price - a.price;
+                    })[0];
+
+                    if (minPrice && maxPrice) {
+                        minPrice.finalPrice = minPrice.price;
+                        maxPrice.finalPrice = maxPrice.price;
+                        variations[index] = Object.assign(variation, { unitOfSale: fish.unitOfSale, minPrice, maxPrice });
+                    }
 
                 }))
                 fish['variations'] = variations;
@@ -508,16 +520,16 @@ module.exports = {
         res.status(200).json(items);
 
     },
-    getBrandsAndCertifications: async ( req, res ) => {
+    getBrandsAndCertifications: async (req, res) => {
         let storeID = req.param('id');
 
-        let store = await Store.findOne( { id: storeID  } );
+        let store = await Store.findOne({ id: storeID });
 
-        let user = await User.findOne ( store.owner );
+        let user = await User.findOne(store.owner);
 
-        return res.status(200).json( { brands: user.logos, certifications: user.certifications } )
+        return res.status(200).json({ brands: user.logos, certifications: user.certifications })
     }
-    
+
 
 };
 
