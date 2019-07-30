@@ -42,6 +42,14 @@ module.exports = {
             let variationInfo = await WholeFishWeight.findOne({ id: variation });
             variations.push(variationInfo);
           } ) )
+
+          variations = variations.sort((a, b) => { // non-anonymous as you ordered...
+            // ordernamos por whole fish weight            
+            var textA = a.name.toUpperCase();
+            var textB = b.name.toUpperCase();
+            return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+
+          });
           fishPreparation['variationInfo'] = variations;
 
           return exits.success(fishPreparation);

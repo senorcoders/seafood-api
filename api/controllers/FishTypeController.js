@@ -448,7 +448,15 @@ module.exports = {
                 }
                 
                 categories['fishPreparationInfo'] = fishPreparationInfo;
+
             }
+            fishPreparationInfo = fishPreparationInfo.sort((a, b) => { // non-anonymous as you ordered...
+                // ordernamos por whole fish weight            
+                var textA = a.name.toUpperCase();
+                var textB = b.name.toUpperCase();
+                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+    
+              });
             res.json(fishPreparationInfo)
         } catch (error) {
             res.serverError(error)
