@@ -36,6 +36,13 @@ module.exports = {
 
       if (variationID && quantity) {
         let unixNow = Math.floor(new Date());
+        console.log(
+          {
+            "date": { '>': unixNow },
+            "variations": variationID
+          }
+
+        );
         let stocks = await FishStock.find().where({
           "date": { '>': unixNow },
           "variations": variationID
@@ -48,6 +55,7 @@ module.exports = {
               stock.available = stock.quantity - stock.purchased;
               return exits.success(stock);
             } else {
+              stock.available = 0;
               //return exits.success(0);
             }
           })
