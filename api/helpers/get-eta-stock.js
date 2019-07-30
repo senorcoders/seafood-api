@@ -48,20 +48,20 @@ module.exports = {
               stock.available = stock.quantity - stock.purchased;
               return exits.success(stock);
             } else {
-              return exits.success(0);
+              //return exits.success(0);
             }
           })
         } else {
-          return exits.success(0);
+          //return exits.success(0);
         }
       } else {
-        return exits.success(0);
       }
+      return exits.success(0);
       // Send back the result through the success exit.
     }
     catch (e) {
       console.error(e);
-      return exits.success(0);
+      //return exits.success(0);
     }
 
   }

@@ -659,6 +659,7 @@ module.exports = {
             let maxLimit = fish.maximumOrder;;
             await Promise.all(
                 variations.map(async (variation, variationIndex) => {
+                    variations[ variationIndex ][ 'stock' ] = await sails.helpers.getEtaStock( variation.id, fish.minimumOrder ); 
                     fish['kgConversionRate'] = variation.kgConversionRate;
                     if (variation.parentFishPreparation === null) {
                         if (variation.fishPreparation.parent == "0") {
