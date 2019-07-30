@@ -47,7 +47,7 @@ _.mixin({
 
 
 module.exports = {
-
+    
     getTRW,
 
     addFish: async (req, res) => {
@@ -2250,6 +2250,27 @@ module.exports = {
             res.serverError(error);
         }
     },
+    reversePrice: async ( req, res ) => {
+        try {
+            req.setTimeout(30000); // 30 seconds timeout | default is 2 minutes
+            let deliveredPricePerKG = req.body.deliveredPricePerKG;
+            let weight = req.body.weight;
+            let variationID = req.body.variationID;
+            let variation = await Variations.findOne( { id: variationID } );
+           
+            let response = await sails.helpers.reversePrice.with({
+                variationID: variationID, //"5d399b063c83343385625ce1",
+                deliveredPricePerKG: deliveredPricePerKG, //61.15, //51.38
+                weight: weight, //22.5, //20.4,
+                fishID:  variation.fish, //"5d0e83082e7676632286581f", //"5d1333f53e09010ea4529204",
+                count: 0,
+                tryingWith: deliveredPricePerKG - ( deliveredPricePerKG / 2 )//61.15 - (61.15 / 2)
+            });
+            res.send( response )
+        } catch (error) {
+            res.serverError( error )
+        }
+    },
 
     getFishs: catchErrors(async (req, res) => {
         let fishstypes = await FishType.find().populate("childsTypes").populate("parentsTypes");
@@ -2269,6 +2290,8 @@ module.exports = {
 
 
 };
+
+
 
 getChildsTypes = async childs => {
     childs = await Promise.all(childs.map(async it => {

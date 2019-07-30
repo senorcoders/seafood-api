@@ -17,7 +17,7 @@ module.exports = {
       required: true
     },
     currentCharges: {
-      type: "ref",
+      type: "json",
       required: true
     },
     variation_id: {
@@ -27,6 +27,18 @@ module.exports = {
     in_AED: {
       type: 'boolean',
       required: true
+    },
+    price: {
+      type: 'number',
+      required: false
+    },
+    shipping: {
+      type: 'json',
+      required: false
+    },
+    fishInfo: {
+      type: 'json',
+      required: false
     }
   },
 
@@ -41,21 +53,28 @@ module.exports = {
   fn: async function (inputs, exits) {
     let id = inputs.id; //Fish ID 
     let weight = inputs.weight; // Weight to query
-    let currentAdminCharges = await sails.helpers.currentCharges();//inputs.currentCharges; // charges manages by admin
+    let currentAdminCharges = inputs.currentCharges;//await sails.helpers.currentCharges();//inputs.currentCharges; // charges manages by admin
     let is_flat_custom = false;    
     let is_domestic = false; // TODO: we had to change this because the name in the database is foreign fish and should be is_domestic
     // getting the fish information
-    let fish = await Fish.findOne({ where: { id: id } }).populate('type').populate('store').populate('descriptor');    
+    let fish;
+    if( inputs.fishInfo ) {
+      fish = inputs.fishInfo;
+    } else {
+      fish = await Fish.findOne({ where: { id: id } }).populate('type').populate('store').populate('descriptor');    
+    }
     if ( fish.hasOwnProperty( 'foreign_fish' ) )
     is_domestic = fish.foreign_fish; // verificamos si el fish es local
 
-    if (fish.hasOwnProperty("perBox")) {
-      if (fish.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
-        weight = fish.boxWeight * weight;
-        inputs.weight = weight;
+    if( !inputs.price ) {
+      if (fish.hasOwnProperty("perBox")) {
+        if (fish.perBox === true) { // if is per box the api is sending the number of boxes, not the weight
+          weight = fish.boxWeight * weight;
+          inputs.weight = weight;
+        }
       }
     }
-
+    
     let variation = await VariationPrices.find().where({
       'min': { "<=": inputs.weight },
       'max': { ">=": inputs.weight },
@@ -71,8 +90,11 @@ module.exports = {
     }
 
     variation = variation[0];
+    if( inputs.price ) {
+      variation.price = inputs.price;
+    }
 
-let fishType;
+    let fishType;
     let kgConversionRate;
     if( !variation.variation.hasOwnProperty('kgConversionRate') || variation.variation.kgConversionRate == undefined || variation.variation.kgConversionRate == null || variation.variation.kgConversionRate == 0 ) {                        
         if( fish.type.hasOwnProperty( 'id' ) ) {
@@ -93,7 +115,7 @@ let fishType;
     }  else {
       currentAdminCharges['selectedCustoms'] = currentAdminCharges.customs;
     }
-  
+    
     if (is_domestic && is_domestic === true) {
       currentAdminCharges.selectedCustoms = 0;
     }
@@ -135,7 +157,11 @@ let fishType;
     variation.price = fishPrice; //actualizamos el valor en variation
     // getting shipping rate from that city in AED
     //console.log( 'city', fish.city );
-    shipping = await sails.helpers.shippingByCity(fish.city, weight);
+    if( inputs.shipping ) {
+      shipping = inputs.shipping;
+    } else {
+      shipping = await sails.helpers.shippingByCity(fish.city, weight);
+    }
 
     exchangeRates = currentAdminCharges.exchangeRates;
 
@@ -144,7 +170,7 @@ let fishType;
     let marginPercentage = 0; //await IncotermsByType.find( { incoterm: owner.incoterms, type: fish.type.id } );
 
     // new fee based on inventory
-    console.info( 'current', currentAdminCharges );
+    //console.info( 'current', currentAdminCharges );
     let fixedHanlingFees = currentAdminCharges.flatHandlingFees; // X
     let pickupLogistic = currentAdminCharges.pickupLogistics; // Y
     let partnerFreightCost = currentAdminCharges.partnerFreightCosts; // Z
