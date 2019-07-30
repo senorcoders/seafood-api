@@ -177,7 +177,7 @@ module.exports = {
     let stock = await sails.helpers.getEtaStock( inputs.variation_id, weight ); // S | here we have the stock record plus available field = quantity - purchased
     if( stock === 0 ) { // is out of stock
       partnerFreightCost = 0;  
-      stock = { available: 1 };
+      stock = { available: 0 };
     } else {
       //if( stock.hasOwnProperty( 'pickupCost' ) ) // for backwards compatibility, if no stock, then use 0
         //partnerFreightCost = stock.pickupCost
@@ -204,6 +204,7 @@ module.exports = {
         marginPercentage = 0;
       }
       let sfsMarginCost = Number(parseFloat((sfsMargin / 100) * fishCost).toFixed(2) ) ; // D
+      console.log( 'inventory fee', { pickupLogistic, stock } );
       inventoryFee = pickupLogistic / stock.available; // H = Y / S
       inventoryFeeByWeight = inventoryFee * weight; // I = H * weight
 
@@ -255,7 +256,8 @@ module.exports = {
       // inventory fee
       inventoryFee = ( fixedHanlingFees + pickupLogistic + partnerFreightCost ) / stock.available; // H = (X+Y+Z) / S
       inventoryFeeByWeight = inventoryFee * weight; // I = H * Buyer's Quantity
-
+      
+      console.log( 'inventory fee', { fixedHanlingFees, pickupLogistic, partnerFreightCost, stock:  stock, inventoryFeeByWeight } );
       if (owner.incoterms === '5cbf6900aa5dbb0733b05be4') { // exworks
         if (fish.descriptor !== null) {
           sfsMargin = fish.descriptor.exworks;
