@@ -541,6 +541,8 @@ module.exports.routes = {
   'DELETE /api/fishvariations/:id': 'FishVariations.delete',
   'DELETE /api/wholefishweight/:id': 'WholeFishWeight.delete',
   'DELETE /api/unitOfMeasure/:id': 'UnitOfMeasure.delete',
+
+  'POST /reverse/price': 'Fish.reversePrice',
   /*****
    * 
    * DOSUSIGN
