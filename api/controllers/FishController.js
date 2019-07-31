@@ -846,8 +846,19 @@ module.exports = {
 
             // start variation filters
             if (req.body.hasOwnProperty('preparation')) {
-                if (req.body.preparation.length > 0) {
-                    variation_where['fishPreparation'] = req.body.preparation;
+                if (req.body.preparation.length > 0) {                    
+                    let filterPrepsIds = [];
+                    await Promise.all( req.body.preparation.map( async parentPrep => {
+                        // get the child preparation of the current preparation
+                        filterPrepsIds.push( parentPrep )
+                        filterPreparation = await FishPreparation.find( { parent: parentPrep } );
+                        filterPreparation.map( child => {
+                            filterPrepsIds.push( child.id )
+                        } )
+
+                    } ) )
+
+                    variation_where['fishPreparation'] = filterPrepsIds; //req.body.preparation;
                     console.log('1');
                     filterByVariations = true;
                 }
