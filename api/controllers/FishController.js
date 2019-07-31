@@ -436,7 +436,10 @@ module.exports = {
                         }
                         //let fishInformation = await FishType.findOne( { id: fishType } ); // we are getting the unit of measure 
                         let unitOfMeasure = await UnitOfMeasure.findOne({ name: fish.unitOfSale, isActive: true })
-                        kgConversionRate = unitOfMeasure.kgConversionRate;
+                        if (unitOfMeasure && unitOfMeasure.kgConversionRate)
+                            kgConversionRate = unitOfMeasure.kgConversionRate;
+                        else
+                            kgConversionRate = 1;
                     } else {
                         kgConversionRate = variation.kgConversionRate;
                     }
