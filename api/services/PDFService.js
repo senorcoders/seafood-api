@@ -69,15 +69,19 @@ const processData = async function (itemsShopping, cart, OrderNumber, uaeTaxes, 
     return html;
 }
 
+const getName = function(orderNumber, cart){
+    return orderNumber+ '-'+ cart.buyer.dataExtra.companyName.replace(/ /g, '') + '-'+ moment().format('MMDDYY')+ '.pdf';
+};
+
 module.exports = {
     buyerInvoice: async (itemsShopping, cart, OrderNumber, storeName, uaeTaxes, paid) => {
         console.log('\n\n total', JSON.parse( JSON.stringify(cart) ).total);
         let html = await processData(itemsShopping, cart, OrderNumber, uaeTaxes, paid, 'invoice');
         console.log('\n\n total__', JSON.parse( JSON.stringify(cart) ).total);
-        let pdf_name = `invoice-order-${OrderNumber}.pdf`;
+        let pdf_name = getName(OrderNumber, cart);
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
-            MailerService.sendCartPaidBuyerNotified(itemsShopping, cart, OrderNumber, storeName, `invoice-order-${OrderNumber}.pdf`, OrderNumber);
+            MailerService.sendCartPaidBuyerNotified(itemsShopping, cart, OrderNumber, storeName, pdf_name, OrderNumber);
             await ShoppingCart.update({ id: cart.id }, { invoice_pdf: pdf_name });
         });
         return pdf_name;
@@ -86,7 +90,7 @@ module.exports = {
     newVersionBuyerInvoice: async (itemsShopping, cart, OrderNumber, version, id) => {
         let _orderNumber = parseInt(OrderNumber.toString().replace(/,/g, '')) + '-R' +version;
         let html = await processData(itemsShopping, cart, _orderNumber, 0, false, 'invoice_rx');
-        let pdf_name = `invoice-order-${OrderNumber}-R${version}.pdf`;
+        let pdf_name = `${getName(OrderNumber, cart)}-R${version}.pdf`;
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
             MailerService.sendCartPaidBuyerNotifiedRe(itemsShopping, cart, OrderNumber, pdf_name);
@@ -97,7 +101,7 @@ module.exports = {
 
     buyerInvoiceCOD: async (itemsShopping, cart, OrderNumber, storeName, uaeTaxes) => {
         let html = await processData(itemsShopping, cart, OrderNumber, uaeTaxes, false, 'invoice_cod');
-        let pdf_name = `invoice-order-${OrderNumber}.pdf`;
+        let pdf_name = getName(OrderNumber, cart);
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
             MailerService.sendCartPaidBuyerNotified(itemsShopping, cart, OrderNumber, storeName, `invoice-order-${OrderNumber}.pdf`, OrderNumber);
@@ -107,7 +111,7 @@ module.exports = {
     },
     buyerInvoiceCODPaid: async (itemsShopping, cart, OrderNumber, storeName, uaeTaxes) => {
         let html = await processData(itemsShopping, cart, OrderNumber, uaeTaxes, false, 'invoice_cod_paid');
-        let pdf_name = `invoice-order-cod-delivered-${OrderNumber}.pdf`;
+        let pdf_name = `order-cod-delivered-${OrderNumber}.pdf`;
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
             MailerService.sendCartPaidBuyerNotifiedCOD(itemsShopping, cart, OrderNumber, storeName, pdf_name, OrderNumber);
@@ -127,10 +131,10 @@ module.exports = {
         var deliveryDate = new Date();
         deliveryDate.setDate(deliveryDate.getDate() + 1);
         // date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-        date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
+        let date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
         let date_name = moment().format('MM-DD-YYYY');
         // date2 = deliveryDate.getFullYear() + '-' + (deliveryDate.getMonth() + 1) + '-' + deliveryDate.getDate();
-        date2 = deliveryDate.getDate() + '/' + (deliveryDate.getMonth() + 1) + '/' + deliveryDate.getFullYear();
+        let date2 = deliveryDate.getDate() + '/' + (deliveryDate.getMonth() + 1) + '/' + deliveryDate.getFullYear();
         let portOfLoading = await sails.helpers.portOfLoadingByCode(itemsShopping[0].fish.processingCountry, itemsShopping[0].fish.city);
         console.log(portOfLoading, "\n\n verver", subTotal, total);
         let paidDateTime = date; //new Date().toISOString();
