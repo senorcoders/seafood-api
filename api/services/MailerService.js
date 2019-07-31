@@ -525,7 +525,7 @@ module.exports = {
                     html: res, // html body
                     attachments: [
                         {
-                            filename: `seafood-invoice-${orderNumber}.pdf`,
+                            filename: pdf_invoice,
                             path: `pdf_invoices/${pdf_invoice}`
                         }
                     ]
@@ -616,7 +616,7 @@ module.exports = {
                     html: res, // html body
                     attachments: [
                         {
-                            filename: `seafood-invoice-${orderNumber}.pdf`,
+                            filename: pdf_invoice,
                             path: `pdf_invoices/${pdf_invoice}`
                         }
                     ]

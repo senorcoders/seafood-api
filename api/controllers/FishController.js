@@ -47,7 +47,7 @@ _.mixin({
 
 
 module.exports = {
-    
+
     getTRW,
 
     addFish: async (req, res) => {
@@ -250,7 +250,7 @@ module.exports = {
 
             let bodyVariationsID = []; //let's save the variation id of the variation in the json // if one is not here we should deleted
             let bodyPricesID = []; // id's of the prices in the json
-            let currentFishVariations = await Variations.find( { fish: body.idProduct } ); // if a variation is not in the request body we should delete them
+            let currentFishVariations = await Variations.find({ fish: body.idProduct }); // if a variation is not in the request body we should delete them
             // let go variations information
             await Promise.all(body.variations.map(async variation => {
                 let variationBody = {
@@ -262,14 +262,14 @@ module.exports = {
                 }
                 let newVariation;
 
-                if (body.hasOwnProperty('kgConversionRate') && body.kgConversionRate !== null ) {
+                if (body.hasOwnProperty('kgConversionRate') && body.kgConversionRate !== null) {
                     variationBody['kgConversionRate'] = body.kgConversionRate;
                 }
 
-                
+
                 if (variation.hasOwnProperty('idVariation')) {
                     // update
-                    bodyVariationsID.push( variation.idVariation );
+                    bodyVariationsID.push(variation.idVariation);
                     newVariation = await Variations.update({ id: variation.idVariation }).set(variationBody).fetch();
                 } else {
                     //create
@@ -301,7 +301,7 @@ module.exports = {
                 }
 
                 // let update pricing information
-                await Promise.all(variation.prices.map(async price => {                    
+                await Promise.all(variation.prices.map(async price => {
                     let priceBody = {
 
                         min: price.min,
@@ -309,7 +309,7 @@ module.exports = {
                         price: price.price
                     }
                     if (price.hasOwnProperty('id')) {
-                        bodyPricesID.push( price.id );
+                        bodyPricesID.push(price.id);
                         // lets update
                         await VariationPrices.update({ id: price.id }).set(priceBody);
                     } else {
@@ -323,35 +323,35 @@ module.exports = {
                         }
                         priceBody['variation'] = idVar;
                         let newVariationPrice = await VariationPrices.create(priceBody).fetch();
-                        bodyPricesID.push( newVariationPrice.id )
+                        bodyPricesID.push(newVariationPrice.id)
                     }
 
                 }))
 
 
-            })) 
+            }))
 
             // deleting variations and prices that are not in the body json
-            await Promise.all( currentFishVariations.map( async dbVariation => {                
-                if ( !bodyVariationsID.includes( dbVariation.id ) && dbVariation.id !== undefined ) {
-                    console.log( 'delete variation ', { bodyVariationsID, idDelete: dbVariation.id } );
-                   await VariationPrices.destroy( { variation: dbVariation.id } );
-                   await Variations.destroy( { id: dbVariation.id } )
+            await Promise.all(currentFishVariations.map(async dbVariation => {
+                if (!bodyVariationsID.includes(dbVariation.id) && dbVariation.id !== undefined) {
+                    console.log('delete variation ', { bodyVariationsID, idDelete: dbVariation.id });
+                    await VariationPrices.destroy({ variation: dbVariation.id });
+                    await Variations.destroy({ id: dbVariation.id })
                 } else {
                     //let's check if we need to delete a price of the existing variations
-                    let variationPrices = await VariationPrices.find( { variation: dbVariation.id } )
-                    await Promise.all( variationPrices.map( async dbPrice => {
-                        if( !bodyPricesID.includes( dbPrice.id ) && dbPrice.id !== undefined ) { //if is not there let's destroy the record
-                        console.log( 'delete price', {bodyPricesID , pricDelete: dbPrice.id } );
-                            await VariationPrices.destroy( { id: dbPrice.id } )
+                    let variationPrices = await VariationPrices.find({ variation: dbVariation.id })
+                    await Promise.all(variationPrices.map(async dbPrice => {
+                        if (!bodyPricesID.includes(dbPrice.id) && dbPrice.id !== undefined) { //if is not there let's destroy the record
+                            console.log('delete price', { bodyPricesID, pricDelete: dbPrice.id });
+                            await VariationPrices.destroy({ id: dbPrice.id })
                         }
-                    } ) )
+                    }))
                 }
-            } ) )
+            }))
 
 
 
-          
+
             res.json(fishUpdated);
 
         } catch (error) {
@@ -436,7 +436,10 @@ module.exports = {
                         }
                         //let fishInformation = await FishType.findOne( { id: fishType } ); // we are getting the unit of measure 
                         let unitOfMeasure = await UnitOfMeasure.findOne({ name: fish.unitOfSale, isActive: true })
-                        kgConversionRate = unitOfMeasure.kgConversionRate;
+                        if (unitOfMeasure && unitOfMeasure.kgConversionRate)
+                            kgConversionRate = unitOfMeasure.kgConversionRate;
+                        else
+                            kgConversionRate = 1;
                     } else {
                         kgConversionRate = variation.kgConversionRate;
                     }
@@ -659,7 +662,7 @@ module.exports = {
             let maxLimit = fish.maximumOrder;;
             await Promise.all(
                 variations.map(async (variation, variationIndex) => {
-                    variations[ variationIndex ][ 'stock' ] = await sails.helpers.getEtaStock( variation.id, fish.minimumOrder ); 
+                    variations[variationIndex]['stock'] = await sails.helpers.getEtaStock(variation.id, fish.minimumOrder);
                     fish['kgConversionRate'] = variation.kgConversionRate;
                     if (variation.parentFishPreparation === null) {
                         if (variation.fishPreparation.parent == "0") {
@@ -786,14 +789,15 @@ module.exports = {
     // getFishWithVariations by weight, price, category, sub category, specie
     filterFishWithVariations: async (req, res) => {
         try {
+            let auth = await sails.helpers.isAuthenticated.with({ req });
             var today = new Date();
             var outOfStockDate = new Date();
             var coomingSoonDate = new Date();
             outOfStockDate.setDate(today.getDate() + 150);
             coomingSoonDate.setDate(today.getDate() + 200);
-            filterByPricesVariations = false;
-            filterByVariations = false;
-            filterByFish = false;
+            let filterByPricesVariations = false;
+            let filterByVariations = false;
+            let filterByFish = false;
             let prices_fishes_ids = [];
             let variations_fishes_ids = [];
             let fishes_ids = [];
@@ -846,17 +850,17 @@ module.exports = {
 
             // start variation filters
             if (req.body.hasOwnProperty('preparation')) {
-                if (req.body.preparation.length > 0) {                    
+                if (req.body.preparation.length > 0) {
                     let filterPrepsIds = [];
-                    await Promise.all( req.body.preparation.map( async parentPrep => {
+                    await Promise.all(req.body.preparation.map(async parentPrep => {
                         // get the child preparation of the current preparation
-                        filterPrepsIds.push( parentPrep )
-                        filterPreparation = await FishPreparation.find( { parent: parentPrep } );
-                        filterPreparation.map( child => {
-                            filterPrepsIds.push( child.id )
-                        } )
+                        filterPrepsIds.push(parentPrep)
+                        filterPreparation = await FishPreparation.find({ parent: parentPrep });
+                        filterPreparation.map(child => {
+                            filterPrepsIds.push(child.id)
+                        })
 
-                    } ) )
+                    }))
 
                     variation_where['fishPreparation'] = filterPrepsIds; //req.body.preparation;
                     console.log('1');
@@ -1028,7 +1032,10 @@ module.exports = {
                 priceVariation.map((pv) => {
                     minMax.push(pv.min);
                     minMax.push(pv.max);
-                    minMaxVariationPrices.push(pv.price);
+                    if (auth === true)
+                        minMaxVariationPrices.push(pv.price);
+                    else
+                        minMaxVariationPrices.push('n/a');
                 })
 
                 // checking if is in kg or lbs
@@ -1081,6 +1088,9 @@ module.exports = {
                     m['minPrice'] = minPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
                     m['maxPrice'] = maxPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
                 }
+                let omits = ['orderStatus','min','max','updatedAt','createdAt','is_domestic','minDeliveryUnixDate','stock']
+                m['minPrice'] = _.numbersToNA(minPrice, omits); 
+                m['maxPrice'] = _.numbersToNA(maxPrice, omits);
 
 
                 let req_minimumOrder = req.body.minimumOrder;
@@ -2262,6 +2272,7 @@ module.exports = {
             res.serverError(error);
         }
     },
+
     reversePrice: async ( req, res ) => {
         try {            
             let response = await sails.helpers.newReversePricing.with({
@@ -2281,24 +2292,24 @@ module.exports = {
             let deliveredPricePerKG = req.body.deliveredPricePerKG;
             let weight = req.body.weight;
             let variationID = req.body.variationID;
-            let variation = await Variations.findOne( { id: variationID } );
+            let variation = await Variations.findOne({ id: variationID });
             let in_AED = false;
-            if ( req.body.hasOwnProperty( 'in_AED' )) {
+            if (req.body.hasOwnProperty('in_AED')) {
                 in_AED = req.body.in_AED;
             }
-           
+
             let response = await sails.helpers.reversePrice.with({
                 variationID: variationID, //"5d399b063c83343385625ce1",
                 deliveredPricePerKG: deliveredPricePerKG, //61.15, //51.38
                 weight: weight, //22.5, //20.4,
-                fishID:  variation.fish, //"5d0e83082e7676632286581f", //"5d1333f53e09010ea4529204",
+                fishID: variation.fish, //"5d0e83082e7676632286581f", //"5d1333f53e09010ea4529204",
                 count: 0,
-                tryingWith: deliveredPricePerKG - ( deliveredPricePerKG / 2 ), //61.15 - (61.15 / 2)
+                tryingWith: deliveredPricePerKG - (deliveredPricePerKG / 2), //61.15 - (61.15 / 2)
                 in_AED: in_AED
             });
-            res.send( response )
+            res.send(response)
         } catch (error) {
-            res.serverError( error )
+            res.serverError(error)
         }
     },
 
