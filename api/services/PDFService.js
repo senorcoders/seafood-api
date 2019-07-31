@@ -104,14 +104,14 @@ module.exports = {
         let pdf_name = getName(OrderNumber, cart);
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
-            MailerService.sendCartPaidBuyerNotified(itemsShopping, cart, OrderNumber, storeName, `invoice-order-${OrderNumber}.pdf`, OrderNumber);
+            MailerService.sendCartPaidBuyerNotified(itemsShopping, cart, OrderNumber, storeName, pdf_name, OrderNumber);
             await ShoppingCart.update({ id: cart.id }, { invoice_pdf: pdf_name });
         });
         return pdf_name;
     },
     buyerInvoiceCODPaid: async (itemsShopping, cart, OrderNumber, storeName, uaeTaxes) => {
         let html = await processData(itemsShopping, cart, OrderNumber, uaeTaxes, false, 'invoice_cod_paid');
-        let pdf_name = `order-cod-delivered-${OrderNumber}.pdf`;
+        let pdf_name = 'invoice-delivered-'+getName(OrderNumber, cart);
         await pdf.create(html).toFile(`./pdf_invoices/${pdf_name}`, async () => {
             console.log('pdf done', pdf_name);
             MailerService.sendCartPaidBuyerNotifiedCOD(itemsShopping, cart, OrderNumber, storeName, pdf_name, OrderNumber);
