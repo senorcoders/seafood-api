@@ -2269,6 +2269,10 @@ module.exports = {
             let weight = req.body.weight;
             let variationID = req.body.variationID;
             let variation = await Variations.findOne( { id: variationID } );
+            let in_AED = false;
+            if ( req.body.hasOwnProperty( 'in_AED' )) {
+                in_AED = req.body.in_AED;
+            }
            
             let response = await sails.helpers.reversePrice.with({
                 variationID: variationID, //"5d399b063c83343385625ce1",
@@ -2276,7 +2280,8 @@ module.exports = {
                 weight: weight, //22.5, //20.4,
                 fishID:  variation.fish, //"5d0e83082e7676632286581f", //"5d1333f53e09010ea4529204",
                 count: 0,
-                tryingWith: deliveredPricePerKG - ( deliveredPricePerKG / 2 )//61.15 - (61.15 / 2)
+                tryingWith: deliveredPricePerKG - ( deliveredPricePerKG / 2 ), //61.15 - (61.15 / 2)
+                in_AED: in_AED
             });
             res.send( response )
         } catch (error) {

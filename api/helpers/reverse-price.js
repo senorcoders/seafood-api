@@ -37,6 +37,10 @@ module.exports = {
     },
     tryingWith: {
       type: "number"
+    },
+    in_AED: {
+      type: 'boolean',
+      required: true
     }
   },
 
@@ -62,15 +66,16 @@ module.exports = {
     
     shipping = await sails.helpers.shippingByCity(fish.city, weight);
     
-    let charges = await sails.helpers.fishPricing(fishID, weight, currentAdminCharges, inputs.variationID, true, inputs.tryingWith, shipping, fish);
+    let charges = await sails.helpers.fishPricing(fishID, weight, currentAdminCharges, inputs.variationID, inputs.in_AED, inputs.tryingWith, shipping, fish);
     
     let deliveryPricePerKGFound = charges.finalPrice / charges.weight;
 
     let diff = Math.abs(inputs.deliveredPricePerKG - deliveryPricePerKGFound );
     console.log( 'diff', { diff: Math.abs(inputs.deliveredPricePerKG - deliveryPricePerKGFound ), try: inputs.tryingWith, count: inputs.count } )
-    if( diff >= 0.019 ) {
-      if ( inputs.count > 300 ) {
-        return exits.success( { "message": "not found" }  );
+    if( diff >= 0.0199 ) {
+      if ( inputs.count > 500 ) {
+        return exits.success( result  );
+        //return exits.success( { "message": "not found" }  );
       }
       let converion =  inputs.tryingWith / 2;
       if ( diff < 1 ) {
@@ -96,7 +101,8 @@ module.exports = {
         weight: inputs.weight, 
         deliveredPricePerKG: inputs.deliveredPricePerKG, 
         count: inputs.count, 
-        tryingWith: inputs.tryingWith        
+        tryingWith: inputs.tryingWith,
+        in_AED: inputs.in_AED
        });
 
        return exits.success( result  );
