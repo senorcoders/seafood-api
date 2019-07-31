@@ -19,7 +19,8 @@ module.exports.policies = {
     getAllPagination: true,
     getDistinctCountry: true,
     getItemCharges: true,
-    getFishWithVariations: true
+    getFishWithVariations: true,
+    filterFishWithVariations: true
     //   customWhere: true,
     //   search: true,
     //   getXMultipleID: true
