@@ -789,14 +789,15 @@ module.exports = {
     // getFishWithVariations by weight, price, category, sub category, specie
     filterFishWithVariations: async (req, res) => {
         try {
+            let auth = await sails.helpers.isAuthenticated.with({ req });
             var today = new Date();
             var outOfStockDate = new Date();
             var coomingSoonDate = new Date();
             outOfStockDate.setDate(today.getDate() + 150);
             coomingSoonDate.setDate(today.getDate() + 200);
-            filterByPricesVariations = false;
-            filterByVariations = false;
-            filterByFish = false;
+            let filterByPricesVariations = false;
+            let filterByVariations = false;
+            let filterByFish = false;
             let prices_fishes_ids = [];
             let variations_fishes_ids = [];
             let fishes_ids = [];
@@ -1031,7 +1032,10 @@ module.exports = {
                 priceVariation.map((pv) => {
                     minMax.push(pv.min);
                     minMax.push(pv.max);
-                    minMaxVariationPrices.push(pv.price);
+                    if (auth === true)
+                        minMaxVariationPrices.push(pv.price);
+                    else
+                        minMaxVariationPrices.push('n/a');
                 })
 
                 // checking if is in kg or lbs
@@ -1084,6 +1088,9 @@ module.exports = {
                     m['minPrice'] = minPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
                     m['maxPrice'] = maxPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
                 }
+                let omits = ['orderStatus','min','max','updatedAt','createdAt','is_domestic','minDeliveryUnixDate','stock']
+                m['minPrice'] = _.numbersToNA(minPrice, omits); 
+                m['maxPrice'] = _.numbersToNA(maxPrice, omits);
 
 
                 let req_minimumOrder = req.body.minimumOrder;
