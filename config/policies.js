@@ -75,7 +75,8 @@ module.exports.policies = {
     '*': true
   },
   FishPreparation: {
-    getFishPreparation: true
+    getFishPreparation: true,
+    getFishPreparationParents: true
   },
   FishTypeController: {
     getParentsWithFishes: true,
