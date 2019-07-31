@@ -107,6 +107,12 @@ module.exports = {
 
        return exits.success( result  );
     } else {
+      let exchangeRates = currentAdminCharges.exchangeRates;
+      if (inputs.in_AED) {
+          exchangeRates = 1;
+      } else {
+        charges.price = Number(parseFloat(charges.price / exchangeRates).toFixed(2));
+      }
       return exits.success( charges );
     }
 
