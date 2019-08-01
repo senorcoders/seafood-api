@@ -1088,9 +1088,11 @@ module.exports = {
                     m['minPrice'] = minPrice; // minPriceVar.min).toFixed(2));//Math.min.apply(null, minMaxVariationPrices);
                     m['maxPrice'] = maxPrice; // maxPriceVar.max).toFixed(2));//Math.max.apply(null, minMaxVariationPrices);
                 }
-                let omits = ['orderStatus','min','max','updatedAt','createdAt','is_domestic','minDeliveryUnixDate','stock']
-                m['minPrice'] = _.numbersToNA(minPrice, omits); 
-                m['maxPrice'] = _.numbersToNA(maxPrice, omits);
+                if (auth === false) {
+                    let omits = ['orderStatus', 'min', 'max', 'updatedAt', 'createdAt', 'is_domestic', 'minDeliveryUnixDate', 'stock']
+                    m['minPrice'] = _.numbersToNA(minPrice, omits);
+                    m['maxPrice'] = _.numbersToNA(maxPrice, omits);
+                }
 
 
                 let req_minimumOrder = req.body.minimumOrder;
@@ -2273,20 +2275,20 @@ module.exports = {
         }
     },
 
-    reverseNEwPrice: async ( req, res ) => {
-        try {            
+    reverseNEwPrice: async (req, res) => {
+        try {
             let response = await sails.helpers.newReversePricing.with({
                 deliveredPricePerKG: req.body.deliveredPricePerKG,
                 weight: req.body.weight,
                 variationID: req.body.variationID,
                 in_AED: req.body.in_AED
             });
-            res.send( response );
+            res.send(response);
         } catch (error) {
-            res.serverError( error )
+            res.serverError(error)
         }
     },
-    reversePrice: async ( req, res ) => {
+    reversePrice: async (req, res) => {
         try {
             req.setTimeout(180000); // 3 minutes timeout | default is 2 minutes
             let deliveredPricePerKG = req.body.deliveredPricePerKG;
