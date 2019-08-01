@@ -248,7 +248,7 @@ module.exports = {
           inventoryFee = pickupLogistic / stock.available; // H = Y / S
           inventoryFeeByWeight = inventoryFee * weight; // I = H * weight
         }
-        let uaeTaxesFee = Number(parseFloat((fishCost + lastMileCost + sfsMarginCost + inventoryFeeByWeight) * (currentAdminCharges.uaeTaxes / 100)).toFixed(2)); //F = (A+C+D+E) Tax // MREC  adding inventory fee taxable inventoryFeeByWeight
+        let uaeTaxesFee = Number(parseFloat((fishCost + lastMileCost + sfsMarginCost + inventoryFeeByWeight) * (currentAdminCharges.uaeTaxes / 100)).toFixed(2)); //F = (A+C+D+E) Tax // MREC  adding inventory fee taxable inventoryFeeByWeight        
         // ask about this because is local
         let exchangeRateCommission = Number(parseFloat((fishCost) * (currentAdminCharges.exchangeRateCommission / 100)).toFixed(2));
 
@@ -290,7 +290,8 @@ module.exports = {
           fixedHanlingFees,
           pickupLogistic,
           partnerFreightCost,
-          is_domestic
+          is_domestic,
+          uaeTaxesInfo
         }
       } else {  // international products
         // inventory fee

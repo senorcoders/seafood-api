@@ -73,7 +73,7 @@ module.exports = {
     let diff = Math.abs(inputs.deliveredPricePerKG - deliveryPricePerKGFound );
     console.log( 'diff', { diff: Math.abs(inputs.deliveredPricePerKG - deliveryPricePerKGFound ), try: inputs.tryingWith, count: inputs.count } )
     if( diff >= 0.0199 ) {
-      if ( inputs.count > 500 ) {
+      if ( inputs.count > 3000 ) {
         return exits.success( result  );
         //return exits.success( { "message": "not found" }  );
       }

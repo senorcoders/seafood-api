@@ -2273,7 +2273,7 @@ module.exports = {
         }
     },
 
-    reversePrice: async ( req, res ) => {
+    reverseNEwPrice: async ( req, res ) => {
         try {            
             let response = await sails.helpers.newReversePricing.with({
                 deliveredPricePerKG: req.body.deliveredPricePerKG,
@@ -2286,9 +2286,9 @@ module.exports = {
             res.serverError( error )
         }
     },
-    reverseOldPrice: async ( req, res ) => {
+    reversePrice: async ( req, res ) => {
         try {
-            req.setTimeout(30000); // 30 seconds timeout | default is 2 minutes
+            req.setTimeout(180000); // 3 minutes timeout | default is 2 minutes
             let deliveredPricePerKG = req.body.deliveredPricePerKG;
             let weight = req.body.weight;
             let variationID = req.body.variationID;

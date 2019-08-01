@@ -45,8 +45,10 @@ module.exports = {
     let fish = await Fish.findOne({ where: { id: variation.fish } }).populate('type').populate('store').populate('descriptor');    
     let owner = await User.findOne({ id: fish.store.owner });
     let sfsMargin = 5;
+    let is_flat_custom = false;
     let is_domestic = false; // TODO: we had to change this because the name in the database is foreign fish and should be is_domestic
 
+    
     if ( fish.hasOwnProperty( 'foreign_fish' ) )
       is_domestic = fish.foreign_fish; // verificamos si el fish es local
 
@@ -67,8 +69,12 @@ module.exports = {
     if (is_domestic && is_domestic === true) {
       currentAdminCharges.selectedCustoms = 0;
     }
+    /*let customsFee = currentAdminCharges.selectedCustoms; //E= Customs rate * A  //Customs in the UAE are 5% on the Seller’s invoice (The seller’s Sale excluding additional Costs
+    if (!is_flat_custom) { // if is not flat custom then we use the percentaje;
+      customsFee = Number(parseFloat((currentAdminCharges.selectedCustoms / 100) * fishCost).toFixed(2));
+    }*/
     
-    // todo shipping
+    
 
     let inventory = await sails.helpers.getEtaStock( inputs.variationID, weight ); // S | here we have the stock record plus available field = quantity - purchased
       if( inventory == 0 ) { // is out of stock
@@ -77,18 +83,23 @@ module.exports = {
         return exits.success( { price: 0 } );
       } else {
         inventory = inventory.available ;
+        // todo shipping
+        let shippingFees = await sails.helpers.shippingFee(fish, weight, currentAdminCharges); //B
+        shippingCost = shippingFees.shippingCost / inventory;
+        //deliveredPricePerKG = deliveredPricePerKG  + shippingCost;
+
         let quantityOrdered = weight;
-        let fixedCustoms = currentAdminCharges.flatCustoms / inventory;
-        let lastMileCost = currentAdminCharges.lastMileCost / quantityOrdered;
-        let pickUpCost = currentAdminCharges.lastMileCost / inventory;
-        let fixedHanlingFees = currentAdminCharges.flatHandlingFees / inventory
-        let handlingFees = currentAdminCharges.handlingFees;
-        let partnerFreightCost = currentAdminCharges.partnerFreightCosts / inventory;
-        let uaeTaxes = ( currentAdminCharges.uaeTaxes / 100 ) * deliveredPricePerKG
-        let totalCost = fixedCustoms + lastMileCost + pickUpCost + fixedHanlingFees + handlingFees + partnerFreightCost + uaeTaxes;
-        let sellerPriceWithSFSMargin = deliveredPricePerKG - totalCost
-        let sfsMarginCost = sellerPriceWithSFSMargin * ( 5 / 100 );
-        let price = sellerPriceWithSFSMargin - sfsMarginCost
+        let fixedCustoms = Number(parseFloat(( currentAdminCharges.flatCustoms / inventory)).toFixed(2));
+        let lastMileCost = Number(parseFloat(( currentAdminCharges.lastMileCost / quantityOrdered)).toFixed(2));
+        let pickUpCost = Number(parseFloat(( currentAdminCharges.lastMileCost / inventory)).toFixed(2));
+        let fixedHanlingFees = Number(parseFloat(( currentAdminCharges.flatHandlingFees / inventory)).toFixed(2))
+        let handlingFees = Number(parseFloat(( currentAdminCharges.handlingFees)).toFixed(2));
+        let partnerFreightCost = Number(parseFloat(( currentAdminCharges.partnerFreightCosts / inventory)).toFixed(2));
+        let uaeTaxes = Number(parseFloat(( ( currentAdminCharges.uaeTaxes / 100 ) * deliveredPricePerKG)).toFixed(2))
+        let totalCost = Number(parseFloat(( fixedCustoms + lastMileCost + pickUpCost + fixedHanlingFees + handlingFees + partnerFreightCost + uaeTaxes)).toFixed(2));
+        let sellerPriceWithSFSMargin = Number(parseFloat(( deliveredPricePerKG - totalCost)).toFixed(2))
+        let sfsMarginCost = Number(parseFloat(( sellerPriceWithSFSMargin * ( 5 / 100 ))).toFixed(2));
+        let price = Number(parseFloat(( sellerPriceWithSFSMargin - sfsMarginCost + shippingCost )).toFixed(2))
 
         let exchangeRates = currentAdminCharges.exchangeRates;
           if (inputs.in_AED) {
@@ -97,6 +108,7 @@ module.exports = {
             price = Number(parseFloat(price / exchangeRates).toFixed(2));
           }
         let charges = {
+          price,
           inventory,
           quantityOrdered,
           fixedCustoms,
@@ -109,7 +121,8 @@ module.exports = {
           totalCost,
           sellerPriceWithSFSMargin,
           sfsMarginCost,
-          price,
+          shippingFees,
+          shippingCost,
           currentAdminCharges
         }
         return exits.success( charges );
