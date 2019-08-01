@@ -290,8 +290,7 @@ module.exports = {
           fixedHanlingFees,
           pickupLogistic,
           partnerFreightCost,
-          is_domestic,
-          uaeTaxesInfo
+          is_domestic
         }
       } else {  // international products
         // inventory fee
