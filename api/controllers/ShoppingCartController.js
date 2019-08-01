@@ -904,9 +904,11 @@ module.exports = {
             let skip = (Number(req.param("page")) - 1) * limit;
             // let totalResults = await OrderStatus.count({ id: ids });
 
-            let query = { $and: [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }, { isCOD: false }] };
+            let query = { $and: [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }] };
             if (req.param("type") && req.param("type") === "cod") {
                 query = { $and: [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }, { isCOD: true }] };
+            }else if (req.param("type") && req.param("type") !== "all") {
+                query = { $and: [{ orderNumber: { $ne: null } }, { orderNumber: { $ne: 0 } }, { isCOD: false }] };
             }
 
             let totalResults = await _shopping.count(query, { _id: 1, orderNumber: 1 })
