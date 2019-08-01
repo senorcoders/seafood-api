@@ -197,6 +197,11 @@ module.exports = {
                 await MailerService.newProductAddedSellerNotified(mainFish, store.owner);
                 await MailerService.newProductAddedAdminNotified(mainFish, store.owner);
             }
+            // let's update fish stock status
+            await sails.helpers.updateFishStatus.with({
+                id: mainFish.id,
+                is_cron: false
+            });
             res.json(mainFish);
 
         } catch (error) {
@@ -349,7 +354,11 @@ module.exports = {
                 }
             }))
 
-
+            // let's update fish stock status
+            await sails.helpers.updateFishStatus.with({
+                id: body.idProduct,
+                is_cron: false
+            });
 
 
             res.json(fishUpdated);

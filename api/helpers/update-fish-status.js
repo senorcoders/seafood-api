@@ -82,7 +82,7 @@ module.exports = {
        
       } ) )
       //currentMinDate = Math.floor(currentMinDate.getTime() / 1000;
-      if ( fish.coomingSoon === true ) {
+      if ( fish.cooming_soon === true ) {
         await Fish.update( { id: fish.id }, { minDeliveryUnixDate: coomingSoonDate.getTime() / 1000 , stockStatus: 'comingSoon', orderStatus: 3 })
       } else if( is_inStock ) {
         await Fish.update( { id: fish.id }, { minDeliveryUnixDate: currentMinDate.getTime() / 1000, stockStatus: 'inStock', orderStatus: 1 })
