@@ -81,7 +81,8 @@ module.exports.policies = {
   },
   FishTypeController: {
     getParentsWithFishes: true,
-    getParentLevel: true
+    getParentLevel: true,
+    getAllChildsByLevel: true
   },
   // 'raised/get': true,
   // 'treatment/get': true,
