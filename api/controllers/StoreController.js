@@ -109,8 +109,9 @@ module.exports = {
             let id = req.param("id");
             console.log(id);
             let store = await Store.findOne({ id });
+            // status: { '!=': '5c45f73f1d75b800924b4c39' }
             store.fishs = await Fish.find({ store: store.id, status: ['5c0866e4a0eda00b94acbdc0', '5c0866f2a0eda00b94acbdc1', '5c0866f9a0eda00b94acbdc2', '5c3fc078970dc99bb06bed69'] }).populate("type").populate("status")
-
+            console.log('filter', store.fishs.filter(it => it.id === '5c45f73f1d75b800924b4c39'));
             //fish['variations'] = [];
             await Promise.all(store.fishs.map(async (fish) => {
                 let variations = await Variations.find({ fish: fish.id }).populate('fishPreparation').populate('wholeFishWeight').populate('parentFishPreparation');
