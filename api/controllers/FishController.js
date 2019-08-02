@@ -1007,6 +1007,10 @@ module.exports = {
                 fish_where['type'] = categoryChilds;
             }
             fish_where['status'] = '5c0866f9a0eda00b94acbdc2'; // just published products please
+            
+            if(req.param('store')){
+                fish_where.store = req.param('store');
+            }
             // end fish filters
             console.log('fish_where', fish_where);
             let fishes = await Fish.find(fish_where).sort([{ orderStatus: 'ASC' }, { minDeliveryUnixDate: 'ASC' }]);
