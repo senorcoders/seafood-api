@@ -1593,46 +1593,9 @@ module.exports = {
 
             // if (hasRecords.length > 0) {
             // we can't deleted from the database so we are going to update the status of the fish
-            let updatedFish = await Fish.update({ id: id }, { status: '5c45f73f1d75b800924b4c39' });
-            res.status(200).json(updatedFish);
-            // } else {
-            //     let namefile, dirname;
-            //     if (fish.hasOwnProperty("imagePrimary") && fish.imagePrimary !== "" && fish.imagePrimary !== null) {
-            //         namefile = fish.imagePrimary.split("/");
-            //         namefile = namefile[namefile.length - 2];
-            //         console.log(IMAGES, fish.id, namefile);
-            //         dirname = path.join(IMAGES, "primary", fish.id, namefile);
-            //         console.log(dirname);
-            //         if (fs.existsSync(dirname)) {
-            //             console.log("exits primary");
-            //             fs.unlinkSync(dirname);
-            //             //dirname = path.join(IMAGES, "primary", fish.id);
-            //             //fs.unlinkSync(dirname);
-            //         }
-            //     }
-
-            //     if (fish.hasOwnProperty("images") && fish.iamges !== null && Object.prototype.toString.call(fish.images) === "[object Array]") {
-            //         for (let file of fish.images) {
-
-            //             namefile = file.filename;
-            //             dirname = path.join(IMAGES, fish.id, namefile);
-            //             console.log(dirname);
-            //             if (fs.existsSync(dirname)) {
-            //                 console.log("exists");
-            //                 fs.unlinkSync(dirname);
-            //             }
-            //         }
-
-            //dirname = path.join(IMAGES, fish.id);
-            //if (fs.existsSync(dirname)) {
-            //    console.log("exists");
-            //    fs.unlinkSync(dirname);
-            //}
-            // }
-
-            // await Fish.destroy({ id });
+            await Fish.update({ id: id }, { status: '5c45f73f1d75b800924b4c39' });
+            // res.status(200).json(updatedFish);
             res.json(fish);
-            // }
 
 
         }
