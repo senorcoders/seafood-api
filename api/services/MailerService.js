@@ -5,7 +5,7 @@ console.log('custom', sails.config.custom.adminEmails);
 const APP_NAME = sails.config.APP_NAME;
 const config = sails.config.mailer;
 const sender = config.auth.user;
-const emailSender = 'Seafoodsouq <do-not-reply@seafoodsouq.com>';
+const emailSender = 'Marketplace <do-not-reply@senorcoders.com>';
 
 //El url base del api, segun su enviroment
 const URL = sails.config.custom.baseUrl,
@@ -14,8 +14,8 @@ const URL = sails.config.custom.baseUrl,
 //El json default que se usa en los correos como emails y logos
 const DEFAULT = {
     logoSrc,
-    emailSeller: "sellers@seafoodsouq.com",
-    emailInfo: 'info@seafoodsouq.com',
+    emailSeller: "sellers@senorcoders.com",
+    emailInfo: 'info@senorcoders.com',
     FAQLink: `${webappUrl}`,
     url: URL,
     webappUrl,
