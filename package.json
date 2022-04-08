@@ -19,7 +19,7 @@
     "html-pdf": "^2.2.0",
     "jsonwebtoken": "^8.2.2",
     "mmmagic": "^0.5.0",
-    "moment": "^2.22.2",
+    "moment": "^2.29.2",
     "nodemailer": "^4.6.5",
     "nodemailer-plugin-inline-base64": "^2.1.1",
     "randomatic": "^3.0.0",
