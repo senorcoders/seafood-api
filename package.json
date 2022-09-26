@@ -27,7 +27,7 @@
     "rimraf": "^2.6.2",
     "sails": "^1.0.1",
     "sails-hook-apianalytics": "^2.0.0",
-    "sails-hook-organics": "^0.13.0",
+    "sails-hook-organics": "^2.2.1",
     "sails-hook-orm": "^2.0.0-16",
     "sails-hook-sockets": "^1.4.0",
     "sails-hook-swagger-generator": "^2.7.1",
